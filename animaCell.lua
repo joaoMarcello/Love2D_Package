@@ -25,7 +25,9 @@ local ANIMA_STATES = {
 ---
 --- Animation class constructor.
 ---
---- @param param {img: love.Image, frames: number, frame_size: table, speed: number, angle: number, color: table, scale: table, origin: table, pos_in_texture: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, kx: number, ky: number} # A table containing the following fields:
+--- @overload fun(self: table, param: {file_path: string, frames: number, frame_size: table, speed: number, rotation: number, color: table, scale: table, origin: table, pos_in_texture: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, kx: number, ky: number})
+---
+--- @param param {img: love.Image, frames: number, frame_size: table, speed: number, rotation: number, color: table, scale: table, origin: table, pos_in_texture: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, kx: number, ky: number} # A table containing the following fields:
 -- * img (Required): The source image for animation (could be a Love.Image or a string containing the file path). All the frames in the source image should be in the horizontal.
 -- * frames: The amount of frames in the animation.
 -- * frame_size: A table with the animation's frame size. Should contain the index x (width) and y (height).
@@ -44,9 +46,10 @@ function Anima:new(param)
     return animation
 end
 
---- Configure the animation fields.
 ---
---- @param param {img: love.Image,frames: number, frame_size: table, speed: number, angle: number, color: table, scale: table, origin: table, pos_in_texture: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, stop_at_the_end: boolean, max_rows: number, state: string, bottom: number, grid: table, kx: number, ky: number}  # A table containing the follow fields:
+--- Internal method for constructor.
+---
+--- @param param {img: love.Image,frames: number, frame_size: table, speed: number, rotation: number, color: table, scale: table, origin: table, pos_in_texture: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, stop_at_the_end: boolean, max_rows: number, state: string, bottom: number, grid: table, kx: number, ky: number}  # A table containing the follow fields:
 ---
 function Anima:__constructor__(param)
 
@@ -60,10 +63,9 @@ function Anima:__constructor__(param)
     self.__is_visible = true
     self.__is_enabled = true
     self.__initial_direction = nil
-    self.__current_state = ANIMA_STATES.repeating
     self.__direction = (param.is_reversed and -1) or 1
     self.__color = param.color or { 1, 1, 1, 1 }
-    self.__angle = param.angle or 0.
+    self.__rotation = param.rotation or 0.
     self.__speed = param.speed or 0.3
     self.__current_frame = (self.__direction < 0 and self.__amount_frames) or 1
     self.__stop_at_the_end = param.stop_at_the_end or false
@@ -232,7 +234,7 @@ function Anima:__push()
     self.__last_config.scale = { x = self.__scale.x, y = self.__scale.y }
     self.__last_config.color = self.__color
     self.__last_config.direction = self.__direction
-    self.__last_config.angle = self.__angle
+    self.__last_config.angle = self.__rotation
     self.__last_config.speed = self.__speed
     self.__last_config.flip = { x = self.__flip.x, y = self.__flip.y }
     self.__last_config.kx = self.__kx
@@ -258,7 +260,7 @@ function Anima:__pop()
         self.__last_config.color[3], self.__last_config.color[4] or 1
     }
     self.__direction = self.__last_config.direction
-    self.__angle = self.__last_config.angle
+    self.__rotation = self.__last_config.angle
     self.__speed = self.__last_config.speed
 
     self.__flip = {
@@ -448,7 +450,7 @@ function Anima:draw_with_no_effects(x, y)
 
     love.graphics.draw(self.__img, self.__quad,
         math.floor(x), math.floor(y),
-        self.__angle, self.__scale.x * self.__flip.x,
+        self.__rotation, self.__scale.x * self.__flip.x,
         self.__scale.y * self.__flip.y,
         self.__origin.x, self.__origin.y,
         self.__kx,
