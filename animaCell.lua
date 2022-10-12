@@ -39,69 +39,46 @@ function Anima:new(param)
     setmetatable(animation, self)
     self.__index = self
 
-    animation:set_img(param.img)
-    animation.__amount_frames = param.frames or 1
-    animation.__frame_time = 0.
-    animation.__update_time = 0.
-    animation.__stopped_time = 0.
-    animation.__row_count = 0
-    animation.__is_visible = true
-    animation.__is_enabled = true
-    animation.__initial_direction = nil
-    animation.__current_state = ANIMA_STATES.repeating
-    animation.__direction = (param.is_reversed and -1) or 1
-    animation.__color = param.color or { 1, 1, 1, 1 }
-    animation.__angle = param.angle or 0.
-    animation.__speed = param.speed or 0.05
-
-    animation.__grid = { x = animation.__amount_frames, y = 1 }
-
-    animation.__kx = param.kx or 0
-    animation.__ky = param.ky or 0
-
-    -- animation:set_frame_size(param.frame_size)
-
-    -- animation:set_origin(param.origin)
-
-    -- animation:set_flip({ x = param.flip_x, y = param.flip_y })
-
-    -- animation:set_pos_in_texture(param.pos_in_texture)
-
-    -- animation:set_scale(param.scale)
-
-    animation:config(param)
+    Anima.__constructor__(animation, param)
 
     return animation
 end
 
 --- Configure the animation fields.
 ---
---- @param param {frames: number, frame_size: table, speed: number, angle: number, color: table, scale: table, origin: table, pos_in_texture: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, stop_at_the_end: boolean, max_rows: number, state: string, bottom: number, grid: table, kx: number, ky: number}  # A table containing the follow fields:
-function Anima:config(param)
-    if not param then return end
+--- @param param {img: love.Image,frames: number, frame_size: table, speed: number, angle: number, color: table, scale: table, origin: table, pos_in_texture: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, stop_at_the_end: boolean, max_rows: number, state: string, bottom: number, grid: table, kx: number, ky: number}  # A table containing the follow fields:
+---
+function Anima:__constructor__(param)
 
-    self.__amount_frames = param.frames or self.__amount_frames
+    self:set_img(param.img)
+
+    self.__amount_frames = param.frames or 1
+    self.__frame_time = 0.
+    self.__update_time = 0.
+    self.__stopped_time = 0.
+    self.__row_count = 0
+    self.__is_visible = true
+    self.__is_enabled = true
+    self.__initial_direction = nil
+    self.__current_state = ANIMA_STATES.repeating
+    self.__direction = (param.is_reversed and -1) or 1
+    self.__color = param.color or { 1, 1, 1, 1 }
+    self.__angle = param.angle or 0.
+    self.__speed = param.speed or 0.3
+    self.__current_frame = (self.__direction < 0 and self.__amount_frames) or 1
+    self.__stop_at_the_end = param.stop_at_the_end or false
+    self.__max_rows = param.max_rows or nil
 
     self:set_frame_size(param.frame_size)
 
-    self.__direction = (param.is_reversed and -1) or self.__direction
-    self.__current_frame = (self.__direction < 0 and self.__amount_frames) or 1
-    self.__stop_at_the_end = param.stop_at_the_end or self.__stop_at_the_end
-    self.__max_rows = param.max_rows or self.__max_rows
+    self.__bottom = param.bottom or self.__frame_size.y
 
     self:set_state(param.state)
 
-    self.__color = param.color or self.__color
-    self.__angle = param.angle or self.__angle
-    self.__speed = param.speed or self.__speed
-    self.__bottom = param.bottom or self.__frame_size.y
-
-    if param.grid then
-        self.__grid = {
-            x = param.grid.x or self.__grid.x,
-            y = param.grid.y or self.__grid.y
-        }
-    end
+    self.__grid = {
+        x = param.grid and param.grid.x or self.__amount_frames,
+        y = param.grid and param.grid.y or 1
+    }
 
     self:set_flip({ x = param.flip_x, y = param.flip_y })
 
@@ -111,6 +88,8 @@ function Anima:config(param)
 
     self:set_scale(param.scale)
 
+    self.__effects_list = {}
+
     if param.frame_size or not self.__quad then
         self.__quad = love.graphics.newQuad(0, 0,
             self.__frame_size.x,
@@ -118,8 +97,6 @@ function Anima:config(param)
             self.__img:getDimensions()
         )
     end
-
-    collectgarbage("collect")
 end
 
 ---
