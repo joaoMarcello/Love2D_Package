@@ -11,18 +11,15 @@ local ANIMA_STATES = {
     random = 3
 }
 
--- - @param param.img integer # The source image for animation (could be a image object or a string containing the path to the image). All the frames should be in the source image in the horizontal.
---     frames: The amount of frames in the animation.
---     frame_size: A table with the animation's frame size. Should contain the index x (width) and y (height).
---     speed: time in seconds to change to another frame.
---     pos_in_texture: Optional table parameter to indicate where the animation is localized in the image. Useful when there is a lot of animation in one single image (default value is {x=0, y=0}).
-
 ---
 --- Animation class constructor.
----
---- @param param table # A table containg the following index.
---- @param param.img love.image # (Required) The source image for animation (could be a image object or a string containing the path to the image). All the frames in the source image should be in the horizontal.
---- @return table # A instance of Anima class.
+--- @param param? {img: love.Image, frames: number, angle: number} # A table containing the following fields:
+-- * img: (Required) The source image for animation (could be a image object or a string containing the path to the image). All the frames in the source image should be in the horizontal.
+-- * frames: The amount of frames in the animation.
+-- * frame_size: A table with the animation's frame size. Should contain the index x (width) and y (height).
+-- * speed: Time in seconds to update frame.
+-- * pos_in_texture: Optional table parameter to indicate where the animation is localized in the image. Useful when there is a lot of animation in one single image (default value is {x=0, y=0}).
+--- @return table animation # A instance of Anima class.
 function Anima:new(param)
     local animation = {}
     setmetatable(animation, self)
