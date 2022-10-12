@@ -1,6 +1,6 @@
 function love.load()
     Anima = require "animaCell3"
-
+    
     TestAnima = Anima:new({
         img = "/data/goomba.png",
         frames = 9,

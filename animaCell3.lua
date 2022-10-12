@@ -1,4 +1,4 @@
---[[ Lua library for do animation in Love2D.
+--[[ Lua library for animation in Love2D.
 
     @author Joao Moreira, 2022.
 ]]
@@ -12,8 +12,8 @@ local ANIMA_STATES = {
 }
 
 ---
---- Animation class constructor.
---- @param param? {img: love.Image, frames: number, angle: number} # A table containing the following fields:
+--- Anima class constructor.
+--- @param param? {img: love.Image, frames: number, frame_size: table, speed: number, angle: number, color: table, scale: table, origin: table, pos_in_texture: table, flip_x: number, flip_y: number, is_reversed: boolean} # A table containing the following fields:
 -- * img: (Required) The source image for animation (could be a image object or a string containing the path to the image). All the frames in the source image should be in the horizontal.
 -- * frames: The amount of frames in the animation.
 -- * frame_size: A table with the animation's frame size. Should contain the index x (width) and y (height).
@@ -21,6 +21,8 @@ local ANIMA_STATES = {
 -- * pos_in_texture: Optional table parameter to indicate where the animation is localized in the image. Useful when there is a lot of animation in one single image (default value is {x=0, y=0}).
 --- @return table animation # A instance of Anima class.
 function Anima:new(param)
+    if not param then return {} end
+
     local animation = {}
     setmetatable(animation, self)
     self.__index = self
@@ -56,7 +58,7 @@ function Anima:new(param)
     }
 
     animation.__origin = {
-        x = param.origin and param.origin.x or animation.__frame_size.x / 2,
+        x = (param.origin and param.origin.x) or animation.__frame_size.x / 2,
         y = (param.origin and param.origin.y) or animation.__frame_size.y / 2
     }
 
@@ -152,6 +154,9 @@ function Anima:config(param)
     collectgarbage("collect")
 end
 
+---
+--- Reset animation field to his default values.
+---
 function Anima:reset()
     self.__update_time = 0.
     self.__frame_time = 0.
@@ -168,7 +173,7 @@ end
 
 ---
 -- Execute the animation logic.
----@param dt number # the delta time.
+---@param dt number # The delta time.
 function Anima:update(dt)
     self.__update_time = (self.__update_time + dt) % 500000.
     if not self.__is_enabled then return end
@@ -276,6 +281,12 @@ function Anima:update(dt)
 
 end -- END update function
 
+---
+--- Draw the animation using a rectangle.
+---@param x number # Rectangle position (x-axis).
+---@param y number # Rectangle position (y-axis).
+---@param w number # Rectangle Width.
+---@param h number # Rectangle Height.
 function Anima:draw_rec(x, y, w, h)
     x = x + w / 2.0
     y = y + h
@@ -292,17 +303,9 @@ end
 ---
 --- Draw the animation.
 ---
----@param x number # The top-left position to draw in the x-axis.
----@param y number # The top-left position to draw in the y-axis.
+---@param x number # The position to draw (x-axis).
+---@param y number # The top-left position (y-axis).
 function Anima:draw(x, y)
-    -- self.__quad:setViewport(
-    --     self.__pos_in_texture.x
-    --     + self.__frame_size.x
-    --     * ((self.__current_frame - 1) % self.__grid.x),
-    --     self.__pos_in_texture.y + self.__frame_size.y * math.floor((self.__current_frame - 1) / self.__grid.y),
-    --     self.__frame_size.x,
-    --     self.__frame_size.y
-    -- )
 
     self.__quad:setViewport(self.__pos_in_texture.x + self.__frame_size.x * ((self.__current_frame - 1) % self.__grid.x)
         ,
@@ -335,7 +338,7 @@ end
 ---
 --- Tells if animation should stop in the last frame.
 ---
----@return boolean
+---@return boolean result
 function Anima:__is_stopping_in_the_end()
     return self.__stop_at_the_end
 end
@@ -349,7 +352,7 @@ function Anima:__is_random()
 end
 
 --- Tells if the animation is normal mode.
----@return boolean
+---@return boolean result
 function Anima:__is_in_normal_direction()
     return self.__direction > 0
 end
