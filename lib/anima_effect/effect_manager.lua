@@ -1,4 +1,4 @@
-local Flash = require "flash_effect"
+local Flash = require "/lib/anima_effect/flash_effect"
 
 ---@class EffectManager
 --- Manages a list of Effect.
@@ -129,7 +129,7 @@ end
 ---|"pop"
 
 ---Applies effect in a animation.
----@overload fun(self: EffectManager, effect_type: Effect): Effect
+---@overload fun(self: EffectManager, effect_type: EffectName): Effect
 ---@param animation Anima # The animation object to apply the effect.
 ---@param effect_type string # The type of the effect.
 ---@param effect_args any|nil # The parameters need for that especific effect.
@@ -138,8 +138,9 @@ function EffectManager:apply_effect(animation, effect_type, effect_args)
     if not self.__effects_list then self.__effects_list = {} end
 
     local eff
+
     if effect_type == "flash" then
-        -- eff = Flash:new(animation, effect_args)
+        eff = Flash:new(animation, effect_args)
     end
 
     if eff then

@@ -13,6 +13,7 @@ Test_anima = Anima:new({
     frame_size = { x = 122, y = 104 }
 })
 
+Test_anima.__effect_manager:apply_effect(Test_anima, "flash", nil)
 -- Test_anima.__effect_manager:apply_effect("flash")
 
 Test_anima2 = Anima:new({

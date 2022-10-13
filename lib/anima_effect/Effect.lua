@@ -3,8 +3,6 @@
 ---@field __id Effect_ID
 local Effect = {}
 
-
-
 ---
 --- The animation effects.
 ---

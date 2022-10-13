@@ -1,4 +1,4 @@
-local Effect = require "Effect"
+local Effect = require "/lib/anima_effect/Effect"
 
 ---
 ---@class Flash: Effect
@@ -28,10 +28,10 @@ end
 ---@param args {range: number, alpha: number, speed: number, color: table}
 function Flash:__constructor__(args)
     self.__id = Effect.TYPE.flash
-    self.__range = args.range or 0.5
-    self.__alpha = args.alpha or 1
-    self.__speed = args.speed or 1
-    self.__color = args.color or { 1, 1, 1, 1 }
+    self.__range = args and args.range or 0.5
+    self.__alpha = args and args.alpha or 1
+    self.__speed = args and args.speed or 1
+    self.__color = args and args.color or { 1, 1, 1, 1 }
 end
 
 --- Update flash.
@@ -56,26 +56,30 @@ end
 ---@param x number
 ---@param y number
 function Flash:draw(x, y)
-    if self.__alpha and self:__color_is_white() then
-        love.graphics.setBlendMode("add", "alphamultiply")
+    if self.__alpha and self:__color_is_white() or true then
+        love.graphics.setBlendMode("add", "premultiplied")
 
         self.__anima:set_color({
             self.__color[1],
             self.__color[2],
             self.__color[3],
-            self.__alpha * (self.__anima:get_color()[4] or 1)
+            self.__alpha * (self.__anima:get_color()[4] or 1.)
         })
 
         self.__anima:__draw_with_no_effects(x, y)
         self.__anima:set_color(self.__config.__color)
-
         love.graphics.setBlendMode('alpha')
     else
+        love.graphics.setBlendMode("add", "premultiplied")
+
         self.__anima:set_color(self.__color)
         self.__anima:set_color({ a = self.__alpha })
         self.__anima:__draw_with_no_effects(x, y)
         self.__anima:set_color(self.__config.__color)
+
+        love.graphics.setBlendMode('alpha')
     end
+
 end
 
 return Flash

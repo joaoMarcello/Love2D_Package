@@ -11,7 +11,7 @@
     @author Joao Moreira, 2022.
 ]]
 
-local EffectManager = require "lib/anima_effect/effect_manager"
+local EffectManager = require "/lib/anima_effect/effect_manager"
 
 --
 --- @class Anima
@@ -101,7 +101,7 @@ function Anima:__constructor__(param)
         )
     end
 
-    -- self.__effect_manager = EffectManager:new()
+    self.__effect_manager = EffectManager:new()
 end
 
 ---
@@ -200,6 +200,8 @@ end
 ---@overload fun(self: Anima, value: {[1]: number, [2]: number, [3]: number, [4]: number})
 ---@param value {r: number, g: number, b: number, a: number}
 function Anima:set_color(value)
+    if not value then return end
+
     if value.r or value.g or value.b or value.a then
         self.__color = {
             value.r or self.__color[1],
@@ -328,7 +330,7 @@ function Anima:update(dt)
     end
 
     -- updating the Effects
-    -- self.__effect_manager:update(dt)
+    self.__effect_manager:update(dt)
 
     if self.__stopped or
         (self.__max_rows and self.__row_count >= self.__max_rows) then
@@ -441,7 +443,7 @@ function Anima:draw(x, y)
 
     love.graphics.pop()
 
-    -- self.__effect_manager:draw(x, y)
+    self.__effect_manager:draw(x, y)
 end
 
 ---
