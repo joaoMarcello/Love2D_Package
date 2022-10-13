@@ -1,4 +1,4 @@
-local Effect = require "/lib/anima_effect/Effect"
+local Effect = require "/scripts/anima_effect/Effect"
 
 ---
 ---@class Flash: Effect

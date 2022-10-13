@@ -1,5 +1,5 @@
-local Flash = require "/lib/anima_effect/flash_effect"
-local Flick = require "/lib/anima_effect/flick_effect"
+local Flash = require "/scripts/anima_effect/flash_effect"
+local Flick = require "/scripts/anima_effect/flick_effect"
 
 ---@class EffectManager
 --- Manages a list of Effect.

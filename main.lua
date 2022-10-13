@@ -1,4 +1,4 @@
-local Anima = require "animaCell"
+local Anima = require "AnimaJM"
 
 Test_anima = Anima:new({
     img = "/data/goomba.png",

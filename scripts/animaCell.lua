@@ -11,7 +11,7 @@
     @author Joao Moreira, 2022.
 ]]
 
-local EffectManager = require "/lib/anima_effect/effect_manager"
+local EffectManager = require "/scripts/anima_effect/effect_manager"
 
 ---@alias Point {x: number, y:number}
 --- Table representing a point with x end y coordinates.
