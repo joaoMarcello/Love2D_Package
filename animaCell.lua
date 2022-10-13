@@ -13,9 +13,10 @@
 
 --
 --- @class Anima
---
+---
 local Anima = {}
 
+---@enum AnimaStates
 local ANIMA_STATES = {
     repeating = 1,
     come_and_back = 2,
@@ -25,7 +26,7 @@ local ANIMA_STATES = {
 ---
 --- Animation class constructor.
 ---
---- @overload fun(self: table, param: {file_path: string, frames: number, frame_size: table, speed: number, rotation: number, color: table, scale: table, origin: table, pos_in_texture: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, kx: number, ky: number})
+--- @overload fun(self: table, param: {img: string, frames: number, frame_size: table, speed: number, rotation: number, color: table, scale: table, origin: table, pos_in_texture: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, kx: number, ky: number})
 ---
 --- @param param {img: love.Image, frames: number, frame_size: table, speed: number, rotation: number, color: table, scale: table, origin: table, pos_in_texture: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, kx: number, ky: number} # A table containing the following fields:
 -- * img (Required): The source image for animation (could be a Love.Image or a string containing the file path). All the frames in the source image should be in the horizontal.
@@ -49,7 +50,7 @@ end
 ---
 --- Internal method for constructor.
 ---
---- @param param {img: love.Image,frames: number, frame_size: table, speed: number, rotation: number, color: table, scale: table, origin: table, pos_in_texture: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, stop_at_the_end: boolean, max_rows: number, state: string, bottom: number, grid: table, kx: number, ky: number}  # A table containing the follow fields:
+--- @param param {img: love.Image, frames: number, frame_size: table, speed: number, rotation: number, color: table, scale: table, origin: table, pos_in_texture: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, stop_at_the_end: boolean, max_rows: number, state: Anima.States, bottom: number, grid: table, kx: number, ky: number}  # A table containing the follow fields:
 ---
 function Anima:__constructor__(param)
 
@@ -186,9 +187,17 @@ function Anima:set_scale(scale)
     }
 end
 
+---
+--- Diferentes estados da animacao
+---
+---@alias Anima.States
+---|"repeating"
+---|"random"
+---|"come and back"
+
 --
 --- Set state.
----@param state string Possible values are "repeating", "random" or "come and back". If none of these is informed, then the state is setted as "repeating".
+---@param state Anima.States Possible values are "repeating", "random" or "come and back". If none of these is informed, then the state is setted as "repeating".
 function Anima:set_state(state)
     if state then
         state = string.lower(state)
@@ -394,7 +403,7 @@ end -- END update function
 function Anima:draw(x, y)
     love.graphics.push()
 
-    self:draw_with_no_effects(x, y)
+    self:__draw_with_no_effects(x, y)
 
     love.graphics.pop()
 
@@ -430,7 +439,7 @@ end
 ---
 ---@param x number # The top-left position to draw (x-axis).
 ---@param y number # The top-left position to draw (y-axis).
-function Anima:draw_with_no_effects(x, y)
+function Anima:__draw_with_no_effects(x, y)
 
     self.__quad:setViewport(
         self.__pos_in_texture.x + self.__frame_size.x

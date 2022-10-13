@@ -1,5 +1,6 @@
+local Anima = require "animaCell"
+
 function love.load()
-    Anima = require "animaCell"
 
     Test_anima = Anima:new({
         img = "/data/goomba.png",
