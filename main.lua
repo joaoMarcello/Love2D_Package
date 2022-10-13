@@ -42,5 +42,5 @@ end
 function love.draw()
     Test_anima:draw_rec(200, 300, 100, 100)
     Test_anima2:draw_rec(300, 100, 100, 100)
-    love.graphics.print((Test_anima.__current_frame), 0, 0)
+    love.graphics.print(tostring(Test_anima.__current_frame), 0, 0)
 end
