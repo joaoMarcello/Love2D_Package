@@ -3,7 +3,7 @@ local Anima = require "animaCell"
 Test_anima = Anima:new({
     img = "/data/goomba.png",
     frames = 9,
-    speed = 0.3,
+    speed = 0.1,
     -- grid = { x = 4, y = 2 },
     scale = { x = 2, y = 2 },
     bottom = 90,
@@ -13,7 +13,7 @@ Test_anima = Anima:new({
     frame_size = { x = 122, y = 104 }
 })
 
-Test_anima:apply_effect("flash")
+local my_effect = Test_anima:apply_effect("flash", { speed = 0.1 })
 
 -- Test_anima.__effect_manager:apply_effect("flash")
 
@@ -35,6 +35,14 @@ function love.load()
 end
 
 function love.update(dt)
+    if Test_anima.__update_time >= 3. then
+        Test_anima:stop_effect(my_effect:get_unique_id())
+    end
+
+    if Test_anima.__update_time >= 5 then
+        Test_anima.__update_time = 0
+        my_effect = Test_anima:apply_effect("flash")
+    end
     Test_anima:update(dt)
     Test_anima2:update(dt)
 end

@@ -344,10 +344,10 @@ function Anima:update(dt)
         return
     end
 
-    self.__update_time = self.__update_time + dt
+    self.__frame_time = self.__frame_time + dt
 
-    if self.__update_time >= self.__speed then
-        self.__update_time = self.__update_time - self.__speed
+    if self.__frame_time >= self.__speed then
+        self.__frame_time = self.__frame_time - self.__speed
 
         if self:__is_random() then
             local last_frame = self.__current_frame
@@ -385,7 +385,7 @@ function Anima:update(dt)
                 else -- ELSE: animation is in "come and back" state
 
                     self.__current_frame = self.__amount_frames
-                    self.__update_time = self.__update_time + self.__speed
+                    self.__frame_time = self.__frame_time + self.__speed
                     self.__direction = -self.__direction
 
                     if self.__direction == self.__initial_direction then
@@ -416,7 +416,7 @@ function Anima:update(dt)
 
                 else -- ELSE animation is not repeating
                     self.__current_frame = 1
-                    self.__update_time = self.__update_time + self.__speed
+                    self.__frame_time = self.__frame_time + self.__speed
                     self.__direction = self.__direction * -1
 
                     if self.__direction == self.__initial_direction then
@@ -505,10 +505,17 @@ end
 
 --- Aplica efeito na animacao.
 ---@param effect_name EffectName
----@param effect_args number|nil
+---@param effect_args any
 ---@return Effect effect
 function Anima:apply_effect(effect_name, effect_args)
     return self.__effect_manager:apply_effect(self, effect_name, effect_args)
+end
+
+---Stops a especific effect by his unique id.
+---@param effect_id number
+---@return boolean
+function Anima:stop_effect(effect_id)
+    return self.__effect_manager:stop_effect(effect_id)
 end
 
 ---Tells if animation is flipped in y-axis.
