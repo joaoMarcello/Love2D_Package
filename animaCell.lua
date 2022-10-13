@@ -11,6 +11,8 @@
     @author Joao Moreira, 2022.
 ]]
 
+local EffectManager = require "lib/anima_effect/effect_manager"
+
 --
 --- @class Anima
 --- @field __effects_list table <Effect>
@@ -26,7 +28,7 @@ local ANIMA_STATES = {
 ---
 --- Animation class constructor.
 ---
---- @overload fun(self: table, param: {img: string, frames: number, frame_size: table, speed: number, rotation: number, color: table, scale: table, origin: table, pos_in_texture: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, kx: number, ky: number})
+--- @overload fun(self: table, param: {img: string, frames: number, frame_size: table, speed: number, rotation: number, color: table, scale: table, origin: table, pos_in_texture: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, kx: number, ky: number}):Anima
 ---
 --- @param param {img: love.Image, frames: number, frame_size: table, speed: number, rotation: number, color: table, scale: table, origin: table, pos_in_texture: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, kx: number, ky: number} # A table containing the following fields:
 -- * img (Required): The source image for animation (could be a Love.Image or a string containing the file path). All the frames in the source image should be in the horizontal.
@@ -34,7 +36,7 @@ local ANIMA_STATES = {
 -- * frame_size: A table with the animation's frame size. Should contain the index x (width) and y (height).
 -- * speed: Time in seconds to update frame.
 -- * pos_in_texture: Optional table parameter to indicate where the animation is localized in the image. Useful when there is a lot of animation in one single image (default value is {x=0, y=0}).
---- @return table animation # A instance of Anima class.
+--- @return Anima animation # A instance of Anima class.
 function Anima:new(param)
     if not param then return {} end
 
@@ -91,8 +93,6 @@ function Anima:__constructor__(param)
 
     self:set_scale(param.scale)
 
-    self.__effects_list = {}
-
     if param.frame_size or not self.__quad then
         self.__quad = love.graphics.newQuad(0, 0,
             self.__frame_size.x,
@@ -100,6 +100,8 @@ function Anima:__constructor__(param)
             self.__img:getDimensions()
         )
     end
+
+    -- self.__effect_manager = EffectManager:new()
 end
 
 ---
@@ -325,6 +327,9 @@ function Anima:update(dt)
         self.__initial_direction = self.__direction
     end
 
+    -- updating the Effects
+    -- self.__effect_manager:update(dt)
+
     if self.__stopped or
         (self.__max_rows and self.__row_count >= self.__max_rows) then
 
@@ -436,12 +441,7 @@ function Anima:draw(x, y)
 
     love.graphics.pop()
 
-    if self.__effects_list then
-        for i = #self.__effects_list, 1, -1 do
-            local r = self.__effects_list[i].draw
-                and self.__effects_list[i]:draw(x, y)
-        end
-    end
+    -- self.__effect_manager:draw(x, y)
 end
 
 ---

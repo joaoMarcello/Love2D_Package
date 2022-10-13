@@ -1,13 +1,16 @@
 ---
 ---@class Effect
----
+---@field __id Effect_ID
 local Effect = {}
+
+
 
 ---
 --- The animation effects.
 ---
----@enum Type_
+---@enum Effect_ID
 local TYPE_ = {
+    generic = 0,
     flash = 1,
     pulse = 2,
     pop = 3
@@ -92,7 +95,7 @@ end
 --- Tells if this is a flash effect.
 ---@return boolean result
 function Effect:is_flash()
-    return self.__id == "flash"
+    return self.__id == TYPE_.flash
 end
 
-return Effect, TYPE_
+return Effect

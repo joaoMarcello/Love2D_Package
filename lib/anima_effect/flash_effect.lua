@@ -2,33 +2,36 @@ local Effect = require "Effect"
 
 ---
 ---@class Flash: Effect
----
+--- Flash is a Effect sub-class.
 local Flash = Effect:new(nil, nil)
 
 ---
 --- Class Effect constructor.
 ---
+---@overload fun(self: Effect, animation: Anima, args: nil):Effect
 ---@param animation Anima
+---@param args {range: number, alpha: number, speed: number, color: table}
 ---@return Effect effect
-function Flash:new(animation)
+function Flash:new(animation, args)
     local ef = Effect:new(animation)
     setmetatable(ef, self)
     self.__index = self
 
-    Flash.__constructor__(ef)
+    Flash.__constructor__(ef, args)
     return ef
 end
 
 ---
 --- Constructor.
----
+---@overload fun(self: Effect, args: nil)
 ---@param self Effect
-function Flash:__constructor__()
+---@param args {range: number, alpha: number, speed: number, color: table}
+function Flash:__constructor__(args)
     self.__id = Effect.TYPE.flash
-    self.__range = 0.5
-    self.__alpha = 1
-    self.__speed = 1
-    self.__color = { 1, 1, 1, 1 }
+    self.__range = args.range or 0.5
+    self.__alpha = args.alpha or 1
+    self.__speed = args.speed or 1
+    self.__color = args.color or { 1, 1, 1, 1 }
 end
 
 --- Update flash.

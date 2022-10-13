@@ -1,3 +1,5 @@
+local Flash = require "flash_effect"
+
 ---@class EffectManager
 --- Manages a list of Effect.
 local EffectManager = {}
@@ -78,6 +80,18 @@ function EffectManager:update(dt)
     end -- END effect list is not nil.
 end
 
+--- Draw the effects.
+---@param x number
+---@param y number
+function EffectManager:draw(x, y)
+    if self.__effects_list then
+        for i = #self.__effects_list, 1, -1 do
+            local eff = self:__get_effect_in_list__(i)
+            eff:draw(x, y)
+        end
+    end
+end
+
 ---
 --- Stop all the current running effects.
 ---@return boolean
@@ -107,6 +121,33 @@ function EffectManager:resume_all()
             eff.__is_enabled = true
         end
     end
+end
+
+---
+---@alias EffectName
+---|"flash"
+---|"pop"
+
+---Applies effect in a animation.
+---@overload fun(self: EffectManager, effect_type: Effect): Effect
+---@param animation Anima # The animation object to apply the effect.
+---@param effect_type string # The type of the effect.
+---@param effect_args any|nil # The parameters need for that especific effect.
+---@return Effect eff # The generate effect.
+function EffectManager:apply_effect(animation, effect_type, effect_args)
+    if not self.__effects_list then self.__effects_list = {} end
+
+    local eff
+    if effect_type == "flash" then
+        -- eff = Flash:new(animation, effect_args)
+    end
+
+    if eff then
+        table.insert(self.__effects_list, eff)
+        self.__sort__ = true
+    end
+
+    return eff
 end
 
 return EffectManager
