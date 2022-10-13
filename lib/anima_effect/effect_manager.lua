@@ -31,7 +31,7 @@ end
 --- Set the list to manager.
 ---@param new_list table <Effect>
 function EffectManager:set_effect_list(new_list)
-    self.__effects_list = new_list
+    self.__effects_list = new_list or {}
 end
 
 ---
@@ -146,12 +146,12 @@ end
 ---|"popin" # animation surges in the screen.
 
 ---Applies effect in a animation.
----@overload fun(self: EffectManager, effect_type: EffectName): Effect
 ---@param animation Anima # The animation object to apply the effect.
----@param effect_type string # The type of the effect.
+---@param effect_type EffectName # The type of the effect.
 ---@param effect_args any # The parameters need for that especific effect.
+---@param __only_get boolean|nil
 ---@return Effect eff # The generate effect.
-function EffectManager:apply_effect(animation, effect_type, effect_args)
+function EffectManager:apply_effect(animation, effect_type, effect_args, __only_get)
     if not self.__effects_list then self.__effects_list = {} end
 
     local eff
@@ -164,11 +164,17 @@ function EffectManager:apply_effect(animation, effect_type, effect_args)
         eff:set_unique_id(self.__current_id)
         self.__current_id = self.__current_id + 1
 
-        table.insert(self.__effects_list, eff)
-        self.__sort__ = true
+        if not __only_get then
+            table.insert(self.__effects_list, eff)
+            self.__sort__ = true
+        end
     end
 
     return eff
+end
+
+function EffectManager:generate_effect(animation, effect_type, effect_args)
+    return self:apply_effect(animation, effect_type, effect_args, true)
 end
 
 return EffectManager

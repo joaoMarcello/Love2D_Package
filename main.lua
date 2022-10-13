@@ -3,7 +3,7 @@ local Anima = require "animaCell"
 Test_anima = Anima:new({
     img = "/data/goomba.png",
     frames = 9,
-    speed = 0.1,
+    speed = 0.15,
     -- grid = { x = 4, y = 2 },
     scale = { x = 2, y = 2 },
     bottom = 90,
@@ -20,7 +20,7 @@ local my_effect = Test_anima:apply_effect("flash", { speed = 0.1 })
 Test_anima2 = Anima:new({
     img = "/data/goomba.png",
     frames = 9,
-    speed = 0.2,
+    speed = 0.09,
     -- grid = { x = 4, y = 2 },
     scale = { x = 1, y = 1 },
     bottom = 90,
