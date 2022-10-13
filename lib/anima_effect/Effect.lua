@@ -1,6 +1,7 @@
 ---
 ---@class Effect
 ---@field __id Effect_ID
+---@field __UNIQUE_ID number
 local Effect = {}
 
 ---
@@ -88,6 +89,18 @@ end
 
 function Effect:draw(x, y)
     return false
+end
+
+---comment
+---@param value number
+function Effect:set_unique_id(value)
+    self.__UNIQUE_ID = value
+end
+
+--- The unique identifiers.
+---@return number
+function Effect:get_unique_id()
+    return self.__UNIQUE_ID
 end
 
 --- Tells if this is a flash effect.

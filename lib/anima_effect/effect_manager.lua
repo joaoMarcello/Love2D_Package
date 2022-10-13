@@ -25,6 +25,7 @@ end
 function EffectManager:__constructor__(effect_list)
     self:set_effect_list(effect_list)
     self.__sort__ = false
+    self.__current_id = 1
 end
 
 --- Set the list to manager.
@@ -105,6 +106,22 @@ function EffectManager:stop_all()
     return false
 end
 
+--- Stops a especific effect by his unique id.
+---@param effect_unique_id number
+---@return boolean result
+function EffectManager:stop_effect(effect_unique_id)
+    for i = 1, #self.__effects_list do
+
+        local eff = self:__get_effect_in_list__(i)
+
+        if eff:get_unique_id() == effect_unique_id then
+            eff.__remove = true
+            return true
+        end
+    end
+    return false
+end
+
 function EffectManager:pause_all()
     if self.__effects_list then
         for i = 1, #self.__effects_list do
@@ -132,7 +149,7 @@ end
 ---@overload fun(self: EffectManager, effect_type: EffectName): Effect
 ---@param animation Anima # The animation object to apply the effect.
 ---@param effect_type string # The type of the effect.
----@param effect_args any|nil # The parameters need for that especific effect.
+---@param effect_args any # The parameters need for that especific effect.
 ---@return Effect eff # The generate effect.
 function EffectManager:apply_effect(animation, effect_type, effect_args)
     if not self.__effects_list then self.__effects_list = {} end
@@ -144,6 +161,9 @@ function EffectManager:apply_effect(animation, effect_type, effect_args)
     end
 
     if eff then
+        eff:set_unique_id(self.__current_id)
+        self.__current_id = self.__current_id + 1
+
         table.insert(self.__effects_list, eff)
         self.__sort__ = true
     end

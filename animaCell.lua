@@ -505,7 +505,7 @@ end
 
 --- Aplica efeito na animacao.
 ---@param effect_name EffectName
----@param effect_args any
+---@param effect_args number|nil
 ---@return Effect effect
 function Anima:apply_effect(effect_name, effect_args)
     return self.__effect_manager:apply_effect(self, effect_name, effect_args)
