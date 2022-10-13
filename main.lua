@@ -13,7 +13,8 @@ Test_anima = Anima:new({
     frame_size = { x = 122, y = 104 }
 })
 
-Test_anima.__effect_manager:apply_effect(Test_anima, "flash", nil)
+Test_anima:apply_effect("flash")
+
 -- Test_anima.__effect_manager:apply_effect("flash")
 
 Test_anima2 = Anima:new({
@@ -29,7 +30,7 @@ Test_anima2 = Anima:new({
 })
 
 function love.load()
-    love.graphics.setBackgroundColor(0,0,0,1)
+    love.graphics.setBackgroundColor(0, 0, 0, 1)
     love.graphics.setBackgroundColor(130 / 255., 221 / 255., 255 / 255.)
 end
 

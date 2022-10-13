@@ -123,10 +123,10 @@ function EffectManager:resume_all()
     end
 end
 
----
----@alias EffectName
----|"flash"
----|"pop"
+--- Possible values for effect names.
+---@alias EffectName string
+---|"flash" # animation blinks like a star.
+---|"popin" # animation surges in the screen.
 
 ---Applies effect in a animation.
 ---@overload fun(self: EffectManager, effect_type: EffectName): Effect

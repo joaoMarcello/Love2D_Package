@@ -13,23 +13,13 @@
 
 local EffectManager = require "/lib/anima_effect/effect_manager"
 
--- self.__last_config.scale = { x = self.__scale.x, y = self.__scale.y }
--- self.__last_config.color = self.__color
--- self.__last_config.direction = self.__direction
--- self.__last_config.angle = self.__rotation
--- self.__last_config.speed = self.__speed
--- self.__last_config.flip = { x = self.__flip.x, y = self.__flip.y }
--- self.__last_config.kx = self.__kx
--- self.__last_config.ky = self.__ky
--- self.__last_config.current_frame = self.__current_frame
-
 ---@alias Point {x: number, y:number}
 --- Table representing a point with x end y coordinates.
 
 ---@alias Color {[1]: number, [2]: number, [3]: number, [4]: number}|{r: number, g: number, b:number, a:number}
 --- Represents a color in RGBA space
 
---
+-- Class to animate.
 --- @class Anima
 --- @field __effects_list table <Effect>
 --- @field __last_config {scale: Point, color: Color, direction: -1|1, angle: number, speed: number, flip: table, kx: number, ky: number, current_frame: number}
@@ -67,13 +57,13 @@ end
 ---
 --- Internal method for constructor.
 ---
---- @param param {img: love.Image, frames: number, frame_size: table, speed: number, rotation: number, color: Color, scale: table, origin: table, pos_in_texture: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, stop_at_the_end: boolean, max_rows: number, state: Anima.States, bottom: number, grid: table, kx: number, ky: number}  # A table containing the follow fields:
+--- @param args {img: love.Image, frames: number, frame_size: table, speed: number, rotation: number, color: Color, scale: table, origin: table, pos_in_texture: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, stop_at_the_end: boolean, max_rows: number, state: Anima.States, bottom: number, grid: table, kx: number, ky: number}  # A table containing the follow fields:
 ---
-function Anima:__constructor__(param)
+function Anima:__constructor__(args)
 
-    self:set_img(param.img)
+    self:set_img(args.img)
 
-    self.__amount_frames = param.frames or 1
+    self.__amount_frames = args.frames or 1
     self.__frame_time = 0.
     self.__update_time = 0.
     self.__stopped_time = 0.
@@ -81,34 +71,34 @@ function Anima:__constructor__(param)
     self.__is_visible = true
     self.__is_enabled = true
     self.__initial_direction = nil
-    self.__direction = (param.is_reversed and -1) or 1
-    self.__color = param.color or { 1, 1, 1, 1 }
-    self.__rotation = param.rotation or 0.
-    self.__speed = param.speed or 0.3
+    self.__direction = (args.is_reversed and -1) or 1
+    self.__color = args.color or { 1, 1, 1, 1 }
+    self.__rotation = args.rotation or 0.
+    self.__speed = args.speed or 0.3
     self.__current_frame = (self.__direction < 0 and self.__amount_frames) or 1
-    self.__stop_at_the_end = param.stop_at_the_end or false
-    self.__max_rows = param.max_rows or nil
+    self.__stop_at_the_end = args.stop_at_the_end or false
+    self.__max_rows = args.max_rows or nil
 
-    self:set_frame_size(param.frame_size)
+    self:set_frame_size(args.frame_size)
 
-    self.__bottom = param.bottom or self.__frame_size.y
+    self.__bottom = args.bottom or self.__frame_size.y
 
-    self:set_state(param.state)
+    self:set_state(args.state)
 
     self.__grid = {
-        x = param.grid and param.grid.x or self.__amount_frames,
-        y = param.grid and param.grid.y or 1
+        x = args.grid and args.grid.x or self.__amount_frames,
+        y = args.grid and args.grid.y or 1
     }
 
-    self:set_flip({ x = param.flip_x, y = param.flip_y })
+    self:set_flip({ x = args.flip_x, y = args.flip_y })
 
-    self:set_origin(param.origin)
+    self:set_origin(args.origin)
 
-    self:set_pos_in_texture(param.pos_in_texture)
+    self:set_pos_in_texture(args.pos_in_texture)
 
-    self:set_scale(param.scale)
+    self:set_scale(args.scale)
 
-    if param.frame_size or not self.__quad then
+    if args.frame_size or not self.__quad then
         self.__quad = love.graphics.newQuad(0, 0,
             self.__frame_size.x,
             self.__frame_size.y,
@@ -513,6 +503,14 @@ function Anima:__draw_with_no_effects(x, y)
     )
 end
 
+--- Aplica efeito na animacao.
+---@param effect_name EffectName
+---@param effect_args any
+---@return Effect effect
+function Anima:apply_effect(effect_name, effect_args)
+    return self.__effect_manager:apply_effect(self, effect_name, effect_args)
+end
+
 ---Tells if animation is flipped in y-axis.
 ---@return boolean
 function Anima:__is_flipped_in_y()
@@ -523,6 +521,11 @@ end
 ---@return boolean
 function Anima:__is_flipped_in_x()
     return self.__flip.x < 0
+end
+
+--- Flips the animation.
+function Anima:flip()
+    self.__direction = self.__direction * -1
 end
 
 ---
