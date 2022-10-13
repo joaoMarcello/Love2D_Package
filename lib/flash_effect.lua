@@ -35,13 +35,17 @@ function Flash:update(dt)
     self.__alpha = 0.5 + (math.sin(self.__rad) * self.__range)
 end
 
-local function color_is_white(flash)
-    local color = flash.__color
+---
+--- Tells if flash color is white.
+---
+---@return boolean result
+function Flash:__color_is_white()
+    local color = self.__color
     return color[1] == 1 and color[2] == 1 and color[3] == 1
 end
 
 function Flash:draw(x, y)
-    if self.__alpha and color_is_white(self) then
+    if self.__alpha and self:__color_is_white() then
         love.graphics.setBlendMode("add", "alphamultiply")
 
         self.__anima.__color = {
