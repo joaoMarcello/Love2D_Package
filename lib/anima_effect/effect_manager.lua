@@ -1,4 +1,5 @@
 local Flash = require "/lib/anima_effect/flash_effect"
+local Flick = require "/lib/anima_effect/flick_effect"
 
 ---@class EffectManager
 --- Manages a list of Effect.
@@ -48,12 +49,15 @@ function EffectManager:update(dt)
     if self.__effects_list then
         for i = #self.__effects_list, 1, -1 do
             local eff = self:__get_effect_in_list__(i)
-            local r = eff.__is_enabled and eff:update(dt)
+            local r1 = eff.__is_enabled and eff:__update__(dt)
+            local r2 = eff.__is_enabled and eff:update(dt)
 
             if eff.__remove then
                 if eff.__final_action then
                     eff.__final_action(eff.__args_final_action)
                 end
+
+                eff:restaure_animation()
 
                 if self.__effects_clear then
                     self.__effects_clear = nil;
@@ -143,7 +147,13 @@ end
 --- Possible values for effect names.
 ---@alias EffectName string
 ---|"flash" # animation blinks like a star.
----|"popin" # animation surges in the screen.
+---|"flick" # animation surges in the screen.
+---|"popin"
+---|"popout"
+---|"fadein"
+---|"fadeout"
+---|"colorFlick"
+
 
 ---Applies effect in a animation.
 ---@param animation Anima # The animation object to apply the effect.
@@ -158,6 +168,13 @@ function EffectManager:apply_effect(animation, effect_type, effect_args, __only_
 
     if effect_type == "flash" then
         eff = Flash:new(animation, effect_args)
+    elseif effect_type == "flick" then
+        eff = Flick:new(animation, effect_args)
+    elseif effect_type == "colorFlick" then
+        eff = Flick:new(animation, effect_args)
+        if not effect_args or (effect_args and not effect_args.color) then
+            eff.__color = { 1, 0, 0, 1 }
+        end
     end
 
     if eff then
@@ -165,8 +182,7 @@ function EffectManager:apply_effect(animation, effect_type, effect_args, __only_
         self.__current_id = self.__current_id + 1
 
         if not __only_get then
-            table.insert(self.__effects_list, eff)
-            self.__sort__ = true
+            self:__insert_effect(eff)
         end
     end
 
@@ -175,6 +191,13 @@ end
 
 function EffectManager:generate_effect(animation, effect_type, effect_args)
     return self:apply_effect(animation, effect_type, effect_args, true)
+end
+
+--- Insert effect.
+---@param effect Effect
+function EffectManager:__insert_effect(effect)
+    table.insert(self.__effects_list, effect)
+    self.__sort__ = true
 end
 
 return EffectManager

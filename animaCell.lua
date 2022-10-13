@@ -317,6 +317,7 @@ function Anima:__pop()
 
     self.__kx = self.__configuration.kx
     self.__ky = self.__configuration.ky
+
     self.__current_frame = self.__configuration.current_frame
 
     self.__configuration = nil
@@ -603,6 +604,16 @@ end
 
 function Anima:is_enabled()
     return self.__is_enabled
+end
+
+--- Amount of time that animation is ruuning (in seconds).
+---@return number
+function Anima:time_updating()
+    return self.__update_time
+end
+
+function Anima:zera_time_updating()
+    self.__update_time = 0
 end
 
 return Anima

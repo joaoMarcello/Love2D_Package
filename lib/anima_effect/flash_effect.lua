@@ -13,7 +13,7 @@ local Flash = Effect:new(nil, nil)
 ---@param args {range: number, alpha: number, speed: number, color: table}
 ---@return Effect effect
 function Flash:new(animation, args)
-    local ef = Effect:new(animation)
+    local ef = Effect:new(animation, args)
     setmetatable(ef, self)
     self.__index = self
 
@@ -33,6 +33,10 @@ function Flash:__constructor__(args)
     self.__speed = args and args.speed or 0.3
     self.__color = args and args.color or { 1, 1, 1, 1 }
     self.__origin = 0.5
+end
+
+function Flash:__init__()
+    self:__constructor__(self.__args)
 end
 
 --- Update flash.
@@ -60,6 +64,10 @@ function Flash:draw(x, y)
     self.__anima:__draw_with_no_effects(x, y)
     self.__anima:set_color(self.__config.color)
     love.graphics.setBlendMode('alpha')
+end
+
+function Flash:restaure_animation()
+    self.__anima:set_color(self.__config.color)
 end
 
 return Flash

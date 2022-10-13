@@ -13,9 +13,9 @@ Test_anima = Anima:new({
     frame_size = { x = 122, y = 104 }
 })
 
-local my_effect = Test_anima:apply_effect("flash", { speed = 0.1 })
+local my_effect = Test_anima:apply_effect("flick")
+local flash_eff = Test_anima:apply_effect("flash")
 
--- Test_anima.__effect_manager:apply_effect("flash")
 
 Test_anima2 = Anima:new({
     img = "/data/goomba.png",
@@ -35,14 +35,19 @@ function love.load()
 end
 
 function love.update(dt)
-    if Test_anima.__update_time >= 3. then
+    if Test_anima:time_updating() >= 1. then
         Test_anima:stop_effect(my_effect:get_unique_id())
     end
 
-    if Test_anima.__update_time >= 5 then
-        Test_anima.__update_time = 0
-        my_effect = Test_anima:apply_effect("flash")
+    if Test_anima:time_updating() >= 2 then
+        Test_anima:zera_time_updating()
+        my_effect:restaure(true)
     end
+
+    if Test_anima:time_updating() >= 1. then
+        Test_anima:stop_effect(flash_eff:get_unique_id())
+    end
+
     Test_anima:update(dt)
     Test_anima2:update(dt)
 end
