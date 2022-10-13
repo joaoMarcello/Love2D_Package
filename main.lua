@@ -29,6 +29,7 @@ Test_anima2 = Anima:new({
 })
 
 function love.load()
+    love.graphics.setBackgroundColor(0,0,0,1)
     love.graphics.setBackgroundColor(130 / 255., 221 / 255., 255 / 255.)
 end
 

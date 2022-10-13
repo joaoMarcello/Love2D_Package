@@ -13,9 +13,26 @@
 
 local EffectManager = require "/lib/anima_effect/effect_manager"
 
+-- self.__last_config.scale = { x = self.__scale.x, y = self.__scale.y }
+-- self.__last_config.color = self.__color
+-- self.__last_config.direction = self.__direction
+-- self.__last_config.angle = self.__rotation
+-- self.__last_config.speed = self.__speed
+-- self.__last_config.flip = { x = self.__flip.x, y = self.__flip.y }
+-- self.__last_config.kx = self.__kx
+-- self.__last_config.ky = self.__ky
+-- self.__last_config.current_frame = self.__current_frame
+
+---@alias Point {x: number, y:number}
+--- Table representing a point with x end y coordinates.
+
+---@alias Color {[1]: number, [2]: number, [3]: number, [4]: number}|{r: number, g: number, b:number, a:number}
+--- Represents a color in RGBA space
+
 --
 --- @class Anima
 --- @field __effects_list table <Effect>
+--- @field __last_config {scale: Point, color: Color, direction: -1|1, angle: number, speed: number, flip: table, kx: number, ky: number, current_frame: number}
 local Anima = {}
 
 ---@enum AnimaStates
@@ -28,23 +45,21 @@ local ANIMA_STATES = {
 ---
 --- Animation class constructor.
 ---
---- @overload fun(self: table, param: {img: string, frames: number, frame_size: table, speed: number, rotation: number, color: table, scale: table, origin: table, pos_in_texture: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, kx: number, ky: number}):Anima
----
---- @param param {img: love.Image, frames: number, frame_size: table, speed: number, rotation: number, color: table, scale: table, origin: table, pos_in_texture: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, kx: number, ky: number} # A table containing the following fields:
+--- @param args {img: love.Image|string, frames: number, frame_size: Point, speed: number, rotation: number, color: Color, scale: table, origin: table, pos_in_texture: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, kx: number, ky: number} # A table containing the following fields:
 -- * img (Required): The source image for animation (could be a Love.Image or a string containing the file path). All the frames in the source image should be in the horizontal.
 -- * frames: The amount of frames in the animation.
 -- * frame_size: A table with the animation's frame size. Should contain the index x (width) and y (height).
 -- * speed: Time in seconds to update frame.
 -- * pos_in_texture: Optional table parameter to indicate where the animation is localized in the image. Useful when there is a lot of animation in one single image (default value is {x=0, y=0}).
 --- @return Anima animation # A instance of Anima class.
-function Anima:new(param)
-    if not param then return {} end
+function Anima:new(args)
+    if not args then return {} end
 
     local animation = {}
     setmetatable(animation, self)
     self.__index = self
 
-    Anima.__constructor__(animation, param)
+    Anima.__constructor__(animation, args)
 
     return animation
 end
@@ -52,7 +67,7 @@ end
 ---
 --- Internal method for constructor.
 ---
---- @param param {img: love.Image, frames: number, frame_size: table, speed: number, rotation: number, color: table, scale: table, origin: table, pos_in_texture: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, stop_at_the_end: boolean, max_rows: number, state: Anima.States, bottom: number, grid: table, kx: number, ky: number}  # A table containing the follow fields:
+--- @param param {img: love.Image, frames: number, frame_size: table, speed: number, rotation: number, color: Color, scale: table, origin: table, pos_in_texture: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, stop_at_the_end: boolean, max_rows: number, state: Anima.States, bottom: number, grid: table, kx: number, ky: number}  # A table containing the follow fields:
 ---
 function Anima:__constructor__(param)
 

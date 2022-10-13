@@ -25,13 +25,14 @@ end
 --- Constructor.
 ---@overload fun(self: Effect, args: nil)
 ---@param self Effect
----@param args {range: number, alpha: number, speed: number, color: table}
+---@param args {range: number, speed: number, color: table}
 function Flash:__constructor__(args)
     self.__id = Effect.TYPE.flash
-    self.__range = args and args.range or 0.5
-    self.__alpha = args and args.alpha or 1
-    self.__speed = args and args.speed or 1
+    self.__range = args and args.range or 0.6
+    self.__alpha = 1
+    self.__speed = args and args.speed or 0.3
     self.__color = args and args.color or { 1, 1, 1, 1 }
+    self.__origin = 0.5
 end
 
 --- Update flash.
@@ -40,46 +41,25 @@ function Flash:update(dt)
     self.__rad = (self.__rad + math.pi * 2. / self.__speed * dt)
         % (math.pi * 2.)
 
-    self.__alpha = 0.5 + (math.sin(self.__rad) * self.__range)
-end
-
----
---- Tells if flash color is white.
----
----@return boolean result
-function Flash:__color_is_white()
-    local color = self.__color
-    return color[1] == 1 and color[2] == 1 and color[3] == 1
+    self.__alpha = self.__origin + (math.sin(self.__rad) * self.__range)
 end
 
 --- Draw the flash effect.
 ---@param x number
 ---@param y number
 function Flash:draw(x, y)
-    if self.__alpha and self:__color_is_white() or true then
-        love.graphics.setBlendMode("add", "premultiplied")
+    love.graphics.setBlendMode("add", "alphamultiply")
 
-        self.__anima:set_color({
-            self.__color[1],
-            self.__color[2],
-            self.__color[3],
-            self.__alpha * (self.__anima:get_color()[4] or 1.)
-        })
+    self.__anima:set_color({
+        self.__color[1],
+        self.__color[2],
+        self.__color[3],
+        self.__alpha * (self.__anima:get_color()[4] or 1.)
+    })
 
-        self.__anima:__draw_with_no_effects(x, y)
-        self.__anima:set_color(self.__config.__color)
-        love.graphics.setBlendMode('alpha')
-    else
-        love.graphics.setBlendMode("add", "premultiplied")
-
-        self.__anima:set_color(self.__color)
-        self.__anima:set_color({ a = self.__alpha })
-        self.__anima:__draw_with_no_effects(x, y)
-        self.__anima:set_color(self.__config.__color)
-
-        love.graphics.setBlendMode('alpha')
-    end
-
+    self.__anima:__draw_with_no_effects(x, y)
+    self.__anima:set_color(self.__config.color)
+    love.graphics.setBlendMode('alpha')
 end
 
 return Flash
