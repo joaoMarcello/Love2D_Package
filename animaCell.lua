@@ -22,7 +22,7 @@ local EffectManager = require "/lib/anima_effect/effect_manager"
 -- Class to animate.
 --- @class Anima
 --- @field __effects_list table <Effect>
---- @field __last_config {scale: Point, color: Color, direction: -1|1, angle: number, speed: number, flip: table, kx: number, ky: number, current_frame: number}
+--- @field __configuration {scale: Point, color: Color, direction: -1|1, rotation: number, speed: number, flip: table, kx: number, ky: number, current_frame: number}
 local Anima = {}
 
 ---@enum AnimaStates
@@ -281,7 +281,7 @@ function Anima:__push()
     self.__configuration.scale = { x = self.__scale.x, y = self.__scale.y }
     self.__configuration.color = self.__color
     self.__configuration.direction = self.__direction
-    self.__configuration.angle = self.__rotation
+    self.__configuration.rotation = self.__rotation
     self.__configuration.speed = self.__speed
     self.__configuration.flip = { x = self.__flip.x, y = self.__flip.y }
     self.__configuration.kx = self.__kx
@@ -307,7 +307,7 @@ function Anima:__pop()
         self.__configuration.color[3], self.__configuration.color[4] or 1
     }
     self.__direction = self.__configuration.direction
-    self.__rotation = self.__configuration.angle
+    self.__rotation = self.__configuration.rotation
     self.__speed = self.__configuration.speed
 
     self.__flip = {
