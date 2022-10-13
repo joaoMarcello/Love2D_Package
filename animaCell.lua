@@ -13,7 +13,7 @@
 
 --
 --- @class Anima
----
+--- @field __effects_list table <Effect>
 local Anima = {}
 
 ---@enum AnimaStates
@@ -185,6 +185,35 @@ function Anima:set_scale(scale)
             or self.__scale and self.__scale.y
             or 1
     }
+end
+
+--- Return the animation color field.
+---@return table
+function Anima:get_color()
+    return self.__color
+end
+
+---
+--- Set animation color.
+---@overload fun(self: Anima, value: {[1]: number, [2]: number, [3]: number, [4]: number})
+---@param value {r: number, g: number, b: number, a: number}
+function Anima:set_color(value)
+    if value.r or value.g or value.b or value.a then
+        self.__color = {
+            value.r or self.__color[1],
+            value.g or self.__color[2],
+            value.b or self.__color[3],
+            value.a or self.__color[4]
+        }
+
+    else -- color is in index format
+        self.__color = {
+            value[1] or self.__color[1],
+            value[2] or self.__color[2],
+            value[3] or self.__color[3],
+            value[4] or self.__color[4]
+        }
+    end
 end
 
 ---

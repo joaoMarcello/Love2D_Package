@@ -4,6 +4,18 @@
 local Effect = {}
 
 ---
+--- The animation effects.
+---
+---@enum Type_
+local TYPE_ = {
+    flash = 1,
+    pulse = 2,
+    pop = 3
+}
+
+Effect.TYPE = TYPE_
+
+---
 --- Class effect constructor.
 ---@overload fun(self: table, animation: nil, args: nil):Effect
 ---@param animation Anima
@@ -24,6 +36,7 @@ end
 ---
 ---@param animation Anima
 function Effect:__constructor__(animation, args)
+    self.__id = nil
     self.__color = { 1, 1, 1, 1 }
     self.__scale = { x = 1, y = 1 }
     self.__is_enabled = true
@@ -32,6 +45,7 @@ function Effect:__constructor__(animation, args)
     self.__row = 0
     self.__anima = animation
     self.__args = args
+    self.__remove = false
 
     if animation then
         animation:__push()
@@ -61,10 +75,24 @@ function Effect:loop_mode(value)
 
             self.__anima
         )
-    else
+    else -- value parameter is nil or false
         self.__final_action = nil
         self.__args_final_action = nil
     end
 end
 
-return Effect
+function Effect:update(dt)
+    return false
+end
+
+function Effect:draw(x, y)
+    return false
+end
+
+--- Tells if this is a flash effect.
+---@return boolean result
+function Effect:is_flash()
+    return self.__id == "flash"
+end
+
+return Effect, TYPE_

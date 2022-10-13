@@ -20,7 +20,7 @@ function love.load()
         frames = 9,
         speed = 0.2,
         -- grid = { x = 4, y = 2 },
-        scale = { x = 2, y = 2 },
+        scale = { x = 1, y = 1 },
         bottom = 90,
         flip_x = false,
         flip_y = false,
