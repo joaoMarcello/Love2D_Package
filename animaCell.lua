@@ -229,9 +229,9 @@ end
 --- Diferentes estados da animacao
 ---
 ---@alias Anima.States
----|"repeating"
----|"random"
----|"come and back"
+---|"repeating" # (default) when animation reaches the last frame, the current frame is set to beginning.
+---|"random" # animation shows his frames in a aleatory order.
+---|"come and back" # when animation reaches the last frame, the direction of animation changes.
 
 --
 --- Set state.
@@ -274,52 +274,52 @@ end
 --- Save the current animation configuration.
 ---
 function Anima:__push()
-    if not self.__last_config then
-        self.__last_config = {}
+    if not self.__configuration then
+        self.__configuration = {}
     end
 
-    self.__last_config.scale = { x = self.__scale.x, y = self.__scale.y }
-    self.__last_config.color = self.__color
-    self.__last_config.direction = self.__direction
-    self.__last_config.angle = self.__rotation
-    self.__last_config.speed = self.__speed
-    self.__last_config.flip = { x = self.__flip.x, y = self.__flip.y }
-    self.__last_config.kx = self.__kx
-    self.__last_config.ky = self.__ky
-    self.__last_config.current_frame = self.__current_frame
+    self.__configuration.scale = { x = self.__scale.x, y = self.__scale.y }
+    self.__configuration.color = self.__color
+    self.__configuration.direction = self.__direction
+    self.__configuration.angle = self.__rotation
+    self.__configuration.speed = self.__speed
+    self.__configuration.flip = { x = self.__flip.x, y = self.__flip.y }
+    self.__configuration.kx = self.__kx
+    self.__configuration.ky = self.__ky
+    self.__configuration.current_frame = self.__current_frame
 end
 
 --
 ---Configure the animation with the last configuration. Should be used after "__push" method.
 ---
 function Anima:__pop()
-    if not self.__last_config then
+    if not self.__configuration then
         return
     end
 
     self.__scale = {
-        x = self.__last_config.scale.x,
-        y = self.__last_config.scale.y
+        x = self.__configuration.scale.x,
+        y = self.__configuration.scale.y
     }
 
     self.__color = {
-        self.__last_config.color[1], self.__last_config.color[2],
-        self.__last_config.color[3], self.__last_config.color[4] or 1
+        self.__configuration.color[1], self.__configuration.color[2],
+        self.__configuration.color[3], self.__configuration.color[4] or 1
     }
-    self.__direction = self.__last_config.direction
-    self.__rotation = self.__last_config.angle
-    self.__speed = self.__last_config.speed
+    self.__direction = self.__configuration.direction
+    self.__rotation = self.__configuration.angle
+    self.__speed = self.__configuration.speed
 
     self.__flip = {
-        x = self.__last_config.flip.x,
-        y = self.__last_config.flip.y
+        x = self.__configuration.flip.x,
+        y = self.__configuration.flip.y
     }
 
-    self.__kx = self.__last_config.kx
-    self.__ky = self.__last_config.ky
-    self.__current_frame = self.__last_config.current_frame
+    self.__kx = self.__configuration.kx
+    self.__ky = self.__configuration.ky
+    self.__current_frame = self.__configuration.current_frame
 
-    self.__last_config = nil
+    self.__configuration = nil
 end
 
 ---

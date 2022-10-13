@@ -50,7 +50,7 @@ function Effect:__constructor__(animation, args)
 
     if animation then
         animation:__push()
-        self.__config = animation.__last_config
+        self.__config = animation.__configuration
         animation:__pop()
     end
 end
