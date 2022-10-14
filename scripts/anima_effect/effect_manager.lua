@@ -58,7 +58,7 @@ function EffectManager:update(dt)
                     eff.__final_action(eff.__args_final_action)
                 end
 
-                eff:restaure_animation()
+                eff:restaure_object()
 
                 if self.__effects_clear then
                     self.__effects_clear = nil;

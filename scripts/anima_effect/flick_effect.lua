@@ -34,16 +34,12 @@ function Flick:update(dt)
     end
 
     if self.__state == 1 then
-        self.__anima:set_color(self.__color)
+        self.__object:set_color(self.__color)
     elseif self.__state == -1 then
-        self.__anima:set_color(self.__config.color)
+        self.__object:set_color(self.__config.color)
     end
 
-    self.__anima:set_color({ a = self.__anima:get_color()[4] or 1 })
-end
-
-function Flick:restaure_animation()
-    self.__anima:set_color(self.__config.color)
+    -- self.__object:set_color({ a = self.__object:get_color()[4] or 1 })
 end
 
 return Flick

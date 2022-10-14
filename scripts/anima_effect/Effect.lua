@@ -5,6 +5,12 @@
 ---@field __init function
 local Effect = {}
 
+---@alias Effect.Color {[1]: number, [2]: number, [3]: number, [4]: number}|{r: number, g: number, b:number, a:number}
+--- The color format for effects.
+
+---@alias Effect.Point {x:number, y: number}
+--- Table with x and y fileds.
+
 ---
 --- The animation effects.
 ---
@@ -18,27 +24,81 @@ local TYPE_ = {
 
 Effect.TYPE = TYPE_
 
+---@class Effect.Affectable
+---@field __effect_manager EffectManager
+---@field set_color function
+---@field __push function
+---@field __pop function
+---@field __get_configuration function
+---@field set_visible function
+---@field __draw__ function
+---@field set_scale function
+---@field get_scale function
+---@field set_rotation function
+---@field get_rotation function
+---@field set_origin function
+---@field get_origin function
+local Affectable = {}
+
+--- Check if object implements all the needed Affectable methods and fields.
+---@param object table
+function Affectable.check_object(object)
+    if not object then return end
+
+    assert(object.__effect_manager, "\nError: The object do not have the required '__effect_manager' field.")
+
+    assert(object.set_color, "\nError: The object do not implements the required 'set_color' method.")
+
+    assert(object.__push,
+        "\nError: The object passed to Effect class constructor  do not implements the required '__push' method.")
+
+    assert(object.__pop,
+        "\nError: The object passed to Effect class constructor  do not implements the required '__pop' method.")
+
+    assert(object.__get_configuration,
+        "\nError: The object passed to Effect class constructor  do not implements the required '__get_configuration' method.")
+
+    assert(object.set_visible,
+        "\nError: The object passed to Effect class constructor  do not implements the required 'set_visible' method.")
+
+    assert(object.__draw__,
+        "\nError: The object passed to Effect class constructor  do not implements the required '__draw__' method.")
+
+    assert(object.set_scale,
+        "\nError: The object passed to Effect class constructor  do not implements the required 'set_scale' method.")
+
+    assert(object.get_scale,
+        "\nError: The object passed to Effect class constructor  do not implements the required 'get_scale' method.")
+
+    assert(object.set_rotation,
+        "\nError: The object passed to Effect class constructor  do not implements the required 'set_rotation' method.")
+
+    assert(object.get_rotation,
+        "\nError: The object passed to Effect class constructor  do not implements the required 'get_rotation' method.")
+end
+
 ---
 --- Class effect constructor.
----@overload fun(self: table, animation: nil, args: nil):Effect
----@param animation Anima
+---@overload fun(self: table, object: nil, args: nil):Effect
+---@param object Effect.Affectable # O objeto que sera afetado pelo efeito.
 ---@param args any
 ---@return Effect effect
-function Effect:new(animation, args)
+function Effect:new(object, args)
 
     local effect = {}
     setmetatable(effect, self)
     self.__index = self
 
-    Effect.__constructor__(effect, animation, args)
+    Effect.__constructor__(effect, object, args)
+
     return effect
 end
 
 ---
 --- Class effect constructor.
 ---
----@param animation Anima
-function Effect:__constructor__(animation, args)
+---@param object Effect.Affectable
+function Effect:__constructor__(object, args)
     self.__id = Effect.TYPE.generic
     self.__color = { 1, 1, 1, 1 }
     self.__scale = { x = 1, y = 1 }
@@ -46,19 +106,29 @@ function Effect:__constructor__(animation, args)
     self.__prior = 1
     self.__rad = 0
     self.__row = 0
-    self.__anima = animation
+    self.__object = object
     self.__args = args
     self.__remove = false
     self.__update_time = 0
     self.__duration = args and args.duration or nil
     self.__speed = 0.5
-    self.__max_row = args and args.max_row or nil
+    self.__max_row = args and args.max_row or 100
 
-    if animation then
-        animation:__push()
-        self.__config = animation.__configuration
-        animation:__pop()
+    self.__transform = {
+        x = 0, y = 0,
+        rot = 0,
+        sx = 1, sy = 1,
+        ox = 0, oy = 0,
+        kx = 0, ky = 0
+    }
+
+    if object then
+        object:__push()
+        self.__config = object:__get_configuration()
+        object:__pop()
     end
+
+    Affectable.check_object(self.__object)
 end
 
 --
@@ -80,7 +150,7 @@ function Effect:loop_mode(value)
                 eff:loop_mode(true)
             end,
 
-            self.__anima
+            self.__object
         )
     else -- value parameter is nil or false
         self.__final_action = nil
@@ -101,18 +171,22 @@ function Effect:update(dt)
 end
 
 function Effect:__update__(dt)
-    if not self.__duration then return end
-
     self.__update_time = self.__update_time + dt
 
-    if self.__update_time >= self.__duration then
+    if self.__duration and self.__update_time >= self.__duration then
         self.__remove = true
+        return
+    end
+
+    if self.__max_row and (self.__row >= self.__max_row) then
+        self.__remove = true
+        return
     end
 end
 
-function Effect:restaure_animation()
-    self.__anima.__configuration = self.__config
-    self.__anima:__pop()
+function Effect:restaure_object()
+    self.__object.__configuration = self.__config
+    self.__object:__pop()
 end
 
 function Effect:draw(x, y)
@@ -132,13 +206,13 @@ function Effect:get_unique_id()
 end
 
 --- Restaure the effect in animation.
----@param restart boolean|nil
-function Effect:restaure(restart)
-    if restart then
+---@param reset_config boolean|nil # if reset the effect to his initial configuration.
+function Effect:restart(reset_config)
+    if reset_config then
         self:init()
         local r = self.__init and self:__init()
     end
-    self.__anima.__effect_manager:__insert_effect(self)
+    self.__object.__effect_manager:__insert_effect(self)
 end
 
 --- Tells if this is a flash effect.

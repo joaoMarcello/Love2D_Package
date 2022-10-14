@@ -8,12 +8,11 @@ local Flash = Effect:new(nil, nil)
 ---
 --- Class Effect constructor.
 ---
----@overload fun(self: Effect, animation: Anima, args: nil):Effect
----@param animation Anima
----@param args {range: number, alpha: number, speed: number, color: table}
+---@param object table
+---@param args {range: number, alpha: number, speed: number, color: table}|nil
 ---@return Effect effect
-function Flash:new(animation, args)
-    local ef = Effect:new(animation, args)
+function Flash:new(object, args)
+    local ef = Effect:new(object, args)
     setmetatable(ef, self)
     self.__index = self
 
@@ -54,20 +53,17 @@ end
 function Flash:draw(x, y)
     love.graphics.setBlendMode("add", "alphamultiply")
 
-    self.__anima:set_color({
+    self.__object:set_color({
         self.__color[1],
         self.__color[2],
         self.__color[3],
-        self.__alpha * (self.__anima:get_color()[4] or 1.)
+        self.__alpha
     })
 
-    self.__anima:__draw_with_no_effects(x, y)
-    self.__anima:set_color(self.__config.color)
+    self.__object:__draw__(x, y)
+    -- self.__object:set_color(self.__config.color)
+    self:restaure_object()
     love.graphics.setBlendMode('alpha')
-end
-
-function Flash:restaure_animation()
-    self.__anima:set_color(self.__config.color)
 end
 
 return Flash

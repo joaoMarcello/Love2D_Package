@@ -13,7 +13,7 @@ Test_anima = Anima:new({
     frame_size = { x = 122, y = 104 }
 })
 
-local my_effect = Test_anima:apply_effect("pulse", { max_row = 3 })
+local my_effect = Test_anima:apply_effect("pulse", { max_row = 2, speed=0.2 })
 -- local flash_eff = Test_anima:apply_effect("flash")
 
 
@@ -41,7 +41,7 @@ function love.update(dt)
 
     if Test_anima:time_updating() >= 4 then
         Test_anima:zera_time_updating()
-        my_effect:restaure(true)
+        my_effect:restart(true)
     end
 
     if Test_anima:time_updating() >= 1. then

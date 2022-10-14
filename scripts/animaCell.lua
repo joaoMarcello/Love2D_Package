@@ -13,16 +13,16 @@
 
 local EffectManager = require("/scripts/anima_effect/effect_manager")
 
----@alias Point {x: number, y:number}
+---@alias Anima.Point {x: number, y:number}
 --- Table representing a point with x end y coordinates.
 
----@alias Color {[1]: number, [2]: number, [3]: number, [4]: number}|{r: number, g: number, b:number, a:number}
+---@alias Anima.Color {[1]: number, [2]: number, [3]: number, [4]: number}|{r: number, g: number, b:number, a:number}
 --- Represents a color in RGBA space
 
 -- Class to animate.
---- @class Anima
+--- @class Anima: Effect.Affectable
 --- @field __effects_list table <Effect>
---- @field __configuration {scale: Point, color: Color, direction: -1|1, rotation: number, speed: number, flip: table, kx: number, ky: number, current_frame: number}
+--- @field __configuration {scale: Anima.Point, color: Anima.Color, direction: -1|1, rotation: number, speed: number, flip: table, kx: number, ky: number, current_frame: number}
 local Anima = {}
 
 ---@enum AnimaStates
@@ -35,7 +35,7 @@ local ANIMA_STATES = {
 ---
 --- Animation class constructor.
 ---
---- @param args {img: love.Image|string, frames: number, frame_size: Point, speed: number, rotation: number, color: Color, scale: table, origin: table, pos_in_texture: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, kx: number, ky: number} # A table containing the following fields:
+--- @param args {img: love.Image|string, frames: number, frame_size: Anima.Point, speed: number, rotation: number, color: Anima.Color, scale: table, origin: table, pos_in_texture: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, kx: number, ky: number} # A table containing the following fields:
 -- * img (Required): The source image for animation (could be a Love.Image or a string containing the file path). All the frames in the source image should be in the horizontal.
 -- * frames: The amount of frames in the animation.
 -- * frame_size: A table with the animation's frame size. Should contain the index x (width) and y (height).
@@ -57,7 +57,7 @@ end
 ---
 --- Internal method for constructor.
 ---
---- @param args {img: love.Image, frames: number, frame_size: table, speed: number, rotation: number, color: Color, scale: table, origin: table, pos_in_texture: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, stop_at_the_end: boolean, max_rows: number, state: Anima.States, bottom: number, grid: table, kx: number, ky: number}  # A table containing the follow fields:
+--- @param args {img: love.Image, frames: number, frame_size: table, speed: number, rotation: number, color: Anima.Color, scale: table, origin: table, pos_in_texture: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, stop_at_the_end: boolean, max_rows: number, state: Anima.States, bottom: number, grid: table, kx: number, ky: number}  # A table containing the follow fields:
 ---
 function Anima:__constructor__(args)
 
@@ -73,7 +73,7 @@ function Anima:__constructor__(args)
     self.__initial_direction = nil
     self.__direction = (args.is_reversed and -1) or 1
     self.__color = args.color or { 1, 1, 1, 1 }
-    self.__rotation = args.rotation or 0.
+    self.__rotation = args.rotation or 0
     self.__speed = args.speed or 0.3
     self.__current_frame = (self.__direction < 0 and self.__amount_frames) or 1
     self.__stop_at_the_end = args.stop_at_the_end or false
@@ -194,6 +194,22 @@ function Anima:set_scale(scale)
     }
 end
 
+function Anima:get_scale()
+    return self.__scale
+end
+
+--- Sets Animation rotation to a number value.
+---@param value number
+function Anima:set_rotation(value)
+    self.__rotation = value
+end
+
+--- Gets Animation current rotation.
+---@return number
+function Anima:get_rotation()
+    return self.__rotation
+end
+
 --- Return the animation color field.
 ---@return table
 function Anima:get_color()
@@ -206,6 +222,7 @@ end
 ---@param value {r: number, g: number, b: number, a: number}
 function Anima:set_color(value)
     if not value then return end
+    if not self.__color then self.__color = {} end
 
     if value.r or value.g or value.b or value.a then
         self.__color = {
@@ -251,6 +268,10 @@ function Anima:set_state(state)
     else
         self.__current_state = ANIMA_STATES.repeating
     end
+end
+
+function Anima:set_visible(value)
+    self.__is_visible = value
 end
 
 ---
@@ -321,6 +342,10 @@ function Anima:__pop()
     -- self.__current_frame = self.__configuration.current_frame
 
     self.__configuration = nil
+end
+
+function Anima:__get_configuration()
+    return self.__configuration
 end
 
 ---
@@ -443,12 +468,15 @@ end -- END update function
 ---@param x number # The top-left position to draw (x-axis).
 ---@param y number # The top-left position to draw (y-axis).
 function Anima:draw(x, y)
+    if not self.__is_visible then return end
+
     love.graphics.push()
 
-    self:__draw_with_no_effects(x, y)
+    self:__draw_with_no_effects__(x, y)
 
     love.graphics.pop()
 
+    -- Drawing the effects, if some exists.
     self.__effect_manager:draw(x, y)
 end
 
@@ -471,12 +499,16 @@ function Anima:draw_rec(x, y, w, h)
     self:draw(x, y)
 end
 
+function Anima:__draw__(x, y)
+    return self:__draw_with_no_effects__(x, y)
+end
+
 ---
 --- Draw the animation without apply any effect.
 ---
 ---@param x number # The top-left position to draw (x-axis).
 ---@param y number # The top-left position to draw (y-axis).
-function Anima:__draw_with_no_effects(x, y)
+function Anima:__draw_with_no_effects__(x, y)
 
     self.__quad:setViewport(
         self.__pos_in_texture.x + self.__frame_size.x
@@ -491,8 +523,6 @@ function Anima:__draw_with_no_effects(x, y)
     )
 
     love.graphics.setColor(self.__color)
-
-    if not self.__is_visible then return end
 
     love.graphics.draw(self.__img, self.__quad,
         math.floor(x), math.floor(y),
