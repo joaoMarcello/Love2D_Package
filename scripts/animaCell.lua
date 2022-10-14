@@ -11,7 +11,7 @@
     @author Joao Moreira, 2022.
 ]]
 
-local EffectManager = require "/scripts/anima_effect/effect_manager"
+local EffectManager = require("/scripts/anima_effect/effect_manager")
 
 ---@alias Point {x: number, y:number}
 --- Table representing a point with x end y coordinates.
@@ -318,7 +318,7 @@ function Anima:__pop()
     self.__kx = self.__configuration.kx
     self.__ky = self.__configuration.ky
 
-    self.__current_frame = self.__configuration.current_frame
+    -- self.__current_frame = self.__configuration.current_frame
 
     self.__configuration = nil
 end

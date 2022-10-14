@@ -1,5 +1,6 @@
 local Flash = require "/scripts/anima_effect/flash_effect"
 local Flick = require "/scripts/anima_effect/flick_effect"
+local Pulse = require("/scripts/anima_effect/pulse_effect")
 
 ---@class EffectManager
 --- Manages a list of Effect.
@@ -153,6 +154,7 @@ end
 ---|"fadein"
 ---|"fadeout"
 ---|"colorFlick"
+---|"pulse"
 
 
 ---Applies effect in a animation.
@@ -175,6 +177,8 @@ function EffectManager:apply_effect(animation, effect_type, effect_args, __only_
         if not effect_args or (effect_args and not effect_args.color) then
             eff.__color = { 1, 0, 0, 1 }
         end
+    elseif effect_type == "pulse" then
+        eff = Pulse:new(animation, effect_args)
     end
 
     if eff then
@@ -193,9 +197,23 @@ function EffectManager:generate_effect(animation, effect_type, effect_args)
     return self:apply_effect(animation, effect_type, effect_args, true)
 end
 
+function EffectManager:__is_in_list(effect)
+    if not effect then return end
+
+    for i = 1, #self.__effects_list do
+        if effect == self.__effects_list[i] then
+            return true
+        end
+    end
+
+    return false
+end
+
 --- Insert effect.
 ---@param effect Effect
 function EffectManager:__insert_effect(effect)
+    if self:__is_in_list(effect) then return end
+
     table.insert(self.__effects_list, effect)
     self.__sort__ = true
 end

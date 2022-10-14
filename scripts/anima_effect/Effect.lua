@@ -50,7 +50,9 @@ function Effect:__constructor__(animation, args)
     self.__args = args
     self.__remove = false
     self.__update_time = 0
-    self.__duration = nil
+    self.__duration = args and args.duration or nil
+    self.__speed = 0.5
+    self.__max_row = args and args.max_row or nil
 
     if animation then
         animation:__push()
@@ -100,6 +102,7 @@ end
 
 function Effect:__update__(dt)
     if not self.__duration then return end
+
     self.__update_time = self.__update_time + dt
 
     if self.__update_time >= self.__duration then
