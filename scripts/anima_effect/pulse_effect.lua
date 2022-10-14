@@ -24,6 +24,16 @@ function Pulse:__constructor__(args)
     self.__max_row = args and args.max_row or nil
     self.__difX = args and args.difX or 0.1
     self.__difY = args and args.difY or 0.1
+
+    -- self.__acc = 0.5
+    -- self.__speed = 0.05
+    -- self.__max_row = 6
+    -- self.__difX = 0.1
+    -- self.__difY = self.__config.scale.y * 0.25
+end
+
+function Pulse:__init()
+    self:__constructor__(self.__args)
 end
 
 function Pulse:update(dt)
