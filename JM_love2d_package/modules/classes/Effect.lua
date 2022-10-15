@@ -1,36 +1,56 @@
 ---
----@class Effect
----@field __id Effect_ID
+---@class JM_Effect
+---@field __id JM_effect_id_number
 ---@field __UNIQUE_ID number
 ---@field __init function
 local Effect = {}
 
----@alias Effect.Color {[1]: number, [2]: number, [3]: number, [4]: number}|{r: number, g: number, b:number, a:number}
---- The color format for effects.
-
----@alias Effect.Point {x:number, y: number}
---- Table with x and y fileds.
-
 ---
 --- The animation effects.
 ---
----@enum Effect_ID
+---@enum JM_effect_id_number
 local TYPE_ = {
     generic = 0,
     flash = 1,
     flick = 2,
     pulse = 3,
-    colorFlick = 4
+    colorFlick = 4,
+    popin = 5,
+    popout = 6,
+    fadein = 7,
+    fadeout = 8,
+    ghost = 9,
+    spin = 10,
+    clockWise = 11,
+    counterClockWise = 12,
+    balance = 13,
+    pop = 14,
+    growth = 15,
+    disc = 16,
+    iddle = 17,
+    echo = 18,
+    float = 19,
+    pointing = 20, -- floatX
+    darken = 21,
+    brighten = 22,
+    shadow = 23,
+    line = 24,
+    zoomInOut = 25,
+    stretchHorizontal = 26,
+    stretchVertical = 27,
+    circle = 28,
+    eight = 29,
+    bounce = 30
 }
 
 Effect.TYPE = TYPE_
 
 ---
 --- Class effect constructor.
----@overload fun(self: table, object: nil, args: nil):Effect
----@param object Affectable # O objeto que sera afetado pelo efeito.
+---@overload fun(self: table, object: nil, args: nil):JM_Effect
+---@param object JM_Affectable # O objeto que sera afetado pelo efeito.
 ---@param args any
----@return Effect effect
+---@return JM_Effect effect
 function Effect:new(object, args)
 
     local effect = {}
@@ -45,7 +65,7 @@ end
 ---
 --- Class effect constructor.
 ---
----@param object Affectable
+---@param object JM_Affectable
 function Effect:__constructor__(object, args)
     self.__id = Effect.TYPE.generic
     self.__color = { 1, 1, 1, 1 }
@@ -119,6 +139,8 @@ function Effect:update(dt)
 end
 
 function Effect:__update__(dt)
+    assert(self.__object, "Error: Effect object is not associated with a Affectable object.")
+
     self.__update_time = self.__update_time + dt
 
     if self.__duration and self.__update_time >= self.__duration then
@@ -145,7 +167,7 @@ function Effect:draw(x, y)
 end
 
 --- Forca efeito em um objeto que nao era dele.
----@param object Affectable
+---@param object JM_Affectable
 function Effect:force(object)
     if not object then return end
 

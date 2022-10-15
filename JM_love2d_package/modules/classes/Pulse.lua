@@ -1,12 +1,12 @@
 local Effect = require("/JM_love2d_package/modules/classes/Effect")
 
----@class Pulse: Effect
+---@class JM_Pulse: JM_Effect
 local Pulse = Effect:new(nil, nil)
 
 ---comment
----@param object Affectable|nil
+---@param object JM_Affectable|nil
 ---@param args any
----@return Effect
+---@return JM_Effect
 function Pulse:new(object, args)
     local ef = Effect:new(object, args)
     setmetatable(ef, self)
@@ -17,7 +17,7 @@ function Pulse:new(object, args)
 end
 
 ---
----@param self Effect
+---@param self JM_Effect
 ---@param args any
 function Pulse:__constructor__(args)
     self.__id = Effect.TYPE.pulse

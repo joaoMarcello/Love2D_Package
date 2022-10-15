@@ -15,15 +15,11 @@ local EffectManager = require("/JM_love2d_package/modules/classes/EffectManager"
 
 local Affectable = require("/JM_love2d_package/modules/templates/Affectable")
 
----@alias JM_Point {x: number, y:number}
---- Table representing a point with x end y coordinates.
-
----@alias Anima.Color {[1]: number, [2]: number, [3]: number, [4]: number}|{r: number, g: number, b:number, a:number}
---- Represents a color in RGBA space
+local Utils = require("/JM_love2d_package/utils")
 
 -- Class to animate.
---- @class Anima: Affectable
---- @field __configuration {scale: JM_Point, color: Anima.Color, direction: -1|1, rotation: number, speed: number, flip: table, kx: number, ky: number, current_frame: number}
+--- @class JM_Anima: JM_Affectable
+--- @field __configuration {scale: JM_Point, color: JM_Color, direction: -1|1, rotation: number, speed: number, flip: table, kx: number, ky: number, current_frame: number}
 local Anima = {}
 
 ---@enum AnimaStates
@@ -36,13 +32,13 @@ local ANIMA_STATES = {
 ---
 --- Animation class constructor.
 ---
---- @param args {img: love.Image|string, frames: number, frame_size: JM_Point, speed: number, rotation: number, color: Anima.Color, scale: table, origin: table, pos_in_texture: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, kx: number, ky: number} # A table containing the following fields:
+--- @param args {img: love.Image|string, frames: number, frame_size: JM_Point, speed: number, rotation: number, color: JM_Color, scale: table, origin: table, pos_in_texture: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, kx: number, ky: number} # A table containing the following fields:
 -- * img (Required): The source image for animation (could be a Love.Image or a string containing the file path). All the frames in the source image should be in the horizontal.
 -- * frames: The amount of frames in the animation.
 -- * frame_size: A table with the animation's frame size. Should contain the index x (width) and y (height).
 -- * speed: Time in seconds to update frame.
 -- * pos_in_texture: Optional table parameter to indicate where the animation is localized in the image. Useful when there is a lot of animation in one single image (default value is {x=0, y=0}).
---- @return Anima animation # A instance of Anima class.
+--- @return JM_Anima animation # A instance of Anima class.
 function Anima:new(args)
     if not args then return {} end
 
@@ -58,7 +54,7 @@ end
 ---
 --- Internal method for constructor.
 ---
---- @param args {img: love.Image, frames: number, frame_size: table, speed: number, rotation: number, color: Anima.Color, scale: table, origin: table, pos_in_texture: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, stop_at_the_end: boolean, max_rows: number, state: Anima.States, bottom: number, grid: table, kx: number, ky: number}  # A table containing the follow fields:
+--- @param args {img: love.Image, frames: number, frame_size: table, speed: number, rotation: number, color: JM_Color, scale: table, origin: table, pos_in_texture: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, stop_at_the_end: boolean, max_rows: number, state: JM_AnimaStates, bottom: number, grid: table, kx: number, ky: number, width: number, height: number, ref_width: number, ref_height: number}  # A table containing the follow fields:
 ---
 function Anima:__constructor__(args)
 
@@ -98,6 +94,21 @@ function Anima:__constructor__(args)
     self:set_pos_in_texture(args.pos_in_texture)
 
     self:set_scale(args.scale)
+
+    if args.width or args.height then
+        local tt = {
+            x = args.ref_width or self.__frame_size.x,
+            y = args.ref_height or self.__frame_size.y
+        }
+
+        local desired_size_in_pxl = Utils:desired_size(
+            args.width, args.height, tt
+        )
+
+        if desired_size_in_pxl then
+            self:set_scale(desired_size_in_pxl)
+        end
+    end
 
     if args.frame_size or not self.__quad then
         self.__quad = love.graphics.newQuad(0, 0,
@@ -221,7 +232,7 @@ end
 
 ---
 --- Set animation color.
----@overload fun(self: Anima, value: {[1]: number, [2]: number, [3]: number, [4]: number})
+---@overload fun(self: JM_Anima, value: {[1]: number, [2]: number, [3]: number, [4]: number})
 ---@param value {r: number, g: number, b: number, a: number}
 function Anima:set_color(value)
     if not value then return end
@@ -248,14 +259,14 @@ end
 ---
 --- Diferentes estados da animacao
 ---
----@alias Anima.States
+---@alias JM_AnimaStates
 ---|"repeating" # (default) when animation reaches the last frame, the current frame is set to beginning.
 ---|"random" # animation shows his frames in a aleatory order.
 ---|"come and back" # when animation reaches the last frame, the direction of animation changes.
 
 --
 --- Set state.
----@param state Anima.States Possible values are "repeating", "random" or "come and back". If none of these is informed, then the state is setted as "repeating".
+---@param state JM_AnimaStates Possible values are "repeating", "random" or "come and back". If none of these is informed, then the state is setted as "repeating".
 function Anima:set_state(state)
     if state then
         state = string.lower(state)
@@ -355,6 +366,14 @@ function Anima:__set_configuration(config)
     self.__configuration = config
 end
 
+--- Enabla a custom action to execute in animation update method.
+---@param custom_action function
+---@param args any
+function Anima:set_custom_action(custom_action, args)
+    self.__custom_action = custom_action
+    self.__custom_action_args = args
+end
+
 ---
 -- Execute the animation logic.
 ---@param dt number # The delta time.
@@ -369,6 +388,10 @@ function Anima:update(dt)
 
     -- updating the Effects
     self.__effect_manager:update(dt)
+
+    if self.__custom_action then
+        self.__custom_action(self.__custom_action_args)
+    end
 
     if self.__stopped or
         (self.__max_rows and self.__row_count >= self.__max_rows) then
@@ -542,9 +565,9 @@ function Anima:__draw_with_no_effects__(x, y)
 end
 
 --- Aplica efeito na animacao.
----@param effect_type EffectName|Effect_ID
+---@param effect_type JM_effect_id_string|JM_effect_id_number
 ---@param effect_args any
----@return Effect effect
+---@return JM_Effect effect
 function Anima:apply_effect(effect_type, effect_args)
     return self.__effect_manager:apply_effect(self, effect_type, effect_args)
 end

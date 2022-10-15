@@ -1,7 +1,7 @@
 local Effect = require("/JM_love2d_package/modules/classes/Effect")
 
 ---
----@class Flick: Effect
+---@class JM_Flick: JM_Effect
 --- Flick is a Effectsub-class.
 local Flick = Effect:new(nil, nil)
 
@@ -16,7 +16,7 @@ function Flick:new(animation, args)
 end
 
 ---comment
----@param self Effect
+---@param self JM_Effect
 ---@param args any
 function Flick:__constructor__(args)
     self.__id = Effect.TYPE.flick

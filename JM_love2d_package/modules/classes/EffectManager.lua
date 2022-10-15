@@ -3,13 +3,18 @@ local Flash = require("/JM_love2d_package/modules/classes/Flash")
 local Flick = require("/JM_love2d_package/modules/classes/Flick")
 local Pulse = require("/JM_love2d_package/modules/classes/Pulse")
 
----@class EffectManager
+-- Global variable for control the unique id's from EffectManager class. 
+---
+--- > WARNING: Don't ever manipulate this variable.
+JM_current_id_for_effect_manager__ = 1
+
+---@class JM_EffectManager
 --- Manages a list of Effect.
 local EffectManager = {}
 
 ---
 --- Public constructor.
----@return EffectManager
+---@return JM_EffectManager
 function EffectManager:new()
     local obj = {}
     setmetatable(obj, self)
@@ -30,7 +35,7 @@ end
 ---
 --- Return a Effect element in a list of <Effect>
 ---@param index number
----@return Effect effect
+---@return JM_Effect effect
 function EffectManager:__get_effect_in_list__(index)
     return self.__effects_list[index]
 end
@@ -63,8 +68,8 @@ function EffectManager:update(dt)
         if self.__sort__ then
             table.sort(self.__effects_list,
                 --- Sort function. Expecting two Effect objects. Return the one with the biggest priority.
-                ---@param a Effect
-                ---@param b Effect
+                ---@param a JM_Effect
+                ---@param b JM_Effect
                 ---@return boolean
                 function(a, b)
                     return a.__prior > b.__prior;
@@ -138,7 +143,7 @@ function EffectManager:resume_all()
 end
 
 --- Possible values for effect names.
----@alias EffectName string
+---@alias JM_effect_id_string string
 ---|"flash" # animation blinks like a star.
 ---|"flick" # animation surges in the screen.
 ---|"popin"
@@ -150,12 +155,12 @@ end
 
 
 ---Applies effect in a animation.
----@param object Affectable # The object to apply the effect.
----@param effect_type EffectName|Effect_ID # The type of the effect.
+---@param object JM_Affectable|nil # The object to apply the effect.
+---@param effect_type JM_effect_id_string|JM_effect_id_number # The type of the effect.
 ---@param effect_args any # The parameters need for that especific effect.
----@param __only_get boolean|nil
----@return Effect eff # The generate effect.
-function EffectManager:apply_effect(object, effect_type, effect_args, __only_get)
+---@param __only_get__ boolean|nil
+---@return JM_Effect eff # The generate effect.
+function EffectManager:apply_effect(object, effect_type, effect_args, __only_get__)
     -- if not self.__effects_list then self.__effects_list = {} end
 
     local eff
@@ -176,10 +181,10 @@ function EffectManager:apply_effect(object, effect_type, effect_args, __only_get
     end
 
     if eff then
-        eff:set_unique_id(self.__current_id)
-        self.__current_id = self.__current_id + 1
+        eff:set_unique_id(JM_current_id_for_effect_manager__)
+        JM_current_id_for_effect_manager__ = JM_current_id_for_effect_manager__ + 1
 
-        if not __only_get then
+        if not __only_get__ then
             self:__insert_effect(eff)
         end
     end
@@ -187,8 +192,14 @@ function EffectManager:apply_effect(object, effect_type, effect_args, __only_get
     return eff
 end
 
-function EffectManager:generate_effect(animation, effect_type, effect_args)
-    return self:apply_effect(animation, effect_type, effect_args, true)
+---comment
+---@param effect_type JM_effect_id_string|JM_effect_id_number
+---@param effect_args any
+---@return JM_Effect
+function EffectManager:generate_effect(effect_type, effect_args)
+    local eff = self:apply_effect(nil, effect_type, effect_args, true)
+    eff.__object = nil
+    return eff
 end
 
 function EffectManager:__is_in_list(effect)
@@ -204,7 +215,7 @@ function EffectManager:__is_in_list(effect)
 end
 
 --- Insert effect.
----@param effect Effect
+---@param effect JM_Effect
 function EffectManager:__insert_effect(effect)
     if self:__is_in_list(effect) then return end
 

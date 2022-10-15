@@ -1,16 +1,16 @@
 local Effect = require("/JM_love2d_package/modules/classes/Effect")
 
 ---
----@class Flash: Effect
+---@class JM_Flash: JM_Effect
 --- Flash is a Effect sub-class.
 local Flash = Effect:new(nil, nil)
 
 ---
 --- Class Effect constructor.
 ---
----@param object table
+---@param object JM_Affectable|nil
 ---@param args {range: number, alpha: number, speed: number, color: table}|nil
----@return Effect effect
+---@return JM_Effect effect
 function Flash:new(object, args)
     local ef = Effect:new(object, args)
     setmetatable(ef, self)
@@ -22,8 +22,8 @@ end
 
 ---
 --- Constructor.
----@overload fun(self: Effect, args: nil)
----@param self Effect
+---@overload fun(self: JM_Effect, args: nil)
+---@param self JM_Effect
 ---@param args {speed: number, color: table, offset: number}
 function Flash:__constructor__(args)
     self.__id = Effect.TYPE.flash
