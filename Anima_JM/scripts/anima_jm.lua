@@ -12,6 +12,7 @@
 ]]
 
 local EffectManager = require("/Anima_JM/scripts/anima_effect/effect_manager")
+local Affectable = require("/Anima_JM/scripts/anima_effect/Affectable")
 
 ---@alias Anima.Point {x: number, y:number}
 --- Table representing a point with x end y coordinates.
@@ -106,6 +107,7 @@ function Anima:__constructor__(args)
     end
 
     self.__effect_manager = EffectManager:new()
+    Affectable.checks_implementation(self)
 end
 
 ---
@@ -345,6 +347,10 @@ end
 
 function Anima:__get_configuration()
     return self.__configuration
+end
+
+function Anima:__set_configuration(config)
+    self.__configuration = config
 end
 
 ---

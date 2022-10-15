@@ -24,59 +24,6 @@ local TYPE_ = {
 
 Effect.TYPE = TYPE_
 
----@class Affectable
----@field __effect_manager EffectManager
----@field set_color function
----@field __push function
----@field __pop function
----@field __get_configuration function
----@field set_visible function
----@field __draw__ function
----@field set_scale function
----@field get_scale function
----@field set_rotation function
----@field get_rotation function
----@field set_origin function
----@field get_origin function
-local Affectable = {}
-
---- Check if object implements all the needed Affectable methods and fields.
----@param object table
-function Affectable.check_object(object)
-    if not object then return end
-
-    assert(object.__effect_manager, "\nError: The object do not have the required '__effect_manager' field.")
-
-    assert(object.set_color, "\nError: The object do not implements the required 'set_color' method.")
-
-    assert(object.__push,
-        "\nError: The object passed to Effect class constructor  do not implements the required '__push' method.")
-
-    assert(object.__pop,
-        "\nError: The object passed to Effect class constructor  do not implements the required '__pop' method.")
-
-    assert(object.__get_configuration,
-        "\nError: The object passed to Effect class constructor  do not implements the required '__get_configuration' method.")
-
-    assert(object.set_visible,
-        "\nError: The object passed to Effect class constructor  do not implements the required 'set_visible' method.")
-
-    assert(object.__draw__,
-        "\nError: The object passed to Effect class constructor  do not implements the required '__draw__' method.")
-
-    assert(object.set_scale,
-        "\nError: The object passed to Effect class constructor  do not implements the required 'set_scale' method.")
-
-    assert(object.get_scale,
-        "\nError: The object passed to Effect class constructor  do not implements the required 'get_scale' method.")
-
-    assert(object.set_rotation,
-        "\nError: The object passed to Effect class constructor  do not implements the required 'set_rotation' method.")
-
-    assert(object.get_rotation,
-        "\nError: The object passed to Effect class constructor  do not implements the required 'get_rotation' method.")
-end
-
 ---
 --- Class effect constructor.
 ---@overload fun(self: table, object: nil, args: nil):Effect
@@ -128,8 +75,6 @@ function Effect:__constructor__(object, args)
         self.__config = object:__get_configuration()
         object:__pop()
     end
-
-    Affectable.check_object(self.__object)
 end
 
 --
@@ -190,7 +135,7 @@ function Effect:__update__(dt)
 end
 
 function Effect:restaure_object()
-    self.__object.__configuration = self.__config
+    self.__object:__set_configuration(self.__config)
     self.__object:__pop()
 end
 
