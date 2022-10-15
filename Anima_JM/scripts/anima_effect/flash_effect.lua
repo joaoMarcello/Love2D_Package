@@ -32,6 +32,7 @@ function Flash:__constructor__(args)
     self.__color = args and args.color or { 1, 1, 1, 1 }
     self.__origin = -0.3
     self.__range = 1.5 --self.__origin + 0.5
+    self.__object:set_visible(true)
 end
 
 --- Update flash.
@@ -51,6 +52,9 @@ end
 ---@param x number
 ---@param y number
 function Flash:draw(x, y)
+    -- self:restaure_object()
+    -- self.__object:__draw__(x+100, y)
+
     love.graphics.setBlendMode("add", "alphamultiply")
 
     self.__object:set_color({

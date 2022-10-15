@@ -107,6 +107,7 @@ function Anima:__constructor__(args)
     end
 
     self.__effect_manager = EffectManager:new()
+
     Affectable.checks_implementation(self)
 end
 
@@ -540,11 +541,11 @@ function Anima:__draw_with_no_effects__(x, y)
 end
 
 --- Aplica efeito na animacao.
----@param effect_name EffectName
+---@param effect_type EffectName|Effect_ID
 ---@param effect_args any
 ---@return Effect effect
-function Anima:apply_effect(effect_name, effect_args)
-    return self.__effect_manager:apply_effect(self, effect_name, effect_args)
+function Anima:apply_effect(effect_type, effect_args)
+    return self.__effect_manager:apply_effect(self, effect_type, effect_args)
 end
 
 ---Stops a especific effect by his unique id.

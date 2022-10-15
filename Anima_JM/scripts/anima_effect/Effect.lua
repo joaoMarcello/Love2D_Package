@@ -19,7 +19,8 @@ local TYPE_ = {
     generic = 0,
     flash = 1,
     flick = 2,
-    pop = 3
+    pulse = 3,
+    colorFlick = 4
 }
 
 Effect.TYPE = TYPE_
@@ -143,10 +144,28 @@ function Effect:draw(x, y)
     return false
 end
 
+--- Forca efeito em um objeto que nao era dele.
+---@param object Affectable
+function Effect:force(object)
+    if not object then return end
+
+    if object then
+        object:__push()
+        self.__config = object:__get_configuration()
+        object:__pop()
+    end
+
+    self.__object = object
+    self:restart(true)
+    object.__effect_manager:apply_effect(object, self.__id, self.__args)
+end
+
 ---comment
 ---@param value number
 function Effect:set_unique_id(value)
-    self.__UNIQUE_ID = value
+    if not self.__UNIQUE_ID then
+        self.__UNIQUE_ID = value
+    end
 end
 
 --- The unique identifiers.

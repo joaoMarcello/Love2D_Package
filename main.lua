@@ -14,10 +14,10 @@ Test_anima = Anima:new({
 })
 
 local my_effect = Test_anima:apply_effect("flash", {
-    speed = 0.3
+    speed = 0.1
 })
 
-local flash_eff = Test_anima:apply_effect("pulse")
+-- local flash_eff = Test_anima:apply_effect("pulse")
 
 
 Test_anima2 = Anima:new({
@@ -40,11 +40,14 @@ end
 function love.update(dt)
     if Test_anima:time_updating() >= 1 then
         Test_anima:stop_effect(my_effect:get_unique_id())
+        Test_anima2:stop_effect(my_effect:get_unique_id())
     end
 
     if Test_anima:time_updating() >= 4 then
         Test_anima:zera_time_updating()
-        my_effect:restart(true)
+        my_effect:force(Test_anima2)
+        -- Test_anima:zera_time_updating()
+        -- my_effect:restart(true)
     end
 
     if Test_anima:time_updating() >= 1. then

@@ -20,6 +20,7 @@ end
 ---@param self Effect
 ---@param args any
 function Pulse:__constructor__(args)
+    self.__id = Effect.TYPE.pulse
     self.__acc = 0
     self.__adjust = args and args.adjust or math.pi
     self.__speed = args and args.speed or 0.5

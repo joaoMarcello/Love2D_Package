@@ -1,3 +1,4 @@
+local Effect = require("/Anima_JM/scripts/anima_effect/Effect")
 local Flash = require "/Anima_JM/scripts/anima_effect/flash_effect"
 local Flick = require "/Anima_JM/scripts/anima_effect/flick_effect"
 local Pulse = require("/Anima_JM/scripts/anima_effect/pulse_effect")
@@ -8,7 +9,6 @@ local EffectManager = {}
 
 ---
 --- Public constructor.
----@overload fun(effect_list: nil): EffectManager
 ---@return EffectManager
 function EffectManager:new()
     local obj = {}
@@ -85,6 +85,7 @@ function EffectManager:draw(x, y)
         for i = #self.__effects_list, 1, -1 do
             local eff = self:__get_effect_in_list__(i)
             eff:draw(x, y)
+            eff:restaure_object()
         end
     end
 end
@@ -149,26 +150,28 @@ end
 
 
 ---Applies effect in a animation.
----@param object Anima # The object to apply the effect.
----@param effect_type EffectName # The type of the effect.
+---@param object Affectable # The object to apply the effect.
+---@param effect_type EffectName|Effect_ID # The type of the effect.
 ---@param effect_args any # The parameters need for that especific effect.
 ---@param __only_get boolean|nil
 ---@return Effect eff # The generate effect.
 function EffectManager:apply_effect(object, effect_type, effect_args, __only_get)
-    if not self.__effects_list then self.__effects_list = {} end
+    -- if not self.__effects_list then self.__effects_list = {} end
 
     local eff
 
-    if effect_type == "flash" then
+    if effect_type == "flash" or effect_type == Effect.TYPE.flash then
         eff = Flash:new(object, effect_args)
-    elseif effect_type == "flick" then
+    elseif effect_type == "flick" or effect_type == Effect.TYPE.flick then
         eff = Flick:new(object, effect_args)
-    elseif effect_type == "colorFlick" then
+    elseif effect_type == "colorFlick"
+        or effect_type == Effect.TYPE.colorFlick then
+
         eff = Flick:new(object, effect_args)
         if not effect_args or (effect_args and not effect_args.color) then
             eff.__color = { 1, 0, 0, 1 }
         end
-    elseif effect_type == "pulse" then
+    elseif effect_type == "pulse" or effect_type == Effect.TYPE.pulse then
         eff = Pulse:new(object, effect_args)
     end
 

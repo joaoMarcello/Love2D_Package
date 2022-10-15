@@ -1,3 +1,5 @@
+local EffectManager = require("/Anima_JM/scripts/anima_effect/effect_manager")
+
 ---@class Affectable
 ---@field __effect_manager EffectManager
 ---@field set_color function
