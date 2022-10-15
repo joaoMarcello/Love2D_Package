@@ -1,7 +1,7 @@
-local Effect = require("/Anima_JM/scripts/anima_effect/Effect")
-local Flash = require "/Anima_JM/scripts/anima_effect/flash_effect"
-local Flick = require "/Anima_JM/scripts/anima_effect/flick_effect"
-local Pulse = require("/Anima_JM/scripts/anima_effect/pulse_effect")
+local Effect = require("/JM_love2d_package/modules/classes/Effect")
+local Flash = require("/JM_love2d_package/modules/classes/Flash")
+local Flick = require("/JM_love2d_package/modules/classes/Flick")
+local Pulse = require("/JM_love2d_package/modules/classes/Pulse")
 
 ---@class EffectManager
 --- Manages a list of Effect.

@@ -157,7 +157,6 @@ function Effect:force(object)
 
     self.__object = object
     self:restart(true)
-    -- object.__effect_manager:apply_effect(object, self.__id, self.__args)
 end
 
 ---comment
@@ -179,7 +178,6 @@ end
 function Effect:restart(reset_config)
     if reset_config then
         self:init()
-        -- local r = self.__init and self:__init()
     end
     self.__object.__effect_manager:__insert_effect(self)
 end

@@ -1,4 +1,4 @@
-local Anima = require "/Anima_JM/load_module"
+local Anima = require "/JM_love2d_package/load_animation_module"
 
 Test_anima = Anima:new({
     img = "/data/goomba.png",
@@ -13,7 +13,7 @@ Test_anima = Anima:new({
     frame_size = { x = 122, y = 104 }
 })
 
-local my_effect = Test_anima:apply_effect("flash", {
+local my_effect = Test_anima:apply_effect("pulse", {
     speed = 0.1
 })
 

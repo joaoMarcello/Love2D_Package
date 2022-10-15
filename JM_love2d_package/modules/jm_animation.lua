@@ -11,10 +11,11 @@
     @author Joao Moreira, 2022.
 ]]
 
-local EffectManager = require("/Anima_JM/scripts/anima_effect/effect_manager")
-local Affectable = require("/Anima_JM/scripts/anima_effect/Affectable")
+local EffectManager = require("/JM_love2d_package/modules/classes/EffectManager")
 
----@alias Anima.Point {x: number, y:number}
+local Affectable = require("/JM_love2d_package/modules/templates/Affectable")
+
+---@alias JM_Point {x: number, y:number}
 --- Table representing a point with x end y coordinates.
 
 ---@alias Anima.Color {[1]: number, [2]: number, [3]: number, [4]: number}|{r: number, g: number, b:number, a:number}
@@ -22,7 +23,7 @@ local Affectable = require("/Anima_JM/scripts/anima_effect/Affectable")
 
 -- Class to animate.
 --- @class Anima: Affectable
---- @field __configuration {scale: Anima.Point, color: Anima.Color, direction: -1|1, rotation: number, speed: number, flip: table, kx: number, ky: number, current_frame: number}
+--- @field __configuration {scale: JM_Point, color: Anima.Color, direction: -1|1, rotation: number, speed: number, flip: table, kx: number, ky: number, current_frame: number}
 local Anima = {}
 
 ---@enum AnimaStates
@@ -35,7 +36,7 @@ local ANIMA_STATES = {
 ---
 --- Animation class constructor.
 ---
---- @param args {img: love.Image|string, frames: number, frame_size: Anima.Point, speed: number, rotation: number, color: Anima.Color, scale: table, origin: table, pos_in_texture: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, kx: number, ky: number} # A table containing the following fields:
+--- @param args {img: love.Image|string, frames: number, frame_size: JM_Point, speed: number, rotation: number, color: Anima.Color, scale: table, origin: table, pos_in_texture: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, kx: number, ky: number} # A table containing the following fields:
 -- * img (Required): The source image for animation (could be a Love.Image or a string containing the file path). All the frames in the source image should be in the horizontal.
 -- * frames: The amount of frames in the animation.
 -- * frame_size: A table with the animation's frame size. Should contain the index x (width) and y (height).

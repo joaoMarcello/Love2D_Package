@@ -1,4 +1,4 @@
-local Effect = require "/Anima_JM/scripts/anima_effect/Effect"
+local Effect = require("/JM_love2d_package/modules/classes/Effect")
 
 ---
 ---@class Flash: Effect

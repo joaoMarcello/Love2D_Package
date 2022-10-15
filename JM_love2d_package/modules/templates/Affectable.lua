@@ -1,4 +1,4 @@
-local EffectManager = require("/Anima_JM/scripts/anima_effect/effect_manager")
+local EffectManager = require("/JM_love2d_package/modules/classes/EffectManager")
 
 ---@class Affectable
 ---@field __effect_manager EffectManager
