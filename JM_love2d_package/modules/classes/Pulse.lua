@@ -31,6 +31,7 @@ function Pulse:__constructor__(args)
     self.__difX = args and args.difX or 0.1
     self.__difY = args and args.difY or 0.1
     self.__rad = math.pi
+    self.__prior = 2
 
     -- self.__acc = 0.5
     -- self.__speed = 0.05

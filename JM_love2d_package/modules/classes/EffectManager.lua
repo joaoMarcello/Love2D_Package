@@ -3,7 +3,7 @@ local Flash = require("/JM_love2d_package/modules/classes/Flash")
 local Flick = require("/JM_love2d_package/modules/classes/Flick")
 local Pulse = require("/JM_love2d_package/modules/classes/Pulse")
 
--- Global variable for control the unique id's from EffectManager class. 
+-- Global variable for control the unique id's from EffectManager class.
 ---
 --- > WARNING: Don't ever manipulate this variable.
 JM_current_id_for_effect_manager__ = 1
@@ -146,12 +146,34 @@ end
 ---@alias JM_effect_id_string string
 ---|"flash" # animation blinks like a star.
 ---|"flick" # animation surges in the screen.
+---|"pulse"
+---|"colorFlick"
 ---|"popin"
 ---|"popout"
 ---|"fadein"
 ---|"fadeout"
----|"colorFlick"
----|"pulse"
+---|"ghost"
+---|"spin"
+---|"clockWise"
+---|"counterClockWise"
+---|"balance"
+---|"pop"
+---|"growth"
+---|"disc"
+---|"idle"
+---|"echo"
+---|"float"
+---|"pointing"
+---|"darken"
+---|"brighten"
+---|"shadow"
+---|"line"
+---|"zoomInOut"
+---|"stretchHorizontal"
+---|"stretchVertical"
+---|"circle"
+---|"eight"
+---|"bounce"
 
 
 ---Applies effect in a animation.
@@ -173,6 +195,8 @@ function EffectManager:apply_effect(object, effect_type, effect_args, __only_get
         or effect_type == Effect.TYPE.colorFlick then
 
         eff = Flick:new(object, effect_args)
+        eff.__id = Effect.TYPE.colorFlick
+
         if not effect_args or (effect_args and not effect_args.color) then
             eff.__color = { 1, 0, 0, 1 }
         end

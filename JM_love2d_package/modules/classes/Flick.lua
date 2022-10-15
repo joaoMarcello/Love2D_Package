@@ -23,26 +23,24 @@ function Flick:__constructor__(args)
     self.__speed = args and args.speed or 0.1
     self.__time = 0
     self.__color = args and args.color or { 0, 0, 1, 0 }
-    self.__state = 1
+    self.__flick_state = 1
     self.__sequence = -1
 end
 
 function Flick:update(dt)
     self.__time = self.__time + dt
     if self.__time >= self.__speed then
-        self.__state = -self.__state
+        self.__flick_state = -self.__flick_state
         self.__time = self.__time - self.__speed
         self.__sequence = self.__sequence + 1
     end
 
-    if self.__state == 1 then
+    if self.__flick_state == 1 then
         self.__object:set_color(self.__color)
-    elseif self.__state == -1 then
+    elseif self.__flick_state == -1 then
         -- self.__object:set_color(self.__config.color)
-        self:restaure_object()
+        -- self:restaure_object()
     end
-
-    -- self.__object:set_color({ a = self.__object:get_color()[4] or 1 })
 end
 
 return Flick

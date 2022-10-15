@@ -7,7 +7,7 @@ Test_anima = Anima:new({
     speed = 0.15,
     width = 100, height = 100,
     ref_width = 60, ref_height = 69,
-    bottom = 90,
+    bottom = 89,
     flip_x = false,
     flip_y = false,
     is_reversed = false,
@@ -18,23 +18,28 @@ Test_anima = Anima:new({
 --     speed = 0.1
 -- })
 
-local my_effect = EffectManager:generate_effect("pulse")
+local my_effect = EffectManager:generate_effect("flick")
 my_effect:force(Test_anima)
 
----comment
----@param args {anima: JM_Anima, eff: JM_Effect}
-local action = function(args)
-    if args.anima:time_updating() >= 2 then
-        args.anima:stop_effect(args.eff:get_unique_id())
-    end
+local flick = EffectManager:generate_effect("flick")
+-- flick:force(Test_anima)
 
-    if args.anima:time_updating() >= 4 then
-        args.anima:zera_time_updating()
-        args.eff:restart(true)
-    end
-end
+-- Test_anima:apply_effect("colorFlick")
 
-Test_anima:set_custom_action(action, { anima = Test_anima, eff = my_effect })
+
+-- ---@param args {anima: JM_Anima, eff: JM_Effect}
+-- local action = function(args)
+--     if args.anima:time_updating() >= 2 then
+--         args.anima:stop_effect(args.eff:get_unique_id())
+--     end
+
+--     if args.anima:time_updating() >= 4 then
+--         args.anima:zera_time_updating()
+--         args.eff:force(args.anima)
+--         args.eff:restart(true)
+--     end
+-- end
+-- Test_anima:set_custom_action(action, { anima = Test_anima, eff = my_effect })
 
 
 -- local flash_eff = Test_anima:apply_effect("pulse")
@@ -59,16 +64,13 @@ end
 
 function love.update(dt)
     if Test_anima:time_updating() >= 1 then
-        -- Test_anima:stop_effect(my_effect:get_unique_id())
-        -- Test_anima2:stop_effect(my_effect:get_unique_id())
+        Test_anima:stop_effect(my_effect)
+        Test_anima2:stop_effect(my_effect)
     end
 
     if Test_anima:time_updating() >= 4 then
-        -- Test_anima:zera_time_updating()
-        -- my_effect:force(Test_anima2)
-
-        -- Test_anima:zera_time_updating()
-        -- my_effect:restart(true)
+        Test_anima:zera_time_updating()
+        my_effect:force(Test_anima2)
     end
 
     if Test_anima:time_updating() >= 1. then
@@ -80,8 +82,8 @@ function love.update(dt)
 end
 
 function love.draw()
+    love.graphics.setColor(1,1,1,1)
     love.graphics.rectangle("fill", 200, 300, 100, 100)
     Test_anima:draw_rec(200, 300, 100, 100)
     Test_anima2:draw_rec(300, 100, 100, 100)
-    love.graphics.print(tostring(Test_anima.__current_frame), 0, 0)
 end

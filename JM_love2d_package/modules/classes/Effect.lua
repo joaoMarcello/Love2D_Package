@@ -5,6 +5,8 @@
 ---@field __init function
 local Effect = {}
 
+local MSG_using_effect_with_no_associated_affectable = "\nError: Trying to use a 'Effect' object without associate him to a 'Affectable' object.\n\nTip: Try use the ':force' method from the 'Effect' object."
+
 ---
 --- The animation effects.
 ---
@@ -27,7 +29,7 @@ local TYPE_ = {
     pop = 14,
     growth = 15,
     disc = 16,
-    iddle = 17,
+    idle = 17,
     echo = 18,
     float = 19,
     pointing = 20, -- floatX
@@ -107,23 +109,25 @@ function Effect:set_final_action(action, args)
     self.__args_final_action = args
 end
 
---- Set effect in loop mode.
----@param value boolean
-function Effect:loop_mode(value)
-    if value then
-        self:set_final_action(
-            function(args)
-                local eff = args:applyEffect(self.__args)
-                eff:loop_mode(true)
-            end,
+-- --- Set effect in loop mode.
+-- ---@param value boolean
+-- function Effect:loop_mode(value)
+--     if value then
+--         self:set_final_action(
+--         ---comment
+--         ---@param args JM_Affectable
+--             function(args)
+--                 local eff = args:applyEffect(self.__args)
+--                 eff:loop_mode(true)
+--             end,
 
-            self.__object
-        )
-    else -- value parameter is nil or false
-        self.__final_action = nil
-        self.__args_final_action = nil
-    end
-end
+--             self.__object
+--         )
+--     else -- value parameter is nil or false
+--         self.__final_action = nil
+--         self.__args_final_action = nil
+--     end
+-- end
 
 function Effect:init()
     self.__remove = false
@@ -145,7 +149,6 @@ function Effect:__update__(dt)
 
     if self.__duration and self.__update_time >= self.__duration then
         self.__remove = true
-        return
     end
 
     if self.__max_sequence
@@ -153,11 +156,17 @@ function Effect:__update__(dt)
         and (self.__sequence >= self.__max_sequence) then
 
         self.__remove = true
-        return
+    end
+
+    if self.__remove then
+        if self.__final_action then
+            self.__final_action(self.__args_final_action)
+        end
     end
 end
 
 function Effect:restaure_object()
+    assert(self.__object, MSG_using_effect_with_no_associated_affectable)
     self.__object:__set_configuration(self.__config)
     self.__object:__pop()
 end
@@ -201,6 +210,8 @@ function Effect:restart(reset_config)
     if reset_config then
         self:init()
     end
+
+    assert(self.__object, MSG_using_effect_with_no_associated_affectable)
     self.__object.__effect_manager:__insert_effect(self)
 end
 

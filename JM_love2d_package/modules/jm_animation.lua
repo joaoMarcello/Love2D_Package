@@ -315,13 +315,13 @@ function Anima:__push()
 
     self.__configuration.scale = { x = self.__scale.x, y = self.__scale.y }
     self.__configuration.color = self.__color
-    self.__configuration.direction = self.__direction
+    -- self.__configuration.direction = self.__direction
     self.__configuration.rotation = self.__rotation
-    self.__configuration.speed = self.__speed
-    self.__configuration.flip = { x = self.__flip.x, y = self.__flip.y }
+    -- self.__configuration.speed = self.__speed
+    -- self.__configuration.flip = { x = self.__flip.x, y = self.__flip.y }
     self.__configuration.kx = self.__kx
     self.__configuration.ky = self.__ky
-    self.__configuration.current_frame = self.__current_frame
+    -- self.__configuration.current_frame = self.__current_frame
 end
 
 --
@@ -341,14 +341,14 @@ function Anima:__pop()
         self.__configuration.color[1], self.__configuration.color[2],
         self.__configuration.color[3], self.__configuration.color[4] or 1
     }
-    self.__direction = self.__configuration.direction
+    -- self.__direction = self.__configuration.direction
     self.__rotation = self.__configuration.rotation
-    self.__speed = self.__configuration.speed
+    -- self.__speed = self.__configuration.speed
 
-    self.__flip = {
-        x = self.__configuration.flip.x,
-        y = self.__configuration.flip.y
-    }
+    -- self.__flip = {
+    --     x = self.__configuration.flip.x,
+    --     y = self.__configuration.flip.y
+    -- }
 
     self.__kx = self.__configuration.kx
     self.__ky = self.__configuration.ky
@@ -573,10 +573,13 @@ function Anima:apply_effect(effect_type, effect_args)
 end
 
 ---Stops a especific effect by his unique id.
----@param effect_id number
+---@param effect_id number|JM_Effect
 ---@return boolean
 function Anima:stop_effect(effect_id)
-    return self.__effect_manager:stop_effect(effect_id)
+    if type(effect_id) == "number" then
+        return self.__effect_manager:stop_effect(effect_id)
+    end
+    return self.__effect_manager:stop_effect(effect_id:get_unique_id())
 end
 
 ---Tells if animation is flipped in y-axis.
