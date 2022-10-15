@@ -17,6 +17,7 @@ local my_effect = Test_anima:apply_effect("flash", {
     speed = 0.1
 })
 
+
 -- local flash_eff = Test_anima:apply_effect("pulse")
 
 
@@ -46,6 +47,7 @@ function love.update(dt)
     if Test_anima:time_updating() >= 4 then
         Test_anima:zera_time_updating()
         my_effect:force(Test_anima2)
+
         -- Test_anima:zera_time_updating()
         -- my_effect:restart(true)
     end

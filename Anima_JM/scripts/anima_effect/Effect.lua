@@ -157,7 +157,7 @@ function Effect:force(object)
 
     self.__object = object
     self:restart(true)
-    object.__effect_manager:apply_effect(object, self.__id, self.__args)
+    -- object.__effect_manager:apply_effect(object, self.__id, self.__args)
 end
 
 ---comment
