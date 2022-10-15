@@ -11,7 +11,7 @@
     @author Joao Moreira, 2022.
 ]]
 
-local EffectManager = require("/scripts/anima_effect/effect_manager")
+local EffectManager = require("/Anima_JM/scripts/anima_effect/effect_manager")
 
 ---@alias Anima.Point {x: number, y:number}
 --- Table representing a point with x end y coordinates.
@@ -20,8 +20,7 @@ local EffectManager = require("/scripts/anima_effect/effect_manager")
 --- Represents a color in RGBA space
 
 -- Class to animate.
---- @class Anima: Effect.Affectable
---- @field __effects_list table <Effect>
+--- @class Anima: Affectable
 --- @field __configuration {scale: Anima.Point, color: Anima.Color, direction: -1|1, rotation: number, speed: number, flip: table, kx: number, ky: number, current_frame: number}
 local Anima = {}
 

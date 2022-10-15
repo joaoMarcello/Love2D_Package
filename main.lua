@@ -1,4 +1,4 @@
-local Anima = require "/AnimaJM"
+local Anima = require "/Anima_JM/load_module"
 
 Test_anima = Anima:new({
     img = "/data/goomba.png",
@@ -13,8 +13,11 @@ Test_anima = Anima:new({
     frame_size = { x = 122, y = 104 }
 })
 
-local my_effect = Test_anima:apply_effect("pulse", { max_row = 2, speed=0.2 })
--- local flash_eff = Test_anima:apply_effect("flash")
+local my_effect = Test_anima:apply_effect("flash", {
+    speed = 0.3
+})
+
+local flash_eff = Test_anima:apply_effect("pulse")
 
 
 Test_anima2 = Anima:new({
@@ -35,8 +38,8 @@ function love.load()
 end
 
 function love.update(dt)
-    if Test_anima:time_updating() >= 1. then
-        -- Test_anima:stop_effect(my_effect:get_unique_id())
+    if Test_anima:time_updating() >= 1 then
+        Test_anima:stop_effect(my_effect:get_unique_id())
     end
 
     if Test_anima:time_updating() >= 4 then

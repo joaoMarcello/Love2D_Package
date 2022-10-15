@@ -24,7 +24,7 @@ local TYPE_ = {
 
 Effect.TYPE = TYPE_
 
----@class Effect.Affectable
+---@class Affectable
 ---@field __effect_manager EffectManager
 ---@field set_color function
 ---@field __push function
@@ -80,7 +80,7 @@ end
 ---
 --- Class effect constructor.
 ---@overload fun(self: table, object: nil, args: nil):Effect
----@param object Effect.Affectable # O objeto que sera afetado pelo efeito.
+---@param object Affectable # O objeto que sera afetado pelo efeito.
 ---@param args any
 ---@return Effect effect
 function Effect:new(object, args)
@@ -97,7 +97,7 @@ end
 ---
 --- Class effect constructor.
 ---
----@param object Effect.Affectable
+---@param object Affectable
 function Effect:__constructor__(object, args)
     self.__id = Effect.TYPE.generic
     self.__color = { 1, 1, 1, 1 }
@@ -105,14 +105,15 @@ function Effect:__constructor__(object, args)
     self.__is_enabled = true
     self.__prior = 1
     self.__rad = 0
-    self.__row = 0
+    self.__sequence = 0
     self.__object = object
     self.__args = args
     self.__remove = false
     self.__update_time = 0
     self.__duration = args and args.duration or nil
     self.__speed = 0.5
-    self.__max_row = args and args.max_row or 100
+    self.__max_sequence = args and args.max_sequence or 100
+    self.__ends_by_sequence = args and args.max_sequence or false
 
     self.__transform = {
         x = 0, y = 0,
@@ -162,8 +163,9 @@ function Effect:init()
     self.__remove = false
     self.__is_enabled = true
     self.__rad = 0
-    self.__row = 0
+    self.__sequence = 0
     self.__update_time = 0
+    self:__constructor__(self.__args)
 end
 
 function Effect:update(dt)
@@ -178,7 +180,10 @@ function Effect:__update__(dt)
         return
     end
 
-    if self.__max_row and (self.__row >= self.__max_row) then
+    if self.__max_sequence
+        and self.__ends_by_sequence
+        and (self.__sequence >= self.__max_sequence) then
+
         self.__remove = true
         return
     end
@@ -210,7 +215,7 @@ end
 function Effect:restart(reset_config)
     if reset_config then
         self:init()
-        local r = self.__init and self:__init()
+        -- local r = self.__init and self:__init()
     end
     self.__object.__effect_manager:__insert_effect(self)
 end

@@ -1,6 +1,6 @@
-local Flash = require "/scripts/anima_effect/flash_effect"
-local Flick = require "/scripts/anima_effect/flick_effect"
-local Pulse = require("/scripts/anima_effect/pulse_effect")
+local Flash = require "/Anima_JM/scripts/anima_effect/flash_effect"
+local Flick = require "/Anima_JM/scripts/anima_effect/flick_effect"
+local Pulse = require("/Anima_JM/scripts/anima_effect/pulse_effect")
 
 ---@class EffectManager
 --- Manages a list of Effect.
@@ -9,31 +9,22 @@ local EffectManager = {}
 ---
 --- Public constructor.
 ---@overload fun(effect_list: nil): EffectManager
----@param effect_list table <Effect>
 ---@return EffectManager
-function EffectManager:new(effect_list)
+function EffectManager:new()
     local obj = {}
     setmetatable(obj, self)
     self.__index = self
 
-    EffectManager.__constructor__(obj, effect_list)
+    EffectManager.__constructor__(obj)
     return obj
 end
 
 ---
 --- Constructor.
---- @overload fun(effect_list: nil)
----@param effect_list table <Effect>
-function EffectManager:__constructor__(effect_list)
-    self:set_effect_list(effect_list)
+function EffectManager:__constructor__()
+    self.__effects_list = {}
     self.__sort__ = false
     self.__current_id = 1
-end
-
---- Set the list to manager.
----@param new_list table <Effect>
-function EffectManager:set_effect_list(new_list)
-    self.__effects_list = new_list or {}
 end
 
 ---
@@ -158,27 +149,27 @@ end
 
 
 ---Applies effect in a animation.
----@param animation Anima # The animation object to apply the effect.
+---@param object Anima # The object to apply the effect.
 ---@param effect_type EffectName # The type of the effect.
 ---@param effect_args any # The parameters need for that especific effect.
 ---@param __only_get boolean|nil
 ---@return Effect eff # The generate effect.
-function EffectManager:apply_effect(animation, effect_type, effect_args, __only_get)
+function EffectManager:apply_effect(object, effect_type, effect_args, __only_get)
     if not self.__effects_list then self.__effects_list = {} end
 
     local eff
 
     if effect_type == "flash" then
-        eff = Flash:new(animation, effect_args)
+        eff = Flash:new(object, effect_args)
     elseif effect_type == "flick" then
-        eff = Flick:new(animation, effect_args)
+        eff = Flick:new(object, effect_args)
     elseif effect_type == "colorFlick" then
-        eff = Flick:new(animation, effect_args)
+        eff = Flick:new(object, effect_args)
         if not effect_args or (effect_args and not effect_args.color) then
             eff.__color = { 1, 0, 0, 1 }
         end
     elseif effect_type == "pulse" then
-        eff = Pulse:new(animation, effect_args)
+        eff = Pulse:new(object, effect_args)
     end
 
     if eff then

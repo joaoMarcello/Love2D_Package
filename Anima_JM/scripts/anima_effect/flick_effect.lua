@@ -1,4 +1,4 @@
-local Effect = require "/scripts/anima_effect/Effect"
+local Effect = require "/Anima_JM/scripts/anima_effect/Effect"
 
 ---
 ---@class Flick: Effect
@@ -24,6 +24,7 @@ function Flick:__constructor__(args)
     self.__time = 0
     self.__color = args and args.color or { 0, 0, 1, 0 }
     self.__state = 1
+    self.__sequence = -1
 end
 
 function Flick:update(dt)
@@ -31,12 +32,14 @@ function Flick:update(dt)
     if self.__time >= self.__speed then
         self.__state = -self.__state
         self.__time = self.__time - self.__speed
+        self.__sequence = self.__sequence + 1
     end
 
     if self.__state == 1 then
         self.__object:set_color(self.__color)
     elseif self.__state == -1 then
-        self.__object:set_color(self.__config.color)
+        -- self.__object:set_color(self.__config.color)
+        self:restaure_object()
     end
 
     -- self.__object:set_color({ a = self.__object:get_color()[4] or 1 })

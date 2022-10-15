@@ -1,10 +1,10 @@
-local Effect = require("/scripts/anima_effect/Effect")
+local Effect = require("/Anima_JM/scripts/anima_effect/Effect")
 
 ---@class Pulse: Effect
 local Pulse = Effect:new(nil, nil)
 
 ---comment
----@param object Effect.Affectable|nil
+---@param object Affectable|nil
 ---@param args any
 ---@return Effect
 function Pulse:new(object, args)
@@ -24,20 +24,18 @@ function Pulse:__constructor__(args)
     self.__adjust = args and args.adjust or math.pi
     self.__speed = args and args.speed or 0.5
     self.__range = args and args.range or 0.2
-    self.__row = 0
-    self.__max_row = args and args.max_row or self.__max_row
+    self.__sequence = 0
+    self.__max_sequence = args and args.max_sequence
+        or self.__max_sequence
     self.__difX = args and args.difX or 0.1
     self.__difY = args and args.difY or 0.1
+    self.__rad = math.pi
 
     -- self.__acc = 0.5
     -- self.__speed = 0.05
     -- self.__max_row = 6
     -- self.__difX = 0.1
     -- self.__difY = self.__config.scale.y * 0.25
-end
-
-function Pulse:__init()
-    self:__constructor__(self.__args)
 end
 
 function Pulse:update(dt)
@@ -47,7 +45,7 @@ function Pulse:update(dt)
 
     if self.__rad >= (math.pi * 2) then
         self.__rad = self.__rad % (math.pi * 2)
-        self.__row = self.__row + 1
+        self.__sequence = self.__sequence + 1
     end
 
     if self.__difX and self.__difX ~= 0 then

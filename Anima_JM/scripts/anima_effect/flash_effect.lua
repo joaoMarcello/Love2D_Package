@@ -1,4 +1,4 @@
-local Effect = require "/scripts/anima_effect/Effect"
+local Effect = require "/Anima_JM/scripts/anima_effect/Effect"
 
 ---
 ---@class Flash: Effect
@@ -24,25 +24,25 @@ end
 --- Constructor.
 ---@overload fun(self: Effect, args: nil)
 ---@param self Effect
----@param args {range: number, speed: number, color: table}
+---@param args {speed: number, color: table, offset: number}
 function Flash:__constructor__(args)
     self.__id = Effect.TYPE.flash
-    self.__range = args and args.range or 0.6
     self.__alpha = 1
-    self.__speed = args and args.speed or 0.3
+    self.__speed = args and args.speed or 0.5
     self.__color = args and args.color or { 1, 1, 1, 1 }
-    self.__origin = 0.5
-end
-
-function Flash:__init__()
-    self:__constructor__(self.__args)
+    self.__origin = -0.3
+    self.__range = 1.5 --self.__origin + 0.5
 end
 
 --- Update flash.
 ---@param dt number
 function Flash:update(dt)
     self.__rad = (self.__rad + math.pi * 2. / self.__speed * dt)
-        % (math.pi * 2.)
+
+    if self.__rad >= math.pi then
+        self.__rad = self.__rad % math.pi
+        self.__sequence = self.__sequence + 1
+    end
 
     self.__alpha = self.__origin + (math.sin(self.__rad) * self.__range)
 end
