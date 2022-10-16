@@ -1,5 +1,5 @@
 ---
----@class JM_Effect
+---@class JM.Effect
 ---@field __id JM.Effect.id_number
 ---@field __UNIQUE_ID number
 ---@field __init function
@@ -49,10 +49,10 @@ Effect.TYPE = TYPE_
 
 ---
 --- Class effect constructor.
----@overload fun(self: table|nil, object: nil, args: nil):JM_Effect
+---@overload fun(self: table|nil, object: nil, args: nil):JM.Effect
 ---@param object JM_Affectable # O objeto que sera afetado pelo efeito.
 ---@param args any
----@return JM_Effect effect
+---@return JM.Effect effect
 function Effect:new(object, args)
 
     local effect = {}
@@ -213,12 +213,6 @@ function Effect:restart(reset_config)
 
     assert(self.__object, MSG_using_effect_with_no_associated_affectable)
     self.__object.__effect_manager:__insert_effect(self)
-end
-
---- Tells if this is a flash effect.
----@return boolean result
-function Effect:is_flash()
-    return self.__id == TYPE_.flash
 end
 
 return Effect

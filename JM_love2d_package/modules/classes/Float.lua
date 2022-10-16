@@ -1,11 +1,11 @@
 local Effect = require("/JM_love2d_package/modules/classes/Effect")
 
----@class JM.Effect.Float: JM_Effect
+---@class JM.Effect.Float: JM.Effect
 local Float__ = Effect:new(nil, nil)
 
 ---@param object JM_Affectable|nil
 ---@param args any|nil
----@return JM_Effect
+---@return JM.Effect
 function Float__:new(object, args)
     local obj = Effect:new(object, args)
     setmetatable(obj, self)
@@ -15,7 +15,7 @@ function Float__:new(object, args)
     return obj
 end
 
----@param self JM_Effect
+---@param self JM.Effect
 ---@param args any|nil
 function Float__:__constructor__(args)
     self.__id = Effect.TYPE.float
@@ -25,6 +25,7 @@ function Float__:__constructor__(args)
     self.__floatX = false
     self.__floatY = true
     self.__adjust = math.pi / 2
+    self.__rad = 0
 end
 
 function Float__:update(dt)

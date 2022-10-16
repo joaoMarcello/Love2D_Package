@@ -35,8 +35,11 @@ Anima2:stop_at_the_end(true,
     end, Anima2)
 Anima2:reset()
 
-local my_effect = EffectGenerator:generate("float")
+local my_effect = EffectGenerator:generate("float", {max_sequence=3})
 my_effect:apply(Test_anima)
+
+Test_anima:apply_effect("flash")
+Test_anima:apply_effect("flick")
 
 -- local flick = EffectManager:generate_effect("flash")
 -- flick:force(Test_anima)

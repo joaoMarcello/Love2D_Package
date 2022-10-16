@@ -36,7 +36,7 @@ end
 ---
 --- Return a Effect element in a list of <Effect>
 ---@param index number
----@return JM_Effect effect
+---@return JM.Effect effect
 function EffectManager:__get_effect_in_list__(index)
     return self.__effects_list[index]
 end
@@ -56,6 +56,7 @@ function EffectManager:update(dt)
                 end
 
                 eff:restaure_object()
+                eff.__object:__set_transform(nil)
 
                 if self.__effects_clear then
                     self.__effects_clear = nil;
@@ -69,8 +70,8 @@ function EffectManager:update(dt)
         if self.__sort__ then
             table.sort(self.__effects_list,
                 --- Sort function. Expecting two Effect objects. Return the one with the biggest priority.
-                ---@param a JM_Effect
-                ---@param b JM_Effect
+                ---@param a JM.Effect
+                ---@param b JM.Effect
                 ---@return boolean
                 function(a, b)
                     return a.__prior > b.__prior;
@@ -182,7 +183,7 @@ end
 ---@param effect_type JM.Effect.id_string|JM.Effect.id_number # The type of the effect.
 ---@param effect_args any # The parameters need for that especific effect.
 ---@param __only_get__ boolean|nil
----@return JM_Effect eff # The generate effect.
+---@return JM.Effect eff # The generate effect.
 function EffectManager:apply_effect(object, effect_type, effect_args, __only_get__)
     -- if not self.__effects_list then self.__effects_list = {} end
 
@@ -222,7 +223,7 @@ end
 ---comment
 ---@param effect_type JM.Effect.id_string|JM.Effect.id_number
 ---@param effect_args any
----@return JM_Effect
+---@return JM.Effect
 function EffectManager:generate_effect(effect_type, effect_args)
     local eff = self:apply_effect(nil, effect_type, effect_args, true)
     eff.__object = nil
@@ -242,7 +243,7 @@ function EffectManager:__is_in_list(effect)
 end
 
 --- Insert effect.
----@param effect JM_Effect
+---@param effect JM.Effect
 function EffectManager:__insert_effect(effect)
     if self:__is_in_list(effect) then return end
 

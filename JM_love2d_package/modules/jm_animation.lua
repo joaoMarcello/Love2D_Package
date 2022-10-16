@@ -387,6 +387,11 @@ function Anima:__set_transform(arg)
         self.__transform = love.math.newTransform()
     end
 
+    if not arg then
+        self.__transform = nil
+        return
+    end
+
     local current_frame = self:__get_current_frame()
 
     self.__transform:setTransformation(
@@ -546,15 +551,8 @@ end -- END update function
 ---@param x number # The top-left position to draw (x-axis).
 ---@param y number # The top-left position to draw (y-axis).
 function Anima:draw(x, y)
-    love.graphics.push()
-
-    if self.__transform then
-        love.graphics.applyTransform(self.__transform)
-    end
 
     self:__draw_with_no_effects__(x, y)
-
-    love.graphics.pop()
 
     -- Drawing the effects, if some exists.
     self.__effect_manager:draw(x, y)
@@ -597,6 +595,12 @@ end
 ---@param y number # The top-left position to draw (y-axis).
 function Anima:__draw_with_no_effects__(x, y)
 
+    love.graphics.push()
+
+    if self.__transform then
+        love.graphics.applyTransform(self.__transform)
+    end
+
     local current_frame = self:__get_current_frame()
 
     current_frame:setViewport(self.__img, self.__quad)
@@ -614,18 +618,20 @@ function Anima:__draw_with_no_effects__(x, y)
         self.__ky
     )
 
+    love.graphics.pop()
+
 end
 
 --- Aplica efeito na animacao.
 ---@param effect_type JM.Effect.id_string|JM.Effect.id_number
 ---@param effect_args any
----@return JM_Effect effect
+---@return JM.Effect effect
 function Anima:apply_effect(effect_type, effect_args)
     return self.__effect_manager:apply_effect(self, effect_type, effect_args)
 end
 
 ---Stops a especific effect by his unique id.
----@param effect_id JM_Effect|number
+---@param effect_id JM.Effect|number
 ---@return boolean
 function Anima:stop_effect(effect_id)
     if type(effect_id) == "number" then
