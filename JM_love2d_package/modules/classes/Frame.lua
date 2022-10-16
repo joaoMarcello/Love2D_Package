@@ -1,4 +1,4 @@
----@class JM.Frame
+---@class JM.Anima.Frame
 local Frame = {}
 
 ---@param args {x: number, y:number, w:number, h:number}

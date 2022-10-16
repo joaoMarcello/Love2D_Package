@@ -1,7 +1,7 @@
 local Effect = require("/JM_love2d_package/modules/classes/Effect")
 
 ---
----@class JM.Flick: JM.Effect
+---@class JM.Effect.Flick: JM_Effect
 --- Flick is a Effectsub-class.
 local Flick = Effect:new(nil, nil)
 
@@ -16,7 +16,7 @@ function Flick:new(animation, args)
 end
 
 ---comment
----@param self JM.Effect
+---@param self JM_Effect
 ---@param args any
 function Flick:__constructor__(args)
     self.__id = Effect.TYPE.flick
@@ -24,7 +24,7 @@ function Flick:__constructor__(args)
     self.__time = 0
     self.__color = args and args.color or { 0, 0, 1, 0 }
     self.__flick_state = 1
-    self.__sequence = -1
+    self.__cycle_count = -1
 end
 
 function Flick:update(dt)
@@ -32,7 +32,7 @@ function Flick:update(dt)
     if self.__time >= self.__speed then
         self.__flick_state = -self.__flick_state
         self.__time = self.__time - self.__speed
-        self.__sequence = self.__sequence + 1
+        self.__cycle_count = self.__cycle_count + 1
     end
 
     if self.__flick_state == 1 then

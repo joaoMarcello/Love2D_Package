@@ -1,12 +1,12 @@
 local Effect = require("/JM_love2d_package/modules/classes/Effect")
 
----@class JM.Pulse: JM.Effect
+---@class JM.Effect.Pulse: JM_Effect
 local Pulse = Effect:new(nil, nil)
 
 ---comment
----@param object JM.Affectable|nil
+---@param object JM_Affectable|nil
 ---@param args any
----@return JM.Effect
+---@return JM_Effect
 function Pulse:new(object, args)
     local ef = Effect:new(object, args)
     setmetatable(ef, self)
@@ -17,7 +17,7 @@ function Pulse:new(object, args)
 end
 
 ---
----@param self JM.Effect
+---@param self JM_Effect
 ---@param args any
 function Pulse:__constructor__(args)
     self.__id = Effect.TYPE.pulse
@@ -25,7 +25,7 @@ function Pulse:__constructor__(args)
     self.__adjust = args and args.adjust or math.pi
     self.__speed = args and args.speed or 0.5
     self.__range = args and args.range or 0.2
-    self.__sequence = 0
+    self.__cycle_count = 0
     self.__max_sequence = args and args.max_sequence
         or self.__max_sequence
     self.__difX = args and args.difX or nil
@@ -47,7 +47,7 @@ function Pulse:update(dt)
 
     if self.__rad >= (math.pi * 2) then
         self.__rad = self.__rad % (math.pi * 2)
-        self.__sequence = self.__sequence + 1
+        self.__cycle_count = self.__cycle_count + 1
     end
 
     if self.__difX ~= 0 then

@@ -23,7 +23,6 @@ Test_anima = Anima:new({
 })
 
 Anima2 = Test_anima:copy()
--- Anima2:set_state("come and back")
 Anima2:set_size(100, 120)
 Anima2:toggle_flip_x()
 Anima2:set_duration(5)
@@ -34,10 +33,10 @@ Anima2:stop_at_the_end(true,
         args:unpause()
         args:apply_effect("flick", { duration = 0.5 })
     end, Anima2)
-
-local my_effect = EffectGenerator:generate("flash")
-my_effect:apply(Test_anima)
 Anima2:reset()
+
+local my_effect = EffectGenerator:generate("float")
+my_effect:apply(Test_anima)
 
 -- local flick = EffectManager:generate_effect("flash")
 -- flick:force(Test_anima)
@@ -45,35 +44,20 @@ Anima2:reset()
 -- Test_anima:apply_effect("colorFlick")
 
 
----@param args {anima: JM.Anima, eff: JM.Effect}
-local action = function(args)
-    if args.anima:time_updating() >= 2 then
-        args.anima:stop_effect(args.eff:get_unique_id())
-    end
+-- ---@param args {anima: JM.Anima, eff: JM.Effect}
+-- local action = function(args)
+--     if args.anima:time_updating() >= 2 then
+--         args.anima:stop_effect(args.eff:get_unique_id())
+--     end
 
-    if args.anima:time_updating() >= 4 then
-        args.anima:zera_time_updating()
-        args.eff:apply(args.anima)
-        args.eff:restart(true)
-    end
-end
-Test_anima:set_custom_action(action, { anima = Test_anima, eff = my_effect })
+--     if args.anima:time_updating() >= 4 then
+--         args.anima:zera_time_updating()
+--         args.eff:apply(args.anima)
+--         args.eff:restart(true)
+--     end
+-- end
+-- Test_anima:set_custom_action(action, { anima = Test_anima, eff = my_effect })
 
-
--- local flash_eff = Test_anima:apply_effect("pulse")
-
-
--- Test_anima2 = Anima:new({
---     img = "/data/goomba.png",
---     frames = 9,
---     speed = 0.09,
---     -- grid = { x = 4, y = 2 },
---     scale = { x = 1, y = 1 },
---     bottom = 90,
---     flip_x = false,
---     flip_y = false,
---     frame_size = { x = 122, y = 104 }
--- })
 
 function love.load()
     love.graphics.setBackgroundColor(130 / 255., 221 / 255., 255 / 255.)

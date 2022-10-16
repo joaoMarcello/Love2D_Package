@@ -1,16 +1,16 @@
 local Effect = require("/JM_love2d_package/modules/classes/Effect")
 
 ---
----@class JM.Flash: JM.Effect
+---@class JM.Effect.Flash: JM_Effect
 --- Flash is a Effect sub-class.
 local Flash = Effect:new(nil, nil)
 
 ---
 --- Class Effect constructor.
 ---
----@param object JM.Affectable|nil
+---@param object JM_Affectable|nil
 ---@param args {range: number, alpha: number, speed: number, color: table}|nil
----@return JM.Effect effect
+---@return JM_Effect effect
 function Flash:new(object, args)
     local ef = Effect:new(object, args)
     setmetatable(ef, self)
@@ -22,8 +22,8 @@ end
 
 ---
 --- Constructor.
----@overload fun(self: JM.Effect, args: nil)
----@param self JM.Effect
+---@overload fun(self: JM_Effect, args: nil)
+---@param self JM_Effect
 ---@param args {speed: number, color: table, min: number, max: number}
 function Flash:__constructor__(args)
     self.__id = Effect.TYPE.flash
@@ -44,7 +44,7 @@ function Flash:update(dt)
 
     if self.__rad >= math.pi then
         self.__rad = self.__rad % math.pi
-        self.__sequence = self.__sequence + 1
+        self.__cycle_count = self.__cycle_count + 1
     end
 
     self.__alpha = self.__origin + (math.sin(self.__rad) * self.__range)

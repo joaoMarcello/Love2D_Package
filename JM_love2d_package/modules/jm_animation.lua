@@ -19,7 +19,7 @@ local Utils = require("/JM_love2d_package/utils")
 local Frame = require("/JM_love2d_package/modules/classes/Frame")
 
 -- Class to animate.
---- @class JM.Anima: JM.Affectable
+--- @class JM.Anima: JM_Affectable
 --- @field __configuration {scale: JM.Point, color: JM.Color, direction: -1|1, rotation: number, speed: number, flip: table, kx: number, ky: number, current_frame: number}
 local Anima = {}
 
@@ -123,6 +123,8 @@ function Anima:__constructor__(args)
 
     self.__stop_action = nil
     self.__stop_action_args = nil
+
+    self.__transform = self:__set_transform(nil)
 
     Affectable.__checks_implementation__(self)
 end
@@ -379,6 +381,25 @@ function Anima:__set_configuration(config)
     self.__configuration = config
 end
 
+---@param arg {x: number, y: number, rot: number, sx: number, sy: number, ox: number, oy: number, kx: number, ky: number}|nil
+function Anima:__set_transform(arg)
+    if not self.__transform then
+        self.__transform = love.math.newTransform()
+    end
+
+    local current_frame = self:__get_current_frame()
+
+    self.__transform:setTransformation(
+        arg and arg.x or 0,
+        arg and arg.y or 0,
+        arg and arg.rot or 0,
+        arg and arg.sx or 1, arg and arg.sy or 1,
+        arg and arg.ox or current_frame.ox,
+        arg and arg.oy or current_frame.oy,
+        arg and arg.kx or 0, arg and arg.ky or 0
+    )
+end
+
 --- Enabla a custom action to execute in animation update method.
 ---@param custom_action function
 ---@param args any
@@ -527,6 +548,10 @@ end -- END update function
 function Anima:draw(x, y)
     love.graphics.push()
 
+    if self.__transform then
+        love.graphics.applyTransform(self.__transform)
+    end
+
     self:__draw_with_no_effects__(x, y)
 
     love.graphics.pop()
@@ -535,7 +560,7 @@ function Anima:draw(x, y)
     self.__effect_manager:draw(x, y)
 end
 
----@return JM.Frame
+---@return JM.Anima.Frame
 function Anima:__get_current_frame()
     return self.__frames_list[self.__current_frame]
 end
@@ -592,15 +617,15 @@ function Anima:__draw_with_no_effects__(x, y)
 end
 
 --- Aplica efeito na animacao.
----@param effect_type JM.effect_id_string|JM.effect_id_number
+---@param effect_type JM.Effect.id_string|JM.Effect.id_number
 ---@param effect_args any
----@return JM.Effect effect
+---@return JM_Effect effect
 function Anima:apply_effect(effect_type, effect_args)
     return self.__effect_manager:apply_effect(self, effect_type, effect_args)
 end
 
 ---Stops a especific effect by his unique id.
----@param effect_id JM.Effect|number
+---@param effect_id JM_Effect|number
 ---@return boolean
 function Anima:stop_effect(effect_id)
     if type(effect_id) == "number" then

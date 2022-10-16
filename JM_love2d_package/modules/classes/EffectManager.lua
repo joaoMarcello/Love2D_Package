@@ -2,6 +2,7 @@ local Effect = require("/JM_love2d_package/modules/classes/Effect")
 local Flash = require("/JM_love2d_package/modules/classes/Flash")
 local Flick = require("/JM_love2d_package/modules/classes/Flick")
 local Pulse = require("/JM_love2d_package/modules/classes/Pulse")
+local Float = require("/JM_love2d_package/modules/classes/Float")
 
 -- Global variable for control the unique id's from EffectManager class.
 ---
@@ -35,7 +36,7 @@ end
 ---
 --- Return a Effect element in a list of <Effect>
 ---@param index number
----@return JM.Effect effect
+---@return JM_Effect effect
 function EffectManager:__get_effect_in_list__(index)
     return self.__effects_list[index]
 end
@@ -68,8 +69,8 @@ function EffectManager:update(dt)
         if self.__sort__ then
             table.sort(self.__effects_list,
                 --- Sort function. Expecting two Effect objects. Return the one with the biggest priority.
-                ---@param a JM.Effect
-                ---@param b JM.Effect
+                ---@param a JM_Effect
+                ---@param b JM_Effect
                 ---@return boolean
                 function(a, b)
                     return a.__prior > b.__prior;
@@ -143,7 +144,7 @@ function EffectManager:resume_all()
 end
 
 --- Possible values for effect names.
----@alias JM.effect_id_string string
+---@alias JM.Effect.id_string string
 ---|"flash" # animation blinks like a star.
 ---|"flick" # animation surges in the screen.
 ---|"pulse"
@@ -177,11 +178,11 @@ end
 
 
 ---Applies effect in a animation.
----@param object JM.Affectable|nil # The object to apply the effect.
----@param effect_type JM.effect_id_string|JM.effect_id_number # The type of the effect.
+---@param object JM_Affectable|nil # The object to apply the effect.
+---@param effect_type JM.Effect.id_string|JM.Effect.id_number # The type of the effect.
 ---@param effect_args any # The parameters need for that especific effect.
 ---@param __only_get__ boolean|nil
----@return JM.Effect eff # The generate effect.
+---@return JM_Effect eff # The generate effect.
 function EffectManager:apply_effect(object, effect_type, effect_args, __only_get__)
     -- if not self.__effects_list then self.__effects_list = {} end
 
@@ -202,6 +203,8 @@ function EffectManager:apply_effect(object, effect_type, effect_args, __only_get
         end
     elseif effect_type == "pulse" or effect_type == Effect.TYPE.pulse then
         eff = Pulse:new(object, effect_args)
+    elseif effect_type == "float" or effect_type == Effect.TYPE.float then
+        eff = Float:new(object, effect_args)
     end
 
     if eff then
@@ -217,9 +220,9 @@ function EffectManager:apply_effect(object, effect_type, effect_args, __only_get
 end
 
 ---comment
----@param effect_type JM.effect_id_string|JM.effect_id_number
+---@param effect_type JM.Effect.id_string|JM.Effect.id_number
 ---@param effect_args any
----@return JM.Effect
+---@return JM_Effect
 function EffectManager:generate_effect(effect_type, effect_args)
     local eff = self:apply_effect(nil, effect_type, effect_args, true)
     eff.__object = nil
@@ -239,7 +242,7 @@ function EffectManager:__is_in_list(effect)
 end
 
 --- Insert effect.
----@param effect JM.Effect
+---@param effect JM_Effect
 function EffectManager:__insert_effect(effect)
     if self:__is_in_list(effect) then return end
 

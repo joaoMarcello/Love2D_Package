@@ -1,6 +1,6 @@
 ---
----@class JM.Effect
----@field __id JM.effect_id_number
+---@class JM_Effect
+---@field __id JM.Effect.id_number
 ---@field __UNIQUE_ID number
 ---@field __init function
 local Effect = {}
@@ -10,7 +10,7 @@ local MSG_using_effect_with_no_associated_affectable = "\nError: Trying to use a
 ---
 --- The animation effects.
 ---
----@enum JM.effect_id_number
+---@enum JM.Effect.id_number
 local TYPE_ = {
     generic = 0,
     flash = 1,
@@ -49,10 +49,10 @@ Effect.TYPE = TYPE_
 
 ---
 --- Class effect constructor.
----@overload fun(self: table, object: nil, args: nil):JM.Effect
----@param object JM.Affectable # O objeto que sera afetado pelo efeito.
+---@overload fun(self: table|nil, object: nil, args: nil):JM_Effect
+---@param object JM_Affectable # O objeto que sera afetado pelo efeito.
 ---@param args any
----@return JM.Effect effect
+---@return JM_Effect effect
 function Effect:new(object, args)
 
     local effect = {}
@@ -67,7 +67,7 @@ end
 ---
 --- Class effect constructor.
 ---
----@param object JM.Affectable
+---@param object JM_Affectable
 function Effect:__constructor__(object, args)
     self.__id = Effect.TYPE.generic
     self.__color = { 1, 1, 1, 1 }
@@ -75,7 +75,7 @@ function Effect:__constructor__(object, args)
     self.__is_enabled = true
     self.__prior = 1
     self.__rad = 0
-    self.__sequence = 0
+    self.__cycle_count = 0
     self.__object = object
     self.__args = args
     self.__remove = false
@@ -133,7 +133,7 @@ function Effect:init()
     self.__remove = false
     self.__is_enabled = true
     self.__rad = 0
-    self.__sequence = 0
+    self.__cycle_count = 0
     self.__update_time = 0
     self:__constructor__(self.__args)
 end
@@ -153,7 +153,7 @@ function Effect:__update__(dt)
 
     if self.__max_sequence
         and self.__ends_by_sequence
-        and (self.__sequence >= self.__max_sequence) then
+        and (self.__cycle_count >= self.__max_sequence) then
 
         self.__remove = true
     end
@@ -176,7 +176,7 @@ function Effect:draw(x, y)
 end
 
 --- Forca efeito em um objeto que nao era dele.
----@param object JM.Affectable
+---@param object JM_Affectable
 function Effect:apply(object)
     if not object then return end
 
