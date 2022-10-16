@@ -18,10 +18,10 @@ Test_anima = Anima:new({
 --     speed = 0.1
 -- })
 
-local my_effect = EffectManager:generate_effect("flick")
+local my_effect = EffectManager:generate_effect("pulse")
 my_effect:force(Test_anima)
 
-local flick = EffectManager:generate_effect("flick")
+-- local flick = EffectManager:generate_effect("flick")
 -- flick:force(Test_anima)
 
 -- Test_anima:apply_effect("colorFlick")
