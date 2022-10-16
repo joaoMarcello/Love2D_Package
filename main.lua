@@ -3,7 +3,6 @@ local EffectGenerator = require("/JM_love2d_package/effect_generator_module")
 
 Test_anima = Anima:new({
     img = "/data/goomba.png",
-    frames = 9,
     duration = 1,
     height = 100,
     flip_x = true,
@@ -23,8 +22,22 @@ Test_anima = Anima:new({
     }
 })
 
+Anima2 = Test_anima:copy()
+-- Anima2:set_state("come and back")
+Anima2:set_size(100, 120)
+Anima2:toggle_flip_x()
+Anima2:set_duration(5)
+Anima2:set_reverse_mode(true)
+Anima2:stop_at_the_end(true,
+    ---@param args JM.Anima
+    function(args)
+        args:unpause()
+        args:apply_effect("flick", { duration = 0.5 })
+    end, Anima2)
+
 local my_effect = EffectGenerator:generate("flash")
--- my_effect:apply(Test_anima)
+my_effect:apply(Test_anima)
+Anima2:reset()
 
 -- local flick = EffectManager:generate_effect("flash")
 -- flick:force(Test_anima)
@@ -32,19 +45,19 @@ local my_effect = EffectGenerator:generate("flash")
 -- Test_anima:apply_effect("colorFlick")
 
 
--- ---@param args {anima: JM_Anima, eff: JM_Effect}
--- local action = function(args)
---     if args.anima:time_updating() >= 2 then
---         args.anima:stop_effect(args.eff:get_unique_id())
---     end
+---@param args {anima: JM.Anima, eff: JM.Effect}
+local action = function(args)
+    if args.anima:time_updating() >= 2 then
+        args.anima:stop_effect(args.eff:get_unique_id())
+    end
 
---     if args.anima:time_updating() >= 4 then
---         args.anima:zera_time_updating()
---         args.eff:force(args.anima)
---         args.eff:restart(true)
---     end
--- end
--- Test_anima:set_custom_action(action, { anima = Test_anima, eff = my_effect })
+    if args.anima:time_updating() >= 4 then
+        args.anima:zera_time_updating()
+        args.eff:apply(args.anima)
+        args.eff:restart(true)
+    end
+end
+Test_anima:set_custom_action(action, { anima = Test_anima, eff = my_effect })
 
 
 -- local flash_eff = Test_anima:apply_effect("pulse")
@@ -83,12 +96,19 @@ function love.update(dt)
     end
 
     Test_anima:update(dt)
-    -- Test_anima2:update(dt)
+    Anima2:update(dt)
 end
 
 function love.draw()
+    love.graphics.push()
+
     love.graphics.setColor(1, 1, 1, 0.8)
     love.graphics.rectangle("fill", 200, 300, 100, 100)
     Test_anima:draw_rec(200, 300, 100, 100)
-    -- Test_anima2:draw_rec(300, 100, 100, 100)
+
+    love.graphics.setColor(1, 1, 1, 0.8)
+    love.graphics.rectangle("fill", 300, 100, 100, 100)
+    Anima2:draw_rec(300, 100, 100, 100)
+
+    love.graphics.pop()
 end

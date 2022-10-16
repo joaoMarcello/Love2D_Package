@@ -13,13 +13,11 @@ local EffectManager = require("/JM_love2d_package/modules/classes/EffectManager"
 ---@field get_scale function
 ---@field set_rotation function
 ---@field get_rotation function
----@field set_origin function
----@field get_origin function
 local Affectable = {}
 
 --- Check if object implements all the needed Affectable methods and fields.
 ---@param object table
-function Affectable.checks_implementation(object)
+function Affectable.__checks_implementation__(object)
     if not object then return end
 
     assert(object.__effect_manager, "\nError: The class do not have the required '__effect_manager' field.")

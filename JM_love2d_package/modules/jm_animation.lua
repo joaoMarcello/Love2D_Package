@@ -41,7 +41,7 @@ local ANIMA_STATES = {
 -- * pos_in_texture: Optional table parameter to indicate where the animation is localized in the image. Useful when there is a lot of animation in one single image (default value is {x=0, y=0}).
 --- @return JM.Anima animation # A instance of Anima class.
 function Anima:new(args)
-    if not args then return {} end
+    assert(args, "\nError: Trying to instance a Animation without inform any parameter.")
 
     local animation = {}
     setmetatable(animation, self)
@@ -55,33 +55,35 @@ end
 ---
 --- Internal method for constructor.
 ---
---- @param args {img: love.Image, frames: number, frames_list: table,  speed: number, rotation: number, color: JM.Color, scale: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, stop_at_the_end: boolean, max_rows: number, state: JM.AnimaStates, bottom: number, kx: number, ky: number, width: number, height: number, ref_width: number, ref_height: number, duration: number}  # A table containing the follow fields:
+--- @param args {img: love.Image, frames: number, frames_list: table,  speed: number, rotation: number, color: JM.Color, scale: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, stop_at_the_end: boolean, amount_cycle: number, state: JM.AnimaStates, bottom: number, kx: number, ky: number, width: number, height: number, ref_width: number, ref_height: number, duration: number}  # A table containing the follow fields:
 ---
 function Anima:__constructor__(args)
 
     self:set_img(args.img)
+
+    self.__args = args
 
     self.__amount_frames = (args.frames_list and #args.frames_list) or (args.frames) or 1
 
     self.__frame_time = 0.
     self.__update_time = 0.
     self.__stopped_time = 0.
-    self.__row_count = 0
+    self.__cycle_count = 0
     self.__is_visible = true
     self.__is_enabled = true
     self.__initial_direction = nil
 
-    self.__direction = (args.is_reversed and -1) or 1
+    self:set_reverse_mode(args.is_reversed)
+
     self.__color = args.color or { 1, 1, 1, 1 }
     self.__rotation = args.rotation or 0
-    self.__speed = args.duration
-        and (args.duration / self.__amount_frames)
-        or args.speed
-        or 0.3
+    self.__speed = args.speed or 0.3
     self.__stop_at_the_end = args.stop_at_the_end or false
-    self.__max_rows = args.max_rows or nil
+    self.__max_cycle = args.amount_cycle or nil
+    if args.duration then self:set_duration(args.duration) end
 
     self.__current_frame = (self.__direction < 0 and self.__amount_frames) or 1
+
 
     self:set_state(args.state)
 
@@ -106,21 +108,9 @@ function Anima:__constructor__(args)
         self.__frames_list[i] = Frame:new(args.frames_list[i])
     end -- END FOR for generate frames objects
 
-    --- Setting the scale for keep the frame to a desired width/height
     if args.width or args.height then
-        local tt = {
-            w = args.ref_width or args.frames_list[1][3],
-            h = args.ref_height or args.frames_list[1][4]
-        }
-
-        local desired_size_in_pxl = Utils:desired_size(
-            args.width, args.height, tt.w, tt.h, true
-        )
-
-        if desired_size_in_pxl then
-            self:set_scale(desired_size_in_pxl)
-        end
-    end --- END IF setting desired width/height
+        self:set_size(args.width, args.height, args.ref_width, args.ref_height)
+    end
 
     self.__quad = love.graphics.newQuad(0, 0,
         args.frames_list[1][1],
@@ -128,7 +118,71 @@ function Anima:__constructor__(args)
         self.__img:getDimensions()
     )
 
-    Affectable.checks_implementation(self)
+    self.__custom_action = nil
+    self.__custom_action_args = nil
+
+    self.__stop_action = nil
+    self.__stop_action_args = nil
+
+    Affectable.__checks_implementation__(self)
+end
+
+function Anima:copy()
+    local obj = Anima.new(Anima, self.__args)
+    return obj
+end
+
+--- Sets the size in pixels to draw the frame.
+---@param width number|nil
+---@param height number|nil
+---@param ref_width number|nil
+---@param ref_height number|nil
+function Anima:set_size(width, height, ref_width, ref_height)
+    if width or height then
+        local current_frame = self:__get_current_frame()
+        local tt = {
+            w = ref_width or current_frame.w,
+            h = ref_height or current_frame.h
+        }
+
+        local desired_size_in_pxl = Utils:desired_size(
+            width, height, tt.w, tt.h, true
+        )
+
+        if desired_size_in_pxl then
+            self:set_scale(desired_size_in_pxl)
+        end
+    end
+end
+
+---@param value number
+function Anima:set_speed(value)
+    assert(value >= 0, "\nError: Value passed to 'set_speed' method is smaller than zero.")
+
+    self.__speed = value
+end
+
+---@param duration number
+function Anima:set_duration(duration)
+    assert(duration > 0, "\nError: Value passed to 'set_duration' method is smaller than zero.")
+
+    self.__speed = duration / self.__amount_frames
+end
+
+---@param value boolean
+function Anima:set_reverse_mode(value)
+    self.__direction = value and -1 or 1
+end
+
+---@param value boolean
+---@param stop_action function
+---@param stop_action_args any
+function Anima:stop_at_the_end(value, stop_action, stop_action_args)
+    self.__stop_at_the_end = value
+
+    if value then
+        self:set_stop_action(stop_action, stop_action_args)
+    end
 end
 
 ---
@@ -154,6 +208,14 @@ function Anima:set_flip(flip)
         x = (flip and flip.x and -1) or (self.__flip and self.__flip.x) or 1,
         y = (flip and flip.y and -1) or (self.__flip and self.__flip.y) or 1
     }
+end
+
+function Anima:toggle_flip_x()
+    self.__flip.x = self.__flip.x * (-1)
+end
+
+function Anima:toggle_flip_y()
+    self.__flip.y = self.__flip.y * (-1)
 end
 
 --
@@ -261,7 +323,7 @@ function Anima:reset()
         or self.__amount_frames
     self.__update_time = 0
     self.__stopped_time = 0
-    self.__row_count = 0
+    self.__cycle_count = 0
     self.__initial_direction = nil
     self.__stopped = nil
     self.__is_visible = true
@@ -326,6 +388,20 @@ function Anima:set_custom_action(custom_action, args)
 end
 
 ---
+---@param action function
+---@param args any
+function Anima:set_stop_action(action, args)
+    self.__stop_action = action
+    self.__stop_action_args = args
+end
+
+function Anima:__execute_stop_action__()
+    if self.__stop_action then
+        self.__stop_action(self.__stop_action_args)
+    end
+end
+
+---
 -- Execute the animation logic.
 ---@param dt number # The delta time.
 function Anima:update(dt)
@@ -345,7 +421,7 @@ function Anima:update(dt)
     end
 
     if self.__stopped or
-        (self.__max_rows and self.__row_count >= self.__max_rows) then
+        (self.__max_cycle and self.__cycle_count >= self.__max_cycle) then
 
         self.__stopped_time = (self.__stopped_time + dt) % 5000000
         return
@@ -362,7 +438,7 @@ function Anima:update(dt)
             self.__current_frame = 1
                 + (math.random(0, self.__amount_frames) % self.__amount_frames)
 
-            self.__row_count = (self.__row_count + 1) % 6000000
+            self.__cycle_count = (self.__cycle_count + 1) % 6000000
 
             if last_frame == self.__current_frame then
                 self.__current_frame = 1
@@ -382,11 +458,11 @@ function Anima:update(dt)
 
                 if self:__is_repeating() then
                     self.__current_frame = 1
-                    self.__row_count = (self.__row_count + 1) % 600000
+                    self.__cycle_count = (self.__cycle_count + 1) % 600000
 
                     if self:__is_stopping_in_the_end() then
-                        self.__stopped = true
                         self.__current_frame = self.__amount_frames
+                        self:pause()
                     end
 
                 else -- ELSE: animation is in "come and back" state
@@ -396,13 +472,13 @@ function Anima:update(dt)
                     self.__direction = -self.__direction
 
                     if self.__direction == self.__initial_direction then
-                        self.__row_count = (self.__row_count + 1) % 600000
+                        self.__cycle_count = (self.__cycle_count + 1) % 600000
                     end
 
                     if self:__is_stopping_in_the_end()
                         and self.__direction == self.__initial_direction then
 
-                        self.__stopped = true
+                        self:pause()
                     end
                 end -- END ELSE animation in "come and back" state
 
@@ -414,11 +490,11 @@ function Anima:update(dt)
 
                 if self:__is_repeating() then
                     self.__current_frame = self.__amount_frames
-                    self.__row_count = (self.__row_count + 1) % 600000
+                    self.__cycle_count = (self.__cycle_count + 1) % 600000
 
                     if self:__is_stopping_in_the_end() then
-                        self.__stopped = true
                         self.__current_frame = 1
+                        self:pause()
                     end
 
                 else -- ELSE animation is not repeating
@@ -427,13 +503,13 @@ function Anima:update(dt)
                     self.__direction = self.__direction * -1
 
                     if self.__direction == self.__initial_direction then
-                        self.__row_count = (self.__row_count + 1) % 600000
+                        self.__cycle_count = (self.__cycle_count + 1) % 600000
                     end
 
                     if self:__is_stopping_in_the_end()
                         and self.__direction == self.__initial_direction then
 
-                        self.__stopped = true
+                        self:pause()
                     end
                 end -- END ELSE animation is not repeating
             end
@@ -449,8 +525,6 @@ end -- END update function
 ---@param x number # The top-left position to draw (x-axis).
 ---@param y number # The top-left position to draw (y-axis).
 function Anima:draw(x, y)
-    if not self.__is_visible then return end
-
     love.graphics.push()
 
     self:__draw_with_no_effects__(x, y)
@@ -504,6 +578,8 @@ function Anima:__draw_with_no_effects__(x, y)
 
     love.graphics.setColor(self.__color)
 
+    if not self.__is_visible then return end
+
     love.graphics.draw(self.__img, self.__quad,
         (x), (y),
         self.__rotation, self.__scale.x * self.__flip.x,
@@ -524,7 +600,7 @@ function Anima:apply_effect(effect_type, effect_args)
 end
 
 ---Stops a especific effect by his unique id.
----@param effect_id number|JM.Effect
+---@param effect_id JM.Effect|number
 ---@return boolean
 function Anima:stop_effect(effect_id)
     if type(effect_id) == "number" then
@@ -583,6 +659,7 @@ end
 function Anima:pause()
     if not self.__stopped then
         self.__stopped = true
+        self:__execute_stop_action__()
         return true
     end
     return false
@@ -591,6 +668,7 @@ end
 function Anima:unpause()
     if self.__stopped then
         self.__stopped = false
+        self:reset()
         return true
     end
     return false
