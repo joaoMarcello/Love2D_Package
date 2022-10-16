@@ -19,8 +19,8 @@ local Utils = require("/JM_love2d_package/utils")
 local Frame = require("/JM_love2d_package/modules/classes/Frame")
 
 -- Class to animate.
---- @class JM_Anima: JM_Affectable
---- @field __configuration {scale: JM_Point, color: JM_Color, direction: -1|1, rotation: number, speed: number, flip: table, kx: number, ky: number, current_frame: number}
+--- @class JM.Anima: JM.Affectable
+--- @field __configuration {scale: JM.Point, color: JM.Color, direction: -1|1, rotation: number, speed: number, flip: table, kx: number, ky: number, current_frame: number}
 local Anima = {}
 
 ---@enum AnimaStates
@@ -33,13 +33,13 @@ local ANIMA_STATES = {
 ---
 --- Animation class constructor.
 ---
---- @param args {img: love.Image|string, frames: number, frame_size: JM_Point, speed: number, rotation: number, color: JM_Color, scale: table, origin: table, pos_in_texture: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, kx: number, ky: number} # A table containing the following fields:
+--- @param args {img: love.Image|string, frames: number, frame_size: JM.Point, speed: number, rotation: number, color: JM.Color, scale: table, origin: table, pos_in_texture: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, kx: number, ky: number} # A table containing the following fields:
 -- * img (Required): The source image for animation (could be a Love.Image or a string containing the file path). All the frames in the source image should be in the horizontal.
 -- * frames: The amount of frames in the animation.
 -- * frame_size: A table with the animation's frame size. Should contain the index x (width) and y (height).
 -- * speed: Time in seconds to update frame.
 -- * pos_in_texture: Optional table parameter to indicate where the animation is localized in the image. Useful when there is a lot of animation in one single image (default value is {x=0, y=0}).
---- @return JM_Anima animation # A instance of Anima class.
+--- @return JM.Anima animation # A instance of Anima class.
 function Anima:new(args)
     if not args then return {} end
 
@@ -55,7 +55,7 @@ end
 ---
 --- Internal method for constructor.
 ---
---- @param args {img: love.Image, frames: number, frames_list: table,  speed: number, rotation: number, color: JM_Color, scale: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, stop_at_the_end: boolean, max_rows: number, state: JM_AnimaStates, bottom: number, kx: number, ky: number, width: number, height: number, ref_width: number, ref_height: number, duration: number}  # A table containing the follow fields:
+--- @param args {img: love.Image, frames: number, frames_list: table,  speed: number, rotation: number, color: JM.Color, scale: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, stop_at_the_end: boolean, max_rows: number, state: JM.AnimaStates, bottom: number, kx: number, ky: number, width: number, height: number, ref_width: number, ref_height: number, duration: number}  # A table containing the follow fields:
 ---
 function Anima:__constructor__(args)
 
@@ -195,7 +195,7 @@ end
 
 ---
 --- Set animation color.
----@overload fun(self: JM_Anima, value: {[1]: number, [2]: number, [3]: number, [4]: number})
+---@overload fun(self: JM.Anima, value: {[1]: number, [2]: number, [3]: number, [4]: number})
 ---@param value {r: number, g: number, b: number, a: number}
 function Anima:set_color(value)
     if not value then return end
@@ -222,14 +222,14 @@ end
 ---
 --- Diferentes estados da animacao
 ---
----@alias JM_AnimaStates
+---@alias JM.AnimaStates
 ---|"repeating" # (default) when animation reaches the last frame, the current frame is set to beginning.
 ---|"random" # animation shows his frames in a aleatory order.
 ---|"come and back" # when animation reaches the last frame, the direction of animation changes.
 
 --
 --- Set state.
----@param state JM_AnimaStates Possible values are "repeating", "random" or "come and back". If none of these is informed, then the state is setted as "repeating".
+---@param state JM.AnimaStates Possible values are "repeating", "random" or "come and back". If none of these is informed, then the state is setted as "repeating".
 function Anima:set_state(state)
     if state then
         state = string.lower(state)
@@ -505,7 +505,7 @@ function Anima:__draw_with_no_effects__(x, y)
     love.graphics.setColor(self.__color)
 
     love.graphics.draw(self.__img, self.__quad,
-        math.floor(x), math.floor(y),
+        (x), (y),
         self.__rotation, self.__scale.x * self.__flip.x,
         self.__scale.y * self.__flip.y,
         current_frame.ox, current_frame.oy,
@@ -516,15 +516,15 @@ function Anima:__draw_with_no_effects__(x, y)
 end
 
 --- Aplica efeito na animacao.
----@param effect_type JM_effect_id_string|JM_effect_id_number
+---@param effect_type JM.effect_id_string|JM.effect_id_number
 ---@param effect_args any
----@return JM_Effect effect
+---@return JM.Effect effect
 function Anima:apply_effect(effect_type, effect_args)
     return self.__effect_manager:apply_effect(self, effect_type, effect_args)
 end
 
 ---Stops a especific effect by his unique id.
----@param effect_id number|JM_Effect
+---@param effect_id number|JM.Effect
 ---@return boolean
 function Anima:stop_effect(effect_id)
     if type(effect_id) == "number" then

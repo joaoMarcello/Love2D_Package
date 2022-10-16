@@ -1,6 +1,6 @@
 ---
----@class JM_Effect
----@field __id JM_effect_id_number
+---@class JM.Effect
+---@field __id JM.effect_id_number
 ---@field __UNIQUE_ID number
 ---@field __init function
 local Effect = {}
@@ -10,7 +10,7 @@ local MSG_using_effect_with_no_associated_affectable = "\nError: Trying to use a
 ---
 --- The animation effects.
 ---
----@enum JM_effect_id_number
+---@enum JM.effect_id_number
 local TYPE_ = {
     generic = 0,
     flash = 1,
@@ -49,10 +49,10 @@ Effect.TYPE = TYPE_
 
 ---
 --- Class effect constructor.
----@overload fun(self: table, object: nil, args: nil):JM_Effect
----@param object JM_Affectable # O objeto que sera afetado pelo efeito.
+---@overload fun(self: table, object: nil, args: nil):JM.Effect
+---@param object JM.Affectable # O objeto que sera afetado pelo efeito.
 ---@param args any
----@return JM_Effect effect
+---@return JM.Effect effect
 function Effect:new(object, args)
 
     local effect = {}
@@ -67,7 +67,7 @@ end
 ---
 --- Class effect constructor.
 ---
----@param object JM_Affectable
+---@param object JM.Affectable
 function Effect:__constructor__(object, args)
     self.__id = Effect.TYPE.generic
     self.__color = { 1, 1, 1, 1 }
@@ -176,8 +176,8 @@ function Effect:draw(x, y)
 end
 
 --- Forca efeito em um objeto que nao era dele.
----@param object JM_Affectable
-function Effect:force(object)
+---@param object JM.Affectable
+function Effect:apply(object)
     if not object then return end
 
     if object then

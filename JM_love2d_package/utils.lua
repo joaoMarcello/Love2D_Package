@@ -5,7 +5,7 @@ local Utils = {}
 ---@param height number|nil
 ---@param ref_width number|nil
 ---@param ref_height number|nil
----@return JM_Point|nil
+---@return JM.Point|nil
 function Utils:desired_size(width, height, ref_width, ref_height, keep_proportions)
     local dw, dh
 
@@ -27,10 +27,10 @@ function Utils:desired_duration(duration, amount_steps)
     return duration / amount_steps
 end
 
----@alias JM_Point {x: number, y:number}
+---@alias JM.Point {x: number, y:number}
 --- Table representing a point with x end y coordinates.
 
----@alias JM_Color {r: number, g: number, b:number, a:number}
+---@alias JM.Color {r: number, g: number, b:number, a:number}
 --- Represents a color in RGBA space
 
 return Utils

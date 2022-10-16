@@ -1,7 +1,7 @@
 local EffectManager = require("/JM_love2d_package/modules/classes/EffectManager")
 
----@class JM_Affectable
----@field __effect_manager JM_EffectManager
+---@class JM.Affectable
+---@field __effect_manager JM.EffectManager
 ---@field set_color function
 ---@field __push function
 ---@field __pop function

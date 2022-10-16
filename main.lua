@@ -1,20 +1,15 @@
-local Anima = require "/JM_love2d_package/load_animation_module"
-local EffectManager = require("/JM_love2d_package/modules/classes/EffectManager")
+local Anima = require "/JM_love2d_package/animation_module"
+local EffectGenerator = require("/JM_love2d_package/effect_generator_module")
 
 Test_anima = Anima:new({
     img = "/data/goomba.png",
     frames = 9,
-    -- speed = 0.15,
     duration = 1,
-    -- width = 100,
     height = 100,
-    -- ref_width = 60, ref_height = 69,
-    bottom = 89,
     flip_x = true,
     flip_y = false,
     is_reversed = false,
     state = "looping",
-    frame_size = { x = 122, y = 104 },
     frames_list = {
         { 27, 18, 58, 70 },
         { 151, 21, 58, 68 },
@@ -28,8 +23,8 @@ Test_anima = Anima:new({
     }
 })
 
-local my_effect = EffectManager:generate_effect("pulse")
-my_effect:force(Test_anima)
+local my_effect = EffectGenerator:generate("flash")
+-- my_effect:apply(Test_anima)
 
 -- local flick = EffectManager:generate_effect("flash")
 -- flick:force(Test_anima)
