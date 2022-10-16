@@ -1,9 +1,8 @@
---[[ Lua library for animation in Love2D.
+--[[ Lua library for animation in LOVE.
 
     Some of the main functions include:
 
     * :new -- Class constructor.
-    * :config -- Configure animation fields.
     * :update --
     * :draw --
     * :draw_rec --
@@ -17,6 +16,8 @@ local Affectable = require("/JM_love2d_package/modules/templates/Affectable")
 
 local Utils = require("/JM_love2d_package/utils")
 
+local Frame = require("/JM_love2d_package/modules/classes/Frame")
+
 -- Class to animate.
 --- @class JM_Anima: JM_Affectable
 --- @field __configuration {scale: JM_Point, color: JM_Color, direction: -1|1, rotation: number, speed: number, flip: table, kx: number, ky: number, current_frame: number}
@@ -24,7 +25,7 @@ local Anima = {}
 
 ---@enum AnimaStates
 local ANIMA_STATES = {
-    repeating = 1,
+    looping = 1,
     come_and_back = 2,
     random = 3
 }
@@ -54,13 +55,14 @@ end
 ---
 --- Internal method for constructor.
 ---
---- @param args {img: love.Image, frames: number, frame_size: table, speed: number, rotation: number, color: JM_Color, scale: table, origin: table, pos_in_texture: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, stop_at_the_end: boolean, max_rows: number, state: JM_AnimaStates, bottom: number, grid: table, kx: number, ky: number, width: number, height: number, ref_width: number, ref_height: number}  # A table containing the follow fields:
+--- @param args {img: love.Image, frames: number, frames_list: table,  speed: number, rotation: number, color: JM_Color, scale: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, stop_at_the_end: boolean, max_rows: number, state: JM_AnimaStates, bottom: number, kx: number, ky: number, width: number, height: number, ref_width: number, ref_height: number, duration: number}  # A table containing the follow fields:
 ---
 function Anima:__constructor__(args)
 
     self:set_img(args.img)
 
-    self.__amount_frames = args.frames or 1
+    self.__amount_frames = (args.frames_list and #args.frames_list) or (args.frames) or 1
+
     self.__frame_time = 0.
     self.__update_time = 0.
     self.__stopped_time = 0.
@@ -68,57 +70,63 @@ function Anima:__constructor__(args)
     self.__is_visible = true
     self.__is_enabled = true
     self.__initial_direction = nil
+
     self.__direction = (args.is_reversed and -1) or 1
     self.__color = args.color or { 1, 1, 1, 1 }
     self.__rotation = args.rotation or 0
-    self.__speed = args.speed or 0.3
-    self.__current_frame = (self.__direction < 0 and self.__amount_frames) or 1
+    self.__speed = args.duration
+        and (args.duration / self.__amount_frames)
+        or args.speed
+        or 0.3
     self.__stop_at_the_end = args.stop_at_the_end or false
     self.__max_rows = args.max_rows or nil
 
-    self:set_frame_size(args.frame_size)
-
-    self.__bottom = args.bottom or self.__frame_size.y
+    self.__current_frame = (self.__direction < 0 and self.__amount_frames) or 1
 
     self:set_state(args.state)
 
-    self.__grid = {
-        x = args.grid and args.grid.x or self.__amount_frames,
-        y = args.grid and args.grid.y or 1
-    }
-
     self:set_flip({ x = args.flip_x, y = args.flip_y })
-
-    self:set_origin(args.origin)
-
-    self:set_pos_in_texture(args.pos_in_texture)
 
     self:set_scale(args.scale)
 
+    self.__effect_manager = EffectManager:new()
+
+    self.__frames_list = {}
+
+    if not args.frames_list then
+        args.frames_list = {}
+        local w = self.__img:getWidth() / args.frames
+        for i = 1, args.frames do
+            table.insert(args.frames_list, { (i - 1) * w, 0, w, args.bottom or self.__img:getHeight() })
+        end
+    end
+
+    -- Generating the Frame objects and inserting them into the frames_list
+    for i = 1, #args.frames_list do
+        self.__frames_list[i] = Frame:new(args.frames_list[i])
+    end -- END FOR for generate frames objects
+
+    --- Setting the scale for keep the frame to a desired width/height
     if args.width or args.height then
         local tt = {
-            x = args.ref_width or self.__frame_size.x,
-            y = args.ref_height or self.__frame_size.y
+            w = args.ref_width or args.frames_list[1][3],
+            h = args.ref_height or args.frames_list[1][4]
         }
 
         local desired_size_in_pxl = Utils:desired_size(
-            args.width, args.height, tt
+            args.width, args.height, tt.w, tt.h, true
         )
 
         if desired_size_in_pxl then
             self:set_scale(desired_size_in_pxl)
         end
-    end
+    end --- END IF setting desired width/height
 
-    if args.frame_size or not self.__quad then
-        self.__quad = love.graphics.newQuad(0, 0,
-            self.__frame_size.x,
-            self.__frame_size.y,
-            self.__img:getDimensions()
-        )
-    end
-
-    self.__effect_manager = EffectManager:new()
+    self.__quad = love.graphics.newQuad(0, 0,
+        args.frames_list[1][1],
+        args.frames_list[1][2],
+        self.__img:getDimensions()
+    )
 
     Affectable.checks_implementation(self)
 end
@@ -139,57 +147,12 @@ function Anima:set_img(file_name)
 end
 
 ---
---- Set frame size. If not given any parameter, a default value is setted based in image dimensions and amount frames.
---
----@param frame_size {x: number, y: number}
-function Anima:set_frame_size(frame_size)
-    self.__frame_size = {
-        x = (frame_size and frame_size.x)
-            or (self.__frame_size and self.__frame_size.x)
-            or self.__img:getWidth() / self.__amount_frames,
-        y = (frame_size and frame_size.y)
-            or (self.__frame_size and self.__frame_size.y)
-            or self.__img:getHeight()
-    }
-end
-
----
---- Set origin. If given parameter is nil, a default value is setted based in the frame size field.
---
----@param origin {x: number, y: number}
-function Anima:set_origin(origin)
-    self.__origin = {
-        x = (origin and origin.x)
-            or (self.__origin and self.__origin.x)
-            or self.__frame_size.x / 2,
-        y = (origin and origin.y)
-            or (self.__origin and self.__origin.y)
-            or self.__frame_size.y / 2
-    }
-end
-
----
 --- Set flip in x and y axis.
 ---@param flip {x: boolean, y:boolean}
 function Anima:set_flip(flip)
     self.__flip = {
         x = (flip and flip.x and -1) or (self.__flip and self.__flip.x) or 1,
         y = (flip and flip.y and -1) or (self.__flip and self.__flip.y) or 1
-    }
-end
-
---
---- Set position texture.
---
----@param position {x: number, y: number}
-function Anima:set_pos_in_texture(position)
-    self.__pos_in_texture = {
-        x = (position and position.x)
-            or (self.__pos_in_texture and self.__pos_in_texture.x)
-            or 0,
-        y = (position and position.y)
-            or (self.__pos_in_texture and self.__pos_in_texture.y)
-            or 0
     }
 end
 
@@ -280,7 +243,7 @@ function Anima:set_state(state)
 
         self.__current_state = ANIMA_STATES.come_and_back
     else
-        self.__current_state = ANIMA_STATES.repeating
+        self.__current_state = ANIMA_STATES.looping
     end
 end
 
@@ -315,13 +278,9 @@ function Anima:__push()
 
     self.__configuration.scale = { x = self.__scale.x, y = self.__scale.y }
     self.__configuration.color = self.__color
-    -- self.__configuration.direction = self.__direction
     self.__configuration.rotation = self.__rotation
-    -- self.__configuration.speed = self.__speed
-    -- self.__configuration.flip = { x = self.__flip.x, y = self.__flip.y }
     self.__configuration.kx = self.__kx
     self.__configuration.ky = self.__ky
-    -- self.__configuration.current_frame = self.__current_frame
 end
 
 --
@@ -341,19 +300,11 @@ function Anima:__pop()
         self.__configuration.color[1], self.__configuration.color[2],
         self.__configuration.color[3], self.__configuration.color[4] or 1
     }
-    -- self.__direction = self.__configuration.direction
-    self.__rotation = self.__configuration.rotation
-    -- self.__speed = self.__configuration.speed
 
-    -- self.__flip = {
-    --     x = self.__configuration.flip.x,
-    --     y = self.__configuration.flip.y
-    -- }
+    self.__rotation = self.__configuration.rotation
 
     self.__kx = self.__configuration.kx
     self.__ky = self.__configuration.ky
-
-    -- self.__current_frame = self.__configuration.current_frame
 
     self.__configuration = nil
 end
@@ -510,6 +461,11 @@ function Anima:draw(x, y)
     self.__effect_manager:draw(x, y)
 end
 
+---@return JM.Frame
+function Anima:__get_current_frame()
+    return self.__frames_list[self.__current_frame]
+end
+
 ---
 --- Draw the animation using a rectangle.
 ---@param x number # Rectangle top-left position (x-axis).
@@ -517,13 +473,15 @@ end
 ---@param w number # Rectangle width in pixels.
 ---@param h number # Rectangle height in pixels.
 function Anima:draw_rec(x, y, w, h)
+    local current_frame = self:__get_current_frame()
+
     x = x + w / 2.0
     y = y + h
-        - self.__bottom * self.__scale.y
-        + self.__origin.y * self.__scale.y
+        - current_frame.h * self.__scale.y
+        + current_frame.oy * self.__scale.y
 
     if self:__is_flipped_in_y() then
-        y = y - h + (self.__bottom * self.__scale.y)
+        y = y - h + (current_frame.h * self.__scale.y)
     end
 
     self:draw(x, y)
@@ -540,17 +498,9 @@ end
 ---@param y number # The top-left position to draw (y-axis).
 function Anima:__draw_with_no_effects__(x, y)
 
-    self.__quad:setViewport(
-        self.__pos_in_texture.x + self.__frame_size.x
-        * math.floor((self.__current_frame - 1) % self.__grid.x),
+    local current_frame = self:__get_current_frame()
 
-        self.__pos_in_texture.y + self.__frame_size.y
-        * math.floor((self.__current_frame - 1) / self.__grid.x),
-
-        self.__frame_size.x,
-        self.__frame_size.y,
-        self.__img:getWidth(), self.__img:getHeight()
-    )
+    current_frame:setViewport(self.__img, self.__quad)
 
     love.graphics.setColor(self.__color)
 
@@ -558,10 +508,11 @@ function Anima:__draw_with_no_effects__(x, y)
         math.floor(x), math.floor(y),
         self.__rotation, self.__scale.x * self.__flip.x,
         self.__scale.y * self.__flip.y,
-        self.__origin.x, self.__origin.y,
+        current_frame.ox, current_frame.oy,
         self.__kx,
         self.__ky
     )
+
 end
 
 --- Aplica efeito na animacao.
@@ -611,7 +562,7 @@ end
 --- Tells if animation is in repeating state.
 ---@return boolean result
 function Anima:__is_repeating()
-    return self.__current_state == ANIMA_STATES.repeating
+    return self.__current_state == ANIMA_STATES.looping
 end
 
 ---

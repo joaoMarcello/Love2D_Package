@@ -28,8 +28,8 @@ function Pulse:__constructor__(args)
     self.__sequence = 0
     self.__max_sequence = args and args.max_sequence
         or self.__max_sequence
-    self.__difX = args and args.difX or 0.1
-    self.__difY = args and args.difY or 0.1
+    self.__difX = args and args.difX or nil
+    self.__difY = args and args.difY or nil
     self.__rad = math.pi
     self.__prior = 2
 
@@ -50,7 +50,7 @@ function Pulse:update(dt)
         self.__sequence = self.__sequence + 1
     end
 
-    if self.__difX and self.__difX ~= 0 then
+    if self.__difX ~= 0 then
         self.__object:set_scale({
             x = self.__config.scale.x
                 + (math.sin(self.__rad + self.__adjust)
@@ -59,7 +59,7 @@ function Pulse:update(dt)
         })
     end
 
-    if self.__difY and self.__difY ~= 0 then
+    if self.__difY ~= 0 then
         self.__object:set_scale({
             y = self.__config.scale.y
                 + (math.sin(self.__rad + self.__adjust)
