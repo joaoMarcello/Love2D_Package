@@ -5,6 +5,8 @@ local Pulse = require("/JM_love2d_package/modules/classes/Pulse")
 local Float = require("/JM_love2d_package/modules/classes/Float")
 local Idle = require("/JM_love2d_package/modules/classes/Iddle")
 local Rotate = require("/JM_love2d_package/modules/classes/Rotate")
+local Balance = require("/JM_love2d_package/modules/classes/Balance")
+local Popin = require("/JM_love2d_package/modules/classes/Popin")
 
 -- Global variable for control the unique id's from EffectManager class.
 ---
@@ -297,6 +299,20 @@ function EffectManager:apply_effect(object, effect_type, effect_args, __only_get
 
         effect_args.__counter__ = true
         eff = Rotate:new(object, effect_args)
+
+    elseif effect_type == "balance"
+        or effect_type == Effect.TYPE.balance then
+
+        eff = Balance:new(object, effect_args)
+    elseif effect_type == "popin"
+        or effect_type == Effect.TYPE.popin then
+
+        eff = Popin:new(object, effect_args)
+    elseif effect_type == "popout"
+        or effect_type == Effect.TYPE.popout then
+
+        effect_args.__id__ = Effect.TYPE.popout
+        eff = Popin:new(object, effect_args)
     end
 
     if eff then

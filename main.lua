@@ -38,11 +38,18 @@ Anima2:reset()
 local pulse_eff = EffectGenerator:generate("pulse", { max_sequence = 2, speed = 0.3, range = 0.1 })
 local idle_effect = EffectGenerator:generate("idle", { duration = 1 })
 
-local hh = EffectGenerator:generate("idle", { range = 100, speed = 10 })
+local hh = EffectGenerator:generate("idle", { duration = 1 })
+
+hh:set_final_action(
+---@param args {anima: JM.Anima}
+    function(args)
+        args.anima:apply_effect("popout")
+    end,
+    { anima = Test_anima })
+
 hh:apply(Test_anima)
 
 Test_anima:apply_effect("flash")
-Test_anima:apply_effect("counterClockWise", {speed=10})
 
 function love.load()
     love.graphics.setBackgroundColor(130 / 255., 221 / 255., 255 / 255.)

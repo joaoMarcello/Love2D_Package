@@ -616,16 +616,16 @@ function Anima:__draw_with_no_effects__(x, y)
 
     love.graphics.setColor(self.__color)
 
-    if not self.__is_visible then return end
-
-    love.graphics.draw(self.__img, self.__quad,
-        (x), (y),
-        self.__rotation, self.__scale.x * self.__flip.x,
-        self.__scale.y * self.__flip.y,
-        current_frame.ox, current_frame.oy,
-        self.__kx,
-        self.__ky
-    )
+    if self.__is_visible then
+        love.graphics.draw(self.__img, self.__quad,
+            (x), (y),
+            self.__rotation, self.__scale.x * self.__flip.x,
+            self.__scale.y * self.__flip.y,
+            current_frame.ox, current_frame.oy,
+            self.__kx,
+            self.__ky
+        )
+    end
 
     love.graphics.pop()
 

@@ -24,8 +24,8 @@ local TYPE_ = {
     ghost = 9,
     spin = 10,
     clockWise = 11, --***
-    counterClockWise = 12,  --***
-    balance = 13,
+    counterClockWise = 12, --***
+    balance = 13, --***
     pop = 14,
     growth = 15,
     disc = 16,
@@ -45,7 +45,8 @@ local TYPE_ = {
     bounce = 30, --***
     heartBeat = 31, --***
     butterfly = 32, --***
-    jelly = 33 --***
+    jelly = 33, --***
+    shake = 34
 }
 
 Effect.TYPE = TYPE_
