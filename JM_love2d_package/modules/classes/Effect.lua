@@ -89,7 +89,7 @@ function Effect:__constructor__(object, args)
     self.__speed = 0.5
     self.__max_sequence = args and args.max_sequence or 100
     self.__ends_by_cycle = args and args.max_sequence or false
-
+    self.__time_delay = args and args.delay or 0
     self.__transform = nil
 
     if object and not self.__config then
@@ -148,6 +148,17 @@ end
 
 function Effect:__update__(dt)
     assert(self.__object, "Error: Effect object is not associated with a Affectable object.")
+
+    if self.__time_delay > 0 then
+        self.__is_enabled = false
+        self.__time_delay = self.__time_delay - dt
+
+        if self.__time_delay <= 0 then
+            self.__is_enabled = true
+        else
+            return
+        end
+    end
 
     self.__update_time = self.__update_time + dt
 

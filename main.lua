@@ -38,7 +38,7 @@ Anima2:reset()
 local pulse_eff = EffectGenerator:generate("pulse", { max_sequence = 2, speed = 0.3, range = 0.1 })
 local idle_effect = EffectGenerator:generate("idle", { duration = 1 })
 
-local hh = EffectGenerator:generate("balance")
+local hh = EffectGenerator:generate("fadeout", {delay=2, duration=4})
 
 -- hh:set_final_action(
 -- ---@param args {anima: JM.Anima}
@@ -48,7 +48,7 @@ local hh = EffectGenerator:generate("balance")
 --     end,
 --     { anima = Test_anima })
 
-Test_anima:apply_effect("flash")
+-- Test_anima:apply_effect("flash")
 -- Test_anima:apply_effect("pulse")
 hh:apply(Test_anima)
 

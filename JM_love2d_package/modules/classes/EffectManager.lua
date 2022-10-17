@@ -7,6 +7,7 @@ local Idle = require("/JM_love2d_package/modules/classes/Iddle")
 local Rotate = require("/JM_love2d_package/modules/classes/Rotate")
 local Balance = require("/JM_love2d_package/modules/classes/Balance")
 local Popin = require("/JM_love2d_package/modules/classes/Popin")
+local Fadein = require("/JM_love2d_package/modules/classes/Fadein")
 
 -- Global variable for control the unique id's from EffectManager class.
 ---
@@ -51,7 +52,7 @@ function EffectManager:update(dt)
     if self.__effects_list then
         for i = #self.__effects_list, 1, -1 do
             local eff = self:__get_effect_in_list__(i)
-            local r1 = eff.__is_enabled and eff:__update__(dt)
+            local r1 = eff:__update__(dt)
             local r2 = eff.__is_enabled and eff:update(dt)
 
             if eff.__remove then
@@ -188,11 +189,11 @@ end
 
 ---Applies effect in a animation.
 ---@param object JM.Affectable|nil # The object to apply the effect.
----@param effect_type JM.Effect.id_string|JM.Effect.id_number # The type of the effect.
+---@param eff_type JM.Effect.id_string|JM.Effect.id_number # The type of the effect.
 ---@param effect_args any # The parameters need for that especific effect.
 ---@param __only_get__ boolean|nil
 ---@return JM.Effect eff # The generate effect.
-function EffectManager:apply_effect(object, effect_type, effect_args, __only_get__)
+function EffectManager:apply_effect(object, eff_type, effect_args, __only_get__)
     -- if not self.__effects_list then self.__effects_list = {} end
 
     local eff
@@ -201,12 +202,12 @@ function EffectManager:apply_effect(object, effect_type, effect_args, __only_get
         effect_args = {}
     end
 
-    if effect_type == "flash" or effect_type == Effect.TYPE.flash then
+    if eff_type == "flash" or eff_type == Effect.TYPE.flash then
         eff = Flash:new(object, effect_args)
-    elseif effect_type == "flick" or effect_type == Effect.TYPE.flickering then
+    elseif eff_type == "flick" or eff_type == Effect.TYPE.flickering then
         eff = Flick:new(object, effect_args)
-    elseif effect_type == "colorFlick"
-        or effect_type == Effect.TYPE.colorFlick then
+    elseif eff_type == "colorFlick"
+        or eff_type == Effect.TYPE.colorFlick then
 
         eff = Flick:new(object, effect_args)
         eff.__id = Effect.TYPE.colorFlick
@@ -214,12 +215,12 @@ function EffectManager:apply_effect(object, effect_type, effect_args, __only_get
         if not effect_args or (effect_args and not effect_args.color) then
             eff.__color = { 1, 0, 0, 1 }
         end
-    elseif effect_type == "pulse" or effect_type == Effect.TYPE.pulse then
+    elseif eff_type == "pulse" or eff_type == Effect.TYPE.pulse then
         eff = Pulse:new(object, effect_args)
-    elseif effect_type == "float" or effect_type == Effect.TYPE.float then
+    elseif eff_type == "float" or eff_type == Effect.TYPE.float then
         eff = Float:new(object, effect_args)
-    elseif effect_type == "pointing"
-        or effect_type == Effect.TYPE.pointing then
+    elseif eff_type == "pointing"
+        or eff_type == Effect.TYPE.pointing then
 
         if not effect_args then
             effect_args = {}
@@ -229,21 +230,21 @@ function EffectManager:apply_effect(object, effect_type, effect_args, __only_get
 
         eff = Float:new(object, effect_args)
 
-    elseif effect_type == "circle" or effect_type == Effect.TYPE.circle then
+    elseif eff_type == "circle" or eff_type == Effect.TYPE.circle then
         if not effect_args then
             effect_args = {}
         end
 
         effect_args.__id__ = Effect.TYPE.circle
         eff = Float:new(object, effect_args)
-    elseif effect_type == "eight" or effect_type == Effect.TYPE.eight then
+    elseif eff_type == "eight" or eff_type == Effect.TYPE.eight then
         if not effect_args then
             effect_args = {}
         end
         effect_args.__id__ = Effect.TYPE.eight
         eff = Float:new(object, effect_args)
-    elseif effect_type == "butterfly"
-        or effect_type == Effect.TYPE.butterfly then
+    elseif eff_type == "butterfly"
+        or eff_type == Effect.TYPE.butterfly then
 
         if not effect_args then
             effect_args = {}
@@ -251,10 +252,10 @@ function EffectManager:apply_effect(object, effect_type, effect_args, __only_get
         effect_args.__id__ = Effect.TYPE.butterfly
         eff = Float:new(object, effect_args)
 
-    elseif effect_type == "idle" or effect_type == Effect.TYPE.idle then
+    elseif eff_type == "idle" or eff_type == Effect.TYPE.idle then
         eff = Idle:new(object, effect_args)
-    elseif effect_type == "heartBeat"
-        or effect_type == Effect.TYPE.heartBeat then
+    elseif eff_type == "heartBeat"
+        or eff_type == Effect.TYPE.heartBeat then
 
         eff = Pulse:new(object, { max_sequence = 2, speed = 0.3, range = 0.1 })
         eff.__rad = 0
@@ -277,7 +278,7 @@ function EffectManager:apply_effect(object, effect_type, effect_args, __only_get
             end,
             { idle = idle_eff, pulse = eff }
         )
-    elseif effect_type == "clickHere" or effect_type == Effect.TYPE.clickHere then
+    elseif eff_type == "clickHere" or eff_type == Effect.TYPE.clickHere then
         local bb = Balance:new(object, { range = 0.03, speed = 1 / 3, max_sequence = 2 })
         local idle = Idle:new(object, { duration = 1 })
 
@@ -297,46 +298,45 @@ function EffectManager:apply_effect(object, effect_type, effect_args, __only_get
 
         eff = bb
 
-    elseif effect_type == "jelly" or effect_type == Effect.TYPE.jelly then
+    elseif eff_type == "jelly" or eff_type == Effect.TYPE.jelly then
         effect_args.__id__ = Effect.TYPE.jelly
         eff = Pulse:new(object, effect_args)
-    elseif effect_type == "stretchHorizontal" or effect_type == Effect.TYPE.stretchHorizontal then
+    elseif eff_type == "stretchHorizontal" or eff_type == Effect.TYPE.stretchHorizontal then
         effect_args.__id__ = Effect.TYPE.stretchHorizontal
         eff = Pulse:new(object, effect_args)
-    elseif effect_type == "stretchVertical"
-        or effect_type == Effect.TYPE.stretchVertical then
+    elseif eff_type == "stretchVertical" or eff_type == Effect.TYPE.stretchVertical then
 
         effect_args.__id__ = Effect.TYPE.stretchVertical
         eff = Pulse:new(object, effect_args)
 
-    elseif effect_type == "bounce" or effect_type == Effect.TYPE.bounce then
+    elseif eff_type == "bounce" or eff_type == Effect.TYPE.bounce then
 
         effect_args.__id__ = Effect.TYPE.bounce
         eff = Pulse:new(object, effect_args)
-    elseif effect_type == "clockWise"
-        or effect_type == Effect.TYPE.clockWise then
+    elseif eff_type == "clockWise" or eff_type == Effect.TYPE.clockWise then
 
         eff = Rotate:new(object, effect_args)
 
-    elseif effect_type == "counterClockWise"
-        or effect_type == Effect.TYPE.counterClockWise then
+    elseif eff_type == "counterClockWise" or eff_type == Effect.TYPE.counterClockWise then
 
         effect_args.__counter__ = true
         eff = Rotate:new(object, effect_args)
 
-    elseif effect_type == "balance"
-        or effect_type == Effect.TYPE.balance then
+    elseif eff_type == "balance" or eff_type == Effect.TYPE.balance then
 
         eff = Balance:new(object, effect_args)
-    elseif effect_type == "popin"
-        or effect_type == Effect.TYPE.popin then
+    elseif eff_type == "popin" or eff_type == Effect.TYPE.popin then
 
         eff = Popin:new(object, effect_args)
-    elseif effect_type == "popout"
-        or effect_type == Effect.TYPE.popout then
+    elseif eff_type == "popout" or eff_type == Effect.TYPE.popout then
 
         effect_args.__id__ = Effect.TYPE.popout
         eff = Popin:new(object, effect_args)
+    elseif eff_type == "fadein" or eff_type == Effect.TYPE.fadein then
+        eff = Fadein:new(object, effect_args)
+    elseif eff_type == "fadeout" or eff_type == Effect.TYPE.fadeout then
+        effect_args.__id__ = Effect.TYPE.fadeout
+        eff = Fadein:new(object, effect_args)
     end
 
     if eff then
