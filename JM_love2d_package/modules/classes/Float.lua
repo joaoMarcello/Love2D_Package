@@ -21,15 +21,22 @@ function Float__:__constructor__(args)
     self.__id = args and args.__id__ or Effect.TYPE.float
 
     self.__speed = args and args.speed or 1
+
     self.__range = args and args.range or 20
+
     self.__floatX = self.__id == Effect.TYPE.pointing
         or self.__id == Effect.TYPE.circle or self.__id == Effect.TYPE.eight
+        or self.__id == Effect.TYPE.butterfly
+
     self.__floatY = self.__id == Effect.TYPE.float
         or self.__id == Effect.TYPE.circle or self.__id == Effect.TYPE.eight
-    self.__adjust = args and args.adjust or math.pi / 2
-    self.__rad = args.rad or 0
+        or self.__id == Effect.TYPE.butterfly
 
-    self.__adjust = Effect.TYPE.eight and 2 or 1
+    self.__adjust = args and args.adjust or math.pi / 2
+    self.__rad = args and args.rad or 0
+
+    self.__adjust = self.__id == Effect.TYPE.eight and 2 or 1
+    self.__adjustY = self.__id == Effect.TYPE.butterfly and 2 or 1
 end
 
 function Float__:update(dt)
@@ -47,7 +54,7 @@ function Float__:draw(x, y)
     local tx = self.__floatX and x + (math.sin(self.__rad * self.__adjust) * self.__range)
         or x
 
-    local ty = self.__floatY and y + (math.sin(self.__rad) * self.__range)
+    local ty = self.__floatY and y + (math.sin(self.__rad * self.__adjustY) * self.__range)
         or y
 
     self.__object:__set_transform({

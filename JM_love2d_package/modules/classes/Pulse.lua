@@ -37,7 +37,7 @@ end
 
 function Pulse:update(dt)
     self:restaure_object()
-    
+
     self.__speed = self.__speed + self.__acc / 1.0 * dt
 
     self.__rad = (self.__rad + math.pi * 2. / self.__speed * dt)

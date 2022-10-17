@@ -35,6 +35,7 @@ function Flash:__constructor__(args)
     self.__origin = min
     self.__range = (max - min)
     self.__speed = self.__speed + self.__range * self.__speed
+    -- self.__prior = 5
 end
 
 --- Update flash.

@@ -38,11 +38,11 @@ Anima2:reset()
 local pulse_eff = EffectGenerator:generate("pulse", { max_sequence = 2, speed = 0.3, range = 0.1 })
 local idle_effect = EffectGenerator:generate("idle", { duration = 1 })
 
-local hh = EffectGenerator:generate("eight")
+Test_anima:apply_effect("flick")
+local hh = EffectGenerator:generate("butterfly", { range = 100, speed = 10 })
 hh:apply(Test_anima)
 
-Test_anima:apply_effect("heartBeat")
--- Test_anima:apply_effect("float")
+-- Test_anima:apply_effect("heartBeat")
 
 
 function love.load()

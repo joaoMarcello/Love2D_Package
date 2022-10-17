@@ -14,7 +14,7 @@ local MSG_using_effect_with_no_associated_affectable = "\nError: Trying to use a
 local TYPE_ = {
     generic = 0,
     flash = 1,
-    flick = 2,
+    flickering = 2,
     pulse = 3,
     colorFlick = 4,
     popin = 5,
@@ -43,7 +43,8 @@ local TYPE_ = {
     circle = 28,
     eight = 29,
     bounce = 30,
-    heartBeat = 31
+    heartBeat = 31,
+    butterfly = 32
 }
 
 Effect.TYPE = TYPE_

@@ -148,7 +148,7 @@ end
 --- Possible values for effect names.
 ---@alias JM.Effect.id_string string
 ---|"flash" # animation blinks like a star.
----|"flick" # animation surges in the screen.
+---|"flickering" # animation surges in the screen.
 ---|"pulse"
 ---|"colorFlick"
 ---|"popin"
@@ -178,6 +178,7 @@ end
 ---|"eight"
 ---|"bounce"
 ---|"heartBeat"
+---|"butterfly"
 
 
 ---Applies effect in a animation.
@@ -193,7 +194,7 @@ function EffectManager:apply_effect(object, effect_type, effect_args, __only_get
 
     if effect_type == "flash" or effect_type == Effect.TYPE.flash then
         eff = Flash:new(object, effect_args)
-    elseif effect_type == "flick" or effect_type == Effect.TYPE.flick then
+    elseif effect_type == "flick" or effect_type == Effect.TYPE.flickering then
         eff = Flick:new(object, effect_args)
     elseif effect_type == "colorFlick"
         or effect_type == Effect.TYPE.colorFlick then
@@ -232,6 +233,15 @@ function EffectManager:apply_effect(object, effect_type, effect_args, __only_get
         end
         effect_args.__id__ = Effect.TYPE.eight
         eff = Float:new(object, effect_args)
+    elseif effect_type == "butterfly"
+        or effect_type == Effect.TYPE.butterfly then
+
+        if not effect_args then
+            effect_args = {}
+        end
+        effect_args.__id__ = Effect.TYPE.butterfly
+        eff = Float:new(object, effect_args)
+
     elseif effect_type == "idle" or effect_type == Effect.TYPE.idle then
         eff = Idle:new(object, effect_args)
     elseif effect_type == "heartBeat"

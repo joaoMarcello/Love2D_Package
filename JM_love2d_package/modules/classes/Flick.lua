@@ -19,7 +19,7 @@ end
 ---@param self JM.Effect
 ---@param args any
 function Flick:__constructor__(args)
-    self.__id = Effect.TYPE.flick
+    self.__id = Effect.TYPE.flickering
     self.__speed = args and args.speed or 0.1
     self.__time = 0
     self.__color = args and args.color or { 0, 0, 1, 0 }
