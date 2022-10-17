@@ -12,39 +12,40 @@ local MSG_using_effect_with_no_associated_affectable = "\nError: Trying to use a
 ---
 ---@enum JM.Effect.id_number
 local TYPE_ = {
-    generic = 0,
-    flash = 1,
-    flickering = 2,
-    pulse = 3,
-    colorFlick = 4,
+    generic = 0, --***
+    flash = 1, --***
+    flickering = 2, --***
+    pulse = 3, --***
+    colorFlick = 4, --***
     popin = 5,
     popout = 6,
     fadein = 7,
     fadeout = 8,
     ghost = 9,
     spin = 10,
-    clockWise = 11,
-    counterClockWise = 12,
+    clockWise = 11, --***
+    counterClockWise = 12,  --***
     balance = 13,
     pop = 14,
     growth = 15,
     disc = 16,
-    idle = 17,
+    idle = 17, --***
     echo = 18,
-    float = 19,
-    pointing = 20, -- floatX
+    float = 19, --***
+    pointing = 20, --***
     darken = 21,
     brighten = 22,
     shadow = 23,
     line = 24,
     zoomInOut = 25,
-    stretchHorizontal = 26,
-    stretchVertical = 27,
-    circle = 28,
-    eight = 29,
-    bounce = 30,
-    heartBeat = 31,
-    butterfly = 32
+    stretchHorizontal = 26, --***
+    stretchVertical = 27, --***
+    circle = 28, --***
+    eight = 29, --***
+    bounce = 30, --***
+    heartBeat = 31, --***
+    butterfly = 32, --***
+    jelly = 33 --***
 }
 
 Effect.TYPE = TYPE_
@@ -85,7 +86,7 @@ function Effect:__constructor__(object, args)
     self.__duration = args and args.duration or nil
     self.__speed = 0.5
     self.__max_sequence = args and args.max_sequence or 100
-    self.__ends_by_sequence = args and args.max_sequence or false
+    self.__ends_by_cycle = args and args.max_sequence or false
 
     self.__transform = nil
 
@@ -111,9 +112,9 @@ end
 --     if value then
 --         self:set_final_action(
 --         ---comment
---         ---@param args JM_Affectable
+--         ---@param args JM.Affectable
 --             function(args)
---                 local eff = args:applyEffect(self.__args)
+--                 local eff = args:apply(self.__args)
 --                 eff:loop_mode(true)
 --             end,
 
@@ -152,7 +153,7 @@ function Effect:__update__(dt)
     end
 
     if self.__max_sequence
-        and self.__ends_by_sequence
+        and self.__ends_by_cycle
         and (self.__cycle_count >= self.__max_sequence) then
 
         self.__remove = true

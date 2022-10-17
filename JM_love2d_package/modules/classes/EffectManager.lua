@@ -4,6 +4,7 @@ local Flick = require("/JM_love2d_package/modules/classes/Flick")
 local Pulse = require("/JM_love2d_package/modules/classes/Pulse")
 local Float = require("/JM_love2d_package/modules/classes/Float")
 local Idle = require("/JM_love2d_package/modules/classes/Iddle")
+local Rotate = require("/JM_love2d_package/modules/classes/Rotate")
 
 -- Global variable for control the unique id's from EffectManager class.
 ---
@@ -179,6 +180,7 @@ end
 ---|"bounce"
 ---|"heartBeat"
 ---|"butterfly"
+---|"jelly"
 
 
 ---Applies effect in a animation.
@@ -191,6 +193,10 @@ function EffectManager:apply_effect(object, effect_type, effect_args, __only_get
     -- if not self.__effects_list then self.__effects_list = {} end
 
     local eff
+
+    if not effect_args then
+        effect_args = {}
+    end
 
     if effect_type == "flash" or effect_type == Effect.TYPE.flash then
         eff = Flash:new(object, effect_args)
@@ -265,6 +271,32 @@ function EffectManager:apply_effect(object, effect_type, effect_args, __only_get
             end,
             { idle = idle_eff, pulse = eff }
         )
+    elseif effect_type == "jelly" or effect_type == Effect.TYPE.jelly then
+        effect_args.__id__ = Effect.TYPE.jelly
+        eff = Pulse:new(object, effect_args)
+    elseif effect_type == "stretchHorizontal" or effect_type == Effect.TYPE.stretchHorizontal then
+        effect_args.__id__ = Effect.TYPE.stretchHorizontal
+        eff = Pulse:new(object, effect_args)
+    elseif effect_type == "stretchVertical"
+        or effect_type == Effect.TYPE.stretchVertical then
+
+        effect_args.__id__ = Effect.TYPE.stretchVertical
+        eff = Pulse:new(object, effect_args)
+
+    elseif effect_type == "bounce" or effect_type == Effect.TYPE.bounce then
+
+        effect_args.__id__ = Effect.TYPE.bounce
+        eff = Pulse:new(object, effect_args)
+    elseif effect_type == "clockWise"
+        or effect_type == Effect.TYPE.clockWise then
+
+        eff = Rotate:new(object, effect_args)
+
+    elseif effect_type == "counterClockWise"
+        or effect_type == Effect.TYPE.counterClockWise then
+
+        effect_args.__counter__ = true
+        eff = Rotate:new(object, effect_args)
     end
 
     if eff then

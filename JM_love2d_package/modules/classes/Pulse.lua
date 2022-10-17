@@ -20,12 +20,12 @@ end
 ---@param self JM.Effect
 ---@param args any
 function Pulse:__constructor__(args)
-    self.__id = Effect.TYPE.pulse
+    self.__id = args and args.__id__ or Effect.TYPE.pulse
+
     self.__acc = 0
-    self.__adjust = args and args.adjust or math.pi
+    self.__adjust = args and args.adjust or 0 --math.pi
     self.__speed = args and args.speed or 0.5
     self.__range = args and args.range or 0.2
-    self.__cycle_count = 0
     self.__max_sequence = args and args.max_sequence
         or self.__max_sequence
     self.__looping = args and args.max_sequence
@@ -33,6 +33,24 @@ function Pulse:__constructor__(args)
     self.__difY = args and args.difY or nil
     self.__rad = math.pi
     self.__prior = 2
+
+    if self.__id == Effect.TYPE.jelly then
+        self.__adjust = math.pi * 0.7
+        self.__range = 0.1
+    elseif self.__id == Effect.TYPE.stretchHorizontal then
+        self.__difY = 0
+    elseif self.__id == Effect.TYPE.stretchVertical then
+        self.__difX = 0
+    elseif self.__id == Effect.TYPE.bounce then
+        self.__acc = 0.5
+        self.__speed = 0.05
+        self.__max_sequence = 5
+        self.__range = 0.05
+        self.__difX = 0.1
+        self.__difY = self.__scale.y * 0.25
+        self.__looping = true
+        self.__ends_by_cycle = true
+    end
 end
 
 function Pulse:update(dt)
@@ -52,14 +70,18 @@ function Pulse:update(dt)
     if self.__difX ~= 0 then
         self.__object:set_scale({
             x = self.__config.scale.x
-                + (math.sin(self.__rad + self.__adjust)
+                + (math.sin(self.__rad)
                     * (self.__difX or self.__range))
-                * self.__config.scale.x
+                * self.__config.scale.x,
+
+            y = self.__object:get_scale().y
         })
     end
 
     if self.__difY ~= 0 then
         self.__object:set_scale({
+            x = self.__object:get_scale().x,
+
             y = self.__config.scale.y
                 + (math.sin(self.__rad + self.__adjust)
                     * (self.__difY or self.__range))

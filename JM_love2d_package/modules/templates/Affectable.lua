@@ -63,4 +63,36 @@ function Affectable.__checks_implementation__(object)
         "\nError: The class passed to Effect class constructor  do not implements the required '__set_transform' method.")
 end
 
+---@param color JM.Color
+function Affectable:set_color(color)
+end
+
+function Affectable:__push()
+end
+
+function Affectable:__pop()
+end
+
+---@param value boolean
+function Affectable:set_visible(value)
+end
+
+---@param x number
+---@param y number
+function Affectable:__draw__(x, y)
+end
+
+---@param config any
+function Affectable:__set_configuration(config)
+end
+
+---@param scale JM.Point
+function Affectable:set_scale(scale)
+end
+
+---@return table
+function Affectable:get_scale()
+    return {}
+end
+
 return Affectable
