@@ -377,7 +377,7 @@ function Anima:__pop()
     self.__ky = self.__configuration.ky
 
     self.__configuration = nil
-    self.__transform = nil
+    -- self.__transform = nil
 end
 
 function Anima:__get_configuration()
@@ -559,7 +559,9 @@ end -- END update function
 ---@param y number # The top-left position to draw (y-axis).
 function Anima:draw(x, y)
 
-    self:__draw_with_no_effects__(x, y)
+    if not self.__transform then
+        self:__draw_with_no_effects__(x, y)
+    end
 
     -- Drawing the effects, if some exists.
     self.__effect_manager:draw(x, y)

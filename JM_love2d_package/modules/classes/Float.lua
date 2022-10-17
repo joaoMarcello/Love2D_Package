@@ -5,7 +5,7 @@ local Float__ = Effect:new(nil, nil)
 
 ---@param object JM.Affectable|nil
 ---@param args any|nil
----@return JM.Effect
+---@return JM.Effect|JM.Effect.Float
 function Float__:new(object, args)
     local obj = Effect:new(object, args)
     setmetatable(obj, self)
@@ -18,14 +18,18 @@ end
 ---@param self JM.Effect
 ---@param args any|nil
 function Float__:__constructor__(args)
-    self.__id = Effect.TYPE.float
+    self.__id = args and args.__id__ or Effect.TYPE.float
 
-    self.__speed = 1
-    self.__range = 20
-    self.__floatX = false
-    self.__floatY = true
-    self.__adjust = math.pi / 2
-    self.__rad = 0
+    self.__speed = args and args.speed or 1
+    self.__range = args and args.range or 20
+    self.__floatX = self.__id == Effect.TYPE.pointing
+        or self.__id == Effect.TYPE.circle or self.__id == Effect.TYPE.eight
+    self.__floatY = self.__id == Effect.TYPE.float
+        or self.__id == Effect.TYPE.circle or self.__id == Effect.TYPE.eight
+    self.__adjust = args and args.adjust or math.pi / 2
+    self.__rad = args.rad or 0
+
+    self.__adjust = Effect.TYPE.eight and 2 or 1
 end
 
 function Float__:update(dt)
@@ -40,7 +44,7 @@ end
 
 function Float__:draw(x, y)
 
-    local tx = self.__floatX and x + (math.sin(self.__rad + self.__adjust) * self.__range)
+    local tx = self.__floatX and x + (math.sin(self.__rad * self.__adjust) * self.__range)
         or x
 
     local ty = self.__floatY and y + (math.sin(self.__rad) * self.__range)
@@ -54,7 +58,6 @@ function Float__:draw(x, y)
     })
 
     self.__object:__draw__(x, y)
-
 end
 
 return Float__

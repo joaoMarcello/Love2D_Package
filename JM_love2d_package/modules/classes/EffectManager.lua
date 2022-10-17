@@ -208,6 +208,30 @@ function EffectManager:apply_effect(object, effect_type, effect_args, __only_get
         eff = Pulse:new(object, effect_args)
     elseif effect_type == "float" or effect_type == Effect.TYPE.float then
         eff = Float:new(object, effect_args)
+    elseif effect_type == "pointing"
+        or effect_type == Effect.TYPE.pointing then
+
+        if not effect_args then
+            effect_args = {}
+        end
+
+        effect_args.__id__ = Effect.TYPE.pointing
+
+        eff = Float:new(object, effect_args)
+
+    elseif effect_type == "circle" or effect_type == Effect.TYPE.circle then
+        if not effect_args then
+            effect_args = {}
+        end
+
+        effect_args.__id__ = Effect.TYPE.circle
+        eff = Float:new(object, effect_args)
+    elseif effect_type == "eight" or effect_type == Effect.TYPE.eight then
+        if not effect_args then
+            effect_args = {}
+        end
+        effect_args.__id__ = Effect.TYPE.eight
+        eff = Float:new(object, effect_args)
     elseif effect_type == "idle" or effect_type == Effect.TYPE.idle then
         eff = Idle:new(object, effect_args)
     elseif effect_type == "heartBeat"

@@ -38,26 +38,11 @@ Anima2:reset()
 local pulse_eff = EffectGenerator:generate("pulse", { max_sequence = 2, speed = 0.3, range = 0.1 })
 local idle_effect = EffectGenerator:generate("idle", { duration = 1 })
 
--- pulse_eff:set_final_action(
--- ---@param args {anima: JM.Anima, eff: JM.Effect}
---     function(args)
---         args.eff:apply(args.anima)
---     end,
---     { anima = Test_anima, eff = idle_effect }
--- )
-
--- idle_effect:set_final_action(
--- ---@param args {anima: JM.Anima, eff: JM.Effect}
---     function(args)
---         args.eff:apply(args.anima)
---     end,
---     { anima = Test_anima, eff = pulse_eff }
--- )
-
--- pulse_eff:apply(Test_anima)
-
-local hh = EffectGenerator:generate("heartBeat")
+local hh = EffectGenerator:generate("eight")
 hh:apply(Test_anima)
+
+Test_anima:apply_effect("heartBeat")
+-- Test_anima:apply_effect("float")
 
 
 function love.load()
@@ -67,13 +52,13 @@ end
 
 function love.update(dt)
     if Test_anima:time_updating() >= 4 then
-        Test_anima:stop_effect(hh)
-        Anima2:stop_effect(hh)
+        -- Test_anima:stop_effect(hh)
+        -- Anima2:stop_effect(hh)
     end
 
     if Test_anima:time_updating() >= 7 then
-        Test_anima:zera_time_updating()
-        hh:apply(Anima2)
+        -- Test_anima:zera_time_updating()
+        -- hh:apply(Anima2)
     end
 
     if Test_anima:time_updating() >= 1. then
