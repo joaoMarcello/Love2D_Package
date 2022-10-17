@@ -31,7 +31,7 @@ function Pulse:__constructor__(args)
     self.__looping = args and args.max_sequence
     self.__difX = args and args.difX or nil
     self.__difY = args and args.difY or nil
-    self.__rad = math.pi
+    self.__rad = args and args.__rad__ or math.pi
     self.__prior = 2
 
     if self.__id == Effect.TYPE.jelly then

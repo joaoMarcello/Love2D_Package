@@ -38,18 +38,17 @@ Anima2:reset()
 local pulse_eff = EffectGenerator:generate("pulse", { max_sequence = 2, speed = 0.3, range = 0.1 })
 local idle_effect = EffectGenerator:generate("idle", { duration = 1 })
 
-local hh = EffectGenerator:generate("idle", { duration = 1 })
+local hh = EffectGenerator:generate("heartBeat")
 
-hh:set_final_action(
----@param args {anima: JM.Anima}
-    function(args)
-        args.anima:apply_effect("popout")
-    end,
-    { anima = Test_anima })
+-- hh:set_final_action(
+-- ---@param args {anima: JM.Anima}
+--     function(args)
+--         local pop = args.anima:apply_effect("popin")
+--         args.anima:apply_effect("clockWise", {speed=0.3, duration=pop.__speed})
+--     end,
+--     { anima = Test_anima })
 
 hh:apply(Test_anima)
-
-Test_anima:apply_effect("flash")
 
 function love.load()
     love.graphics.setBackgroundColor(130 / 255., 221 / 255., 255 / 255.)
@@ -58,13 +57,13 @@ end
 
 function love.update(dt)
     if Test_anima:time_updating() >= 4 then
-        -- Test_anima:stop_effect(hh)
-        -- Anima2:stop_effect(hh)
+        Test_anima:stop_effect(hh)
+        Anima2:stop_effect(hh)
     end
 
     if Test_anima:time_updating() >= 7 then
-        -- Test_anima:zera_time_updating()
-        -- hh:apply(Anima2)
+        Test_anima:zera_time_updating()
+        hh:apply(Anima2)
     end
 
     if Test_anima:time_updating() >= 1. then

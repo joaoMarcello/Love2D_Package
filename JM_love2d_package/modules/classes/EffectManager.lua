@@ -256,6 +256,8 @@ function EffectManager:apply_effect(object, effect_type, effect_args, __only_get
         or effect_type == Effect.TYPE.heartBeat then
 
         eff = Pulse:new(object, { max_sequence = 2, speed = 0.3, range = 0.1 })
+        eff.__rad = 0
+
         local idle_eff = Idle:new(object, { duration = 1 })
 
         eff:set_final_action(
@@ -270,6 +272,7 @@ function EffectManager:apply_effect(object, effect_type, effect_args, __only_get
         ---@param args {idle: JM.Effect, pulse: JM.Effect}
             function(args)
                 args.pulse:apply(args.idle.__object)
+                args.pulse.__rad = 0
             end,
             { idle = idle_eff, pulse = eff }
         )
