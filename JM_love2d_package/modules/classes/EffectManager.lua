@@ -3,6 +3,7 @@ local Flash = require("/JM_love2d_package/modules/classes/Flash")
 local Flick = require("/JM_love2d_package/modules/classes/Flick")
 local Pulse = require("/JM_love2d_package/modules/classes/Pulse")
 local Float = require("/JM_love2d_package/modules/classes/Float")
+local Idle = require("/JM_love2d_package/modules/classes/Iddle")
 
 -- Global variable for control the unique id's from EffectManager class.
 ---
@@ -176,10 +177,11 @@ end
 ---|"circle"
 ---|"eight"
 ---|"bounce"
+---|"heartBeat"
 
 
 ---Applies effect in a animation.
----@param object JM_Affectable|nil # The object to apply the effect.
+---@param object JM.Affectable|nil # The object to apply the effect.
 ---@param effect_type JM.Effect.id_string|JM.Effect.id_number # The type of the effect.
 ---@param effect_args any # The parameters need for that especific effect.
 ---@param __only_get__ boolean|nil
@@ -206,6 +208,29 @@ function EffectManager:apply_effect(object, effect_type, effect_args, __only_get
         eff = Pulse:new(object, effect_args)
     elseif effect_type == "float" or effect_type == Effect.TYPE.float then
         eff = Float:new(object, effect_args)
+    elseif effect_type == "idle" or effect_type == Effect.TYPE.idle then
+        eff = Idle:new(object, effect_args)
+    elseif effect_type == "heartBeat"
+        or effect_type == Effect.TYPE.heartBeat then
+
+        eff = Pulse:new(object, { max_sequence = 2, speed = 0.3, range = 0.1 })
+        local idle_eff = Idle:new(object, { duration = 1 })
+
+        eff:set_final_action(
+        ---@param args {idle: JM.Effect, pulse: JM.Effect}
+            function(args)
+                args.idle:apply(args.pulse.__object)
+            end,
+            { idle = idle_eff, pulse = eff }
+        )
+
+        idle_eff:set_final_action(
+        ---@param args {idle: JM.Effect, pulse: JM.Effect}
+            function(args)
+                args.pulse:apply(args.idle.__object)
+            end,
+            { idle = idle_eff, pulse = eff }
+        )
     end
 
     if eff then

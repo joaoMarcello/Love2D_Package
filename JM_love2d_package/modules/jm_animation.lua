@@ -19,7 +19,7 @@ local Utils = require("/JM_love2d_package/utils")
 local Frame = require("/JM_love2d_package/modules/classes/Frame")
 
 -- Class to animate.
---- @class JM.Anima: JM_Affectable
+--- @class JM.Anima: JM.Affectable
 --- @field __configuration {scale: JM.Point, color: JM.Color, direction: -1|1, rotation: number, speed: number, flip: table, kx: number, ky: number, current_frame: number}
 local Anima = {}
 
@@ -283,6 +283,12 @@ function Anima:set_color(value)
     end
 end
 
+---@return {ox: number, oy: number}
+function Anima:get_origin()
+    local cf = self:__get_current_frame()
+    return cf:get_origin()
+end
+
 ---
 --- Diferentes estados da animacao
 ---
@@ -371,6 +377,7 @@ function Anima:__pop()
     self.__ky = self.__configuration.ky
 
     self.__configuration = nil
+    self.__transform = nil
 end
 
 function Anima:__get_configuration()

@@ -12,7 +12,7 @@ function Frame:new(args)
     return obj
 end
 
----comment
+--- Constructor.
 ---@param args {x: number, y:number, w:number, h:number}
 function Frame:__constructor__(args)
     self.x = args.x or args[1]
@@ -24,7 +24,12 @@ function Frame:__constructor__(args)
     self.bottom = self.y + self.h
 end
 
----comment
+---@return {ox: number, oy: number}
+function Frame:get_origin()
+    return { ox = self.ox, oy = self.oy }
+end
+
+--- Sets the Quad Viewport.
 ---@param img love.Image
 ---@param quad love.Quad
 function Frame:setViewport(img, quad)

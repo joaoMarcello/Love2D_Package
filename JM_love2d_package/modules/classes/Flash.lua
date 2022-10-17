@@ -8,7 +8,7 @@ local Flash = Effect:new(nil, nil)
 ---
 --- Class Effect constructor.
 ---
----@param object JM_Affectable|nil
+---@param object JM.Affectable|nil
 ---@param args {range: number, alpha: number, speed: number, color: table}|nil
 ---@return JM.Effect effect
 function Flash:new(object, args)
@@ -44,7 +44,7 @@ function Flash:update(dt)
 
     if self.__rad >= math.pi then
         self.__rad = self.__rad % math.pi
-        self.__cycle_count = self.__cycle_count + 1
+        self:__increment_cycle()
     end
 
     self.__alpha = self.__origin + (math.sin(self.__rad) * self.__range)

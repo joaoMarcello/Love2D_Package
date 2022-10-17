@@ -1,6 +1,6 @@
 local EffectManager = require("/JM_love2d_package/modules/classes/EffectManager")
 
----@class JM_Affectable
+---@class JM.Affectable
 ---@field __effect_manager JM.EffectManager
 ---@field set_color function
 ---@field __push function
@@ -13,6 +13,7 @@ local EffectManager = require("/JM_love2d_package/modules/classes/EffectManager"
 ---@field get_scale function
 ---@field set_rotation function
 ---@field get_rotation function
+---@field get_origin function
 ---@field __set_transform function
 local Affectable = {}
 
@@ -54,6 +55,9 @@ function Affectable.__checks_implementation__(object)
 
     assert(object.get_rotation,
         "\nError: The class passed to Effect class constructor  do not implements the required 'get_rotation' method.")
+
+    assert(object.get_origin,
+        "\nError: The class passed to Effect class constructor  do not implements the required 'get_origin' method.")
 
     assert(object.__set_transform,
         "\nError: The class passed to Effect class constructor  do not implements the required '__set_transform' method.")

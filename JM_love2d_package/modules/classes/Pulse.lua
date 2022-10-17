@@ -4,7 +4,7 @@ local Effect = require("/JM_love2d_package/modules/classes/Effect")
 local Pulse = Effect:new(nil, nil)
 
 ---comment
----@param object JM_Affectable|nil
+---@param object JM.Affectable|nil
 ---@param args any
 ---@return JM.Effect
 function Pulse:new(object, args)
@@ -28,16 +28,11 @@ function Pulse:__constructor__(args)
     self.__cycle_count = 0
     self.__max_sequence = args and args.max_sequence
         or self.__max_sequence
+    self.__looping = args and args.max_sequence
     self.__difX = args and args.difX or nil
     self.__difY = args and args.difY or nil
     self.__rad = math.pi
     self.__prior = 2
-
-    -- self.__acc = 0.5
-    -- self.__speed = 0.05
-    -- self.__max_row = 6
-    -- self.__difX = 0.1
-    -- self.__difY = self.__config.scale.y * 0.25
 end
 
 function Pulse:update(dt)
@@ -47,7 +42,9 @@ function Pulse:update(dt)
 
     if self.__rad >= (math.pi * 2) then
         self.__rad = self.__rad % (math.pi * 2)
-        self.__cycle_count = self.__cycle_count + 1
+        if self.__looping then
+            self:__increment_cycle()
+        end
     end
 
     if self.__difX ~= 0 then

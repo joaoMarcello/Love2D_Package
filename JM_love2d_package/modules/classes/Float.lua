@@ -3,7 +3,7 @@ local Effect = require("/JM_love2d_package/modules/classes/Effect")
 ---@class JM.Effect.Float: JM.Effect
 local Float__ = Effect:new(nil, nil)
 
----@param object JM_Affectable|nil
+---@param object JM.Affectable|nil
 ---@param args any|nil
 ---@return JM.Effect
 function Float__:new(object, args)
@@ -32,7 +32,7 @@ function Float__:update(dt)
     self.__rad = self.__rad + ((math.pi * 2) / self.__speed) * dt
 
     if self.__rad >= math.pi * 2 then
-        self.__cycle_count = self.__cycle_count + 1
+        self:__increment_cycle()
     end
 
     self.__rad = self.__rad % (math.pi * 2)
@@ -52,6 +52,8 @@ function Float__:draw(x, y)
         ox = tx,
         oy = ty
     })
+
+    self.__object:__draw__(x, y)
 
 end
 

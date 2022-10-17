@@ -32,7 +32,7 @@ function Flick:update(dt)
     if self.__time >= self.__speed then
         self.__flick_state = -self.__flick_state
         self.__time = self.__time - self.__speed
-        self.__cycle_count = self.__cycle_count + 1
+        self:__increment_cycle()
     end
 
     if self.__flick_state == 1 then

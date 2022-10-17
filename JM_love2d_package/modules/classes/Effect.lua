@@ -42,7 +42,8 @@ local TYPE_ = {
     stretchVertical = 27,
     circle = 28,
     eight = 29,
-    bounce = 30
+    bounce = 30,
+    heartBeat = 31
 }
 
 Effect.TYPE = TYPE_
@@ -50,7 +51,7 @@ Effect.TYPE = TYPE_
 ---
 --- Class effect constructor.
 ---@overload fun(self: table|nil, object: nil, args: nil):JM.Effect
----@param object JM_Affectable # O objeto que sera afetado pelo efeito.
+---@param object JM.Affectable # O objeto que sera afetado pelo efeito.
 ---@param args any
 ---@return JM.Effect effect
 function Effect:new(object, args)
@@ -67,7 +68,7 @@ end
 ---
 --- Class effect constructor.
 ---
----@param object JM_Affectable
+---@param object JM.Affectable
 function Effect:__constructor__(object, args)
     self.__id = Effect.TYPE.generic
     self.__color = { 1, 1, 1, 1 }
@@ -85,15 +86,9 @@ function Effect:__constructor__(object, args)
     self.__max_sequence = args and args.max_sequence or 100
     self.__ends_by_sequence = args and args.max_sequence or false
 
-    self.__transform = {
-        x = 0, y = 0,
-        rot = 0,
-        sx = 1, sy = 1,
-        ox = 0, oy = 0,
-        kx = 0, ky = 0
-    }
+    self.__transform = nil
 
-    if object then
+    if object and not self.__config then
         object:__push()
         self.__config = object:__get_configuration()
         object:__pop()
@@ -138,6 +133,10 @@ function Effect:init()
     self:__constructor__(self.__args)
 end
 
+function Effect:__increment_cycle()
+    self.__cycle_count = self.__cycle_count + 1
+end
+
 function Effect:update(dt)
     return false
 end
@@ -160,6 +159,7 @@ function Effect:__update__(dt)
 
     if self.__remove then
         if self.__final_action then
+            self:restaure_object()
             self.__final_action(self.__args_final_action)
         end
     end
@@ -168,6 +168,7 @@ end
 function Effect:restaure_object()
     assert(self.__object, MSG_using_effect_with_no_associated_affectable)
     self.__object:__set_configuration(self.__config)
+    -- self.__object:__set_transform(nil)
     self.__object:__pop()
 end
 
@@ -176,11 +177,11 @@ function Effect:draw(x, y)
 end
 
 --- Forca efeito em um objeto que nao era dele.
----@param object JM_Affectable
+---@param object JM.Affectable
 function Effect:apply(object)
     if not object then return end
 
-    if object then
+    if object and object ~= self.__object then
         object:__push()
         self.__config = object:__get_configuration()
         object:__pop()
