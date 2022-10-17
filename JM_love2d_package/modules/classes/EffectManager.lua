@@ -8,6 +8,8 @@ local Rotate = require("/JM_love2d_package/modules/classes/Rotate")
 local Balance = require("/JM_love2d_package/modules/classes/Balance")
 local Popin = require("/JM_love2d_package/modules/classes/Popin")
 local Fadein = require("/JM_love2d_package/modules/classes/Fadein")
+local Ghost = require("/JM_love2d_package/modules/classes/Ghost")
+local Disc = require("/JM_love2d_package/modules/classes/Disc")
 
 -- Global variable for control the unique id's from EffectManager class.
 ---
@@ -337,6 +339,10 @@ function EffectManager:apply_effect(object, eff_type, effect_args, __only_get__)
     elseif eff_type == "fadeout" or eff_type == Effect.TYPE.fadeout then
         effect_args.__id__ = Effect.TYPE.fadeout
         eff = Fadein:new(object, effect_args)
+    elseif eff_type == "ghost" or eff_type == Effect.TYPE.ghost then
+        eff = Ghost:new(object, effect_args)
+    elseif eff_type == "disc" or eff_type == Effect.TYPE.disc then
+        eff = Disc:new(object, effect_args)
     end
 
     if eff then

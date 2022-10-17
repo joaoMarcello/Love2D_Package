@@ -1,4 +1,4 @@
---[[ Lua library for animation in LOVE.
+--[[ Lua library for animation in LÖVE.
 
     Some of the main functions include:
 
@@ -287,6 +287,14 @@ end
 function Anima:get_origin()
     local cf = self:__get_current_frame()
     return cf:get_origin()
+end
+
+function Anima:set_kx(value)
+    self.__kx = value
+end
+
+function Anima:set_ky(value)
+    self.__ky = value
 end
 
 ---
