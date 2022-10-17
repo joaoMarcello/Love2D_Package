@@ -46,7 +46,8 @@ local TYPE_ = {
     heartBeat = 31, --***
     butterfly = 32, --***
     jelly = 33, --***
-    shake = 34
+    shake = 34,
+    clickHere = 35
 }
 
 Effect.TYPE = TYPE_
@@ -133,6 +134,7 @@ function Effect:init()
     self.__rad = 0
     self.__cycle_count = 0
     self.__update_time = 0
+    self.__not_restaure = false
     self:__constructor__(self.__args)
 end
 

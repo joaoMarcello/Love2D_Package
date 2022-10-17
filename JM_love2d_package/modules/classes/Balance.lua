@@ -21,9 +21,10 @@ end
 function Balance:__constructor__(args)
     self.__id = args and args.__id__ or Effect.TYPE.balance
 
-    self.__range = 0.1
-    self.__speed = 4
+    self.__range = args and args.range or 0.1
+    self.__speed = args and args.speed or 4
     self.__direction = 1
+    self.__not_restaure = true
 end
 
 function Balance:update(dt)

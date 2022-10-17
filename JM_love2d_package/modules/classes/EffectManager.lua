@@ -96,7 +96,7 @@ function EffectManager:draw(x, y)
         for i = #self.__effects_list, 1, -1 do
             local eff = self:__get_effect_in_list__(i)
             eff:draw(x, y)
-            eff:restaure_object()
+            local r = not eff.__not_restaure and eff:restaure_object()
         end
     end
 end
@@ -183,6 +183,7 @@ end
 ---|"heartBeat"
 ---|"butterfly"
 ---|"jelly"
+---|"clickHere"
 
 
 ---Applies effect in a animation.
@@ -276,6 +277,26 @@ function EffectManager:apply_effect(object, effect_type, effect_args, __only_get
             end,
             { idle = idle_eff, pulse = eff }
         )
+    elseif effect_type == "clickHere" or effect_type == Effect.TYPE.clickHere then
+        local bb = Balance:new(object, { range = 0.03, speed = 1 / 3, max_sequence = 2 })
+        local idle = Idle:new(object, { duration = 1 })
+
+        bb:set_final_action(
+        ---@param args {idle: JM.Effect, bal: JM.Effect}
+            function(args)
+                args.idle:apply(args.bal.__object)
+            end,
+            { idle = idle, bal = bb })
+
+        idle:set_final_action(
+        ---@param args {idle: JM.Effect, bal: JM.Effect}
+            function(args)
+                args.bal:apply(args.idle.__object)
+            end,
+            { idle = idle, bal = bb })
+
+        eff = bb
+
     elseif effect_type == "jelly" or effect_type == Effect.TYPE.jelly then
         effect_args.__id__ = Effect.TYPE.jelly
         eff = Pulse:new(object, effect_args)

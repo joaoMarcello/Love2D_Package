@@ -10,15 +10,15 @@ Test_anima = Anima:new({
     is_reversed = false,
     state = "looping",
     frames_list = {
-        { 27, 18, 58, 70 },
-        { 151, 21, 58, 68 },
-        { 272, 21, 59, 68 },
-        { 392, 25, 68, 63 },
-        { 517, 26, 61, 63 },
-        { 638, 25, 57, 63 },
-        { 765, 24, 56, 65 },
-        { 889, 27, 55, 61 },
-        { 1007, 26, 63, 62 }
+        { 27, 18, 58, 70 }
+        -- { 151, 21, 58, 68 },
+        -- { 272, 21, 59, 68 },
+        -- { 392, 25, 68, 63 },
+        -- { 517, 26, 61, 63 },
+        -- { 638, 25, 57, 63 },
+        -- { 765, 24, 56, 65 },
+        -- { 889, 27, 55, 61 },
+        -- { 1007, 26, 63, 62 }
     }
 })
 
@@ -38,7 +38,7 @@ Anima2:reset()
 local pulse_eff = EffectGenerator:generate("pulse", { max_sequence = 2, speed = 0.3, range = 0.1 })
 local idle_effect = EffectGenerator:generate("idle", { duration = 1 })
 
-local hh = EffectGenerator:generate("heartBeat")
+local hh = EffectGenerator:generate("balance")
 
 -- hh:set_final_action(
 -- ---@param args {anima: JM.Anima}
@@ -48,7 +48,10 @@ local hh = EffectGenerator:generate("heartBeat")
 --     end,
 --     { anima = Test_anima })
 
+Test_anima:apply_effect("flash")
+-- Test_anima:apply_effect("pulse")
 hh:apply(Test_anima)
+
 
 function love.load()
     love.graphics.setBackgroundColor(130 / 255., 221 / 255., 255 / 255.)
@@ -57,13 +60,13 @@ end
 
 function love.update(dt)
     if Test_anima:time_updating() >= 4 then
-        Test_anima:stop_effect(hh)
-        Anima2:stop_effect(hh)
+        -- Test_anima:stop_effect(hh)
+        -- Anima2:stop_effect(hh)
     end
 
     if Test_anima:time_updating() >= 7 then
-        Test_anima:zera_time_updating()
-        hh:apply(Anima2)
+        -- Test_anima:zera_time_updating()
+        -- hh:apply(Anima2)
     end
 
     if Test_anima:time_updating() >= 1. then
