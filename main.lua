@@ -40,7 +40,7 @@ Anima2:reset()
 local pulse_eff = EffectGenerator:generate("pulse", { max_sequence = 2, speed = 0.3, range = 0.1 })
 local idle_effect = EffectGenerator:generate("idle", { duration = 1 })
 
-local hh = EffectGenerator:generate("heartBeat", { delay = nil })
+local hh = EffectGenerator:generate("swing", { delay = nil })
 
 -- hh:set_final_action(
 -- ---@param args {anima: JM.Anima}
