@@ -301,9 +301,9 @@ end
 --- Diferentes estados da animacao
 ---
 ---@alias JM.AnimaStates
----|"repeating" # (default) when animation reaches the last frame, the current frame is set to beginning.
+---|"looping" # (default) when animation reaches the last frame, the current frame is set to beginning.
 ---|"random" # animation shows his frames in a aleatory order.
----|"come and back" # when animation reaches the last frame, the direction of animation changes.
+---|"back and forth" # when animation reaches the last frame, the direction of animation changes.
 
 --
 --- Set state.
@@ -316,8 +316,8 @@ function Anima:set_state(state)
     if state == "random" then
         self.__current_state = ANIMA_STATES.random
 
-    elseif state == "come_and_back"
-        or state == "come and back" then
+    elseif state == "back and forth"
+        or state == "back_and_forth" then
 
         self.__current_state = ANIMA_STATES.come_and_back
     else

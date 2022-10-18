@@ -5,7 +5,7 @@
 ---@field __init function
 local Effect = {}
 
-local MSG_using_effect_with_no_associated_affectable = "\nError: Trying to use a 'Effect' object without associate him to a 'Affectable' object.\n\nTip: Try use the ':force' method from the 'Effect' object."
+local MSG_using_effect_with_no_associated_affectable = "\nError: Trying to use a 'Effect' object without associate him to a 'Affectable' object.\n\nTip: Try use the ':apply' method from the 'Effect' object."
 
 ---
 --- The animation effects.
@@ -25,7 +25,7 @@ local TYPE_ = {
     spin = 10,
     clockWise = 11, --***
     counterClockWise = 12, --***
-    balance = 13, --***
+    swing = 13, --***
     pop = 14,
     growth = 15,
     disc = 16, --***
@@ -47,7 +47,8 @@ local TYPE_ = {
     butterfly = 32, --***
     jelly = 33, --***
     shake = 34,
-    clickHere = 35 --***
+    clickHere = 35, --***
+    jump = 36
 }
 
 Effect.TYPE = TYPE_

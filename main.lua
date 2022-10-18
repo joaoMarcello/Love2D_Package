@@ -27,18 +27,20 @@ Anima2:set_size(100, 120)
 Anima2:toggle_flip_x()
 Anima2:set_duration(5)
 Anima2:set_reverse_mode(true)
-Anima2:stop_at_the_end(true,
-    ---@param args JM.Anima
-    function(args)
-        args:unpause()
-        args:apply_effect("flick", { duration = 0.5 })
-    end, Anima2)
+-- Anima2:stop_at_the_end(true,
+--     ---@param args JM.Anima
+--     function(args)
+--         args:unpause()
+--         args:apply_effect("flick", { duration = 0.5 })
+--     end, Anima2)
+Anima2:set_state("back and forth")
+Anima2:set_speed(0.1)
 Anima2:reset()
 
 local pulse_eff = EffectGenerator:generate("pulse", { max_sequence = 2, speed = 0.3, range = 0.1 })
 local idle_effect = EffectGenerator:generate("idle", { duration = 1 })
 
-local hh = EffectGenerator:generate("disc", { delay = 2 })
+local hh = EffectGenerator:generate("jelly", { delay = 2 })
 
 -- hh:set_final_action(
 -- ---@param args {anima: JM.Anima}
@@ -48,8 +50,8 @@ local hh = EffectGenerator:generate("disc", { delay = 2 })
 --     end,
 --     { anima = Test_anima })
 
-Test_anima:apply_effect("flash")
 hh:apply(Test_anima)
+Test_anima:apply_effect("clickHere")
 
 
 function love.load()

@@ -51,6 +51,7 @@ function Pulse:__constructor__(args)
         self.__looping = true
         self.__ends_by_cycle = true
     end
+
 end
 
 function Pulse:update(dt)

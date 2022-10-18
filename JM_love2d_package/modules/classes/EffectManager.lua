@@ -5,7 +5,7 @@ local Pulse = require("/JM_love2d_package/modules/classes/Pulse")
 local Float = require("/JM_love2d_package/modules/classes/Float")
 local Idle = require("/JM_love2d_package/modules/classes/Iddle")
 local Rotate = require("/JM_love2d_package/modules/classes/Rotate")
-local Balance = require("/JM_love2d_package/modules/classes/Balance")
+local Swing = require("/JM_love2d_package/modules/classes/Swing")
 local Popin = require("/JM_love2d_package/modules/classes/Popin")
 local Fadein = require("/JM_love2d_package/modules/classes/Fadein")
 local Ghost = require("/JM_love2d_package/modules/classes/Ghost")
@@ -165,7 +165,7 @@ end
 ---|"spin"
 ---|"clockWise"
 ---|"counterClockWise"
----|"balance"
+---|"swing"
 ---|"pop"
 ---|"growth"
 ---|"disc"
@@ -281,7 +281,7 @@ function EffectManager:apply_effect(object, eff_type, effect_args, __only_get__)
             { idle = idle_eff, pulse = eff }
         )
     elseif eff_type == "clickHere" or eff_type == Effect.TYPE.clickHere then
-        local bb = Balance:new(object, { range = 0.03, speed = 1 / 3, max_sequence = 2 })
+        local bb = Swing:new(object, { range = 0.03, speed = 1 / 3, max_sequence = 2 })
         local idle = Idle:new(object, { duration = 1 })
 
         bb:set_final_action(
@@ -324,9 +324,9 @@ function EffectManager:apply_effect(object, eff_type, effect_args, __only_get__)
         effect_args.__counter__ = true
         eff = Rotate:new(object, effect_args)
 
-    elseif eff_type == "balance" or eff_type == Effect.TYPE.balance then
+    elseif eff_type == "swing" or eff_type == Effect.TYPE.swing then
 
-        eff = Balance:new(object, effect_args)
+        eff = Swing:new(object, effect_args)
     elseif eff_type == "popin" or eff_type == Effect.TYPE.popin then
 
         eff = Popin:new(object, effect_args)
