@@ -19,6 +19,7 @@ local EffectManager = require("/JM_love2d_package/modules/classes/EffectManager"
 ---@field set_ky function
 ---@field get_ky function
 ---@field __set_transform function
+---@field __set_effect_transform function
 local Affectable = {}
 
 --- Check if object implements all the needed Affectable methods and fields.

@@ -40,7 +40,7 @@ Anima2:reset()
 local pulse_eff = EffectGenerator:generate("pulse", { max_sequence = 2, speed = 0.3, range = 0.1 })
 local idle_effect = EffectGenerator:generate("idle", { duration = 1 })
 
-local hh = EffectGenerator:generate("jelly", { delay = 2 })
+local hh = EffectGenerator:generate("heartBeat", { delay = nil })
 
 -- hh:set_final_action(
 -- ---@param args {anima: JM.Anima}
@@ -51,7 +51,7 @@ local hh = EffectGenerator:generate("jelly", { delay = 2 })
 --     { anima = Test_anima })
 
 hh:apply(Test_anima)
-Test_anima:apply_effect("clickHere")
+-- Test_anima:apply_effect("clickHere")
 
 
 function love.load()

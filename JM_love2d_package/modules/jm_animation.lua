@@ -420,6 +420,25 @@ function Anima:__set_transform(arg)
     )
 end
 
+---@param arg {x: number, y: number, rot: number, sx: number, sy: number, ox: number, oy: number, kx: number, ky: number, color: JM.Color}
+function Anima:__set_effect_transform(arg)
+    if not self.__effect_transform then
+        self.__effect_transform = {}
+    end
+
+    self.__effect_transform = {
+        x = arg.x or self.__effect_transform.x or self:get_origin().ox,
+        y = arg.y or self.__effect_transform.y or self:get_origin().oy,
+        rot = arg.rot or self.__effect_transform.rot or self.__rotation,
+        sx = arg.sx or self.__effect_transform.sx or self:get_scale().x,
+        sy = arg.sy or self.__effect_transform.sy or self:get_scale().y,
+        ox = arg.ox or self.__effect_transform.ox or 0,
+        oy = arg.oy or self.__effect_transform.oy or 0,
+        kx = arg.kx or self.__effect_transform.kx or self.__kx,
+        ky = arg.ky or self.__effect_transform.ky or self.__ky
+    }
+end
+
 --- Enabla a custom action to execute in animation update method.
 ---@param custom_action function
 ---@param args any
@@ -591,11 +610,11 @@ function Anima:draw_rec(x, y, w, h)
 
     x = x + w / 2.0
     y = y + h
-        - current_frame.h * self.__scale.y
-        + current_frame.oy * self.__scale.y
+        - current_frame.h * self.__scale.y * (self.__effect_transform and self.__effect_transform.sy or 1)
+        + current_frame.oy * self.__scale.y * (self.__effect_transform and self.__effect_transform.sy or 1)
 
     if self:__is_flipped_in_y() then
-        y = y - h + (current_frame.h * self.__scale.y)
+        y = y - h + (current_frame.h * self.__scale.y * (self.__effect_transform and self.__effect_transform.sy or 1))
     end
 
     self:draw(x, y)
@@ -614,9 +633,24 @@ function Anima:__draw_with_no_effects__(x, y)
 
     love.graphics.push()
 
-    if self.__transform then
-        love.graphics.applyTransform(self.__transform)
-    end
+    if self.__effect_transform then
+        local transform = love.math.newTransform()
+        local current_frame = self:__get_current_frame()
+
+        transform:setTransformation(
+            x + self.__effect_transform.ox,
+            y + self.__effect_transform.oy,
+            self.__effect_transform.rot,
+            self.__effect_transform.sx,
+            self.__effect_transform.sy,
+            x,
+            y,
+            self.__effect_transform.kx,
+            self.__effect_transform.ky
+        )
+
+        love.graphics.applyTransform(transform)
+    end -- END if exists a effect transform.
 
     local current_frame = self:__get_current_frame()
 

@@ -69,24 +69,23 @@ function Pulse:update(dt)
     end
 
     if self.__difX ~= 0 then
-        self.__object:set_scale({
-            x = self.__config.scale.x
+
+        self.__object:__set_effect_transform({
+            sx = self.__object:get_scale().x
                 + (math.sin(self.__rad)
                     * (self.__difX or self.__range))
-                * self.__config.scale.x,
-
-            y = self.__object:get_scale().y
+                * self.__object:get_scale().x
         })
+
     end
 
     if self.__difY ~= 0 then
-        self.__object:set_scale({
-            x = self.__object:get_scale().x,
 
-            y = self.__config.scale.y
+        self.__object:__set_effect_transform({
+            sy = self.__object:get_scale().y
                 + (math.sin(self.__rad + self.__adjust)
                     * (self.__difY or self.__range))
-                * self.__config.scale.y
+                * self.__object:get_scale().y
         })
     end
 end
