@@ -76,7 +76,6 @@ function EffectManager:update(dt)
 
         if self.__sort__ then
             table.sort(self.__effects_list,
-                --- Sort function. Expecting two Effect objects. Return the one with the biggest priority.
                 ---@param a JM.Effect
                 ---@param b JM.Effect
                 ---@return boolean
@@ -86,7 +85,7 @@ function EffectManager:update(dt)
             )
 
             self.__sort__ = false
-        end -- END sorting list of Effects.
+        end -- END IF sort.
 
     end -- END effect list is not nil.
 end

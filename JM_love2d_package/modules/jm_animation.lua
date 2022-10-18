@@ -26,7 +26,7 @@ local Anima = {}
 ---@enum AnimaStates
 local ANIMA_STATES = {
     looping = 1,
-    come_and_back = 2,
+    back_and_forth = 2,
     random = 3
 }
 
@@ -319,7 +319,7 @@ function Anima:set_state(state)
     elseif state == "back and forth"
         or state == "back_and_forth" then
 
-        self.__current_state = ANIMA_STATES.come_and_back
+        self.__current_state = ANIMA_STATES.back_and_forth
     else
         self.__current_state = ANIMA_STATES.looping
     end

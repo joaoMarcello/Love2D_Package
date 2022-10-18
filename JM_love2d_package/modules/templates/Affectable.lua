@@ -15,7 +15,9 @@ local EffectManager = require("/JM_love2d_package/modules/classes/EffectManager"
 ---@field get_rotation function
 ---@field get_origin function
 ---@field set_kx function
+---@field get_kx function
 ---@field set_ky function
+---@field get_ky function
 ---@field __set_transform function
 local Affectable = {}
 

@@ -100,6 +100,18 @@ function Effect:__constructor__(object, args)
     end
 end
 
+function Effect:__push()
+    local obj = self.__object
+    
+    return {
+        sx = obj:get_scale().x,
+        sy = obj:get_scale().y,
+        rot = obj:get_rotation(),
+        kx = obj:get_kx(),
+        ky = obj:get_ky(),
+    }
+end
+
 --
 --- Set the effect final action.
 ---@param action function
