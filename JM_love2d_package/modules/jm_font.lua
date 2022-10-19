@@ -2,6 +2,7 @@ local EffectManager = require("/JM_love2d_package/modules/classes/EffectManager"
 local Affectable = require("/JM_love2d_package/modules/templates/Affectable")
 local Character = require("/JM_love2d_package/modules/font/character")
 local Utils = require("/JM_love2d_package/utils")
+local Anima = require "/JM_love2d_package/animation_module"
 
 ---@class JM.Font.Font: JM.Affectable
 local Font = {}
@@ -17,6 +18,28 @@ function Font:new(args)
     return obj
 end
 
+Animation = Anima:new({
+    img = "/data/goomba.png",
+    duration = 1,
+    height = 100,
+    flip_x = true,
+    flip_y = false,
+    is_reversed = false,
+    state = "looping",
+    -- color = { 0, 0, 1, 1 },
+    frames_list = {
+        { 27, 18, 58, 70 },
+        { 151, 21, 58, 68 },
+        { 272, 21, 59, 68 },
+        { 392, 25, 68, 63 },
+        { 517, 26, 61, 63 },
+        { 638, 25, 57, 63 },
+        { 765, 24, 56, 65 },
+        { 889, 27, 55, 61 },
+        { 1007, 26, 63, 62 }
+    }
+})
+
 function Font:__constructor__(args)
     self.__img = love.graphics.newImage("/JM_love2d_package/data/Font/Calibri/calibri.png")
 
@@ -27,16 +50,12 @@ function Font:__constructor__(args)
     )
 
     self.__font_size = 30
-    self.__sy = 0.3
 
-    self.word_space = 40
-    self.space_between_char = 2
-    self.space_between_lines = 20
+    self.character_space = 2
+    self.line_space = 20
     self.__characters = {}
 
     local lines = Utils:getLines("/JM_love2d_package/data/Font/Calibri/calibri.txt")
-
-
 
     for i = 2, #lines do
         local parse = Utils:parse_csv_line(lines[i], ",")
@@ -49,23 +68,29 @@ function Font:__constructor__(args)
 
         table.insert(self.__characters,
             Character:new(self.__img, self.__quad,
-                { id = id, x = x, y = y, w = w, h = h, sy = self.__sy })
+                { id = id, x = x, y = y, w = w, h = h, bottom = bottom })
         )
     end
 
-    self.ref_height = self:get_equals("A").h
+    self.ref_height = self:get_equals("A").h or self:get_equals("0").h
+    self.word_space = self.ref_height * 0.6
+
 
     local sy = Utils:desired_size(nil, self.__font_size, nil, self.ref_height, true).y
 
-    self.__sy = sy
+    self.scale = sy
+
+    self.__characters[2].__anima = Animation
+    Animation:set_size(nil, self.__font_size, nil, 69)
+    Animation:apply_effect("pulse")
 end
 
 function Font:update(dt)
-    local character = self:get_char(1)
-    character:update(dt)
+    local character = self:get_equals("A")
+    local r = character and character:update(dt)
 end
 
----@return JM.Font.Character
+---@return JM.Font.Character|nil
 function Font:get_char(index)
     return self.__characters[index]
 end
@@ -90,31 +115,44 @@ function Font:print(text, x, y, w, h)
 
         local character = self:get_equals(text:sub(i, i))
         local last = self:get_equals(text:sub(i - 1, i - 1))
-        local wc = character and character.w * self.__sy or nil
+        local last_w = last and last.w or (text:sub(i - 1, i - 1) == " " and self.word_space)
 
-        if text:sub(i, i) == "\n" or (w and wc and tx + wc + (self.space_between_char * 2) >= w) then
-            ty = ty + self.space_between_lines + self.ref_height * self.__sy
+        local wc = character and last_w
+            and character.w * self.scale + last_w * self.scale
+            or nil
+
+        -- TAB
+        if text:sub(i, i) == "\t" then
+            tx = tx + self.word_space * self.scale * 4
+        end
+
+        -- Broken line or current x position is bigger than desired width.
+        if text:sub(i, i) == "\n" or (w and wc and tx + wc + (self.character_space * 2) >= w) then
+
+            ty = ty + self.line_space + self.ref_height * self.scale
             tx = x
+
             if text:sub(i, i) == "\n" then
                 goto continue
             else
-                last = nil
+                last_w = false
             end
         end
 
+        -- Space
         if text:sub(i, i) == " " then
-            tx = tx + self.word_space * self.__sy + self.ref_height * self.__sy * 0.7
+            tx = tx + self.word_space * self.scale + (last_w and last_w * self.scale or 0)
             goto continue
         end
 
-
-        if last and character then
-            tx = tx + self.space_between_char + last.w * self.__sy
+        -- Updating the x position to draw
+        if last_w and character then
+            tx = tx + self.character_space + last_w * self.scale
         end
 
         if character then
-            character:set_scale(self.__sy)
-            character:__draw__(tx, ty + self.__font_size - character.h * self.__sy)
+            character:set_scale(self.scale)
+            character:__draw__(tx, ty + self.__font_size - character.h * self.scale)
         end
 
         ::continue::

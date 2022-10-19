@@ -27,6 +27,8 @@ function Character:__constructor__(img, quad, args)
     self.sx = self.sy
     self.__args = args
     self.bottom = args.bottom or self.y + self.h
+    self.offset_y = args.bottom and self.y + self.h - self.bottom or 0
+
     self.__anima = args.anima
     self:set_color({ 1, 1, 1, 1 })
 
@@ -124,11 +126,11 @@ function Character:__draw__(x, y)
 
     self:setViewport(self.__img, self.__quad)
 
-    if self.__anima and false then
-        self.__anima:draw(x, y)
+    if self.__anima then
+        self.__anima:draw_rec(x, y, self.w * self.sx, self.h * self.sy)
     else
         love.graphics.draw(self.__img, self.__quad,
-            x, y,
+            x, y + self.offset_y * self.sy,
             0,
             self.sx, self.sy,
             self.ox, self.oy
