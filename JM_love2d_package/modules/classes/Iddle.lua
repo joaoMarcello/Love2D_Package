@@ -13,9 +13,9 @@ function Idle:new(object, args)
 end
 
 ---@param self JM.Effect
----@param args {duration: number}
+---@param args {duration: number, __id__: JM.Effect.id_number}
 function Idle:__constructor__(args)
-    self.__id = Effect.TYPE.idle
+    self.__id = args and args.__id__ or Effect.TYPE.idle
     self.__time = 0
     self.__time_total = args.duration or 0
 end

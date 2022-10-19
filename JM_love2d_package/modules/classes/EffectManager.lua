@@ -187,6 +187,7 @@ end
 ---|"jelly"
 ---|"clickHere"
 ---|"ufo"
+---|"pendulum"
 
 
 ---Applies effect in a animation.
@@ -333,7 +334,7 @@ function EffectManager:apply_effect(object, eff_type, effect_args, __only_get__)
 
         local circle = self:generate_effect("circle", { range = 25, speed = 4, adjust_range_x = 150 })
         local pulse = Pulse:new(object, { range = 0.5, speed = 4 })
-        local idle = Idle:new(object, { duration = 0 })
+        local idle = Idle:new(object, { duration = 0, __id__ = Effect.TYPE.ufo })
 
         idle:set_final_action(
         ---@param args {idle: JM.Effect, pulse: JM.Effect, circle: JM.Effect}
@@ -342,6 +343,24 @@ function EffectManager:apply_effect(object, eff_type, effect_args, __only_get__)
                 args.circle:apply(args.idle.__object)
             end,
             { idle = idle, pulse = pulse, circle = circle })
+
+        eff = idle
+
+    elseif eff_type == "pendulum" or eff_type == Effect.TYPE.pendulum then
+
+        local pointing = self:apply_effect(object, "pointing", { speed = 4, range = 100 }, true)
+
+        local floating = self:apply_effect(object, "float", { speed = 2 }, true)
+
+        local idle = Idle:new(object, { duration = 0, __id__ = Effect.TYPE.pendulum })
+
+        idle:set_final_action(
+        ---@param args {idle: JM.Effect, pointing: JM.Effect, floating: JM.Effect}
+            function(args)
+                args.pointing:apply(idle.__object)
+                args.floating:apply(idle.__object)
+            end,
+            { idle = idle, pointing = pointing, floating = floating })
 
         eff = idle
     end

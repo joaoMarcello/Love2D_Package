@@ -49,7 +49,8 @@ local TYPE_ = {
     shake = 34,
     clickHere = 35, --***
     jump = 36,
-    ufo = 37 --***
+    ufo = 37, --***
+    pendulum = 38
 }
 
 Effect.TYPE = TYPE_
@@ -159,6 +160,7 @@ function Effect:__update__(dt)
 
     if self.__time_delay > 0 then
         self.__is_enabled = false
+
         self.__time_delay = self.__time_delay - dt
 
         if self.__time_delay <= 0 then

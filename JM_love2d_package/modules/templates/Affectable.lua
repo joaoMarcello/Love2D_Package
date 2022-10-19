@@ -4,22 +4,8 @@ local EffectManager = require("/JM_love2d_package/modules/classes/EffectManager"
 ---@field __effect_manager JM.EffectManager
 ---@field set_color function
 ---@field get_color function
--- -@field __push function
--- -@field __pop function
 ---@field set_visible function
 ---@field __draw__ function
--- -@field __set_configuration function
--- -@field __get_configuration function
--- -@field set_scale function
--- -@field get_scale function
--- -@field set_rotation function
--- -@field get_rotation function
--- -@field get_origin function
--- -@field set_kx function
--- -@field get_kx function
--- -@field set_ky function
--- -@field get_ky function
--- -@field __set_transform function
 ---@field __set_effect_transform function
 local Affectable = {}
 

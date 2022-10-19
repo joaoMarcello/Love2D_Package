@@ -46,16 +46,19 @@ function Float__:__constructor__(args)
 
     self.__adjust_range_x = args and args.adjust_range_x or 0
 
+    self.__threshold = args and args.threshold or math.pi * 2
+    self.__direction = 1
+
 end
 
 function Float__:update(dt)
-    self.__rad = self.__rad + ((math.pi * 2) / self.__speed) * dt
+    self.__rad = self.__rad + ((self.__threshold) / self.__speed) * dt
 
-    if self.__rad >= math.pi * 2 then
+    if self.__rad >= self.__threshold then
         self:__increment_cycle()
     end
 
-    self.__rad = self.__rad % (math.pi * 2)
+    self.__rad = self.__rad % (self.__threshold)
 
     if self.__id == Effect.TYPE.circle then
         self:__circle_update(dt)
@@ -80,7 +83,7 @@ end
 function Float__:__not_circle_update(dt)
     local tx = self.__floatX and (math.sin(self.__rad * self.__adjust) * self.__range) or 0
 
-    local ty = self.__floatY and (math.sin(self.__rad * self.__adjustY) * self.__range) or 0
+    local ty = self.__floatY and (math.sin(self.__rad * self.__adjustY) * self.__range) * self.__direction or 0
 
     if tx ~= 0 and ty ~= 0 then
         self.__object:__set_effect_transform({
