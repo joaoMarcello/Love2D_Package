@@ -1,13 +1,13 @@
 local EffectManager = require("/JM_love2d_package/modules/classes/EffectManager")
 
+---@alias JM.Effect.TransformObject {x: number, y: number, rot: number, sx: number, sy: number, ox: number, oy: number, kx: number, ky: number}
+
 ---@class JM.Affectable
 ---@field __effect_manager JM.EffectManager
----@field __effect_transform table
+---@field __effect_transform JM.Effect.TransformObject|nil
 -- -@field set_color function
 -- -@field get_color function
 ---@field set_visible function
----@field __draw__ function
--- -@field __set_effect_transform function
 local Affectable = {}
 
 --- Check if object implements all the needed Affectable methods and fields.
@@ -94,7 +94,7 @@ function Affectable.get_color(object)
 end
 
 ---@param object JM.Affectable
----@param arg {x: number, y: number, rot: number, sx: number, sy: number, ox: number, oy: number, kx: number, ky: number}
+---@param arg JM.Effect.TransformObject
 function Affectable.__set_effect_transform(object, arg)
     if not arg then
         object.__effect_transform = nil
@@ -119,9 +119,15 @@ function Affectable.__set_effect_transform(object, arg)
 end
 
 ---@param object JM.Affectable
----@return {x: number, y: number, rot: number, sx: number, sy: number, ox: number, oy: number, kx: number, ky: number}
+---@return JM.Effect.TransformObject
 function Affectable.__get_effect_transform(object)
     return object.__effect_transform
+end
+
+---@param x number
+---@param y number
+function Affectable.__draw__(x, y)
+    return nil
 end
 
 return Affectable
