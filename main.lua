@@ -1,5 +1,6 @@
 local Anima = require "/JM_love2d_package/animation_module"
 local EffectGenerator = require("/JM_love2d_package/effect_generator_module")
+local FontGenerator = require("/JM_love2d_package/modules/jm_font")
 
 Test_anima = Anima:new({
     img = "/data/goomba.png",
@@ -43,27 +44,17 @@ local idle_effect = EffectGenerator:generate("idle", { duration = 1 })
 
 local hh = EffectGenerator:generate("swing", { delay = 1 })
 
--- hh:set_final_action(
--- ---@param args {anima: JM.Anima}
---     function(args)
---         local pop = args.anima:apply_effect("popin")
---         args.anima:apply_effect("clockWise", {speed=0.3, duration=pop.__speed})
---     end,
---     { anima = Test_anima })
-
--- hh:apply(Test_anima)
-
--- Test_anima:apply_effect("bounce")
 Test_anima:apply_effect("flash")
 Test_anima:apply_effect("jelly")
--- Test_anima:apply_effect("circle", { range = 25, speed = 4 })
--- Test_anima:apply_effect("pulse", { range = 0.5, speed = 4 })
+
+
+local Calibri = FontGenerator:new()
 
 
 
 function love.load()
-    love.graphics.setBackgroundColor(130 / 255., 221 / 255., 255 / 255.)
     love.graphics.setBackgroundColor(0.1, 0.1, 0.1, 1)
+    love.graphics.setBackgroundColor(130 / 255., 221 / 255., 255 / 255.)
 end
 
 function love.update(dt)
@@ -89,12 +80,14 @@ function love.draw()
     love.graphics.push()
 
     love.graphics.setColor(1, 1, 1, 0.8)
-    love.graphics.rectangle("fill", 200, 300, 100, 100)
-    Test_anima:draw_rec(200, 300, 100, 100)
+    love.graphics.rectangle("fill", 0, 0, 75, 500)
+    -- Test_anima:draw_rec(200, 300, 100, 100)
 
-    love.graphics.setColor(1, 1, 1, 0.8)
-    love.graphics.rectangle("fill", 300, 100, 100, 100)
-    Anima2:draw_rec(300, 100, 100, 100)
+    -- love.graphics.setColor(1, 1, 1, 0.8)
+    -- love.graphics.rectangle("fill", 300, 100, 100, 100)
+    -- Anima2:draw_rec(300, 100, 100, 100)
 
     love.graphics.pop()
+
+    Calibri:print("Hello World0\n123", 0, 0, 75)
 end

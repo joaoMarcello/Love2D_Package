@@ -4,7 +4,7 @@ local EffectManager = require("/JM_love2d_package/modules/classes/EffectManager"
 
 ---@class JM.Affectable
 ---@field __effect_manager JM.EffectManager
----@field __effect_transform JM.Effect.TransformObject|nil
+-- -@field __effect_transform JM.Effect.TransformObject|nil
 -- -@field set_color function
 -- -@field get_color function
 ---@field set_visible function
@@ -126,7 +126,7 @@ end
 
 ---@param x number
 ---@param y number
-function Affectable.__draw__(x, y)
+function Affectable.__draw__(object, x, y)
     return nil
 end
 
