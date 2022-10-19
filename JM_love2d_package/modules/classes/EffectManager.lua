@@ -223,33 +223,19 @@ function EffectManager:apply_effect(object, eff_type, effect_args, __only_get__)
     elseif eff_type == "pointing"
         or eff_type == Effect.TYPE.pointing then
 
-        if not effect_args then
-            effect_args = {}
-        end
-
         effect_args.__id__ = Effect.TYPE.pointing
 
         eff = Float:new(object, effect_args)
 
     elseif eff_type == "circle" or eff_type == Effect.TYPE.circle then
-        if not effect_args then
-            effect_args = {}
-        end
-
         effect_args.__id__ = Effect.TYPE.circle
         eff = Float:new(object, effect_args)
     elseif eff_type == "eight" or eff_type == Effect.TYPE.eight then
-        if not effect_args then
-            effect_args = {}
-        end
         effect_args.__id__ = Effect.TYPE.eight
         eff = Float:new(object, effect_args)
     elseif eff_type == "butterfly"
         or eff_type == Effect.TYPE.butterfly then
 
-        if not effect_args then
-            effect_args = {}
-        end
         effect_args.__id__ = Effect.TYPE.butterfly
         eff = Float:new(object, effect_args)
 

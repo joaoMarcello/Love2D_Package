@@ -35,8 +35,11 @@ function Float__:__constructor__(args)
     self.__adjust = args and args.adjust or math.pi / 2
     self.__rad = args and args.rad or 0
 
-    self.__adjust = self.__id == Effect.TYPE.eight and 2 or 1
+    if self.__id ~= Effect.TYPE.circle then
+        self.__adjust = self.__id == Effect.TYPE.eight and 2 or 1
+    end
     self.__adjustY = self.__id == Effect.TYPE.butterfly and 2 or 1
+
 end
 
 function Float__:update(dt)
@@ -47,24 +50,34 @@ function Float__:update(dt)
     end
 
     self.__rad = self.__rad % (math.pi * 2)
+
+    if self.__id == Effect.TYPE.circle then
+        self:__circle_update(dt)
+    else
+        self:__not_circle_update(dt)
+    end
 end
 
-function Float__:draw(x, y)
+function Float__:__circle_update(dt)
+    local tx = self.__floatX and (math.sin(self.__rad + self.__adjust) * self.__range) or 0
 
-    local tx = self.__floatX and x + (math.sin(self.__rad * self.__adjust) * self.__range)
-        or x
+    local ty = self.__floatY and (math.sin(self.__rad * self.__adjustY) * self.__range) or 0
 
-    local ty = self.__floatY and y + (math.sin(self.__rad * self.__adjustY) * self.__range)
-        or y
-
-    self.__object:__set_transform({
-        x = x,
-        y = y,
+    self.__object:__set_effect_transform({
         ox = tx,
         oy = ty
     })
+end
 
-    self.__object:__draw__(x, y)
+function Float__:__not_circle_update(dt)
+    local tx = self.__floatX and (math.sin(self.__rad * self.__adjust) * self.__range) or 0
+
+    local ty = self.__floatY and (math.sin(self.__rad * self.__adjustY) * self.__range) or 0
+
+    self.__object:__set_effect_transform({
+        ox = tx,
+        oy = ty
+    })
 end
 
 return Float__

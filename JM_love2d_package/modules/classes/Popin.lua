@@ -19,6 +19,8 @@ end
 ---@param args any
 function Popin:__constructor__(args)
     self.__id = args and args.__id__ or Effect.TYPE.popin
+    self.__type_transform.sx = true
+    self.__type_transform.sy = true
 
     self.__scale.x = self.__object and self.__object:get_scale().x * 0.3 or 0.3
     self.__speed = 0.2
