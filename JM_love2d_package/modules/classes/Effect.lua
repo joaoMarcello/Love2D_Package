@@ -93,7 +93,6 @@ function Effect:__constructor__(object, args)
     self.__max_sequence = args and args.max_sequence or 100
     self.__ends_by_cycle = args and args.max_sequence or false
     self.__time_delay = args and args.delay or 0
-    self.__transform = nil
 
     self.__type_transform = {}
     self.__obj_initial_color = { r = 1, g = 1, b = 1, a = 1 }
@@ -217,7 +216,6 @@ function Effect:apply(object)
     if not object then return end
 
     if object and object ~= self.__object then
-
         self.__obj_initial_color = {
             r = object:get_color()[1],
             g = object:get_color()[2],

@@ -207,7 +207,7 @@ function EffectManager:apply_effect(object, eff_type, effect_args, __only_get__)
 
     if eff_type == "flash" or eff_type == Effect.TYPE.flash then
         eff = Flash:new(object, effect_args)
-    elseif eff_type == "flick" or eff_type == Effect.TYPE.flickering then
+    elseif eff_type == "flickering" or eff_type == Effect.TYPE.flickering then
         eff = Flick:new(object, effect_args)
     elseif eff_type == "colorFlick"
         or eff_type == Effect.TYPE.colorFlick then

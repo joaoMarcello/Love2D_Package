@@ -9,16 +9,17 @@ Test_anima = Anima:new({
     flip_y = false,
     is_reversed = false,
     state = "looping",
+    -- color = { 0, 0, 1, 1 },
     frames_list = {
         { 27, 18, 58, 70 },
-        -- { 151, 21, 58, 68 },
-        -- { 272, 21, 59, 68 },
-        -- { 392, 25, 68, 63 },
-        -- { 517, 26, 61, 63 },
-        -- { 638, 25, 57, 63 },
-        -- { 765, 24, 56, 65 },
-        -- { 889, 27, 55, 61 },
-        -- { 1007, 26, 63, 62 }
+        { 151, 21, 58, 68 },
+        { 272, 21, 59, 68 },
+        { 392, 25, 68, 63 },
+        { 517, 26, 61, 63 },
+        { 638, 25, 57, 63 },
+        { 765, 24, 56, 65 },
+        { 889, 27, 55, 61 },
+        { 1007, 26, 63, 62 }
     }
 })
 
@@ -52,8 +53,9 @@ local hh = EffectGenerator:generate("swing", { delay = 1 })
 
 -- hh:apply(Test_anima)
 
-Test_anima:apply_effect("float")
-Test_anima:apply_effect("swing")
+-- Test_anima:apply_effect("bounce")
+Test_anima:apply_effect("flash")
+Test_anima:apply_effect("jelly")
 -- Test_anima:apply_effect("circle", { range = 25, speed = 4 })
 -- Test_anima:apply_effect("pulse", { range = 0.5, speed = 4 })
 

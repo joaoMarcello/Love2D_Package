@@ -25,7 +25,7 @@ function Pulse:__constructor__(args)
     self.__acc = 0
     self.__adjust = args and args.adjust or 0 --math.pi
     self.__speed = args and args.speed or 0.5
-    self.__range = args and args.range or 0.2
+    self.__range = args and args.range or 0.1
     self.__max_sequence = args and args.max_sequence
         or self.__max_sequence
     self.__looping = args and args.max_sequence

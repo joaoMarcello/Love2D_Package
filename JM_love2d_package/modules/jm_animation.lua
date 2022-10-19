@@ -536,7 +536,6 @@ function Anima:__draw_with_no_effects__(x, y)
 
     if effect_transform then
         local transform = love.math.newTransform()
-        local current_frame = self:__get_current_frame()
 
         transform:setTransformation(
             x + effect_transform.ox,
