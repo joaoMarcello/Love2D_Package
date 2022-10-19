@@ -95,23 +95,15 @@ function Effect:__constructor__(object, args)
 
     self.__type_transform = {}
 
-    if object and not self.__config then
-        object:__push()
-        self.__config = object:__get_configuration()
-        object:__pop()
+    if object then
+        self.__obj_initial_color = {
+            r = self.__object:get_color().r,
+            g = self.__object:get_color().g,
+            b = self.__object:get_color().b,
+            a = self.__object:get_color().a
+        }
     end
-end
 
-function Effect:__push()
-    local obj = self.__object
-
-    return {
-        sx = obj:get_scale().x,
-        sy = obj:get_scale().y,
-        rot = obj:get_rotation(),
-        kx = obj:get_kx(),
-        ky = obj:get_ky(),
-    }
 end
 
 --
@@ -199,6 +191,8 @@ end
 function Effect:restaure_object()
     assert(self.__object, MSG_using_effect_with_no_associated_affectable)
 
+    self.__object:set_color(self.__obj_initial_color)
+
     self.__object:__set_effect_transform({
         rot = self.__type_transform.rot and 0,
         ox = self.__type_transform.ox and 0,
@@ -220,9 +214,13 @@ function Effect:apply(object)
     if not object then return end
 
     if object and object ~= self.__object then
-        object:__push()
-        self.__config = object:__get_configuration()
-        object:__pop()
+
+        self.__obj_initial_color = {
+            r = object:get_color().r,
+            g = object:get_color().g,
+            b = object:get_color().b,
+            a = object:get_color().a
+        }
     end
 
     self.__object = object

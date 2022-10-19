@@ -63,7 +63,7 @@ function EffectManager:update(dt)
                 end
 
                 eff:restaure_object()
-                eff.__object:__set_transform(nil)
+                -- eff.__object:__set_transform(nil)
 
                 if self.__effects_clear then
                     self.__effects_clear = nil;

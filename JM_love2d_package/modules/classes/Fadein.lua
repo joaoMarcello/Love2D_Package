@@ -47,7 +47,7 @@ function Fadein:update_fadein(dt)
         self.__object:set_color({ a = self.__alpha })
     else
         self.__remove = true
-        self.__object:set_color(self.__config.color)
+        self.__object:set_color(self.__obj_initial_color)
     end
 end
 

@@ -41,9 +41,6 @@ function Disc:update(dt)
         kx = math.sin(self.__rad) * self.__range,
         ky = -math.sin(self.__rad + math.pi * 1.5) * self.__range
     })
-
-    -- self.__object:set_kx(math.sin(self.__rad) * self.__range)
-    -- self.__object:set_ky(-math.sin(self.__rad + math.pi * 1.5) * self.__range)
 end
 
 return Disc

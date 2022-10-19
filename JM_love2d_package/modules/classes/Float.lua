@@ -18,6 +18,7 @@ end
 ---@param self JM.Effect
 ---@param args any|nil
 function Float__:__constructor__(args)
+
     self.__id = args and args.__id__ or Effect.TYPE.float
 
     self.__speed = args and args.speed or 1
@@ -39,6 +40,9 @@ function Float__:__constructor__(args)
         self.__adjust = self.__id == Effect.TYPE.eight and 2 or 1
     end
     self.__adjustY = self.__id == Effect.TYPE.butterfly and 2 or 1
+
+    self.__type_transform.ox = self.__floatX
+    self.__type_transform.oy = self.__floatY
 
 end
 

@@ -22,16 +22,16 @@ function Popin:__constructor__(args)
     self.__type_transform.sx = true
     self.__type_transform.sy = true
 
-    self.__scale.x = self.__object and self.__object:get_scale().x * 0.3 or 0.3
+    self.__scale.x = 0.3
     self.__speed = 0.2
-    self.__min = self.__object and self.__object:get_scale().x or 1
+    self.__min = 1
     self.__range = 0.2
     self.__state = 1
 
     if self.__id == Effect.TYPE.popout then
-        self.__object:set_visible(true)
-        self.__scale.x = self.__object and self.__object:get_scale().x or 1
-        self.__min = self.__object and self.__object:get_scale().x * 0.3 or 0.3
+        if self.__object then self.__object:set_visible(true) end
+        self.__scale.x = 1
+        self.__min = 0.3
         self.__range = 0.3
     end
 end
@@ -40,8 +40,8 @@ function Popin:update(dt)
     if self.__state == 1 then
         self.__scale.x = self.__scale.x + (1 + self.__range * 2) / self.__speed * dt
 
-        if self.__scale.x >= (self.__config.scale.x * (1 + self.__range)) then
-            self.__scale.x = (self.__config.scale.x * (1 + self.__range))
+        if self.__scale.x >= ((1 + self.__range)) then
+            self.__scale.x = ((1 + self.__range))
             self.__state = 0
         end
     end
@@ -50,19 +50,22 @@ function Popin:update(dt)
         self.__scale.x = self.__scale.x - (1 + self.__range * 2) / self.__speed * dt
 
         if self.__id == Effect.TYPE.popin then
-            if self.__scale.x <= self.__config.scale.x then
+            if self.__scale.x <= 1 then
                 self.__scale.x = 1
                 self.__state = -1
-                self.__object:set_scale({ x = self.__scale.x, y = self.__scale.x })
+                self.__object:__set_effect_transform({
+                    sx = 1 + self.__scale.x,
+                    sy = 1 + self.__scale.x
+                })
                 self.__remove = true
             end
         else
             if self.__scale.x <= self.__min then
                 self.__state = -1
                 self.__object:set_visible(false)
-                self.__object:set_scale({
-                    x = self.__config.scale.x,
-                    y = self.__config.scale.y
+                self.__object:__set_effect_transform({
+                    sx = 1,
+                    sy = 1
                 })
                 self.__remove = true
                 return
@@ -71,7 +74,10 @@ function Popin:update(dt)
     end
 
     if self.__state >= 0 then
-        self.__object:set_scale({ x = self.__scale.x, y = self.__scale.x })
+        self.__object:__set_effect_transform({
+            sx = self.__scale.x,
+            sy = self.__scale.x
+        })
     end
 end
 

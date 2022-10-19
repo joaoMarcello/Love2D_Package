@@ -124,7 +124,7 @@ function Anima:__constructor__(args)
     self.__stop_action = nil
     self.__stop_action_args = nil
 
-    self.__transform = self:__set_transform(nil)
+    -- self.__transform = self:__set_transform(nil)
 
     Affectable.__checks_implementation__(self)
 end
@@ -346,80 +346,6 @@ function Anima:reset()
     self.__is_enabled = true
 end
 
---
---- Save the current animation configuration.
----
-function Anima:__push()
-    if not self.__configuration then
-        self.__configuration = {}
-    end
-
-    self.__configuration.scale = { x = self.__scale.x, y = self.__scale.y }
-    self.__configuration.color = self.__color
-    self.__configuration.rotation = self.__rotation
-    self.__configuration.kx = self.__kx
-    self.__configuration.ky = self.__ky
-end
-
---
----Configure the animation with the last configuration. Should be used after "__push" method.
----
-function Anima:__pop()
-    if not self.__configuration then
-        return
-    end
-
-    self.__scale = {
-        x = self.__configuration.scale.x,
-        y = self.__configuration.scale.y
-    }
-
-    self.__color = {
-        self.__configuration.color[1], self.__configuration.color[2],
-        self.__configuration.color[3], self.__configuration.color[4] or 1
-    }
-
-    self.__rotation = self.__configuration.rotation
-
-    self.__kx = self.__configuration.kx
-    self.__ky = self.__configuration.ky
-
-    self.__configuration = nil
-    -- self.__transform = nil
-end
-
-function Anima:__get_configuration()
-    return self.__configuration
-end
-
-function Anima:__set_configuration(config)
-    self.__configuration = config
-end
-
----@param arg {x: number, y: number, rot: number, sx: number, sy: number, ox: number, oy: number, kx: number, ky: number}|nil
-function Anima:__set_transform(arg)
-    if not self.__transform then
-        self.__transform = love.math.newTransform()
-    end
-
-    if not arg then
-        self.__transform = nil
-        return
-    end
-
-    local current_frame = self:__get_current_frame()
-
-    self.__transform:setTransformation(
-        arg and arg.x or 0,
-        arg and arg.y or 0,
-        arg and arg.rot or 0,
-        arg and arg.sx or 1, arg and arg.sy or 1,
-        arg and arg.ox or current_frame.ox,
-        arg and arg.oy or current_frame.oy,
-        arg and arg.kx or 0, arg and arg.ky or 0
-    )
-end
-
 ---@param arg {x: number, y: number, rot: number, sx: number, sy: number, ox: number, oy: number, kx: number, ky: number, color: JM.Color}
 function Anima:__set_effect_transform(arg)
     if not arg then
@@ -591,9 +517,7 @@ end -- END update function
 ---@param y number # The top-left position to draw (y-axis).
 function Anima:draw(x, y)
 
-    if not self.__transform then
-        self:__draw_with_no_effects__(x, y)
-    end
+    self:__draw_with_no_effects__(x, y)
 
     -- Drawing the effects, if some exists.
     self.__effect_manager:draw(x, y)

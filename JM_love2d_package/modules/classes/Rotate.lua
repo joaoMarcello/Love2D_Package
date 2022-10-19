@@ -19,6 +19,7 @@ end
 ---@param args any|nil
 function Rotate:__constructor__(args)
     self.__id = args and args.__id__ or Effect.TYPE.clockWise
+    self.__type_transform.rot = true
 
     self.__speed = args and args.speed or 2
     self.__direction = args and (args.__counter__ and -1) or 1
@@ -33,7 +34,7 @@ function Rotate:update(dt)
         self:__increment_cycle()
     end
 
-    self.__object:set_rotation(self.__rad)
+    self.__object:__set_effect_transform({ rot = self.__rad })
 end
 
 return Rotate
