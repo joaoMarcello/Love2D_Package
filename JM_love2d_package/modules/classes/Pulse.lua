@@ -22,9 +22,6 @@ end
 function Pulse:__constructor__(args)
     self.__id = args and args.__id__ or Effect.TYPE.pulse
 
-    self.__type_transform.sx = true
-    self.__type_transform.sy = true
-
     self.__acc = 0
     self.__adjust = args and args.adjust or 0 --math.pi
     self.__speed = args and args.speed or 0.5
@@ -39,7 +36,7 @@ function Pulse:__constructor__(args)
 
     if self.__id == Effect.TYPE.jelly then
         self.__adjust = math.pi * 0.7
-        self.__range = 0.1
+        self.__rad = 0
     elseif self.__id == Effect.TYPE.stretchHorizontal then
         self.__difY = 0
     elseif self.__id == Effect.TYPE.stretchVertical then
@@ -54,6 +51,9 @@ function Pulse:__constructor__(args)
         self.__looping = true
         self.__ends_by_cycle = true
     end
+
+    self.__type_transform.sx = self.__difX ~= 0
+    self.__type_transform.sy = self.__difY ~= 0
 
 end
 
@@ -73,7 +73,7 @@ function Pulse:update(dt)
 
         self.__object:__set_effect_transform({
             sx = 1 + (math.sin(self.__rad)
-                    * (self.__difX or self.__range))
+                * (self.__difX or self.__range))
         })
 
     end
@@ -82,7 +82,7 @@ function Pulse:update(dt)
 
         self.__object:__set_effect_transform({
             sy = 1 + (math.sin(self.__rad + self.__adjust)
-                    * (self.__difY or self.__range))
+                * (self.__difY or self.__range))
         })
     end
 end
