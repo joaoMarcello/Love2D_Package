@@ -75,7 +75,8 @@ function Anima:__constructor__(args)
 
     self:set_reverse_mode(args.is_reversed)
 
-    self.__color = args.color or { 1, 1, 1, 1 }
+    self:set_color(args.color or { 1, 1, 1, 1 })
+
     self.__rotation = args.rotation or 0
     self.__speed = args.speed or 0.3
     self.__stop_at_the_end = args.stop_at_the_end or false
@@ -123,8 +124,6 @@ function Anima:__constructor__(args)
 
     self.__stop_action = nil
     self.__stop_action_args = nil
-
-    -- self.__transform = self:__set_transform(nil)
 
     Affectable.__checks_implementation__(self)
 end

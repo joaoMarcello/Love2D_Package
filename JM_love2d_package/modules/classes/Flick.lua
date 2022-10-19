@@ -22,7 +22,8 @@ function Flick:__constructor__(args)
     self.__id = Effect.TYPE.flickering
     self.__speed = args and args.speed or 0.1
     self.__time = 0
-    self.__color = args and args.color or { 0, 0, 1, 0 }
+    self.__color = args and args.color or { r = 0, g = 0, b = 1, a = 0 }
+
     self.__flick_state = 1
     self.__cycle_count = -1
 end
@@ -38,8 +39,7 @@ function Flick:update(dt)
     if self.__flick_state == 1 then
         self.__object:set_color(self.__color)
     elseif self.__flick_state == -1 then
-        -- self.__object:set_color(self.__config.color)
-        -- self:restaure_object()
+        self.__object:set_color(self.__obj_initial_color)
     end
 end
 

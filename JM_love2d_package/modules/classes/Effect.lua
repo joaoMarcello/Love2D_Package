@@ -94,13 +94,13 @@ function Effect:__constructor__(object, args)
     self.__transform = nil
 
     self.__type_transform = {}
-
+    self.__obj_initial_color = { r = 1, g = 1, b = 1, a = 1 }
     if object then
         self.__obj_initial_color = {
-            r = self.__object:get_color().r,
-            g = self.__object:get_color().g,
-            b = self.__object:get_color().b,
-            a = self.__object:get_color().a
+            r = self.__object:get_color()[1],
+            g = self.__object:get_color()[2],
+            b = self.__object:get_color()[3],
+            a = self.__object:get_color()[4]
         }
     end
 
@@ -216,10 +216,10 @@ function Effect:apply(object)
     if object and object ~= self.__object then
 
         self.__obj_initial_color = {
-            r = object:get_color().r,
-            g = object:get_color().g,
-            b = object:get_color().b,
-            a = object:get_color().a
+            r = object:get_color()[1],
+            g = object:get_color()[2],
+            b = object:get_color()[3],
+            a = object:get_color()[4]
         }
     end
 

@@ -40,7 +40,7 @@ Anima2:reset()
 local pulse_eff = EffectGenerator:generate("pulse", { max_sequence = 2, speed = 0.3, range = 0.1 })
 local idle_effect = EffectGenerator:generate("idle", { duration = 1 })
 
-local hh = EffectGenerator:generate("disc", { delay = 1, duration = 5})
+local hh = EffectGenerator:generate("flash", { delay = nil })
 
 -- hh:set_final_action(
 -- ---@param args {anima: JM.Anima}
@@ -51,7 +51,8 @@ local hh = EffectGenerator:generate("disc", { delay = 1, duration = 5})
 --     { anima = Test_anima })
 
 hh:apply(Test_anima)
--- Test_anima:apply_effect("swing")
+
+Test_anima:apply_effect("jelly")
 -- Test_anima:apply_effect("float")
 
 

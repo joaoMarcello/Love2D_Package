@@ -67,6 +67,8 @@ function Flash:draw(x, y)
 
     self.__object:__draw__(x, y)
     love.graphics.setBlendMode('alpha')
+
+    self.__object:set_color(self.__obj_initial_color)
 end
 
 return Flash
