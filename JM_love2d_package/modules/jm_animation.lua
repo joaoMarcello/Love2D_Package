@@ -422,6 +422,11 @@ end
 
 ---@param arg {x: number, y: number, rot: number, sx: number, sy: number, ox: number, oy: number, kx: number, ky: number, color: JM.Color}
 function Anima:__set_effect_transform(arg)
+    if not arg then
+        self.__effect_transform = nil
+        return
+    end
+
     if not self.__effect_transform then
         self.__effect_transform = {}
     end
@@ -429,13 +434,13 @@ function Anima:__set_effect_transform(arg)
     self.__effect_transform = {
         x = arg.x or self.__effect_transform.x or self:get_origin().ox,
         y = arg.y or self.__effect_transform.y or self:get_origin().oy,
-        rot = arg.rot or self.__effect_transform.rot or self.__rotation,
-        sx = arg.sx or self.__effect_transform.sx or self:get_scale().x,
-        sy = arg.sy or self.__effect_transform.sy or self:get_scale().y,
+        rot = arg.rot or self.__effect_transform.rot or 0,
+        sx = arg.sx or self.__effect_transform.sx or 1,
+        sy = arg.sy or self.__effect_transform.sy or 1,
         ox = arg.ox or self.__effect_transform.ox or 0,
         oy = arg.oy or self.__effect_transform.oy or 0,
-        kx = arg.kx or self.__effect_transform.kx or self.__kx,
-        ky = arg.ky or self.__effect_transform.ky or self.__ky
+        kx = arg.kx or self.__effect_transform.kx or 0,
+        ky = arg.ky or self.__effect_transform.ky or 0
     }
 end
 

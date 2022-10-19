@@ -22,6 +22,9 @@ end
 function Pulse:__constructor__(args)
     self.__id = args and args.__id__ or Effect.TYPE.pulse
 
+    self.__type_transform.sx = true
+    self.__type_transform.sy = true
+
     self.__acc = 0
     self.__adjust = args and args.adjust or 0 --math.pi
     self.__speed = args and args.speed or 0.5
@@ -55,8 +58,6 @@ function Pulse:__constructor__(args)
 end
 
 function Pulse:update(dt)
-    self:restaure_object()
-
     self.__speed = self.__speed + self.__acc / 1.0 * dt
 
     self.__rad = (self.__rad + math.pi * 2. / self.__speed * dt)
@@ -71,10 +72,8 @@ function Pulse:update(dt)
     if self.__difX ~= 0 then
 
         self.__object:__set_effect_transform({
-            sx = self.__object:get_scale().x
-                + (math.sin(self.__rad)
+            sx = 1 + (math.sin(self.__rad)
                     * (self.__difX or self.__range))
-                * self.__object:get_scale().x
         })
 
     end
@@ -82,10 +81,8 @@ function Pulse:update(dt)
     if self.__difY ~= 0 then
 
         self.__object:__set_effect_transform({
-            sy = self.__object:get_scale().y
-                + (math.sin(self.__rad + self.__adjust)
+            sy = 1 + (math.sin(self.__rad + self.__adjust)
                     * (self.__difY or self.__range))
-                * self.__object:get_scale().y
         })
     end
 end

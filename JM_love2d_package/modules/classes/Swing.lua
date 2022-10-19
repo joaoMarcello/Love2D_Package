@@ -20,6 +20,7 @@ end
 ---@param args any
 function Swing:__constructor__(args)
     self.__id = args and args.__id__ or Effect.TYPE.swing
+    self.__type_transform.rot = true
 
     self.__range = args and args.range or 0.1
     self.__speed = args and args.speed or 4

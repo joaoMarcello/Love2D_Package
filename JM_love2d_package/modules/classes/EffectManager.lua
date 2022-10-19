@@ -98,7 +98,7 @@ function EffectManager:draw(x, y)
         for i = #self.__effects_list, 1, -1 do
             local eff = self:__get_effect_in_list__(i)
             eff:draw(x, y)
-            local r = not eff.__not_restaure and eff:restaure_object()
+            -- local r = not eff.__not_restaure and eff:restaure_object()
         end
     end
 end

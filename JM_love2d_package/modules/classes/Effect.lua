@@ -93,6 +93,8 @@ function Effect:__constructor__(object, args)
     self.__time_delay = args and args.delay or 0
     self.__transform = nil
 
+    self.__type_transform = {}
+
     if object and not self.__config then
         object:__push()
         self.__config = object:__get_configuration()
@@ -102,7 +104,7 @@ end
 
 function Effect:__push()
     local obj = self.__object
-    
+
     return {
         sx = obj:get_scale().x,
         sy = obj:get_scale().y,
@@ -196,9 +198,16 @@ end
 
 function Effect:restaure_object()
     assert(self.__object, MSG_using_effect_with_no_associated_affectable)
-    self.__object:__set_configuration(self.__config)
-    -- self.__object:__set_transform(nil)
-    self.__object:__pop()
+
+    self.__object:__set_effect_transform({
+        rot = self.__type_transform.rot and 0,
+        ox = self.__type_transform.ox and 0,
+        oy = self.__type_transform.oy and 0,
+        sx = self.__type_transform.sx and 1,
+        sy = self.__type_transform.sx and 1,
+        kx = self.__type_transform.kx and 0,
+        ky = self.__type_transform.ky and 0
+    })
 end
 
 function Effect:draw(x, y)
