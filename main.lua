@@ -52,7 +52,8 @@ local hh = EffectGenerator:generate("swing", { delay = 1 })
 
 -- hh:apply(Test_anima)
 
-Test_anima:apply_effect("pendulum")
+Test_anima:apply_effect("float")
+Test_anima:apply_effect("swing")
 -- Test_anima:apply_effect("circle", { range = 25, speed = 4 })
 -- Test_anima:apply_effect("pulse", { range = 0.5, speed = 4 })
 

@@ -261,25 +261,7 @@ end
 ---@overload fun(self: JM.Anima, value: {[1]: number, [2]: number, [3]: number, [4]: number})
 ---@param value {r: number, g: number, b: number, a: number}
 function Anima:set_color(value)
-    if not value then return end
-    if not self.__color then self.__color = {} end
-
-    if value.r or value.g or value.b or value.a then
-        self.__color = {
-            value.r or self.__color[1],
-            value.g or self.__color[2],
-            value.b or self.__color[3],
-            value.a or self.__color[4]
-        }
-
-    else -- color is in index format
-        self.__color = {
-            value[1] or self.__color[1],
-            value[2] or self.__color[2],
-            value[3] or self.__color[3],
-            value[4] or self.__color[4]
-        }
-    end
+    self.__color = Affectable.set_color(self, value)
 end
 
 ---@return {ox: number, oy: number}
@@ -345,28 +327,15 @@ function Anima:reset()
     self.__is_enabled = true
 end
 
----@param arg {x: number, y: number, rot: number, sx: number, sy: number, ox: number, oy: number, kx: number, ky: number, color: JM.Color}
+---@param arg {x: number, y: number, rot: number, sx: number, sy: number, ox: number, oy: number, kx: number, ky: number}
 function Anima:__set_effect_transform(arg)
-    if not arg then
-        self.__effect_transform = nil
-        return
-    end
 
-    if not self.__effect_transform then
-        self.__effect_transform = {}
-    end
+    Affectable.__set_effect_transform(self, arg)
 
-    self.__effect_transform = {
-        x = arg.x or self.__effect_transform.x or self:get_origin().ox,
-        y = arg.y or self.__effect_transform.y or self:get_origin().oy,
-        rot = arg.rot or self.__effect_transform.rot or 0,
-        sx = arg.sx or self.__effect_transform.sx or 1,
-        sy = arg.sy or self.__effect_transform.sy or 1,
-        ox = arg.ox or self.__effect_transform.ox or 0,
-        oy = arg.oy or self.__effect_transform.oy or 0,
-        kx = arg.kx or self.__effect_transform.kx or 0,
-        ky = arg.ky or self.__effect_transform.ky or 0
-    }
+end
+
+function Anima:__get_effect_transform()
+    return Affectable.__get_effect_transform(self)
 end
 
 --- Enabla a custom action to execute in animation update method.
@@ -536,13 +505,15 @@ end
 function Anima:draw_rec(x, y, w, h)
     local current_frame = self:__get_current_frame()
 
+    local effect_transform = self:__get_effect_transform()
+
     x = x + w / 2.0
     y = y + h
-        - current_frame.h * self.__scale.y * (self.__effect_transform and self.__effect_transform.sy or 1)
-        + current_frame.oy * self.__scale.y * (self.__effect_transform and self.__effect_transform.sy or 1)
+        - current_frame.h * self.__scale.y * (effect_transform and effect_transform.sy or 1)
+        + current_frame.oy * self.__scale.y * (effect_transform and effect_transform.sy or 1)
 
     if self:__is_flipped_in_y() then
-        y = y - h + (current_frame.h * self.__scale.y * (self.__effect_transform and self.__effect_transform.sy or 1))
+        y = y - h + (current_frame.h * self.__scale.y * (effect_transform and effect_transform.sy or 1))
     end
 
     self:draw(x, y)
@@ -561,20 +532,22 @@ function Anima:__draw_with_no_effects__(x, y)
 
     love.graphics.push()
 
-    if self.__effect_transform then
+    local effect_transform = self:__get_effect_transform()
+
+    if effect_transform then
         local transform = love.math.newTransform()
         local current_frame = self:__get_current_frame()
 
         transform:setTransformation(
-            x + self.__effect_transform.ox,
-            y + self.__effect_transform.oy,
-            self.__effect_transform.rot,
-            self.__effect_transform.sx,
-            self.__effect_transform.sy,
+            x + effect_transform.ox,
+            y + effect_transform.oy,
+            effect_transform.rot,
+            effect_transform.sx,
+            effect_transform.sy,
             x,
             y,
-            self.__effect_transform.kx,
-            self.__effect_transform.ky
+            effect_transform.kx,
+            effect_transform.ky
         )
 
         love.graphics.applyTransform(transform)

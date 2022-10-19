@@ -2,11 +2,12 @@ local EffectManager = require("/JM_love2d_package/modules/classes/EffectManager"
 
 ---@class JM.Affectable
 ---@field __effect_manager JM.EffectManager
----@field set_color function
----@field get_color function
+---@field __effect_transform table
+-- -@field set_color function
+-- -@field get_color function
 ---@field set_visible function
 ---@field __draw__ function
----@field __set_effect_transform function
+-- -@field __set_effect_transform function
 local Affectable = {}
 
 --- Check if object implements all the needed Affectable methods and fields.
@@ -54,43 +55,73 @@ function Affectable.__checks_implementation__(object)
     -- assert(object.set_kx,
     --     "\nError: The class passed to Effect class constructor  do not implements the required 'set_kx' method.")
 
-    -- assert(object.set_ky,
-    --     "\nError: The class passed to Effect class constructor  do not implements the required 'set_ky' method.")
+    assert(object.__get_effect_transform,
+        "\nError: The class do not implements the required '__get_effect_transform' method.")
 
     assert(object.__set_effect_transform,
         "\nError: The class do not implements the required '__set_effect_transform' method.")
 end
 
----@param color JM.Color
-function Affectable:set_color(color)
+---@param object JM.Affectable
+---@param value JM.Color
+function Affectable.set_color(object, value)
+    if not value then return end
+    if not object.__color then object.__color = {} end
+
+    if value.r or value.g or value.b or value.a then
+        object.__color = {
+            value.r or object.__color[1],
+            value.g or object.__color[2],
+            value.b or object.__color[3],
+            value.a or object.__color[4]
+        }
+
+    else -- color is in index format
+        object.__color = {
+            value[1] or object.__color[1],
+            value[2] or object.__color[2],
+            value[3] or object.__color[3],
+            value[4] or object.__color[4]
+        }
+    end
+
+    return object.__color
 end
 
-function Affectable:__push()
+---@return JM.Color
+function Affectable.get_color(object)
+    return object.__color
 end
 
-function Affectable:__pop()
+---@param object JM.Affectable
+---@param arg {x: number, y: number, rot: number, sx: number, sy: number, ox: number, oy: number, kx: number, ky: number}
+function Affectable.__set_effect_transform(object, arg)
+    if not arg then
+        object.__effect_transform = nil
+        return
+    end
+
+    if not object.__effect_transform then
+        object.__effect_transform = {}
+    end
+
+    object.__effect_transform = {
+        x = arg.x or object.__effect_transform.x or 0,
+        y = arg.y or object.__effect_transform.y or 0,
+        rot = arg.rot or object.__effect_transform.rot or 0,
+        sx = arg.sx or object.__effect_transform.sx or 1,
+        sy = arg.sy or object.__effect_transform.sy or 1,
+        ox = arg.ox or object.__effect_transform.ox or 0,
+        oy = arg.oy or object.__effect_transform.oy or 0,
+        kx = arg.kx or object.__effect_transform.kx or 0,
+        ky = arg.ky or object.__effect_transform.ky or 0
+    }
 end
 
----@param value boolean
-function Affectable:set_visible(value)
-end
-
----@param x number
----@param y number
-function Affectable:__draw__(x, y)
-end
-
----@param config any
-function Affectable:__set_configuration(config)
-end
-
----@param scale JM.Point
-function Affectable:set_scale(scale)
-end
-
----@return table
-function Affectable:get_scale()
-    return {}
+---@param object JM.Affectable
+---@return {x: number, y: number, rot: number, sx: number, sy: number, ox: number, oy: number, kx: number, ky: number}
+function Affectable.__get_effect_transform(object)
+    return object.__effect_transform
 end
 
 return Affectable
