@@ -186,6 +186,7 @@ end
 ---|"butterfly"
 ---|"jelly"
 ---|"clickHere"
+---|"ufo"
 
 
 ---Applies effect in a animation.
@@ -328,6 +329,21 @@ function EffectManager:apply_effect(object, eff_type, effect_args, __only_get__)
         eff = Ghost:new(object, effect_args)
     elseif eff_type == "disc" or eff_type == Effect.TYPE.disc then
         eff = Disc:new(object, effect_args)
+    elseif eff_type == "ufo" or eff_type == Effect.TYPE.ufo then
+
+        local circle = self:generate_effect("circle", { range = 25, speed = 4, adjust_range_x = 150 })
+        local pulse = Pulse:new(object, { range = 0.5, speed = 4 })
+        local idle = Idle:new(object, { duration = 0 })
+
+        idle:set_final_action(
+        ---@param args {idle: JM.Effect, pulse: JM.Effect, circle: JM.Effect}
+            function(args)
+                args.pulse:apply(args.idle.__object)
+                args.circle:apply(args.idle.__object)
+            end,
+            { idle = idle, pulse = pulse, circle = circle })
+
+        eff = idle
     end
 
     if eff then

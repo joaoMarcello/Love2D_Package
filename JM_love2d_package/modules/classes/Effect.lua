@@ -48,7 +48,8 @@ local TYPE_ = {
     jelly = 33, --***
     shake = 34,
     clickHere = 35, --***
-    jump = 36
+    jump = 36,
+    ufo = 37 --***
 }
 
 Effect.TYPE = TYPE_

@@ -44,6 +44,8 @@ function Float__:__constructor__(args)
     self.__type_transform.ox = self.__floatX
     self.__type_transform.oy = self.__floatY
 
+    self.__adjust_range_x = args and args.adjust_range_x or 0
+
 end
 
 function Float__:update(dt)
@@ -63,9 +65,11 @@ function Float__:update(dt)
 end
 
 function Float__:__circle_update(dt)
-    local tx = self.__floatX and (math.sin(self.__rad + self.__adjust) * self.__range) or 0
+    local tx = self.__floatX and (math.sin(self.__rad + self.__adjust)
+        * (self.__range + self.__adjust_range_x)) or 0
 
-    local ty = self.__floatY and (math.sin(self.__rad * self.__adjustY) * self.__range) or 0
+    local ty = self.__floatY and (math.sin(self.__rad * self.__adjustY)
+        * self.__range) or 0
 
     self.__object:__set_effect_transform({
         ox = tx,
@@ -78,10 +82,21 @@ function Float__:__not_circle_update(dt)
 
     local ty = self.__floatY and (math.sin(self.__rad * self.__adjustY) * self.__range) or 0
 
-    self.__object:__set_effect_transform({
-        ox = tx,
-        oy = ty
-    })
+    if tx ~= 0 and ty ~= 0 then
+        self.__object:__set_effect_transform({
+            ox = tx,
+            oy = ty
+        })
+    elseif tx ~= 0 then
+        self.__object:__set_effect_transform({
+            ox = tx
+        })
+    else
+        self.__object:__set_effect_transform({
+            oy = ty
+        })
+    end
+
 end
 
 return Float__

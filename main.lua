@@ -40,7 +40,7 @@ Anima2:reset()
 local pulse_eff = EffectGenerator:generate("pulse", { max_sequence = 2, speed = 0.3, range = 0.1 })
 local idle_effect = EffectGenerator:generate("idle", { duration = 1 })
 
-local hh = EffectGenerator:generate("jelly", { delay = 0.2, max_sequence = nil })
+local hh = EffectGenerator:generate("jelly", { delay = 1, max_sequence = 1 })
 
 -- hh:set_final_action(
 -- ---@param args {anima: JM.Anima}
@@ -50,10 +50,12 @@ local hh = EffectGenerator:generate("jelly", { delay = 0.2, max_sequence = nil }
 --     end,
 --     { anima = Test_anima })
 
-hh:apply(Test_anima)
+-- hh:apply(Test_anima)
 
--- Test_anima:apply_effect("stretchVertical")
--- Test_anima:apply_effect("float")
+Test_anima:apply_effect("ufo")
+-- Test_anima:apply_effect("circle", { range = 25, speed = 4 })
+-- Test_anima:apply_effect("pulse", { range = 0.5, speed = 4 })
+
 
 
 function love.load()
