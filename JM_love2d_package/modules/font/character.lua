@@ -100,7 +100,7 @@ function Character:draw(x, y)
 end
 
 function Character:__draw__(x, y)
-    love.graphics.setColor(0, 0, 0, 0.1)
+    love.graphics.setColor(0, 0, 0, 0.2)
     love.graphics.rectangle("fill", x, y, self.w * self.sx, self.h * self.sy)
     love.graphics.push()
 

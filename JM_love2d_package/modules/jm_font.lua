@@ -111,7 +111,7 @@ local function is_command(s, index)
         local startp, endp = s:find(">", index)
 
         if startp then
-            local start2, endp2 = s:find("</color>", endp)
+            local start2, endp2 = s:find("</" .. command .. ">", endp)
             if start2 then
                 local command_line = s:sub(index + 1, endp - 1)
                 local parse = Utils:parse_csv_line(command_line)
@@ -124,6 +124,7 @@ local function is_command(s, index)
                         1
                     }
                     return {
+                        command = command,
                         color = color,
                         start1 = index,
                         start2 = start2,
@@ -168,12 +169,38 @@ function Font:print(text, x, y, w, h)
     local jumped = 0
     local last_was_identifier = nil
     local color = { 0, 0, 0, 1 }
-    local result_color = nil
+    local change_color = nil
 
     for i = 1, #text do
         if jump > 0 then
             jump = jump - 1
             goto continue
+        end
+
+        local check_command = is_command(text, i)
+
+        if check_command then
+            if check_command.command == "color" then
+                change_color = check_command
+                color = change_color.color
+
+            end
+            jump = check_command.final1 - check_command.start1
+            jumped = jump
+            goto continue
+        end
+
+        if change_color then
+            color = change_color.color
+
+            if i > change_color.final2 then
+                color = { 0, 0, 0, 1 }
+                change_color = nil
+            elseif i >= change_color.start2 then
+                jump = change_color.final2 - change_color.start2
+                jumped = jump
+                goto continue
+            end
         end
 
         local current_char = text:sub(i, i)
@@ -189,32 +216,6 @@ function Font:print(text, x, y, w, h)
         if last_was_identifier then
             prev_char = last_was_identifier
             last_was_identifier = nil
-        end
-
-        local color_change = is_command(text, i)
-        if color_change then
-            result_color = color_change
-            if result_color then
-                color = result_color.color
-                jump = result_color.final1 - result_color.start1
-                -- jump = 15
-                jumped = jump
-                goto continue
-            end
-        end
-
-        if result_color then
-            color = result_color.color
-
-            if i > result_color.final2 then
-                color = { 0, 0, 0, 1 }
-                result_color = nil
-            elseif i >= result_color.start2 then
-                jump = result_color.final2 - result_color.start2
-                jumped = jump
-                goto continue
-            end
-
         end
 
         local character = self:get_equals(current_char)

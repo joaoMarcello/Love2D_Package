@@ -92,6 +92,6 @@ function love.draw()
 
     love.graphics.pop()
 
-    Calibri:print("Um goomba <goomba> me <color, 0.5, 0, 0.5>atingiu\n em cheio</color> Como pode\n   o peixe vivo\n\tviver fora \n   da agua fria\n\tcomo<goomba> <goomba>poderei viver\n\tSem a sua companhia"
+    Calibri:print("\tOlha eu nao queria ser <color, 1, 0, 0>meio sangue</color>"
         , 0, 0, w)
 end
