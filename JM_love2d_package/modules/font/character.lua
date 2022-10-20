@@ -5,6 +5,7 @@ local EffectManager = require("/JM_love2d_package/modules/classes/EffectManager"
 ---@field __anima JM.Anima
 local Character = {}
 
+---@return JM.Font.Character
 function Character:new(img, quad, args)
     local obj = {}
     setmetatable(obj, self)
@@ -26,10 +27,17 @@ function Character:__constructor__(img, quad, args)
     self.sy = args.sy or 1
     self.sx = self.sy
     self.__args = args
-    self.bottom = args.bottom or self.y + self.h
-    self.offset_y = args.bottom and self.y + self.h - self.bottom or 0
+
+    if self.y and self.h then
+        self.bottom = args.bottom or self.y + self.h
+        self.offset_y = args.bottom and self.y + self.h - self.bottom or 0
+    else
+        self.bottom = nil
+        self.offset_y = nil
+    end
 
     self.__anima = args.anima
+
     self:set_color({ 1, 1, 1, 1 })
 
     self.ox = 0
@@ -101,7 +109,11 @@ end
 
 function Character:__draw__(x, y)
     love.graphics.setColor(0, 0, 0, 0.2)
-    love.graphics.rectangle("fill", x, y, self.w * self.sx, self.h * self.sy)
+
+    if self.w and self.h then
+        love.graphics.rectangle("fill", x, y, self.w * self.sx, self.h * self.sy)
+    end
+
     love.graphics.push()
 
     local eff_transf = self:__get_effect_transform()
@@ -124,13 +136,14 @@ function Character:__draw__(x, y)
         love.graphics.applyTransform(transform)
     end
 
-    love.graphics.setColor(self:get_color())
-
-    self:setViewport(self.__img, self.__quad)
-
     if self.__anima then
-        self.__anima:draw_rec(x, y, self.w * self.sx, self.h * self.sy)
+        self:__anima_draw__(x, y)
     else
+        love.graphics.setColor(self:get_color())
+
+        self:setViewport(self.__img, self.__quad)
+
+
         love.graphics.draw(self.__img, self.__quad,
             x, y + self.offset_y * self.sy,
             0,
@@ -140,6 +153,10 @@ function Character:__draw__(x, y)
     end
 
     love.graphics.pop()
+end
+
+function Character:__anima_draw__(x, y)
+    self.__anima:draw(x + self.w / 2 * self.sx, y + self.h / 2 * self.sy)
 end
 
 return Character

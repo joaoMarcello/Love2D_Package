@@ -22,10 +22,10 @@ local Animation = Anima:new({
     img = "/data/goomba.png",
     duration = 1,
     height = 100,
-    flip_x = true,
+    flip_x = false,
     flip_y = false,
-    is_reversed = false,
-    state = "looping",
+    state = "back and forth",
+    is_reversed = true,
     -- color = { 0, 0, 1, 1 },
     frames_list = {
         { 27, 18, 58, 70 },
@@ -40,7 +40,7 @@ local Animation = Anima:new({
     }
 })
 
-local goomba = "<goomba>"
+-- local goomba = "goomba"
 
 function Font:__constructor__(args)
     self.__img = love.graphics.newImage("/JM_love2d_package/data/Font/calibri/calibri.png")
@@ -55,7 +55,7 @@ function Font:__constructor__(args)
     self.__font_size = 20
 
     self.character_space = 2
-    self.line_space = 20
+    self.line_space = 10
     self.__characters = {}
 
     local lines = Utils:getLines("/JM_love2d_package/data/Font/Calibri/calibri.txt")
@@ -84,63 +84,99 @@ function Font:__constructor__(args)
 
     self.scale = sy
 
-    local anim_char = Character:new(self.__img, self.__quad, { id = goomba, x = 78, y = 33, w = 64, h = 75 })
-    anim_char.__anima = Animation
-    Animation:apply_effect("flash")
-    Animation:apply_effect("float", { range = 5 })
-    Animation:set_size(nil, self.__font_size, nil, 69)
+    -- local anim_char = Character:new(self.__img, self.__quad, { id = goomba, x = 78, y = 33, w = 64, h = 75 })
+    -- anim_char.__anima = Animation
+    -- Animation:set_size(nil, self.__font_size + 8, nil, 69)
 
-    table.insert(self.__characters, anim_char)
+    -- table.insert(self.__characters, anim_char)
+
+    self.__nicknames = {}
+end
+
+---@param nickname string
+local function is_valid_nickname(nickname)
+    if #nickname > 4
+        and nickname:sub(1, 2) == "--"
+        and nickname:sub(#nickname - 1) == "--" then
+        return true
+    end
+    return false
+end
+
+---@param nickname string
+---@param args table
+function Font:add_nickname(nickname, args)
+    assert(is_valid_nickname(nickname), "Error: The nickname is invalid!")
+
+    local animation = Anima:new(args)
+    animation:set_size(nil, self.__font_size * 1.5, nil, animation:__get_current_frame().h)
+
+    local new_character = Character:new(nil, nil,
+        { id = nickname, anima = animation, w = self.ref_height, h = self.ref_height })
+
+    table.insert(self.__nicknames, {
+        nick = nickname, index = #self.__characters + 1
+    })
+
+    table.insert(self.__characters, new_character)
+
+    return animation
 end
 
 ---@param s string
-local function is_identifier(s, index)
-    local identifier = goomba
-
-    if s:sub(index, index + #identifier - 1) == identifier then
-        return identifier
+function Font:is_a_nickname(s, index)
+    for i = 1, #self.__nicknames do
+        local nick = self.__nicknames[i].nick
+        if s:sub(index, index + #nick - 1) == nick then
+            return nick
+        end
     end
+    return nil
 end
 
 ---@param s string
 ---@param index number
 local function is_command(s, index)
-    local command = "color"
+    local command = { "color", "italic", "bold" }
 
-    if s:sub(index, index) == "<" then
-        local startp, endp = s:find(">", index)
+    for i = 1, #command do
+        if s:sub(index, index) == "<" then
+            local startp, endp = s:find(">", index)
 
-        if startp then
-            local start2, endp2 = s:find("</" .. command .. ">", endp)
-            if start2 then
-                local command_line = s:sub(index + 1, endp - 1)
-                local parse = Utils:parse_csv_line(command_line)
+            if startp then
+                local start2, endp2 = s:find("</" .. command[i] .. ">", endp)
+                if start2 then
+                    local command_line = s:sub(index + 1, endp - 1)
+                    local parse = Utils:parse_csv_line(command_line)
 
-                if parse[1] == command then
-                    local color = {
-                        tonumber(parse[2]),
-                        tonumber(parse[3]),
-                        tonumber(parse[4]),
-                        1
-                    }
-                    return {
-                        command = command,
-                        color = color,
-                        start1 = index,
-                        start2 = start2,
-                        final1 = endp,
-                        final2 = endp2
-                    }
+                    if parse[1] == command[i] then
+                        local color = {
+                            tonumber(parse[2]),
+                            tonumber(parse[3]),
+                            tonumber(parse[4]),
+                            1
+                        }
+                        return {
+                            command = command[i],
+                            color = color,
+                            start1 = index,
+                            start2 = start2,
+                            final1 = endp,
+                            final2 = endp2
+                        }
+                    end
                 end
-            end
 
+            end
         end
     end
 end
 
 function Font:update(dt)
-    local character = self:get_equals(goomba)
-    local r = character and character:update(dt)
+    for i = 1, #self.__nicknames do
+        local character = self.__characters[self.__nicknames[i].index]
+        local r = character and character:update(dt)
+    end
 end
 
 ---@return JM.Font.Character|nil
@@ -170,6 +206,8 @@ function Font:print(text, x, y, w, h)
     local last_was_identifier = nil
     local color = { 0, 0, 0, 1 }
     local change_color = nil
+    local italic = nil
+    local bold = nil
 
     for i = 1, #text do
         if jump > 0 then
@@ -179,17 +217,24 @@ function Font:print(text, x, y, w, h)
 
         local check_command = is_command(text, i)
 
+        -- Checking if current char is a valid tag
         if check_command then
             if check_command.command == "color" then
                 change_color = check_command
                 color = change_color.color
-
+            elseif check_command.command == "italic" then
+                italic = check_command
+                color = { 0, 0, 1, 1 }
+            elseif check_command.command == "bold" then
+                bold = check_command
+                color = { 1, 0, 1, 1 }
             end
             jump = check_command.final1 - check_command.start1
             jumped = jump
             goto continue
         end
 
+        -- If detected Color tag...
         if change_color then
             color = change_color.color
 
@@ -203,11 +248,34 @@ function Font:print(text, x, y, w, h)
             end
         end
 
+        if italic then
+            if i > italic.final2 then
+                italic = nil
+                color = { 0, 0, 0, 1 }
+            elseif i >= italic.start2 then
+                jump = italic.final2 - italic.start2
+                jumped = jump
+                goto continue
+            end
+        end
+
+        if bold then
+            if i > bold.final2 then
+                bold = nil
+                color = { 0, 0, 0, 1 }
+            elseif i >= bold.start2 then
+                jump = bold.final2 - bold.start2
+                jumped = jump
+                goto continue
+            end
+        end
+
         local current_char = text:sub(i, i)
         local prev_char = text:sub(i - 1 - jumped, i - 1 - jumped)
         local next_char = text:sub(i + 1, i + 1)
 
-        local result = is_identifier(text, i)
+        -- Checking if current char is the init of an nickname
+        local result = self:is_a_nickname(text, i)
 
         if result then
             current_char = result

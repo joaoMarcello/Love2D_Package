@@ -49,7 +49,21 @@ Test_anima:apply_effect("jelly")
 
 
 local Calibri = FontGenerator:new()
-
+Calibri:add_nickname("--goomba--", {
+    img = Test_anima.__img,
+    frames_list = { { 27, 18, 58, 70 },
+        { 151, 21, 58, 68 },
+        { 272, 21, 59, 68 },
+        { 392, 25, 68, 63 },
+        { 517, 26, 61, 63 },
+        { 638, 25, 57, 63 },
+        { 765, 24, 56, 65 },
+        { 889, 27, 55, 61 },
+        { 1007, 26, 63, 62 }
+    },
+    duration = 1,
+    state = "back and forth"
+})
 
 
 function love.load()
@@ -83,7 +97,7 @@ function love.draw()
 
     love.graphics.setColor(1, 1, 1, 0.8)
     local w = 700
-    love.graphics.rectangle("fill", 0, 0, w, 500)
+    love.graphics.rectangle("fill", 50, 100, w, 500)
     -- Test_anima:draw_rec(200, 300, 100, 100)
 
     -- love.graphics.setColor(1, 1, 1, 0.8)
@@ -92,6 +106,6 @@ function love.draw()
 
     love.graphics.pop()
 
-    Calibri:print("\tOlha eu nao queria ser <color, 1, 0, 0>meio sangue</color>"
-        , 0, 0, w)
+    Calibri:print("\t<italic>Olha</italic> eu --goomba--<color, 0, 0, 1>nao</color>\n\t<bold>queria</bold> ser <color, 1, 0, 0>meio sangue</color>\n\tMuito menos um goomba --<goomba>--"
+        , 50, 100, w)
 end

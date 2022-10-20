@@ -33,12 +33,10 @@ local ANIMA_STATES = {
 ---
 --- Animation class constructor.
 ---
---- @param args {img: love.Image|string, frames: number, frame_size: JM.Point, speed: number, rotation: number, color: JM.Color, scale: table, origin: table, pos_in_texture: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, kx: number, ky: number} # A table containing the following fields:
+--- @param args {img: love.Image|string, frames: number, frames_list: table,  speed: number, rotation: number, color: JM.Color, scale: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, stop_at_the_end: boolean, amount_cycle: number, state: JM.AnimaStates, bottom: number, kx: number, ky: number, width: number, height: number, ref_width: number, ref_height: number, duration: number} # A table containing the following fields:
 -- * img (Required): The source image for animation (could be a Love.Image or a string containing the file path). All the frames in the source image should be in the horizontal.
 -- * frames: The amount of frames in the animation.
--- * frame_size: A table with the animation's frame size. Should contain the index x (width) and y (height).
 -- * speed: Time in seconds to update frame.
--- * pos_in_texture: Optional table parameter to indicate where the animation is localized in the image. Useful when there is a lot of animation in one single image (default value is {x=0, y=0}).
 --- @return JM.Anima animation # A instance of Anima class.
 function Anima:new(args)
     assert(args, "\nError: Trying to instance a Animation without inform any parameter.")
