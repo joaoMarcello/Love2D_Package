@@ -52,7 +52,7 @@ function Font:__constructor__(args)
         self.__img:getDimensions()
     )
 
-    self.__font_size = 30
+    self.__font_size = 20
 
     self.character_space = 2
     self.line_space = 20
@@ -102,6 +102,41 @@ local function is_identifier(s, index)
     end
 end
 
+---@param s string
+---@param index number
+local function is_command(s, index)
+    local command = "color"
+
+    if s:sub(index, index) == "<" then
+        local startp, endp = s:find(">", index)
+
+        if startp then
+            local start2, endp2 = s:find("</color>", endp)
+            if start2 then
+                local command_line = s:sub(index + 1, endp - 1)
+                local parse = Utils:parse_csv_line(command_line)
+
+                if parse[1] == command then
+                    local color = {
+                        tonumber(parse[2]),
+                        tonumber(parse[3]),
+                        tonumber(parse[4]),
+                        1
+                    }
+                    return {
+                        color = color,
+                        start1 = index,
+                        start2 = start2,
+                        final1 = endp,
+                        final2 = endp2
+                    }
+                end
+            end
+
+        end
+    end
+end
+
 function Font:update(dt)
     local character = self:get_equals(goomba)
     local r = character and character:update(dt)
@@ -132,6 +167,8 @@ function Font:print(text, x, y, w, h)
     local jump = -1
     local jumped = 0
     local last_was_identifier = nil
+    local color = { 0, 0, 0, 1 }
+    local result_color = nil
 
     for i = 1, #text do
         if jump > 0 then
@@ -154,6 +191,31 @@ function Font:print(text, x, y, w, h)
             last_was_identifier = nil
         end
 
+        local color_change = is_command(text, i)
+        if color_change then
+            result_color = color_change
+            if result_color then
+                color = result_color.color
+                jump = result_color.final1 - result_color.start1
+                -- jump = 15
+                jumped = jump
+                goto continue
+            end
+        end
+
+        if result_color then
+            color = result_color.color
+
+            if i > result_color.final2 then
+                color = { 0, 0, 0, 1 }
+                result_color = nil
+            elseif i >= result_color.start2 then
+                jump = result_color.final2 - result_color.start2
+                jumped = jump
+                goto continue
+            end
+
+        end
 
         local character = self:get_equals(current_char)
         local last = self:get_equals(prev_char)
@@ -218,7 +280,8 @@ function Font:print(text, x, y, w, h)
         end
 
         if character then
-            character:set_color({ 1, 0, 0, 1 })
+            character:set_color(color)
+
             character:set_scale(self.scale)
             character:__draw__(tx, ty + self.__font_size - character.h * self.scale)
         end
