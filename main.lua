@@ -122,6 +122,6 @@ function love.draw()
 
     love.graphics.pop()
 
-    Calibri:print("Olha eu --goomba-- nao\n\t<bold>queria</bold> ser <color, 1, 0, 0>meio sangue</color>\n\tMuito menos --jean-- um goomba <goomba>"
+    Calibri:print("aAbBcCdDeEf<color, 1, 0, 0>FgGhHiIjJkKlLmMnNo</color>OpPqQrRsStTuUvVwWxXyYzZ!?.;:0123456789,<>/|(){}[]"
         , 50, 100, w)
 end

@@ -55,7 +55,7 @@ function Font:__constructor__(args)
     self.__font_size = 20
 
     self.character_space = 2
-    self.line_space = 10
+    self.line_space = 13
     self.__characters = {}
 
     local lines = Utils:getLines("/JM_love2d_package/data/Font/Calibri/calibri.txt")
@@ -63,15 +63,22 @@ function Font:__constructor__(args)
     for i = 2, #lines do
         local parse = Utils:parse_csv_line(lines[i], ",")
         local id = (parse[1])
-        local x = tonumber(parse[2])
-        local y = tonumber(parse[3])
-        local w = tonumber(parse[4])
-        local h = tonumber(parse[5])
-        local bottom = tonumber(parse[6])
+        if id == "" then
+            id = ","
+        end
+        local left = tonumber(parse[2])
+        local right = tonumber(parse[3])
+        local top = tonumber(parse[4])
+        local bottom = tonumber(parse[5])
+        local offset_y = tonumber(parse[6])
+        local offset_x = tonumber(parse[7])
 
+        if not left then
+            break
+        end
         table.insert(self.__characters,
             Character:new(self.__img, self.__quad,
-                { id = id, x = x, y = y, w = w, h = h, bottom = bottom })
+                { id = id, x = left, y = top, w = right - left, h = bottom - top, bottom = offset_y })
         )
     end
 
