@@ -65,6 +65,22 @@ Calibri:add_nickname("--goomba--", {
     state = "back and forth"
 })
 
+Calibri:add_nickname("--jean--", {
+    img = Test_anima.__img,
+    frames_list = { { 27, 18, 58, 70 },
+        { 151, 21, 58, 68 },
+        { 272, 21, 59, 68 },
+        { 392, 25, 68, 63 },
+        { 517, 26, 61, 63 },
+        { 638, 25, 57, 63 },
+        { 765, 24, 56, 65 },
+        { 889, 27, 55, 61 },
+        { 1007, 26, 63, 62 }
+    },
+    duration = 0.7,
+    flip_y = true
+})
+
 
 function love.load()
     love.graphics.setBackgroundColor(0.1, 0.1, 0.1, 1)
@@ -96,7 +112,7 @@ function love.draw()
     love.graphics.push()
 
     love.graphics.setColor(1, 1, 1, 0.8)
-    local w = 700
+    local w = 230
     love.graphics.rectangle("fill", 50, 100, w, 500)
     -- Test_anima:draw_rec(200, 300, 100, 100)
 
@@ -106,6 +122,6 @@ function love.draw()
 
     love.graphics.pop()
 
-    Calibri:print("\t<italic>Olha</italic> eu --goomba--<color, 0, 0, 1>nao</color>\n\t<bold>queria</bold> ser <color, 1, 0, 0>meio sangue</color>\n\tMuito menos um goomba --<goomba>--"
+    Calibri:print("Olha eu --goomba-- nao\n\t<bold>queria</bold> ser <color, 1, 0, 0>meio sangue</color>\n\tMuito menos --jean-- um goomba <goomba>"
         , 50, 100, w)
 end

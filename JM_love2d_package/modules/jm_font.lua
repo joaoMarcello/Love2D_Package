@@ -124,6 +124,7 @@ function Font:add_nickname(nickname, args)
 end
 
 ---@param s string
+---@return string|nil
 function Font:is_a_nickname(s, index)
     for i = 1, #self.__nicknames do
         local nick = self.__nicknames[i].nick
@@ -204,6 +205,7 @@ function Font:print(text, x, y, w, h)
     local jump = -1
     local jumped = 0
     local last_was_identifier = nil
+    local last_was_command = nil
     local color = { 0, 0, 0, 1 }
     local change_color = nil
     local italic = nil
@@ -219,12 +221,14 @@ function Font:print(text, x, y, w, h)
 
         -- Checking if current char is a valid tag
         if check_command then
+            last_was_command = text:sub(i - 1, i - 1)
+
             if check_command.command == "color" then
                 change_color = check_command
                 color = change_color.color
             elseif check_command.command == "italic" then
                 italic = check_command
-                color = { 0, 0, 1, 1 }
+                color = { 0, 0.5, 0.9, 1 }
             elseif check_command.command == "bold" then
                 bold = check_command
                 color = { 1, 0, 1, 1 }
@@ -286,6 +290,11 @@ function Font:print(text, x, y, w, h)
             last_was_identifier = nil
         end
 
+        if last_was_command then
+            prev_char = last_was_command
+            last_was_command = nil
+        end
+
         local character = self:get_equals(current_char)
         local last = self:get_equals(prev_char)
         local next = self:get_equals(next_char)
@@ -318,7 +327,7 @@ function Font:print(text, x, y, w, h)
 
         local condition_1 = current_char == "\n"
         local condition_2 = w and character and last_w
-            and tx + character.w * self.scale + last_w * self.scale + (self.character_space * 2) > w
+            and tx + character.w * self.scale + last_w * self.scale + (self.character_space * 2) > x + w
 
         -- w and wc
         --     and tx + wc + (self.character_space * 2) > w
