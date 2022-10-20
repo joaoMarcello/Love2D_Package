@@ -94,10 +94,21 @@ function Character:get_origin()
     return { x = self.ox, y = self.oy }
 end
 
-function Character:setViewport(img, quad)
+function Character:setViewport(img, quad, x, y, width, bottom)
+    local qx = self.x
+    local qy = self.y
+    local qw = self.w
+    local qh = self.h
+
+    if x and y and width and bottom then
+        if y + self.h * self.sy > bottom then
+            qh = self.h - ((y + self.h * self.sy) - bottom) / self.sy
+        end
+    end
+
     quad:setViewport(
-        self.x, self.y,
-        self.w, self.h,
+        qx, qy,
+        qw, qh,
         img:getWidth(), img:getHeight()
     )
 end
@@ -107,7 +118,7 @@ function Character:draw(x, y)
     self.__effect_manager:draw(x, y)
 end
 
-function Character:__draw__(x, y)
+function Character:__draw__(x, y, right, bottom)
     love.graphics.setColor(0, 0, 0, 0.2)
 
     if self.w and self.h then
@@ -141,8 +152,7 @@ function Character:__draw__(x, y)
     else
         love.graphics.setColor(self:get_color())
 
-        self:setViewport(self.__img, self.__quad)
-
+        self:setViewport(self.__img, self.__quad, x, y, right, bottom)
 
         love.graphics.draw(self.__img, self.__quad,
             x, y + self.offset_y * self.sy,

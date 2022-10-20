@@ -113,7 +113,8 @@ function love.draw()
 
     love.graphics.setColor(1, 1, 1, 0.8)
     local w = 230
-    love.graphics.rectangle("fill", 50, 100, w, 500)
+    local h = 110
+    love.graphics.rectangle("fill", 50, 100, w, h)
     -- Test_anima:draw_rec(200, 300, 100, 100)
 
     -- love.graphics.setColor(1, 1, 1, 0.8)
@@ -122,6 +123,6 @@ function love.draw()
 
     love.graphics.pop()
 
-    Calibri:print("aAbBcCdDeEf<color, 1, 0, 0>FgGhHiIjJkKlLmMnNo</color>OpPqQrRsStTuUvVwWxXyYzZ!?.;:0123456789,<>/|(){}[]"
-        , 50, 100, w)
+    Calibri:print("mas que solidao\n ninguem aqui ao lado\nachei a solucao nao sou\n mais maltratado"
+        , 50, 100, w, h)
 end

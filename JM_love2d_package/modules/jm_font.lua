@@ -336,9 +336,6 @@ function Font:print(text, x, y, w, h)
         local condition_2 = w and character and last_w
             and tx + character.w * self.scale + last_w * self.scale + (self.character_space * 2) > x + w
 
-        -- w and wc
-        --     and tx + wc + (self.character_space * 2) > w
-
         -- Broken line or current x position is bigger than desired width.
         if condition_1 or condition_2 then
 
@@ -364,11 +361,15 @@ function Font:print(text, x, y, w, h)
             tx = tx + self.character_space + last_w * self.scale
         end
 
+        if ty >= y + h then
+            break
+        end
+
         if character then
             character:set_color(color)
 
             character:set_scale(self.scale)
-            character:__draw__(tx, ty + self.__font_size - character.h * self.scale)
+            character:__draw__(tx, ty + self.__font_size - character.h * self.scale, x + w, y + h)
         end
 
         if result then
