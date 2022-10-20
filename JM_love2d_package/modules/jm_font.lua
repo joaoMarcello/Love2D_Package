@@ -40,6 +40,8 @@ local Animation = Anima:new({
     }
 })
 
+local goomba = "<goomba>"
+
 function Font:__constructor__(args)
     self.__img = love.graphics.newImage("/JM_love2d_package/data/Font/calibri/calibri.png")
     self.__img:setFilter("linear", "nearest")
@@ -74,7 +76,7 @@ function Font:__constructor__(args)
     end
 
     self.ref_height = self:get_equals("A").h or self:get_equals("0").h
-    self.word_space = self.ref_height * 0.6
+    self.word_space = self.ref_height * 0.3
     self.tab_size = 4
 
 
@@ -82,13 +84,26 @@ function Font:__constructor__(args)
 
     self.scale = sy
 
-    -- self.__characters[2].__anima = Animation
-    -- Animation:set_size(nil, self.__font_size, nil, 69)
-    -- Animation:apply_effect("float", { range = 5 })
+    local anim_char = Character:new(self.__img, self.__quad, { id = goomba, x = 78, y = 33, w = 64, h = 75 })
+    anim_char.__anima = Animation
+    Animation:apply_effect("flash")
+    Animation:apply_effect("float", { range = 5 })
+    Animation:set_size(nil, self.__font_size, nil, 69)
+
+    table.insert(self.__characters, anim_char)
+end
+
+---@param s string
+local function is_identifier(s, index)
+    local identifier = goomba
+
+    if s:sub(index, index + #identifier - 1) == identifier then
+        return identifier
+    end
 end
 
 function Font:update(dt)
-    local character = self:get_equals("A")
+    local character = self:get_equals(goomba)
     local r = character and character:update(dt)
 end
 
@@ -116,6 +131,7 @@ function Font:print(text, x, y, w, h)
 
     local jump = -1
     local jumped = 0
+    local last_was_identifier = nil
 
     for i = 1, #text do
         if jump > 0 then
@@ -126,6 +142,18 @@ function Font:print(text, x, y, w, h)
         local current_char = text:sub(i, i)
         local prev_char = text:sub(i - 1 - jumped, i - 1 - jumped)
         local next_char = text:sub(i + 1, i + 1)
+
+        local result = is_identifier(text, i)
+
+        if result then
+            current_char = result
+        end
+
+        if last_was_identifier then
+            prev_char = last_was_identifier
+            last_was_identifier = nil
+        end
+
 
         local character = self:get_equals(current_char)
         local last = self:get_equals(prev_char)
@@ -149,17 +177,20 @@ function Font:print(text, x, y, w, h)
 
         -- TAB
         if current_char == "\t" then
-            tx = tx + (self.word_space * self.scale * 4)
+            tx = tx + (self.word_space * self.scale * self.tab_size)
 
-            if w and tx + (next_w and next_w * self.scale or 0) + self.character_space * 2 > w then
+            if w and next_w and tx + (next_w * self.scale) + self.character_space * 2 > w then
                 tx = x
                 ty = ty + self.line_space + self.ref_height * self.scale
             end
         end
 
         local condition_1 = current_char == "\n"
-        local condition_2 = w and wc
-            and tx + wc + (self.character_space * 2) > w
+        local condition_2 = w and character and last_w
+            and tx + character.w * self.scale + last_w * self.scale + (self.character_space * 2) > w
+
+        -- w and wc
+        --     and tx + wc + (self.character_space * 2) > w
 
         -- Broken line or current x position is bigger than desired width.
         if condition_1 or condition_2 then
@@ -187,8 +218,15 @@ function Font:print(text, x, y, w, h)
         end
 
         if character then
+            character:set_color({ 1, 0, 0, 1 })
             character:set_scale(self.scale)
             character:__draw__(tx, ty + self.__font_size - character.h * self.scale)
+        end
+
+        if result then
+            jump = #result - 1
+            jumped = jump
+            last_was_identifier = result
         end
 
         ::continue::

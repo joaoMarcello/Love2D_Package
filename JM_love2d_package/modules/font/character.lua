@@ -100,6 +100,8 @@ function Character:draw(x, y)
 end
 
 function Character:__draw__(x, y)
+    love.graphics.setColor(0, 0, 0, 0.2)
+    love.graphics.rectangle("fill", x, y, self.w * self.sx, self.h * self.sy)
     love.graphics.push()
 
     local eff_transf = self:__get_effect_transform()

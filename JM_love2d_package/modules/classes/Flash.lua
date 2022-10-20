@@ -29,7 +29,7 @@ function Flash:__constructor__(args)
     self.__id = Effect.TYPE.flash
     self.__alpha = 1
     self.__speed = args and args.speed or 0.3
-    self.__color = args and args.color or { 0, 0.75, 0, 1 }
+    self.__color = args and args.color or { 238 / 255, 243 / 255, 46 / 255, 1 }
     local max = args and args.max or 1.5
     local min = args and args.min or -1.5
     self.__origin = min
@@ -65,7 +65,7 @@ function Flash:draw(x, y)
         self.__alpha
     })
 
-    self.__object:__draw__(x, y)
+    -- self.__object:__draw__(x, y)
     self.__object:__draw__(x, y)
     love.graphics.setBlendMode('alpha')
 
