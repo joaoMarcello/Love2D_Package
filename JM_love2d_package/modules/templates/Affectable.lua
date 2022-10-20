@@ -130,4 +130,29 @@ function Affectable.__draw__(object, x, y)
     return nil
 end
 
+---@param obj JM.Affectable
+---@param x number
+---@param y number
+function Affectable.apply_transform(obj, x, y)
+    local eff_transf = obj:__get_effect_transform()
+
+    if eff_transf then
+        local transform = love.math.newTransform()
+
+        transform:setTransformation(
+            x + eff_transf.ox,
+            y + eff_transf.oy,
+            eff_transf.rot,
+            eff_transf.sx,
+            eff_transf.sy,
+            x,
+            y,
+            eff_transf.kx,
+            eff_transf.ky
+        )
+
+        love.graphics.applyTransform(transform)
+    end
+end
+
 return Affectable

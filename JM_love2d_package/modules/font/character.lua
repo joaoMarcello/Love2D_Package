@@ -108,8 +108,8 @@ function Character:__draw__(x, y)
         local transform = love.math.newTransform()
 
         transform:setTransformation(
-            x,
-            y,
+            x + eff_transf.ox,
+            y + eff_transf.oy,
             eff_transf.rot,
             eff_transf.sx,
             eff_transf.sy,

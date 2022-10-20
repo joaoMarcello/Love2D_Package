@@ -18,7 +18,7 @@ function Font:new(args)
     return obj
 end
 
-Animation = Anima:new({
+local Animation = Anima:new({
     img = "/data/goomba.png",
     duration = 1,
     height = 100,
@@ -41,7 +41,8 @@ Animation = Anima:new({
 })
 
 function Font:__constructor__(args)
-    self.__img = love.graphics.newImage("/JM_love2d_package/data/Font/Calibri/calibri.png")
+    self.__img = love.graphics.newImage("/JM_love2d_package/data/Font/calibri/calibri.png")
+    self.__img:setFilter("linear", "nearest")
 
     self.__quad = love.graphics.newQuad(
         0, 0,
@@ -74,15 +75,16 @@ function Font:__constructor__(args)
 
     self.ref_height = self:get_equals("A").h or self:get_equals("0").h
     self.word_space = self.ref_height * 0.6
+    self.tab_size = 4
 
 
     local sy = Utils:desired_size(nil, self.__font_size, nil, self.ref_height, true).y
 
     self.scale = sy
 
-    self.__characters[2].__anima = Animation
-    Animation:set_size(nil, self.__font_size, nil, 69)
-    Animation:apply_effect("pulse")
+    -- self.__characters[2].__anima = Animation
+    -- Animation:set_size(nil, self.__font_size, nil, 69)
+    -- Animation:apply_effect("float", { range = 5 })
 end
 
 function Font:update(dt)
@@ -95,7 +97,7 @@ function Font:get_char(index)
     return self.__characters[index]
 end
 
----@return JM.Font.Character|nil
+---@return JM.Font.Character|nil|JM.Affectable
 function Font:get_equals(c)
     for i = 1, #self.__characters do
         if c == self:get_char(i).__id then
@@ -111,36 +113,70 @@ end
 function Font:print(text, x, y, w, h)
     local tx = x
     local ty = y
-    for i = 1, #text do
 
-        local character = self:get_equals(text:sub(i, i))
-        local last = self:get_equals(text:sub(i - 1, i - 1))
-        local last_w = last and last.w or (text:sub(i - 1, i - 1) == " " and self.word_space)
+    local jump = -1
+    local jumped = 0
+
+    for i = 1, #text do
+        if jump > 0 then
+            jump = jump - 1
+            goto continue
+        end
+
+        local current_char = text:sub(i, i)
+        local prev_char = text:sub(i - 1 - jumped, i - 1 - jumped)
+        local next_char = text:sub(i + 1, i + 1)
+
+        local character = self:get_equals(current_char)
+        local last = self:get_equals(prev_char)
+        local next = self:get_equals(next_char)
+
+        local last_w = last and last.w
+            or (prev_char == " " and self.word_space)
+            or (prev_char) == "\t"
+            and self.word_space * self.tab_size
+
+        if jump == 0 then
+            jump = -1
+            jumped = 0
+        end
+
+        local next_w = (next and next.w) or (next_char) == " " and self.word_space
 
         local wc = character and last_w
             and character.w * self.scale + last_w * self.scale
             or nil
 
         -- TAB
-        if text:sub(i, i) == "\t" then
-            tx = tx + self.word_space * self.scale * 4
+        if current_char == "\t" then
+            tx = tx + (self.word_space * self.scale * 4)
+
+            if w and tx + (next_w and next_w * self.scale or 0) + self.character_space * 2 > w then
+                tx = x
+                ty = ty + self.line_space + self.ref_height * self.scale
+            end
         end
 
+        local condition_1 = current_char == "\n"
+        local condition_2 = w and wc
+            and tx + wc + (self.character_space * 2) > w
+
         -- Broken line or current x position is bigger than desired width.
-        if text:sub(i, i) == "\n" or (w and wc and tx + wc + (self.character_space * 2) >= w) then
+        if condition_1 or condition_2 then
 
             ty = ty + self.line_space + self.ref_height * self.scale
             tx = x
 
-            if text:sub(i, i) == "\n" then
+            -- Current char is "\n"
+            if condition_1 then
                 goto continue
-            else
+            else -- Current x position is bigger than desired width
                 last_w = false
             end
         end
 
         -- Space
-        if text:sub(i, i) == " " then
+        if current_char == " " then
             tx = tx + self.word_space * self.scale + (last_w and last_w * self.scale or 0)
             goto continue
         end

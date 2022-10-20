@@ -82,7 +82,8 @@ function love.draw()
     love.graphics.push()
 
     love.graphics.setColor(1, 1, 1, 0.8)
-    love.graphics.rectangle("fill", 0, 0, 150, 500)
+    local w = 160
+    love.graphics.rectangle("fill", 0, 0, w, 500)
     -- Test_anima:draw_rec(200, 300, 100, 100)
 
     -- love.graphics.setColor(1, 1, 1, 0.8)
@@ -91,5 +92,5 @@ function love.draw()
 
     love.graphics.pop()
 
-    Calibri:print("Hello World\n 0123qQA Como pode", 0, 0, 150)
+    Calibri:print("Hello World\n a \tA ComoApode", 0, 0, w)
 end
