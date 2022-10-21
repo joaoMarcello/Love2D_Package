@@ -130,6 +130,6 @@ function love.draw()
 
     love.graphics.pop()
 
-    Calibri:print("mas que solidao\n <color, 1, 0, 0>ninguem --nuvem-- aqui </color> ao lado\nachei a solucao nao sou\n mais maltratado --goomba-- --jean----goomba--be gone!"
-        , 50, 110, w, h)
+    Calibri:print("mas que solidao\n <color, 1, 0, 0>ninguem --nuvem-- aqui </color> ao lado\n\tachei a solucao\n \tnao sou\n mais maltratado --goomba-- --jean----goomba--be gone!"
+        , 50, 110, w)
 end

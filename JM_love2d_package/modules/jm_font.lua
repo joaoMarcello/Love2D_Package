@@ -5,6 +5,7 @@ local Utils = require("/JM_love2d_package/utils")
 local Anima = require "/JM_love2d_package/animation_module"
 
 ---@class JM.Font.Font
+---@field __nicknames {nick: string, index: number}
 local Font = {}
 
 ---@overload fun(self: table, args: string): JM.Font.Font
@@ -99,9 +100,10 @@ local function is_valid_nickname(nickname)
 end
 
 ---@param nickname string
----@param args table
+---@param args {img: love.Image|string, frames: number, frames_list: table,  speed: number, rotation: number, color: JM.Color, scale: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, stop_at_the_end: boolean, amount_cycle: number, state: JM.AnimaStates, bottom: number, kx: number, ky: number, width: number, height: number, ref_width: number, ref_height: number, duration: number}
 function Font:add_nickname(nickname, args)
-    assert(is_valid_nickname(nickname), "Error: The nickname is invalid!")
+    assert(is_valid_nickname(nickname),
+        "\nError: Invalid nickname. The nickname should start and ending with '--'. \nExamples: --icon--, -- emoji --.")
 
     local animation = Anima:new(args)
     animation:set_size(nil, self.__font_size * 1.5, nil, animation:__get_current_frame().h)
@@ -203,7 +205,7 @@ function Font:print(text, x, y, w, h)
 
     local jump = -1
     local jumped = 0
-    local last_was_identifier = nil
+    local last_was_nickname = nil
     local last_was_command = nil
     local color = self.__default_color
     local change_color = nil
@@ -236,9 +238,9 @@ function Font:print(text, x, y, w, h)
             jump = check_command.final1 - check_command.start1
             jumped = jump
             goto continue
-        end
+        end -- END if current char is the start of a command
 
-        -- If detected Color tag...
+        -- If detected color command tag...
         if change_color then
             color = change_color.color
 
@@ -280,16 +282,16 @@ function Font:print(text, x, y, w, h)
         local prev_char = text:sub(i - 1 - jumped, i - 1 - jumped)
         local next_char = text:sub(i + 1, i + 1)
 
-        -- Checking if current char is the init of an nickname
-        local result = self:__is_a_nickname(text, i)
+        -- Tells if current char is the init of a nickname. If true, this variable will store the whole nickname string.
+        local found_a_nickname = self:__is_a_nickname(text, i)
 
-        if result then
-            current_char = result
+        if found_a_nickname then
+            current_char = found_a_nickname
         end
 
-        if last_was_identifier then
-            prev_char = last_was_identifier
-            last_was_identifier = nil
+        if last_was_nickname then
+            prev_char = last_was_nickname
+            last_was_nickname = nil
         end
 
         if last_was_command then
@@ -315,7 +317,7 @@ function Font:print(text, x, y, w, h)
         -- The width in pixels from next Character object
         local next_w = (next and next.w) or (next_char) == " " and self.__word_space
 
-        -- TAB
+        -- The current char is TAB
         if current_char == "\t" then
             tx = tx + (self.__word_space * self.__scale * self.__tab_size)
 
@@ -326,10 +328,12 @@ function Font:print(text, x, y, w, h)
         end
 
         local condition_1 = current_char == "\n"
+
+        -- The current x position will exceed the allowed width
         local condition_2 = w and character and last_w
             and tx + character.w * self.__scale + last_w * self.__scale + (self.__character_space * 2) > x + w
 
-        -- Broken line or current x position is bigger than desired width.
+        -- Broken line or current x position will exceed the desired width.
         if condition_1 or condition_2 then
 
             ty = ty + self.__line_space + self.__ref_height * self.__scale
@@ -343,7 +347,7 @@ function Font:print(text, x, y, w, h)
             end
         end
 
-        -- Space
+        -- Current char is space
         if current_char == " " then
             tx = tx + self.__word_space * self.__scale + (last_w and last_w * self.__scale or 0)
             goto continue
@@ -354,7 +358,7 @@ function Font:print(text, x, y, w, h)
             tx = tx + self.__character_space + last_w * self.__scale
         end
 
-        if ty >= y + h then
+        if h and ty >= y + h then
             break
         end
 
@@ -370,21 +374,25 @@ function Font:print(text, x, y, w, h)
             end
         end
 
-        if result then
-            jump = #result - 1
+        if found_a_nickname then
+            jump = #found_a_nickname - 1
             jumped = jump
-            last_was_identifier = result
+            last_was_nickname = found_a_nickname
         end
-
+        -- The FOR loop end block
         ::continue::
-    end
+    end -- END FOR each character in the text
 
+    -- Drawing the animated characters
     for i = 1, #animated_char_stack do
         local character = animated_char_stack[i].char
         local tx = animated_char_stack[i].x
         local ty = animated_char_stack[i].y
+
         character:set_scale(self.__scale)
-        character:__draw__(tx, ty + self.__font_size - character.h * self.__scale)
+        character:__draw__(tx,
+            ty + self.__font_size - (character.h * self.__scale)
+        )
     end
 end
 
