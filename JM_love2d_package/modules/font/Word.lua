@@ -56,7 +56,7 @@ function Word:__constructor__(args)
             rad = math.pi * (i % 7)
         })
         if not self.__characters[i]:is_animated() then
-            -- eff:apply(self.__characters[i])
+            eff:apply(self.__characters[i])
         end
     end
 end

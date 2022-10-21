@@ -60,26 +60,6 @@ function Phrase:get_lines(x, y)
         tx = tx + r
     end
 
-    -- for i = 1, #self.__words do
-    --     if not lines[cur_line] then lines[cur_line] = {} end
-
-    --     local word = self:get_word_by_index(i)
-
-    --     local r = total_w + (self.__font.__word_space * self.__font.__scale)
-    --         + word:get_width()
-
-    --     if r > self.__bounds.right then
-    --         cur_line = cur_line + 1
-    --         total_w = x
-    --         if not lines[cur_line] then lines[cur_line] = {} end
-    --         table.insert(lines[cur_line], word)
-    --     else
-    --         table.insert(lines[cur_line], word)
-    --         total_w = r
-    --     end
-
-    -- end -- END FOR each word in table or words
-
     return lines
 end -- END function get_lines()
 
@@ -103,12 +83,21 @@ end
 ---@param index number
 ---@return {start:number, final:number, tag:string}|nil
 local function is_a_tag(text, index)
+    local command = "color"
+
     if text:sub(index, index) == "<" then
         local startp, endp = text:find(">", index + 1)
         if startp then
+            -- local start2, endp2 = text:find("</" .. command .. ">", endp)
+            -- if start2 then
             return { start = startp, final = endp, tag = text:sub(index, endp) }
+            -- end
         end
     end
+end
+
+function Phrase:__is_a_command(list, index)
+
 end
 
 function Phrase:separate_string(s)
@@ -146,6 +135,7 @@ function Phrase:separate_string(s)
             if w ~= "" and w ~= " " then
                 table.insert(words, w)
             end
+
             table.insert(words, r.tag)
             current_index = r.final + 1
             i = current_index - 1
