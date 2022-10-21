@@ -4,12 +4,16 @@ local Character = require("/JM_love2d_package/modules/font/character")
 local Utils = require("/JM_love2d_package/utils")
 local Anima = require "/JM_love2d_package/animation_module"
 
+---@alias JM.AvailableFonts
+---|"calibri"
+---|"JM caligraphy"
+
 ---@class JM.Font.Font
 ---@field __nicknames {nick: string, index: number}
 local Font = {}
 
----@overload fun(self: table, args: string): JM.Font.Font
----@param args {name: string, font_size: number, line_space: number, tab_size: number}
+---@overload fun(self: table, args: JM.AvailableFonts): JM.Font.Font
+---@param args {name: JM.AvailableFonts, font_size: number, line_space: number, tab_size: number}
 ---@return JM.Font.Font new_Font
 function Font:new(args)
     local obj = {}
@@ -80,13 +84,77 @@ function Font:__constructor__(args)
 
     self.__tab_size = args.tab_size or 4
 
-    self.__scale = Utils:desired_size(nil, self.__font_size, nil, self.__ref_height, true).y
+    self:set_font_size(self.__font_size)
 
     self.__default_color = { 0.1, 0.1, 0.1, 1 }
 
     self.__nicknames = {}
 
     self.__bounds = { x = 50, y = 110, w = 230, h = 500 }
+end
+
+function Font:__get_configuration()
+    local config = {}
+    config.font_size = self.__font_size
+    config.character_space = self.__character_space
+    config.color = self.__default_color
+    config.line_space = self.__line_space
+    config.word_space = self.__word_space
+    config.tab_size = self.__tab_size
+
+    return config
+end
+
+function Font:push()
+    if not self.__config_stack__ then
+        self.__config_stack__ = {}
+    end
+
+    assert(#self.__config_stack__ == 0, "\nError: Too many push operations. Are you using more push than pop?")
+
+    local config = self:__get_configuration()
+    table.insert(self.__config_stack__, config)
+end
+
+function Font:pop()
+    assert(self.__config_stack__ and #self.__config_stack__ > 0,
+        "\nError: You're using a pop operation without using a push before.")
+
+    local config = table.remove(self.__config_stack__, #self.__config_stack__)
+
+    self:set_font_size(config.font_size)
+    self.__character_space = config.character_space
+    self.__default_color = config.color
+    self.__line_space = config.line_space
+    self.__word_space = config.word_space
+    self.__tab_size = config.tab_size
+end
+
+function Font:set_character_space(value)
+    self.__character_space = value
+end
+
+---@param color JM.Color
+function Font:set_color(color)
+    self.__default_color = color
+end
+
+function Font:set_line_space(value)
+    self.__line_space = value
+end
+
+function Font:set_tab_size(value)
+    self.__tab_size = value
+end
+
+function Font:set_word_space(value)
+    self.__word_space = value
+end
+
+---@param value number
+function Font:set_font_size(value)
+    self.__font_size = value
+    self.__scale = Utils:desired_size(nil, self.__font_size, nil, self.__ref_height, true).y
 end
 
 ---@param nickname string

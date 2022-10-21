@@ -1,6 +1,8 @@
 local Anima = require "/JM_love2d_package/animation_module"
 local EffectGenerator = require("/JM_love2d_package/effect_generator_module")
 local FontGenerator = require("/JM_love2d_package/modules/jm_font")
+local Phrase = require("/JM_love2d_package/modules/font/Phrase")
+local Word = require("/JM_love2d_package/modules/font/Word")
 
 Test_anima = Anima:new({
     img = "/data/goomba.png",
@@ -48,7 +50,11 @@ Test_anima:apply_effect("flash")
 Test_anima:apply_effect("jelly")
 
 
-local Calibri = FontGenerator:new("calibri")
+local Calibri = FontGenerator:new({
+    name = "calibri",
+    font_size = 25,
+    tab_size = 2
+})
 
 Calibri:add_nickname("--goomba--", {
     img = Test_anima.__img,
@@ -85,9 +91,11 @@ Calibri:add_nickname("--jean--", {
 local aa = Calibri:add_nickname("--nuvem--", {
     img = "/data/cloud.png"
 })
-
 aa:apply_effect("pulse", { range = 0.06 })
 
+
+local palavra = Word:new({ text = "macaco", font = Calibri })
+local frase = Phrase:new({ text = "oi", font = Calibri })
 
 function love.load()
     love.graphics.setBackgroundColor(0.1, 0.1, 0.1, 1)
@@ -132,4 +140,11 @@ function love.draw()
 
     Calibri:print("mas que solidao\n <color, 1, 0, 0>ninguem --nuvem-- aqui </color> ao lado\n\tachei a solucao\n \tnao sou\n mais maltratado --goomba-- --jean----goomba--be gone!"
         , 50, 110, w)
+
+    Calibri:push()
+    Calibri:set_font_size(14)
+    Calibri:print("\tHello World", 0, 0)
+    Calibri:pop()
+
+    palavra:draw(500, 0)
 end

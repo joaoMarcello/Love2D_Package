@@ -61,6 +61,9 @@ end
 
 function Character:copy()
     local obj = Character:new(self.__img, self.__quad, self.__args)
+    if obj.__anima then
+        obj.__anima = obj.__anima:copy()
+    end
     return obj
 end
 
