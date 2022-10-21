@@ -1,3 +1,5 @@
+local EffectManager = require("/JM_love2d_package/effect_generator_module")
+
 ---@class JM.Font.Word
 local Word = {}
 
@@ -46,6 +48,17 @@ function Word:__constructor__(args)
         i = i + 1
     end
 
+    for i = 1, #self.__characters, 1 do
+
+        local eff = EffectManager:generate("float", {
+            range = 1.0,
+            speed = 0.2,
+            rad = math.pi * (i % 7)
+        })
+        if not self.__characters[i]:is_animated() then
+            eff:apply(self.__characters[i])
+        end
+    end
 end
 
 function Word:update(dt)

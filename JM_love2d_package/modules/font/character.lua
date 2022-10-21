@@ -40,8 +40,8 @@ function Character:__constructor__(img, quad, args)
 
     self:set_color({ 1, 1, 1, 1 })
 
-    self.ox = 0
-    self.oy = 0
+    self.ox = self.x and self.w and 0 or 0
+    self.oy = self.y and self.h and 0 or 0
 
     self.__effect_manager = EffectManager:new()
     self.__visible = true
@@ -175,7 +175,8 @@ function Character:__draw__(x, y)
         -- local d = y < self.bounds.y and self.bounds.y - y or 0
 
         love.graphics.draw(self.__img, self.__quad,
-            x, y + self.offset_y * self.sy,
+            x + (self.w / 2 * self.sx * 0),
+            y + self.offset_y * self.sy + (self.h / 2 * self.sy * 0),
             0,
             self.sx, self.sy,
             self.ox, self.oy
