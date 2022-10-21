@@ -96,7 +96,7 @@ aa:apply_effect("pulse", { range = 0.06 })
 
 local palavra = Word:new({ text = "macaco", font = Calibri })
 
-local frase = Phrase:new({ text = "oi eu sou 0asdsdsaadsasda d j asda --nuvem-- ba goku e ninguem --jean--me\n segura --goomba-- eu sou forte! Forte pra caramba. Ja disse que sou poderoso a- \t<color>--nuvem--</color>atha",
+local frase = Phrase:new({ text = "oi eu sou Qa 0asdsdsaadsasda d j asda --nuvem-- ba goku e ninguem --jean--me\n segura --goomba-- eu sou forte! Forte pra caramba. Ja disse que sou poderoso a- \t<color>--nuvem--</color>atha",
     font = Calibri })
 
 function love.load()

@@ -20,20 +20,26 @@ function Character:__constructor__(img, quad, args)
     self.__img = img
     self.__quad = quad
     self.__id = args.id
+
     self.x = args.x
     self.y = args.y
     self.w = args.w
     self.h = args.h
+
     self.sy = args.sy or 1
     self.sx = self.sy
 
     self.qx = args.x
+    self.qy = args.y
+    self.qw = args.w
+    self.qh = args.h
 
     self.__args = args
 
-    if self.y and self.h then
-        self.bottom = args.bottom or self.y + self.h
-        self.offset_y = args.bottom and self.y + self.h - self.bottom or 0
+    if self.qy and self.qh then
+        self.bottom = args.bottom or self.qy + self.qh
+        self.offset_y = args.bottom and self.qy + self.qh - self.bottom or 0
+        self.h = self.h - self.offset_y
     else
         self.bottom = nil
         self.offset_y = nil
@@ -43,8 +49,8 @@ function Character:__constructor__(img, quad, args)
 
     self:set_color({ 1, 1, 1, 1 })
 
-    self.ox = self.x and self.w and 0 or 0
-    self.oy = self.y and self.h and 0 or 0
+    self.ox = self.qx and self.qw / 2 or 0
+    self.oy = self.qy and self.qh / 2 or 0
 
     self.__effect_manager = EffectManager:new()
     self.__visible = true
@@ -107,25 +113,19 @@ function Character:is_animated()
 end
 
 function Character:setViewport(img, quad, x, y)
-    local qx = self.x
-    local qy = self.y
-    local qw = self.w
-    local qh = self.h
+    local qx = self.qx
+    local qy = self.qy
+    local qw = self.qw
+    local qh = self.qh
 
     local bottom = self.bounds.y + self.bounds.h
     local top = self.bounds.y
 
-    if y and bottom then
-        if y + self.h * self.sy > bottom then
-            qh = self.h - ((y + self.h * self.sy) - bottom) / self.sy
-        end
-    end
-
-    if y and top then
-        if y < top then
-            -- qy = self.y + (top - y) * self.sy
-        end
-    end
+    -- if y and bottom then
+    --     if y + self.h * self.sy > bottom then
+    --         qh = self.h - ((y + self.h * self.sy) - bottom) / self.sy
+    --     end
+    -- end
 
     quad:setViewport(
         qx, qy,
@@ -176,8 +176,8 @@ function Character:__draw__(x, y)
         self:setViewport(self.__img, self.__quad, x, y)
 
         love.graphics.draw(self.__img, self.__quad,
-            x + (self.w / 2 * self.sx * 0),
-            y + self.offset_y * self.sy + (self.h / 2 * self.sy * 0),
+            x + self.w / 2 * self.sx,
+            y + (self.h + self.offset_y) / 2 * self.sy,
             0,
             self.sx, self.sy,
             self.ox, self.oy

@@ -56,7 +56,7 @@ function Word:__constructor__(args)
             rad = math.pi * (i % 7)
         })
         if not self.__characters[i]:is_animated() then
-            eff:apply(self.__characters[i])
+            -- eff:apply(self.__characters[i])
         end
     end
 end
@@ -102,7 +102,8 @@ function Word:draw(x, y)
         cur_char:set_scale(self.__font.__scale)
 
         if not cur_char:is_animated() or true then
-            cur_char:__draw__(tx, y + self.__font.__font_size - cur_char.h * cur_char.sy)
+            cur_char:__draw__(tx,
+                y + self.__font.__font_size - cur_char.h * cur_char.sy)
         end
 
         tx = tx + cur_char.w * self.__font.__scale + self.__font.__character_space
