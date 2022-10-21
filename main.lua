@@ -53,7 +53,7 @@ Test_anima:apply_effect("jelly")
 local Calibri = FontGenerator:new({
     name = "calibri",
     font_size = 25,
-    tab_size = 2
+    tab_size = 4
 })
 
 Calibri:add_nickname("--goomba--", {
@@ -96,7 +96,7 @@ aa:apply_effect("pulse", { range = 0.06 })
 
 local palavra = Word:new({ text = "macaco", font = Calibri })
 
-local frase = Phrase:new({ text = "oi eu sou 0asdsdsaadsasda d j asda --nuvem-- a goku e ninguem --jean--\nme segura eu sou forte! Forte pra caramba. Ja disse que sou poderoso a- <color, 1,2,3>--nuvem-- <>atha",
+local frase = Phrase:new({ text = "oi eu sou 0asdsdsaadsasda d j asda --nuvem-- a goku e ninguem --jean--me\n segura --goomba-- eu sou forte! Forte pra caramba. Ja disse que sou poderoso a- \t<color, 1,2,3>--nuvem-- <>atha",
     font = Calibri })
 
 function love.load()

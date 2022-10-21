@@ -80,11 +80,22 @@ function Font:__constructor__(args)
         or self:__get_char_equals("0").h
         or self.__font_size
 
+
     self.__word_space = self.__ref_height * 0.5
 
     self.__tab_size = args.tab_size or 4
 
+
     self:set_font_size(self.__font_size)
+
+    table.insert(self.__characters,
+        Character:new(self.__img, self.__quad, {
+            id = "\t",
+            x = 0, y = 0,
+            w = self.__word_space * self.__tab_size,
+            h = self.__ref_height
+        })
+    )
 
     self.__default_color = { 0.1, 0.1, 0.1, 1 }
 
@@ -379,8 +390,8 @@ function Font:print(text, x, y, w, h)
         -- The width in pixels from previous Character object
         local last_w = last and last.w
             or (prev_char == " " and self.__word_space)
-            or (prev_char) == "\t"
-            and self.__word_space * self.__tab_size
+        -- or (prev_char) == "\t"
+        -- and self.__word_space * self.__tab_size
 
         if jump == 0 then
             jump = -1
@@ -391,14 +402,14 @@ function Font:print(text, x, y, w, h)
         local next_w = (next and next.w) or (next_char) == " " and self.__word_space
 
         -- The current char is TAB
-        if current_char == "\t" then
-            tx = tx + (self.__word_space * self.__scale * self.__tab_size)
+        -- if current_char == "\t" then
+        --     tx = tx + (self.__word_space * self.__scale * self.__tab_size)
 
-            if w and next_w and tx + (next_w * self.__scale) + self.__character_space * 2 > w then
-                tx = x
-                ty = ty + self.__line_space + self.__ref_height * self.__scale
-            end
-        end
+        --     if w and next_w and tx + (next_w * self.__scale) + self.__character_space * 2 > w then
+        --         tx = x
+        --         ty = ty + self.__line_space + self.__ref_height * self.__scale
+        --     end
+        -- end
 
         local condition_1 = current_char == "\n"
 

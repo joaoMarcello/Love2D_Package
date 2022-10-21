@@ -167,12 +167,10 @@ function Character:__draw__(x, y)
 
     if self.__anima then
         self:__anima_draw__(x, y)
-    else
+    elseif self.__id ~= "\t" then
         love.graphics.setColor(self:get_color())
 
         self:setViewport(self.__img, self.__quad, x, y)
-
-        -- local d = y < self.bounds.y and self.bounds.y - y or 0
 
         love.graphics.draw(self.__img, self.__quad,
             x + (self.w / 2 * self.sx * 0),
