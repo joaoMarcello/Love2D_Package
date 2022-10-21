@@ -96,8 +96,8 @@ function Anima:__constructor__(args)
 
     if not args.frames_list then
         args.frames_list = {}
-        local w = self.__img:getWidth() / args.frames
-        for i = 1, args.frames do
+        local w = self.__img:getWidth() / self.__amount_frames
+        for i = 1, self.__amount_frames do
             table.insert(args.frames_list, { (i - 1) * w, 0, w, args.bottom or self.__img:getHeight() })
         end
     end

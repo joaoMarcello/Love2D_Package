@@ -48,7 +48,8 @@ Test_anima:apply_effect("flash")
 Test_anima:apply_effect("jelly")
 
 
-local Calibri = FontGenerator:new()
+local Calibri = FontGenerator:new("calibri")
+
 Calibri:add_nickname("--goomba--", {
     img = Test_anima.__img,
     frames_list = { { 27, 18, 58, 70 },
@@ -80,6 +81,12 @@ Calibri:add_nickname("--jean--", {
     duration = 0.7,
     flip_y = true
 })
+
+local aa = Calibri:add_nickname("--nuvem--", {
+    img = "/data/cloud.png"
+})
+
+aa:apply_effect("pulse", { range = 0.06 })
 
 
 function love.load()
@@ -113,8 +120,8 @@ function love.draw()
 
     love.graphics.setColor(1, 1, 1, 0.8)
     local w = 230
-    local h = 110
-    love.graphics.rectangle("fill", 50, 100, w, h)
+    local h = 500
+    love.graphics.rectangle("fill", 50, 110, w, h)
     -- Test_anima:draw_rec(200, 300, 100, 100)
 
     -- love.graphics.setColor(1, 1, 1, 0.8)
@@ -123,6 +130,6 @@ function love.draw()
 
     love.graphics.pop()
 
-    Calibri:print("mas que solidao\n ninguem aqui ao lado\nachei a solucao nao sou\n mais maltratado"
-        , 50, 100, w, h)
+    Calibri:print("mas que solidao\n <color, 1, 0, 0>ninguem --nuvem-- aqui </color> ao lado\nachei a solucao nao sou\n mais maltratado --goomba-- --jean----goomba--be gone!"
+        , 50, 110, w, h)
 end

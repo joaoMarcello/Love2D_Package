@@ -46,6 +46,8 @@ function Character:__constructor__(img, quad, args)
     self.__effect_manager = EffectManager:new()
     self.__visible = true
 
+    self.bounds = { x = 0, y = 0, w = love.graphics.getWidth(), h = love.graphics.getHeight() }
+
     Affectable.__checks_implementation__(self)
 end
 
@@ -94,15 +96,28 @@ function Character:get_origin()
     return { x = self.ox, y = self.oy }
 end
 
-function Character:setViewport(img, quad, x, y, width, bottom)
+function Character:is_animated()
+    return self.__anima and true or false
+end
+
+function Character:setViewport(img, quad, x, y)
     local qx = self.x
     local qy = self.y
     local qw = self.w
     local qh = self.h
 
-    if x and y and width and bottom then
+    local bottom = self.bounds.y + self.bounds.h
+    local top = self.bounds.y
+
+    if y and bottom then
         if y + self.h * self.sy > bottom then
             qh = self.h - ((y + self.h * self.sy) - bottom) / self.sy
+        end
+    end
+
+    if y and top then
+        if y < top then
+            -- qy = self.y + (top - y) * self.sy
         end
     end
 
@@ -118,7 +133,7 @@ function Character:draw(x, y)
     self.__effect_manager:draw(x, y)
 end
 
-function Character:__draw__(x, y, right, bottom)
+function Character:__draw__(x, y)
     love.graphics.setColor(0, 0, 0, 0.2)
 
     if self.w and self.h then
@@ -152,7 +167,9 @@ function Character:__draw__(x, y, right, bottom)
     else
         love.graphics.setColor(self:get_color())
 
-        self:setViewport(self.__img, self.__quad, x, y, right, bottom)
+        self:setViewport(self.__img, self.__quad, x, y)
+
+        -- local d = y < self.bounds.y and self.bounds.y - y or 0
 
         love.graphics.draw(self.__img, self.__quad,
             x, y + self.offset_y * self.sy,

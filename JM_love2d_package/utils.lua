@@ -73,7 +73,7 @@ function Utils:parse_csv_line(line, sep)
     return res
 end
 
-function Utils:getLines(path)
+function Utils:get_lines_in_file(path)
     local lines = {}
 
     for line in love.filesystem.lines(path) do
@@ -86,7 +86,7 @@ end
 --
 function Utils:getText(path)
     local text = ""
-    local lines = self:getLines(path)
+    local lines = self:get_lines_in_file(path)
 
     for i, l in ipairs(lines) do
         text = text .. l .. (i == #lines and "" or "\n")
