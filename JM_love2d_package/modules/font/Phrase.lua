@@ -40,11 +40,7 @@ end
 
 function Phrase:get_lines(x, y)
     local lines = {}
-    for j = 1, 10 do
-        table.insert(lines, {})
-    end
     local tx = x
-    local index = 1
     local cur_line = 1
 
     for i = 1, #self.__words do
@@ -57,6 +53,7 @@ function Phrase:get_lines(x, y)
             cur_line = cur_line + 1
             -- ty = ty + (self.__font.__font_size + self.__font.__line_space)
         end
+        if not lines[cur_line] then lines[cur_line] = {} end
         table.insert(lines[cur_line], w)
         tx = tx + r
     end
@@ -83,6 +80,21 @@ function Phrase:get_lines(x, y)
 
     return lines
 end -- END function get_lines()
+
+---@return JM.Font.Word
+function Phrase:__get_word_in_list(list, index)
+    return list[index]
+end
+
+function Phrase:__line_length(line)
+    local total_len = 0
+    for i = 1, #line do
+        local word = self:__get_word_in_list(line, i)
+        total_len = total_len + word:get_width()
+    end
+    total_len = total_len + self.__font.__word_space * self.__font.__scale * (#line - 1)
+    return total_len
+end
 
 ---@param text string
 ---@param index number
@@ -127,6 +139,10 @@ function Phrase:separate_string(s)
 
         local r = is_a_tag(s, i)
         if r then
+            local w = s:sub(current_index, i - 1)
+            if w ~= "" and w ~= " " then
+                table.insert(words, w)
+            end
             table.insert(words, r.tag)
             current_index = r.final + 1
             i = current_index - 1
@@ -149,11 +165,19 @@ end
 function Phrase:draw(x, y)
     local lines = self:get_lines(x, y)
 
+    local mode = "center"
+
     local tx, ty = x, y
 
     for i = 1, #lines do
+        if mode == "right" then
+            tx = self.__bounds.right - self:__line_length(lines[i])
+        elseif mode == "center" then
+            tx = x + (self.__bounds.right - x) / 2 - self:__line_length(lines[i]) / 2
+        end
+
         for j = 1, #lines[i] do
-            local w = lines[i][j]
+            local w = self:__get_word_in_list(lines[i], j)
             local r = w:get_width() + (self.__font.__word_space * self.__font.__scale)
 
             w:draw(tx, ty)
@@ -165,21 +189,21 @@ function Phrase:draw(x, y)
 
 
     ------------------------------------------------------------------------
-    -- local tx = x - 200
-    -- local ty = y
+    local tx = x - 200
+    local ty = y + 330
 
-    -- for i = 1, #self.__words do
-    --     local w = self:get_word_by_index(i)
+    for i = 1, #self.__words do
+        local w = self:get_word_by_index(i)
 
-    --     local r = w:get_width() + (self.__font.__word_space * self.__font.__scale)
+        local r = w:get_width() + (self.__font.__word_space * self.__font.__scale)
 
-    --     if tx + r > self.__bounds.right then
-    --         tx = x - 200
-    --         ty = ty + (self.__font.__font_size + self.__font.__line_space)
-    --     end
-    --     w:draw(tx, ty)
-    --     tx = tx + r
-    -- end
+        if tx + r > self.__bounds.right then
+            tx = x - 200
+            ty = ty + (self.__font.__font_size + self.__font.__line_space)
+        end
+        w:draw(tx, ty)
+        tx = tx + r
+    end
 end
 
 return Phrase

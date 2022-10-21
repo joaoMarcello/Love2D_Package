@@ -95,7 +95,8 @@ aa:apply_effect("pulse", { range = 0.06 })
 
 
 local palavra = Word:new({ text = "macaco", font = Calibri })
-local frase = Phrase:new({ text = "oi eu sou o goku e niguem me segura eu sou forte", font = Calibri })
+local frase = Phrase:new({ text = "oi eu sou o goku e niguem me segura eu sou forte! Forte pra caramba. Ja disse que sou poderoso<color>",
+    font = Calibri })
 
 function love.load()
     love.graphics.setBackgroundColor(0.1, 0.1, 0.1, 1)
@@ -149,5 +150,5 @@ function love.draw()
     palavra:draw(500, 0)
 
     love.graphics.line(600, 0, 600, 600)
-    frase:draw(300, 100)
+    frase:draw(370, 80)
 end
