@@ -48,14 +48,16 @@ function Phrase:get_lines(x, y)
     for i = 1, #self.__words do
         local w = self:get_word_by_index(i)
 
-        local r = w:get_width() + (self.__font.__word_space * self.__font.__scale)
+        local r = w:get_width()
+            + (self.__font.__word_space * self.__font.__scale)
 
         if tx + r > self.__bounds.right then
             tx = x
             cur_line = cur_line + 1
-            -- ty = ty + (self.__font.__font_size + self.__font.__line_space)
         end
+
         if not lines[cur_line] then lines[cur_line] = {} end
+
         table.insert(lines[cur_line], w)
         tx = tx + r
     end
@@ -96,8 +98,26 @@ local function is_a_tag(text, index)
     end
 end
 
-function Phrase:__is_a_command(list, index)
+---@param lines table
+---@param cur_line number
+---@param cur_column number
+---@return {init: number, final: number, tag: string}|nil
+function Phrase:__is_a_command(lines, cur_line, cur_column)
+    local t = 0
+    for i = 1, cur_line - 1, 1 do
+        t = t + #lines[i]
+    end
 
+    local cur_index = t + cur_column
+    local r = is_a_tag(self:get_word_by_index(cur_index).__text, 0)
+    if r then
+        for i = cur_index + 1, #self.__words, 1 do
+            local r2 = is_a_tag(self:get_word_by_index(i).__text, 0)
+            if r2 and r2.tag == ("/" .. r.tag) then
+                return { init = cur_index, final = i, tag = r2.tag }
+            end
+        end
+    end
 end
 
 function Phrase:separate_string(s)
@@ -116,18 +136,19 @@ function Phrase:separate_string(s)
             end
 
             current_index = i + 1
-            i = current_index
+            -- i = current_index
         end
 
-        if current_char == "\n" then
+        if current_char == "\n" or current_char == "\t" then
             local w = s:sub(current_index, i - 1)
             if w ~= "" and w ~= " " then
                 table.insert(words, w)
             end
 
-            table.insert(words, "\n")
+            table.insert(words, current_char)
             current_index = i + 1
         end
+
 
         local r = is_a_tag(s, i)
         if r then
@@ -207,7 +228,9 @@ function Phrase:draw(x, y, mode)
             local w = self:__get_word_in_list(lines[i], j)
             local r = w:get_width() + space
 
-            w:draw(tx, ty)
+            if not self:__is_a_command(lines, i, j) then
+                w:draw(tx, ty)
+            end
             tx = tx + r --+ space
         end
         tx = x
