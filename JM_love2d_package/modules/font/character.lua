@@ -26,6 +26,9 @@ function Character:__constructor__(img, quad, args)
     self.h = args.h
     self.sy = args.sy or 1
     self.sx = self.sy
+
+    self.qx = args.x
+
     self.__args = args
 
     if self.y and self.h then
