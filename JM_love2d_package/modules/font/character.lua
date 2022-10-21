@@ -167,7 +167,7 @@ function Character:__draw__(x, y)
 
     if self.__anima then
         self:__anima_draw__(x, y)
-    elseif self.__id ~= "\t" then
+    elseif self.__id ~= "\t" and self.__id ~= " " then
         love.graphics.setColor(self:get_color())
 
         self:setViewport(self.__img, self.__quad, x, y)

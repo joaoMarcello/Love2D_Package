@@ -88,14 +88,22 @@ function Font:__constructor__(args)
 
     self:set_font_size(self.__font_size)
 
-    table.insert(self.__characters,
-        Character:new(self.__img, self.__quad, {
-            id = "\t",
-            x = 0, y = 0,
-            w = self.__word_space * self.__tab_size,
-            h = self.__ref_height
-        })
-    )
+    self.__tab_char = Character:new(self.__img, self.__quad, {
+        id = "\t",
+        x = 0, y = 0,
+        w = self.__word_space * self.__tab_size,
+        h = self.__ref_height
+    })
+
+    self.__space_char = Character:new(self.__img, self.__quad, {
+        id = " ",
+        x = 0, y = 0,
+        w = self.__word_space,
+        h = self.__ref_height
+    })
+
+    table.insert(self.__characters, self.__space_char)
+    table.insert(self.__characters, self.__tab_char)
 
     self.__default_color = { 0.1, 0.1, 0.1, 1 }
 
@@ -332,6 +340,7 @@ function Font:print(text, x, y, w, h)
                 color = self.__default_color
                 change_color = nil
             elseif i >= change_color.start2 then
+                last_was_command = text:sub(i - 1, i - 1)
                 jump = change_color.final2 - change_color.start2
                 jumped = jump
                 goto continue
@@ -344,6 +353,7 @@ function Font:print(text, x, y, w, h)
                 italic = nil
                 color = self.__default_color
             elseif i >= italic.start2 then
+                last_was_command = text:sub(i - 1, i - 1)
                 jump = italic.final2 - italic.start2
                 jumped = jump
                 goto continue
@@ -356,6 +366,7 @@ function Font:print(text, x, y, w, h)
                 bold = nil
                 color = self.__default_color
             elseif i >= bold.start2 then
+                last_was_command = text:sub(i - 1, i - 1)
                 jump = bold.final2 - bold.start2
                 jumped = jump
                 goto continue
@@ -389,7 +400,7 @@ function Font:print(text, x, y, w, h)
 
         -- The width in pixels from previous Character object
         local last_w = last and last.w
-            or (prev_char == " " and self.__word_space)
+        -- or (prev_char == " " and self.__word_space)
         -- or (prev_char) == "\t"
         -- and self.__word_space * self.__tab_size
 
@@ -399,7 +410,8 @@ function Font:print(text, x, y, w, h)
         end
 
         -- The width in pixels from next Character object
-        local next_w = (next and next.w) or (next_char) == " " and self.__word_space
+        local next_w = (next and next.w)
+        -- or (next_char) == " " and self.__word_space
 
         -- The current char is TAB
         -- if current_char == "\t" then
@@ -427,15 +439,15 @@ function Font:print(text, x, y, w, h)
             if condition_1 then
                 goto continue
             else -- Current x position is bigger than desired width
-                last_w = false
+                last_w = nil
             end
         end
 
         -- Current char is space
-        if current_char == " " then
-            tx = tx + (self.__word_space * self.__scale * 0) + (last_w and last_w * self.__scale or 0)
-            goto continue
-        end
+        -- if current_char == " " then
+        --     tx = tx + (self.__word_space * self.__scale * 0) + (last_w and last_w * self.__scale or 0)
+        --     goto continue
+        -- end
 
         -- Updating the x position to draw
         if last_w and character then
