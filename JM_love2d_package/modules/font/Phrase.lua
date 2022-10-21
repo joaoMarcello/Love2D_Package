@@ -24,10 +24,10 @@ function Phrase:__constructor__(args)
     self.__separated_string = self:separate_string(self.__text)
     self.__words = {}
 
-    self.__bounds = { top = 0, left = 0, height = love.graphics.getHeight(), right = love.graphics.getWidth() }
+    self.__bounds = { top = 0, left = 0, height = love.graphics.getHeight(), right = 600 }
 
     for i = 1, #self.__separated_string do
-        local w = Word:new({ text = self.__text, font = self.__font })
+        local w = Word:new({ text = self.__separated_string[i], font = self.__font })
         table.insert(self.__words, w)
     end
 
@@ -40,21 +40,49 @@ end
 
 function Phrase:get_lines(x, y)
     local lines = {}
-    local total_w = 0
+    for j = 1, 10 do
+        table.insert(lines, {})
+    end
+    local tx = x
     local index = 1
+    local cur_line = 1
 
     for i = 1, #self.__words do
-        local word = self:get_word_by_index(i)
-        if total_w + word:get_width() > self.__bounds.right then
-            local new_line = {}
+        local w = self:get_word_by_index(i)
 
-            for j = i, index, -1 do
-                table.insert(new_line, self:get_word_by_index(j))
-            end
-            index = i + 1
+        local r = w:get_width() + (self.__font.__word_space * self.__font.__scale)
+
+        if tx + r > self.__bounds.right then
+            tx = x
+            cur_line = cur_line + 1
+            -- ty = ty + (self.__font.__font_size + self.__font.__line_space)
         end
+        table.insert(lines[cur_line], w)
+        tx = tx + r
     end
-end
+
+    -- for i = 1, #self.__words do
+    --     if not lines[cur_line] then lines[cur_line] = {} end
+
+    --     local word = self:get_word_by_index(i)
+
+    --     local r = total_w + (self.__font.__word_space * self.__font.__scale)
+    --         + word:get_width()
+
+    --     if r > self.__bounds.right then
+    --         cur_line = cur_line + 1
+    --         total_w = x
+    --         if not lines[cur_line] then lines[cur_line] = {} end
+    --         table.insert(lines[cur_line], word)
+    --     else
+    --         table.insert(lines[cur_line], word)
+    --         total_w = r
+    --     end
+
+    -- end -- END FOR each word in table or words
+
+    return lines
+end -- END function get_lines()
 
 ---@param text string
 ---@param index number
@@ -101,7 +129,7 @@ function Phrase:separate_string(s)
         if r then
             table.insert(words, r.tag)
             current_index = r.final + 1
-            i = current_index
+            i = current_index - 1
         end
 
         local r2 = self.__font:__is_a_nickname(s, current_index)
@@ -119,11 +147,39 @@ function Phrase:separate_string(s)
 end
 
 function Phrase:draw(x, y)
-    for i = 1, #self.__words do
-        local w = self:get_word_by_index(i)
+    local lines = self:get_lines(x, y)
 
-        w:draw(x, y + (i - 1) * self.__font.__font_size + 3)
+    local tx, ty = x, y
+
+    for i = 1, #lines do
+        for j = 1, #lines[i] do
+            local w = lines[i][j]
+            local r = w:get_width() + (self.__font.__word_space * self.__font.__scale)
+
+            w:draw(tx, ty)
+            tx = tx + r
+        end
+        tx = x
+        ty = ty + (self.__font.__font_size + self.__font.__line_space)
     end
+
+
+    ------------------------------------------------------------------------
+    -- local tx = x - 200
+    -- local ty = y
+
+    -- for i = 1, #self.__words do
+    --     local w = self:get_word_by_index(i)
+
+    --     local r = w:get_width() + (self.__font.__word_space * self.__font.__scale)
+
+    --     if tx + r > self.__bounds.right then
+    --         tx = x - 200
+    --         ty = ty + (self.__font.__font_size + self.__font.__line_space)
+    --     end
+    --     w:draw(tx, ty)
+    --     tx = tx + r
+    -- end
 end
 
 return Phrase

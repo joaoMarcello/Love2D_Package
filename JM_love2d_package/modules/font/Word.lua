@@ -22,8 +22,9 @@ function Word:__constructor__(args)
     self.__characters = {}
     for i = 1, #self.__text do
         local cur_char = self.__text:sub(i, i)
-        local char_obj = self.__font:__get_char_equals(cur_char):copy()
+        local char_obj = self.__font:__get_char_equals(cur_char)
         if char_obj then
+            char_obj = char_obj:copy()
             table.insert(self.__characters, char_obj)
         end
     end
@@ -62,6 +63,9 @@ function Word:draw(x, y)
 
         tx = tx + cur_char.w * self.__font.__scale + self.__font.__character_space
     end
+
+    love.graphics.setColor(1, 0, 0, 0.3)
+    love.graphics.rectangle("fill", x, y, self:get_width(), self.__font.__font_size)
 
     -- self.__font:print(tostring(#self.__characters), x, y)
 end
