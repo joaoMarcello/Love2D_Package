@@ -159,7 +159,7 @@ function Phrase:separate_string(s)
             end
             table.insert(words, s:sub(i, i + #r2 - 1))
             current_index = i + #r2
-            i = current_index
+            i = current_index - 1
         end
 
         i = i + 1
