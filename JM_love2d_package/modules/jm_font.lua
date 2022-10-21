@@ -80,7 +80,7 @@ function Font:__constructor__(args)
         or self:__get_char_equals("0").h
         or self.__font_size
 
-    self.__word_space = self.__ref_height * 0.3
+    self.__word_space = self.__ref_height * 0.5
 
     self.__tab_size = args.tab_size or 4
 
@@ -173,11 +173,16 @@ function Font:add_nickname(nickname, args)
     assert(is_valid_nickname(nickname),
         "\nError: Invalid nickname. The nickname should start and ending with '--'. \nExamples: --icon--, -- emoji --.")
 
+    args.height = self.__font_size * 1.5
     local animation = Anima:new(args)
-    animation:set_size(nil, self.__font_size * 1.5, nil, animation:__get_current_frame().h)
+    -- animation:set_size(nil, self.__font_size * 1.5, nil, animation:__get_current_frame().h)
 
-    local new_character = Character:new(nil, nil,
-        { id = nickname, anima = animation, w = self.__ref_height, h = self.__ref_height })
+    local new_character = Character:new(nil, nil, {
+        id = nickname,
+        anima = animation,
+        w = animation:__get_current_frame().w, --self.__ref_height,
+        h = self.__ref_height
+    })
 
     table.insert(self.__nicknames, {
         nick = nickname, index = #self.__characters + 1
@@ -417,7 +422,7 @@ function Font:print(text, x, y, w, h)
 
         -- Current char is space
         if current_char == " " then
-            tx = tx + self.__word_space * self.__scale + (last_w and last_w * self.__scale or 0)
+            tx = tx + (self.__word_space * self.__scale * 0) + (last_w and last_w * self.__scale or 0)
             goto continue
         end
 

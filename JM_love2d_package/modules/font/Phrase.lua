@@ -24,11 +24,13 @@ function Phrase:__constructor__(args)
     self.__separated_string = self:separate_string(self.__text)
     self.__words = {}
 
-    self.__bounds = { top = 0, left = 0, height = love.graphics.getHeight(), right = 600 }
+    self.__bounds = { top = 0, left = 0, height = love.graphics.getHeight(), right = 700 }
 
     for i = 1, #self.__separated_string do
         local w = Word:new({ text = self.__separated_string[i], font = self.__font })
-        table.insert(self.__words, w)
+        if w.__text ~= "" then
+            table.insert(self.__words, w)
+        end
     end
 
 end
@@ -92,7 +94,8 @@ function Phrase:__line_length(line)
         local word = self:__get_word_in_list(line, i)
         total_len = total_len + word:get_width()
     end
-    total_len = total_len + self.__font.__word_space * self.__font.__scale * (#line - 1)
+    total_len = total_len + self.__font.__word_space * self.__font.__scale
+        * (#line - 1)
     return total_len
 end
 
@@ -148,10 +151,14 @@ function Phrase:separate_string(s)
             i = current_index - 1
         end
 
-        local r2 = self.__font:__is_a_nickname(s, current_index)
+        local r2 = self.__font:__is_a_nickname(s, i)
         if r2 then
-            table.insert(words, s:sub(current_index, current_index + #r2 - 1))
-            current_index = current_index + #r2
+            local w = s:sub(current_index, i - 1)
+            if w ~= "" and w ~= " " then
+                table.insert(words, w)
+            end
+            table.insert(words, s:sub(i, i + #r2 - 1))
+            current_index = i + #r2
             i = current_index
         end
 
@@ -162,48 +169,83 @@ function Phrase:separate_string(s)
     return words
 end
 
-function Phrase:draw(x, y)
+function Phrase:update(dt)
+    for i = 1, #self.__words, 1 do
+        local w = self:__get_word_in_list(self.__words, i)
+        w:update(dt)
+    end
+end
+
+---@param x number
+---@param y number
+---@param mode "left"|"right"|"center"|"justified"|nil
+function Phrase:draw(x, y, mode)
     local lines = self:get_lines(x, y)
 
-    local mode = "center"
+    if not mode then mode = "left" end
 
     local tx, ty = x, y
+    local space = 0
+
+    self.__font:push()
 
     for i = 1, #lines do
+        space = self.__font.__word_space * self.__font.__scale
+
         if mode == "right" then
             tx = self.__bounds.right - self:__line_length(lines[i])
         elseif mode == "center" then
             tx = x + (self.__bounds.right - x) / 2 - self:__line_length(lines[i]) / 2
+        elseif mode == "justified" then
+            local total_len =
+            function(lista)
+                local total = 0
+                for i = 1, #lista, 1 do
+                    local w = self:__get_word_in_list(lista, i)
+                    total = total + w:get_width()
+                end
+                return total
+            end
+
+            local total = total_len(lines[i])
+
+            space = (self.__bounds.right - x - total) / (#lines[i] - 1)
+            tx = tx
         end
 
         for j = 1, #lines[i] do
             local w = self:__get_word_in_list(lines[i], j)
-            local r = w:get_width() + (self.__font.__word_space * self.__font.__scale)
+            local r = w:get_width() + space
 
             w:draw(tx, ty)
-            tx = tx + r
+            tx = tx + r --+ space
         end
         tx = x
         ty = ty + (self.__font.__font_size + self.__font.__line_space)
     end
 
+    self.__font:pop()
 
+    love.graphics.setColor(0.4, 0.4, 0.4, 1)
+    love.graphics.line(self.__bounds.right, 0, self.__bounds.right, 600)
     ------------------------------------------------------------------------
-    local tx = x - 200
-    local ty = y + 330
+    -- do
+    --     local tx = x - 200
+    --     local ty = y + 330
 
-    for i = 1, #self.__words do
-        local w = self:get_word_by_index(i)
+    --     for i = 1, #self.__words do
+    --         local w = self:get_word_by_index(i)
 
-        local r = w:get_width() + (self.__font.__word_space * self.__font.__scale)
+    --         local r = w:get_width() + (self.__font.__word_space * self.__font.__scale)
 
-        if tx + r > self.__bounds.right then
-            tx = x - 200
-            ty = ty + (self.__font.__font_size + self.__font.__line_space)
-        end
-        w:draw(tx, ty)
-        tx = tx + r
-    end
+    --         if tx + r > self.__bounds.right then
+    --             tx = x - 200
+    --             ty = ty + (self.__font.__font_size + self.__font.__line_space)
+    --         end
+    --         w:draw(tx, ty)
+    --         tx = tx + r
+    --     end
+    -- end
 end
 
 return Phrase

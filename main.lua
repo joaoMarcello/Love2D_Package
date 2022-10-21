@@ -95,7 +95,8 @@ aa:apply_effect("pulse", { range = 0.06 })
 
 
 local palavra = Word:new({ text = "macaco", font = Calibri })
-local frase = Phrase:new({ text = "oi eu sou o goku e niguem me segura eu sou forte! Forte pra caramba. Ja disse que sou poderoso<color>",
+
+local frase = Phrase:new({ text = "oi eu sou 0asdsdsaadsasda d j asda --nuvem-- a goku e ninguem --jean--\nme segura eu sou forte! Forte pra caramba. Ja disse que sou poderoso a- <color, 1,2,3>--nuvem-- <>atha",
     font = Calibri })
 
 function love.load()
@@ -122,6 +123,7 @@ function love.update(dt)
     Anima2:update(dt)
 
     Calibri:update(dt)
+    frase:update(dt)
 end
 
 function love.draw()
@@ -139,7 +141,7 @@ function love.draw()
 
     love.graphics.pop()
 
-    Calibri:print("mas que solidao\n <color, 1, 0, 0>ninguem --nuvem-- aqui </color> ao lado\n\tachei a solucao\n \tnao sou\n mais maltratado --goomba-- --jean----goomba--be gone!"
+    Calibri:print("mas que solidao\n <color, 1, 0, 0>ninguem --nuvem-- aqui </color> ao lado\n\tachei a solucao\n \tnao sou\n mais maltratado --goomba-- --jean-- --goomba-- be gone!"
         , 50, 110, w)
 
     Calibri:push()
@@ -149,6 +151,5 @@ function love.draw()
 
     palavra:draw(500, 0)
 
-    love.graphics.line(600, 0, 600, 600)
-    frase:draw(370, 80)
+    frase:draw(300, 80, "right")
 end
