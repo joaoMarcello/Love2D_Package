@@ -112,6 +112,13 @@ function Font:__constructor__(args)
     self.__bounds = { x = 50, y = 110, w = 230, h = 500 }
 end
 
+function Font:get_nule_character()
+    local char_ = Character:new(nil, nil,
+        { id = "__nule__", x = nil, y = nil, w = self.__word_space, h = self.__ref_height })
+
+    return char_
+end
+
 function Font:__get_configuration()
     local config = {}
     config.font_size = self.__font_size
@@ -192,7 +199,7 @@ function Font:add_nickname(nickname, args)
     assert(is_valid_nickname(nickname),
         "\nError: Invalid nickname. The nickname should start and ending with '--'. \nExamples: --icon--, -- emoji --.")
 
-    args.height = self.__font_size * 1.5
+    -- args.height = self.__font_size * 1.5
     local animation = Anima:new(args)
     -- animation:set_size(nil, self.__font_size * 1.5, nil, animation:__get_current_frame().h)
 

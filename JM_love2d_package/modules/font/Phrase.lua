@@ -155,16 +155,18 @@ function Phrase:apply_freaky(sentence, mode)
     local offset = 0
     if #found_stack > 0 then
         for k = 1, #found_stack do
-            offset = offset + math.pi / 4
 
             local where_found = found_stack[k]
 
             for i = where_found, where_found + #(Sentence.__words) - 1, 1 do
+                offset = offset + math.pi / 2
+
                 local word = self:get_word_by_index(i)
                 local word_sentence = Sentence:get_word_by_index(i - where_found + 1)
 
                 local startp, endp = word.__text:find(word_sentence.__text)
                 local r = startp and word:freaky_effect(startp, endp, offset)
+                -- local r = startp and word:surge_effect(startp, endp, offset)
             end
         end
     end
@@ -175,6 +177,7 @@ function Phrase:get_word_by_index(index)
     return self.__words[index]
 end
 
+---@return table
 function Phrase:get_lines(x, y)
     local lines = {}
     local tx = x
@@ -251,45 +254,6 @@ function Phrase:__line_length(line)
     return total_len
 end
 
--- ---@param text string
--- ---@param index number
--- ---@return {start:number, final:number, tag:string}|nil
--- local function is_a_tag(text, index)
---     local command = "color"
-
---     if text:sub(index, index) == "<" then
---         local startp, endp = text:find(">", index + 1)
---         if startp then
---             -- local start2, endp2 = text:find("</" .. command .. ">", endp)
---             -- if start2 then
---             return { start = startp, final = endp, tag = text:sub(index, endp) }
---             -- end
---         end
---     end
--- end
-
--- ---@param lines table
--- ---@param cur_line number
--- ---@param cur_column number
--- ---@return {init: number, final: number, tag: string}|nil
--- function Phrase:__is_a_command(lines, cur_line, cur_column)
---     local t = 0
---     for i = 1, cur_line - 1, 1 do
---         t = t + #lines[i]
---     end
-
---     local cur_index = t + cur_column
---     local r = is_a_tag(self:get_word_by_index(cur_index).__text, 0)
---     if r then
---         for i = cur_index + 1, #self.__words, 1 do
---             local r2 = is_a_tag(self:get_word_by_index(i).__text, 0)
---             if r2 and r2.tag == ("/" .. r.tag) then
---                 return { init = cur_index, final = i, tag = r2.tag }
---             end
---         end
---     end
--- end
-
 function Phrase:separate_string(s)
     local words = {}
     local sep = " "
@@ -357,39 +321,31 @@ function Phrase:update(dt)
     end
 end
 
+---
+---@param lines table
 ---@param x number
 ---@param y number
----@param mode "left"|"right"|"center"|"justified"|nil
-function Phrase:draw(x, y, mode)
-    if x >= self.__bounds.right then return end
-
-    if not self.__last_lines__
-        or self.__last_lines__.x ~= x
-        or self.__last_lines__.y ~= y
-    then
-
-        self.__last_lines__ = { lines = self:get_lines(x, y), x = x, y = y }
-    end
-
-    local lines = self.__last_lines__.lines
-
-    if not mode then mode = "left" end
+---@param alignment "left"|"right"|"center"|"justified"|nil
+---@param threshold number|nil
+function Phrase:draw_lines(lines, x, y, alignment, threshold)
+    if not alignment then alignment = "left" end
+    if not threshold then threshold = #lines end
 
     local tx, ty = x, y
     local space = 0
 
-    self.__font:push()
+    -- self.__font:push()
 
     for i = 1, #lines do
-        if mode == "right" then
+        if alignment == "right" then
 
             tx = self.__bounds.right - self:__line_length(lines[i])
 
-        elseif mode == "center" then
+        elseif alignment == "center" then
 
             tx = x + (self.__bounds.right - x) / 2 - self:__line_length(lines[i]) / 2
 
-        elseif mode == "justified" then
+        elseif alignment == "justified" then
 
             local total = self:__line_length(lines[i])
 
@@ -419,32 +375,39 @@ function Phrase:draw(x, y, mode)
 
             tx = tx + r
         end
+
         tx = x
         ty = ty + (self.__font.__font_size + self.__font.__line_space)
+
+        if i >= threshold then
+            break
+        end
     end
 
-    self.__font:pop()
+    -- self.__font:pop()
+end
+
+---@param x number
+---@param y number
+---@param alignment "left"|"right"|"center"|"justified"|nil
+function Phrase:draw(x, y, alignment)
+    if x >= self.__bounds.right then return end
+
+    if not self.__last_lines__
+        or self.__last_lines__.x ~= x
+        or self.__last_lines__.y ~= y
+    then
+        self.__last_lines__ = { lines = self:get_lines(x, y), x = x, y = y }
+    end
+
+    local lines = self.__last_lines__.lines
+
+    self:draw_lines(lines, x, y, alignment, nil)
+
 
     love.graphics.setColor(0.4, 0.4, 0.4, 1)
     love.graphics.line(self.__bounds.right, 0, self.__bounds.right, 600)
     ------------------------------------------------------------------------
-    -- do
-    --     local tx = x - 200
-    --     local ty = y + 330
-
-    --     for i = 1, #self.__words do
-    --         local w = self:get_word_by_index(i)
-
-    --         local r = w:get_width() + (self.__font.__word_space * self.__font.__scale)
-
-    --         if tx + r > self.__bounds.right then
-    --             tx = x - 200
-    --             ty = ty + (self.__font.__font_size + self.__font.__line_space)
-    --         end
-    --         w:draw(tx, ty)
-    --         tx = tx + r
-    --     end
-    -- end
 end
 
 return Phrase

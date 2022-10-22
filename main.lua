@@ -31,12 +31,6 @@ Anima2:set_size(100, 120)
 Anima2:toggle_flip_x()
 Anima2:set_duration(5)
 Anima2:set_reverse_mode(true)
--- Anima2:stop_at_the_end(true,
---     ---@param args JM.Anima
---     function(args)
---         args:unpause()
---         args:apply_effect("flick", { duration = 0.5 })
---     end, Anima2)
 Anima2:set_state("back and forth")
 Anima2:set_speed(0.1)
 Anima2:reset()
@@ -91,12 +85,19 @@ Calibri:add_nickname("--jean--", {
 local aa = Calibri:add_nickname("--nuvem--", {
     img = "/data/cloud.png"
 })
+
+Calibri:add_nickname("--anta--", {
+    img = "/JM_love2d_package/data/Font/Calibri/calibri_black.png",
+    frames_list = { { 24, 377, 46, 84 } }
+})
+
+
 aa:apply_effect("pulse", { range = 0.06 })
 
 
 local palavra = Word:new({ text = "macaco", font = Calibri })
 
-local frase = Phrase:new({ text = "Em meio o bom shinobi\n as sinuosas e confusas correntezas inimigas, o bom shinobi\t. \t--goomba--\t nao precisa se ocultar.\nasasas\nPara o bom shinobi-todos os inimigos, --goomba--fadiga, descuido e cansaço o tempo trara.\n\n\tE  o bom  shinobi que tem o aspas tempo como amigo e sabe esperar.\nE o /bom shinobi. legal ser shinobi.\n\nEm meio o bom shinobi as sinuosas e confusas correntezas inimigas, o bom shinobi. \t--goomba--\t nao precisa se ocultar.\nasasas\nPara o bom shinobi-todos os inimigos, --goomba--fadiga, descuido e cansaço o tempo trara.",
+local frase = Phrase:new({ text = "Em meio o bom shinobi\n as sinuosas e confusas correntezas inimigas, o bom shinobi\t. \t--goomba--\t nao precisa se ocultar.\nasasas\nPara o bom shinobi-todos os inimigos, --goomba--fadiga, descuido e cansaço o tempo trara.\n\n\tE  o bom  shinobi que tem o aspas tempo como amigo e sabe esperar.\nE o /bom shinobi. --anta-- s legal ser shinobi.\n\nEm meio o bom shinobi as sinuosas e confusas @ correntezas inimigas, o bom shinobi. \t--goomba--\t nao precisa se ocultar.\nasasas\nPara o bom shinobi-todos os inimigos, --goomba--fadiga, descuido e cansaço o tempo trara.",
     font = Calibri })
 
 frase:color_pattern("a", { 0.8, 0, 0, 1 }, "all")
@@ -134,12 +135,14 @@ function love.update(dt)
 end
 
 function love.draw()
+
     love.graphics.push()
 
     love.graphics.setColor(1, 1, 1, 0.8)
     local w = 230
     local h = 500
-    love.graphics.rectangle("fill", 50, 110, w, h)
+    -- love.graphics.rectangle("fill", 50, 110, w, h)
+
     -- Test_anima:draw_rec(200, 300, 100, 100)
 
     -- love.graphics.setColor(1, 1, 1, 0.8)
@@ -160,6 +163,6 @@ function love.draw()
 
     Calibri:push()
     Calibri:set_font_size(16)
-    frase:draw(love.mouse.getX(), 80, "left")
+    frase:draw(love.mouse.getX(), 100, "justified")
     Calibri:pop()
 end

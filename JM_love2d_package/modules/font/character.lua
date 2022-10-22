@@ -55,7 +55,7 @@ function Character:__constructor__(img, quad, args)
     self.__effect_manager = EffectManager:new()
     self.__visible = true
 
-    self.bounds = { x = 0, y = 0, w = love.graphics.getWidth(), h = love.graphics.getHeight() }
+    self.bounds = { left = 0, top = 0, right = love.graphics.getWidth(), bottom = love.graphics.getHeight() }
 
     Affectable.__checks_implementation__(self)
 end
@@ -118,8 +118,8 @@ function Character:setViewport(img, quad, x, y)
     local qw = self.qw
     local qh = self.qh
 
-    local bottom = self.bounds.y + self.bounds.h
-    local top = self.bounds.y
+    local bottom = self.bounds.top + self.bounds.bottom
+    local top = self.bounds.top
 
     -- if y and bottom then
     --     if y + self.h * self.sy > bottom then
@@ -143,7 +143,7 @@ function Character:__draw__(x, y)
     love.graphics.setColor(0, 0, 0, 0.2)
 
     if self.w and self.h then
-        -- love.graphics.rectangle("fill", x, y, self.w * self.sx, self.h * self.sy)
+        love.graphics.rectangle("fill", x, y, self.w * self.sx, self.h * self.sy)
     end
 
     love.graphics.push()
@@ -169,7 +169,15 @@ function Character:__draw__(x, y)
     end
 
     if self.__anima then
-        self:__anima_draw__(x, y)
+        self.__anima:draw(x + self.w / 2 * self.sx, y + self.h / 2 * self.sy)
+
+    elseif not self.__img then
+        love.graphics.setColor(0, 0, 0, 1)
+        love.graphics.rectangle("fill", x, y,
+            self.w * self.sx,
+            self.h * self.sy
+        )
+
     elseif self.__id ~= "\t" and self.__id ~= " " then
         love.graphics.setColor(self:get_color())
 
@@ -182,13 +190,20 @@ function Character:__draw__(x, y)
             self.sx, self.sy,
             self.ox, self.oy
         )
+
+
+        -- y = y - self.h * self.sy
+
+        -- love.graphics.draw(self.__img, self.__quad,
+        --     x + self.w / 2 * self.sx,
+        --     y + (self.h + self.offset_y) / 2 * self.sy,
+        --     0,
+        --     self.sx, self.sy,
+        --     self.ox, self.oy
+        -- )
     end
 
     love.graphics.pop()
-end
-
-function Character:__anima_draw__(x, y)
-    self.__anima:draw(x + self.w / 2 * self.sx, y + self.h / 2 * self.sy)
 end
 
 return Character

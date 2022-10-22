@@ -38,6 +38,10 @@ function Word:__constructor__(args)
 
         local char_obj = self.__font:__get_char_equals(cur_char)
 
+        if not char_obj and cur_char ~= "\n" and cur_char ~= "\t" then
+            char_obj = self.__font:get_nule_character()
+        end
+
         if char_obj then
             char_obj = char_obj:copy()
             table.insert(self.__characters, char_obj)
@@ -48,19 +52,6 @@ function Word:__constructor__(args)
         end
         i = i + 1
     end
-
-    -- -- freak effect
-    -- for i = 1, #self.__characters, 1 do
-
-    --     local eff = EffectManager:generate("float", {
-    --         range = 1.0,
-    --         speed = 0.2,
-    --         rad = math.pi * (i % 7)
-    --     })
-    --     if not self.__characters[i]:is_animated() then
-    --         eff:apply(self.__characters[i])
-    --     end
-    -- end
 end
 
 ---
@@ -83,10 +74,29 @@ function Word:freaky_effect(startp, endp, offset)
             speed = 0.2,
             rad = math.pi * (i % 4) + offset
         })
-        -- if not self.__characters[i]:is_animated() then
-        eff:apply(self.__characters[i])
-        -- end
+
+        local char__ = self:__get_char_by_index(i)
+        if char__ and char__:is_animated() then
+            eff:apply(char__.__anima)
+        else
+            eff:apply(self.__characters[i])
+        end
     end
+end
+
+function Word:surge_effect(startp, endp, delay)
+    if not startp then startp = 1 end
+    if not endp then endp = #self.__characters end
+    if not delay then delay = 1 end
+
+    for i = startp, endp, 1 do
+        local eff = EffectManager:generate("fadein", {
+            delay = delay
+        })
+        eff:apply(self.__characters[i])
+        delay = delay + 0.5
+    end
+    return delay
 end
 
 --- change the word color
@@ -155,14 +165,17 @@ function Word:draw(x, y)
 
         if not cur_char:is_animated() or true then
             cur_char:__draw__(tx,
-                y + self.__font.__font_size - cur_char.h * cur_char.sy)
+                y + self.__font.__font_size - cur_char.h * cur_char.sy
+            )
+
+            -- cur_char:__draw__(tx, y + self.__font.__font_size * self.__font.__scale)
         end
 
         tx = tx + cur_char.w * self.__font.__scale + self.__font.__character_space
     end
 
-    love.graphics.setColor(0.7, 0, 0, 0.25)
-    -- love.graphics.rectangle("fill", x, y, self:get_width(), self.__font.__font_size)
+    love.graphics.setColor(0.9, 0, 0, 0.15)
+    love.graphics.rectangle("fill", x, y, self:get_width(), self.__font.__font_size)
 
 end
 
