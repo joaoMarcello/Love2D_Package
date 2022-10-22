@@ -97,7 +97,7 @@ aa:apply_effect("pulse", { range = 0.06 })
 
 local palavra = Word:new({ text = "macaco", font = Calibri })
 
-local frase = Phrase:new({ text = "Em meio o bom shinobi\n as sinuosas e confusas correntezas inimigas, o bom shinobi\t. \t--goomba--\t nao precisa se ocultar.\nasasas\nPara o bom shinobi-todos os inimigos, --goomba--fadiga, descuido e cansaço o tempo trara.\n\n\tE  o bom  shinobi que tem o aspas tempo como amigo e sabe esperar.\nE o /bom shinobi. --anta-- s legal ser shinobi.\n\nEm meio o bom shinobi as sinuosas e confusas @ correntezas inimigas, o bom shinobi. \t--goomba--\t nao precisa se ocultar.\nasasas\nPara o bom shinobi-todos os inimigos, --goomba--fadiga, descuido e cansaço o tempo trara.",
+local frase = Phrase:new({ text = "Em meio o bom shinobi\n as sinuosas e confusas correntezas inimigas, o bom shinobi\t. \t--goomba--\t nao precisa se ocultar.\nasasas\nPara o bom shinobi-todos os inimigos, --goomba--fadiga, descuido e cansaço o tempo trara.\n\n\tE  à o bom  shinobi que tem o aspas tempo como amigo e sabe esperar.\nE o /bom shinobi. --anta-- s legal ser shinobi.\n\nEm meio o bom shinobi as sinuosas e confusas @ correntezas inimigas, o bom shinobi. \t--goomba--\t nao precisa se ocultar.\nasasas\nPara o bom shinobi-todos os inimigos, --goomba--fadiga, descuido e cansaço o tempo trara.",
     font = Calibri })
 
 frase:color_pattern("a", { 0.8, 0, 0, 1 }, "all")
@@ -113,6 +113,10 @@ function love.load()
 end
 
 function love.update(dt)
+    if love.keyboard.isDown("q") or love.keyboard.isDown("escape") then
+        love.event.quit()
+    end
+
     if Test_anima:time_updating() >= 4 then
         -- Test_anima:stop_effect(hh)
         -- Anima2:stop_effect(hh)

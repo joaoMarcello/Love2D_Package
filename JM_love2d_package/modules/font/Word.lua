@@ -164,11 +164,12 @@ function Word:draw(x, y)
         cur_char:set_scale(self.__font.__scale)
 
         if not cur_char:is_animated() or true then
-            cur_char:__draw__(tx,
-                y + self.__font.__font_size - cur_char.h * cur_char.sy
-            )
+            -- cur_char:__draw__(tx,
+            --     y + self.__font.__font_size - cur_char.h * cur_char.sy
+            -- )
 
-            -- cur_char:__draw__(tx, y + self.__font.__font_size * self.__font.__scale)
+            cur_char:draw_rec(tx, y, cur_char.w * cur_char.sx, self.__font.__font_size)
+
         end
 
         tx = tx + cur_char.w * self.__font.__scale + self.__font.__character_space

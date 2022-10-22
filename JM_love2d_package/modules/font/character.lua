@@ -139,11 +139,18 @@ function Character:draw(x, y)
     self.__effect_manager:draw(x, y)
 end
 
+function Character:draw_rec(x, y, w, h)
+    x = x + w / 2
+    y = y + h - self.h * self.sy + self.oy * self.sy
+
+    self:__draw__(x, y)
+end
+
 function Character:__draw__(x, y)
     love.graphics.setColor(0, 0, 0, 0.2)
 
     if self.w and self.h then
-        love.graphics.rectangle("fill", x, y, self.w * self.sx, self.h * self.sy)
+        -- love.graphics.rectangle("fill", x - self.w / 2, y - self.h / 2, self.w * self.sx, self.h * self.sy)
     end
 
     love.graphics.push()
@@ -183,17 +190,6 @@ function Character:__draw__(x, y)
 
         self:setViewport(self.__img, self.__quad, x, y)
 
-        love.graphics.draw(self.__img, self.__quad,
-            x + self.w / 2 * self.sx,
-            y + (self.h + self.offset_y) / 2 * self.sy,
-            0,
-            self.sx, self.sy,
-            self.ox, self.oy
-        )
-
-
-        -- y = y - self.h * self.sy
-
         -- love.graphics.draw(self.__img, self.__quad,
         --     x + self.w / 2 * self.sx,
         --     y + (self.h + self.offset_y) / 2 * self.sy,
@@ -201,6 +197,15 @@ function Character:__draw__(x, y)
         --     self.sx, self.sy,
         --     self.ox, self.oy
         -- )
+
+        love.graphics.draw(self.__img, self.__quad,
+            x,
+            y,
+            0,
+            self.sx, self.sy,
+            self.ox, self.oy
+        )
+
     end
 
     love.graphics.pop()
