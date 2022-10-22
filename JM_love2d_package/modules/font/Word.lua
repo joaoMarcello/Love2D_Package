@@ -70,6 +70,24 @@ function Word:copy()
     return cpy
 end
 
+--- change the word color
+---@param color JM.Color
+function Word:set_color(color, startp, endp)
+    if self.__font:__is_a_nickname(self.__text, 1) then
+        local char__ = self:__get_char_by_index(1)
+        if char__:is_animated() then char__.__anima:set_color(color) end
+        return
+    end
+    
+    if not startp then startp = 1 end
+    if not endp then endp = #self.__characters end
+
+    for i = startp, endp, 1 do
+        local char_ = self:__get_char_by_index(i)
+        char_:set_color(color)
+    end
+end
+
 ---
 function Word:update(dt)
     for i = 1, #self.__characters, 1 do
@@ -111,7 +129,7 @@ function Word:draw(x, y)
     for i = 1, #self.__characters do
         local cur_char = self:__get_char_by_index(i)
 
-        cur_char:set_color(self.__font.__default_color)
+        cur_char:set_color(cur_char.__color)
         cur_char:set_scale(self.__font.__scale)
 
         if not cur_char:is_animated() or true then
@@ -123,7 +141,7 @@ function Word:draw(x, y)
     end
 
     love.graphics.setColor(0.7, 0, 0, 0.25)
-    love.graphics.rectangle("fill", x, y, self:get_width(), self.__font.__font_size)
+    -- love.graphics.rectangle("fill", x, y, self:get_width(), self.__font.__font_size)
 
 end
 

@@ -29,10 +29,52 @@ function Phrase:__constructor__(args)
     for i = 1, #self.__separated_string do
         local w = Word:new({ text = self.__separated_string[i], font = self.__font })
         if w.__text ~= "" then
+            if not self.__font:__is_a_nickname(w.__text, 1) then
+                w:set_color(self.__font.__default_color)
+            end
             table.insert(self.__words, w)
         end
     end
 
+end
+
+---@param word string
+---@param mode number|"all"
+function Phrase:color_pattern(word, color, mode)
+    local count = 0
+
+    for i = 1, #self.__words, 1 do
+        local w = self:get_word_by_index(i)
+        local text = w.__text
+        local startp, endp = 1, 1
+
+        while true do
+            startp, endp = text:find(word, startp)
+
+            if startp then
+                if self.__font:__is_a_nickname(text, 1) then
+                    if word == text then
+                        w:set_color(color)
+                    end
+                else
+                    w:set_color(color, startp, endp)
+                end
+
+                if mode ~= "all" then
+                    count = count + 1
+                    if count >= mode then return end
+                end
+
+                startp = startp + 1
+                -- text = text:sub(endp + 1, #text)
+            else
+                break
+            end
+
+        end
+
+
+    end -- END FOR each word in list
 end
 
 ---@return JM.Font.Word
@@ -62,9 +104,9 @@ function Phrase:get_lines(x, y)
             if pcall(function()
                 local last_added = self:__get_word_in_list(lines[cur_line], #lines[cur_line])
 
-                if last_added.__text ~= "\n"
-                    and last_added.__text ~= "\t"
-                    and not self.__font:__is_a_nickname(last_added.__text, 1) then
+                if last_added.__text == " " then
+                    -- and last_added.__text ~= "\t"
+                    -- and not self.__font:__is_a_nickname(last_added.__text, 1) then
 
                     table.remove(lines[cur_line], #lines[cur_line])
                 end
@@ -228,7 +270,15 @@ end
 function Phrase:draw(x, y, mode)
     if x >= self.__bounds.right then return end
 
-    local lines = self:get_lines(x, y)
+    if not self.__last_lines__
+        or self.__last_lines__.x ~= x
+        or self.__last_lines__.y ~= y
+    then
+
+        self.__last_lines__ = { lines = self:get_lines(x, y), x = x, y = y }
+    end
+
+    local lines = self.__last_lines__.lines
 
     if not mode then mode = "left" end
 
