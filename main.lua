@@ -96,7 +96,7 @@ aa:apply_effect("pulse", { range = 0.06 })
 
 local palavra = Word:new({ text = "macaco", font = Calibri })
 
-local frase = Phrase:new({ text = "oi eu sou Qa 0asdsdsaadsasda d j asda --nuvem-- ba goku e ninguem --jean--me\n segura --goomba-- eu sou forte! Forte pra caramba. Ja disse que\tsou poderoso a- \tas<color>a--nuvem--</color>atha",
+local frase = Phrase:new({ text = "oi eu sou Qa saitama eh mais poderoso que o goku pronto falei d j asda --nuvem-- ba goku e ninguem --jean--me \nsegura --goomba-- eu sou forte! Forte pra caramba. \nJa disse que\tsou poderoso a- \tas<color>a--nuvem--</color>atha",
     font = Calibri })
 
 function love.load()
@@ -151,5 +151,8 @@ function love.draw()
 
     palavra:draw(500, 0)
 
-    frase:draw(300, 80, "right")
+    Calibri:push()
+    Calibri:set_font_size(20)
+    frase:draw(love.mouse.getX(), 80, "center")
+    Calibri:pop()
 end

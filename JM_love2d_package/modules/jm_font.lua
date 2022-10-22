@@ -129,7 +129,7 @@ function Font:push()
         self.__config_stack__ = {}
     end
 
-    assert(#self.__config_stack__ == 0, "\nError: Too many push operations. Are you using more push than pop?")
+    assert(#self.__config_stack__ >= 0, "\nError: Too many push operations. Are you using more push than pop?")
 
     local config = self:__get_configuration()
     table.insert(self.__config_stack__, config)

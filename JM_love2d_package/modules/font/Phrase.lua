@@ -24,7 +24,7 @@ function Phrase:__constructor__(args)
     self.__separated_string = self:separate_string(self.__text)
     self.__words = {}
 
-    self.__bounds = { top = 0, left = 0, height = love.graphics.getHeight(), right = 700 }
+    self.__bounds = { top = 0, left = 0, height = love.graphics.getHeight(), right = love.graphics.getWidth() }
 
     for i = 1, #self.__separated_string do
         local w = Word:new({ text = self.__separated_string[i], font = self.__font })
@@ -44,21 +44,48 @@ function Phrase:get_lines(x, y)
     local lines = {}
     local tx = x
     local cur_line = 1
+    local word_char = Word:new({ text = " ", font = self.__font })
 
     for i = 1, #self.__words do
-        local w = self:get_word_by_index(i)
+        local current_word = self:get_word_by_index(i)
+        local next_word = self:get_word_by_index(i + 1)
 
-        local r = w:get_width()
-            + (self.__font.__word_space * self.__font.__scale)
+        local r = current_word:get_width()
+            + word_char:get_width()
 
-        if tx + r > self.__bounds.right then
+        if tx + r > self.__bounds.right
+            or current_word.__text == "\n" then
+
             tx = x
-            cur_line = cur_line + 1
+
+            -- Try remove the last added space word
+            if pcall(function()
+                local last_added = self:__get_word_in_list(lines[cur_line], #lines[cur_line])
+
+                if last_added.__text ~= "\n" then
+                    table.remove(lines[cur_line], #lines[cur_line])
+                end
+            end
+            ) then
+                cur_line = cur_line + 1
+            end
         end
 
         if not lines[cur_line] then lines[cur_line] = {} end
 
-        table.insert(lines[cur_line], w)
+        if current_word.__text ~= "\n" then
+            table.insert(lines[cur_line], current_word)
+        else
+            table.insert(lines[cur_line - 1], current_word)
+        end
+
+        if i ~= #self.__words
+            and current_word.__text ~= "\t"
+            and current_word.__text ~= "\n"
+            and next_word and next_word.__text ~= "\t" then
+
+            table.insert(lines[cur_line], word_char)
+        end
         tx = tx + r
     end
 
@@ -76,8 +103,7 @@ function Phrase:__line_length(line)
         local word = self:__get_word_in_list(line, i)
         total_len = total_len + word:get_width()
     end
-    total_len = total_len + self.__font.__word_space * self.__font.__scale
-        * (#line - 1)
+    -- total_len = total_len + self.__font.__word_space * self.__font.__scale * (#line - 1)
     return total_len
 end
 
@@ -134,9 +160,8 @@ function Phrase:separate_string(s)
             if w ~= "" and w ~= " " then
                 table.insert(words, w)
             end
-
+            -- table.insert(words, current_char)
             current_index = i + 1
-            -- i = current_index
         end
 
         if current_char == "\n" or current_char == "\t" then
@@ -150,17 +175,17 @@ function Phrase:separate_string(s)
         end
 
 
-        local r = is_a_tag(s, i)
-        if r then
-            local w = s:sub(current_index, i - 1)
-            if w ~= "" and w ~= " " then
-                table.insert(words, w)
-            end
+        -- local r = is_a_tag(s, i)
+        -- if r then
+        --     local w = s:sub(current_index, i - 1)
+        --     if w ~= "" and w ~= " " then
+        --         table.insert(words, w)
+        --     end
 
-            table.insert(words, r.tag)
-            current_index = r.final + 1
-            i = current_index - 1
-        end
+        --     table.insert(words, r.tag)
+        --     current_index = r.final + 1
+        --     i = current_index - 1
+        -- end
 
         local r2 = self.__font:__is_a_nickname(s, i)
         if r2 then
@@ -191,6 +216,8 @@ end
 ---@param y number
 ---@param mode "left"|"right"|"center"|"justified"|nil
 function Phrase:draw(x, y, mode)
+    if x >= self.__bounds.right then return end
+
     local lines = self:get_lines(x, y)
 
     if not mode then mode = "left" end
@@ -201,37 +228,35 @@ function Phrase:draw(x, y, mode)
     self.__font:push()
 
     for i = 1, #lines do
-        space = self.__font.__word_space * self.__font.__scale
-
+        space = 5
         if mode == "right" then
+
             tx = self.__bounds.right - self:__line_length(lines[i])
+
         elseif mode == "center" then
+
             tx = x + (self.__bounds.right - x) / 2 - self:__line_length(lines[i]) / 2
+
         elseif mode == "justified" then
-            local total_len =
-            function(lista)
-                local total = 0
-                for i = 1, #lista, 1 do
-                    local w = self:__get_word_in_list(lista, i)
-                    total = total + w:get_width()
-                end
-                return total
+
+            local total = self:__line_length(lines[i])
+
+            local q = 1
+            if lines[i][#lines[i]].__text == "\n" then
+                q = 0
             end
-
-            local total = total_len(lines[i])
-
-            space = (self.__bounds.right - x - total) / (#lines[i] - 1)
+            space = (self.__bounds.right - x - total) / (#lines[i] - q)
             tx = tx
+
         end
 
         for j = 1, #lines[i] do
             local w = self:__get_word_in_list(lines[i], j)
             local r = w:get_width() + space
 
-            if not self:__is_a_command(lines, i, j) then
-                w:draw(tx, ty)
-            end
-            tx = tx + r --+ space
+            w:draw(tx, ty)
+
+            tx = tx + r
         end
         tx = x
         ty = ty + (self.__font.__font_size + self.__font.__line_space)

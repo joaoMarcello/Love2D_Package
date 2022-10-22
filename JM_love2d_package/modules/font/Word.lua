@@ -19,6 +19,8 @@ end
 function Word:__constructor__(args)
     self.__text = args.text
     self.__font = args.font
+    self.__args = args
+
     self.__font_config = self.__font:__get_configuration()
 
     self.__characters = {}
@@ -48,19 +50,27 @@ function Word:__constructor__(args)
         i = i + 1
     end
 
-    for i = 1, #self.__characters, 1 do
+    -- -- freak effect
+    -- for i = 1, #self.__characters, 1 do
 
-        local eff = EffectManager:generate("float", {
-            range = 1.0,
-            speed = 0.2,
-            rad = math.pi * (i % 7)
-        })
-        if not self.__characters[i]:is_animated() then
-            eff:apply(self.__characters[i])
-        end
-    end
+    --     local eff = EffectManager:generate("float", {
+    --         range = 1.0,
+    --         speed = 0.2,
+    --         rad = math.pi * (i % 7)
+    --     })
+    --     if not self.__characters[i]:is_animated() then
+    --         eff:apply(self.__characters[i])
+    --     end
+    -- end
 end
 
+---
+function Word:copy()
+    local cpy = Word:new(self.__args)
+    return cpy
+end
+
+---
 function Word:update(dt)
     for i = 1, #self.__characters, 1 do
         local char_ = self:__get_char_by_index(i)
@@ -74,6 +84,7 @@ function Word:__get_char_by_index(index)
     return self.__characters[index]
 end
 
+---
 function Word:get_width()
     local w = 0
 
@@ -86,11 +97,13 @@ function Word:get_width()
     return w - self.__font.__character_space
 end
 
+---
 function Word:get_height()
     local h = self.__font.__font_size + self.__font.__line_space
     return h
 end
 
+---
 function Word:draw(x, y)
     local tx = x
     local font = self.__font
@@ -109,10 +122,9 @@ function Word:draw(x, y)
         tx = tx + cur_char.w * self.__font.__scale + self.__font.__character_space
     end
 
-    love.graphics.setColor(1, 0, 0, 0.3)
+    love.graphics.setColor(0.7, 0, 0, 0.25)
     love.graphics.rectangle("fill", x, y, self:get_width(), self.__font.__font_size)
 
-    -- self.__font:print(tostring(#self.__characters), x, y)
 end
 
 return Word
