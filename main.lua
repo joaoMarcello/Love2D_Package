@@ -96,10 +96,15 @@ aa:apply_effect("pulse", { range = 0.06 })
 
 local palavra = Word:new({ text = "macaco", font = Calibri })
 
-local frase = Phrase:new({ text = "Em meio as sinuosas e confusas correntezas inimigas, o bom shinobi \t--goomba--\t nao precisa se ocultar.\nasasas\nPara todos os inimigos, --goomba--fadiga, descuido e cansaco o tempo trara.\n\n\tE sabio o shinobi que tem o aspas tempo como amigo e sabe esperar.\nE bom ser shinobi. legal ser shinobi.",
+local frase = Phrase:new({ text = "Em meio o bom shinobi\n as sinuosas e confusas correntezas inimigas, o bom shinobi\t. \t--goomba--\t nao precisa se ocultar.\nasasas\nPara o bom shinobi-todos os inimigos, --goomba--fadiga, descuido e cansaço o tempo trara.\n\n\tE  o bom  shinobi que tem o aspas tempo como amigo e sabe esperar.\nE o /bom shinobi. legal ser shinobi.\n\nEm meio o bom shinobi as sinuosas e confusas correntezas inimigas, o bom shinobi. \t--goomba--\t nao precisa se ocultar.\nasasas\nPara o bom shinobi-todos os inimigos, --goomba--fadiga, descuido e cansaço o tempo trara.",
     font = Calibri })
 
-frase:color_pattern("a", { 0, 0, 1, 1 }, "all")
+frase:color_pattern("a", { 0.8, 0, 0, 1 }, "all")
+frase:apply_freaky("o bom shinobi", "all")
+frase:color_sentence("o bom shinobi", { 0, 0, 0.6, 1 }, "all")
+
+frase:apply_freaky("--goomba--", "all")
+frase:color_sentence("amigo", { 1, 0, 0.6, 1 }, "all")
 
 function love.load()
     love.graphics.setBackgroundColor(0.1, 0.1, 0.1, 1)
@@ -154,7 +159,7 @@ function love.draw()
     palavra:draw(500, 0)
 
     Calibri:push()
-    Calibri:set_font_size(18)
+    Calibri:set_font_size(16)
     frase:draw(love.mouse.getX(), 80, "left")
     Calibri:pop()
 end

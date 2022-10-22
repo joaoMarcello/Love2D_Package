@@ -44,7 +44,6 @@ function Word:__constructor__(args)
 
             if char_obj:is_animated() then
                 char_obj.__anima:set_size(nil, self.__font.__font_size * 1.1, nil, nil)
-                -- char_obj.__anima:apply_effect("pulse", { range = 0.06 })
             end
         end
         i = i + 1
@@ -70,21 +69,43 @@ function Word:copy()
     return cpy
 end
 
+---@param startp number|nil
+---@param endp number|nil
+---@param offset number|nil
+function Word:freaky_effect(startp, endp, offset)
+    if not startp then startp = 1 end
+    if not endp then endp = #self.__characters end
+    if not offset then offset = 0 end
+
+    for i = startp, endp, 1 do
+        local eff = EffectManager:generate("float", {
+            range = 1.0,
+            speed = 0.2,
+            rad = math.pi * (i % 4) + offset
+        })
+        -- if not self.__characters[i]:is_animated() then
+        eff:apply(self.__characters[i])
+        -- end
+    end
+end
+
 --- change the word color
 ---@param color JM.Color
 function Word:set_color(color, startp, endp)
     if self.__font:__is_a_nickname(self.__text, 1) then
         local char__ = self:__get_char_by_index(1)
-        if char__:is_animated() then char__.__anima:set_color(color) end
+        if char__ and char__:is_animated() then char__.__anima:set_color(color) end
         return
     end
-    
+
     if not startp then startp = 1 end
     if not endp then endp = #self.__characters end
 
-    for i = startp, endp, 1 do
+    local i = startp
+    while (i <= endp) do
         local char_ = self:__get_char_by_index(i)
-        char_:set_color(color)
+        local r = char_ and char_:set_color(color)
+        i = i + 1
     end
 end
 

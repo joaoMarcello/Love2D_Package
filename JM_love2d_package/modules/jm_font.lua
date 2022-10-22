@@ -224,6 +224,10 @@ function Font:__is_a_nickname(s, index)
     return nil
 end
 
+function Font:string_is_nickname(s)
+    return self:__is_a_nickname(s, 1)
+end
+
 ---@param s string
 ---@param index number
 local function __is_command(s, index)

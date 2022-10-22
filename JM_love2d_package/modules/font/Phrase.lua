@@ -1,4 +1,6 @@
 local Word = require("/JM_love2d_package/modules/font/Word")
+local EffectGenerator = require("/JM_love2d_package/effect_generator_module")
+
 
 ---@class JM.Font.Phrase
 local Phrase = {}
@@ -75,6 +77,97 @@ function Phrase:color_pattern(word, color, mode)
 
 
     end -- END FOR each word in list
+end
+
+---@return {stack: table, phrase: JM.Font.Phrase}
+function Phrase:__find_occurrences__(sentence, mode)
+    local Sentence = Phrase:new({ text = sentence, font = self.__font })
+    local found_stack = {}
+    local count = 0
+
+    local i = 1
+    while (i <= #self.__words) do
+
+        local j = 1
+        while (j <= #Sentence.__words) do
+            local word = self:get_word_by_index(i + j - 1)
+            if not word then break end
+
+            local cur_sentence_word = Sentence:get_word_by_index(j).__text
+            local startp, endp = word.__text:find(cur_sentence_word)
+
+
+            if not startp then break end
+
+            if j == #Sentence.__words then
+                if not (self.__font:string_is_nickname(word.__text)
+                    and word.__text ~= cur_sentence_word) then
+
+                    table.insert(found_stack, i)
+                    count = count + 1
+                end
+            end
+
+            j = j + 1
+        end
+
+        if mode ~= "all" and count >= mode then
+            break
+        end
+
+        i = i + 1
+    end
+
+    return { stack = found_stack, phrase = Sentence }
+end
+
+--- Color a sentence.
+---@param sentence string
+---@param color JM.Color
+---@param mode number|"all"
+function Phrase:color_sentence(sentence, color, mode)
+    local result = self:__find_occurrences__(sentence, mode)
+    local found_stack = result.stack
+    local Sentence = result.phrase
+
+    if #found_stack > 0 then
+        for k = 1, #found_stack do
+            local where_found = found_stack[k]
+
+            for i = where_found, where_found + #(Sentence.__words) - 1, 1 do
+                local word = self:get_word_by_index(i)
+                local word_sentence = Sentence:get_word_by_index(i - where_found + 1)
+
+                local startp, endp = word.__text:find(word_sentence.__text)
+                local r = startp and word:set_color(color, startp, endp)
+            end
+        end
+    end
+end
+
+---@param sentence string
+---@param mode number|"all"
+function Phrase:apply_freaky(sentence, mode)
+    local result = self:__find_occurrences__(sentence, mode)
+    local found_stack = result.stack
+    local Sentence = result.phrase
+
+    local offset = 0
+    if #found_stack > 0 then
+        for k = 1, #found_stack do
+            offset = offset + math.pi / 4
+
+            local where_found = found_stack[k]
+
+            for i = where_found, where_found + #(Sentence.__words) - 1, 1 do
+                local word = self:get_word_by_index(i)
+                local word_sentence = Sentence:get_word_by_index(i - where_found + 1)
+
+                local startp, endp = word.__text:find(word_sentence.__text)
+                local r = startp and word:freaky_effect(startp, endp, offset)
+            end
+        end
+    end
 end
 
 ---@return JM.Font.Word
