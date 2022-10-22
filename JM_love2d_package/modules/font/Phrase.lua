@@ -75,7 +75,10 @@ function Phrase:get_lines(x, y)
 
         if current_word.__text ~= "\n" then
             table.insert(lines[cur_line], current_word)
+        elseif next_word.__text ~= "\n" then
+            table.insert(lines[cur_line - 1], current_word)
         else
+            table.insert(lines[cur_line], current_word)
             table.insert(lines[cur_line - 1], current_word)
         end
 
@@ -89,6 +92,8 @@ function Phrase:get_lines(x, y)
         tx = tx + r
     end
 
+    table.insert(lines[cur_line], Word:new({ text = "\n", font = self.__font }))
+
     return lines
 end -- END function get_lines()
 
@@ -99,52 +104,53 @@ end
 
 function Phrase:__line_length(line)
     local total_len = 0
+
     for i = 1, #line do
         local word = self:__get_word_in_list(line, i)
         total_len = total_len + word:get_width()
     end
-    -- total_len = total_len + self.__font.__word_space * self.__font.__scale * (#line - 1)
+
     return total_len
 end
 
----@param text string
----@param index number
----@return {start:number, final:number, tag:string}|nil
-local function is_a_tag(text, index)
-    local command = "color"
+-- ---@param text string
+-- ---@param index number
+-- ---@return {start:number, final:number, tag:string}|nil
+-- local function is_a_tag(text, index)
+--     local command = "color"
 
-    if text:sub(index, index) == "<" then
-        local startp, endp = text:find(">", index + 1)
-        if startp then
-            -- local start2, endp2 = text:find("</" .. command .. ">", endp)
-            -- if start2 then
-            return { start = startp, final = endp, tag = text:sub(index, endp) }
-            -- end
-        end
-    end
-end
+--     if text:sub(index, index) == "<" then
+--         local startp, endp = text:find(">", index + 1)
+--         if startp then
+--             -- local start2, endp2 = text:find("</" .. command .. ">", endp)
+--             -- if start2 then
+--             return { start = startp, final = endp, tag = text:sub(index, endp) }
+--             -- end
+--         end
+--     end
+-- end
 
----@param lines table
----@param cur_line number
----@param cur_column number
----@return {init: number, final: number, tag: string}|nil
-function Phrase:__is_a_command(lines, cur_line, cur_column)
-    local t = 0
-    for i = 1, cur_line - 1, 1 do
-        t = t + #lines[i]
-    end
+-- ---@param lines table
+-- ---@param cur_line number
+-- ---@param cur_column number
+-- ---@return {init: number, final: number, tag: string}|nil
+-- function Phrase:__is_a_command(lines, cur_line, cur_column)
+--     local t = 0
+--     for i = 1, cur_line - 1, 1 do
+--         t = t + #lines[i]
+--     end
 
-    local cur_index = t + cur_column
-    local r = is_a_tag(self:get_word_by_index(cur_index).__text, 0)
-    if r then
-        for i = cur_index + 1, #self.__words, 1 do
-            local r2 = is_a_tag(self:get_word_by_index(i).__text, 0)
-            if r2 and r2.tag == ("/" .. r.tag) then
-                return { init = cur_index, final = i, tag = r2.tag }
-            end
-        end
-    end
-end
+--     local cur_index = t + cur_column
+--     local r = is_a_tag(self:get_word_by_index(cur_index).__text, 0)
+--     if r then
+--         for i = cur_index + 1, #self.__words, 1 do
+--             local r2 = is_a_tag(self:get_word_by_index(i).__text, 0)
+--             if r2 and r2.tag == ("/" .. r.tag) then
+--                 return { init = cur_index, final = i, tag = r2.tag }
+--             end
+--         end
+--     end
+-- end
 
 function Phrase:separate_string(s)
     local words = {}
@@ -228,7 +234,6 @@ function Phrase:draw(x, y, mode)
     self.__font:push()
 
     for i = 1, #lines do
-        space = 5
         if mode == "right" then
 
             tx = self.__bounds.right - self:__line_length(lines[i])
@@ -241,13 +246,22 @@ function Phrase:draw(x, y, mode)
 
             local total = self:__line_length(lines[i])
 
-            local q = 1
-            if lines[i][#lines[i]].__text == "\n" then
-                q = 0
-            end
-            space = (self.__bounds.right - x - total) / (#lines[i] - q)
-            tx = tx
+            local q = #lines[i] - 1
+            if lines[i][#lines[i]] and lines[i][#lines[i]].__text == "\n" then
+                -- q = q - 1
+                q = q * 2 + 5
 
+            end
+
+            -- if lines[i][1] and lines[i][1].__text == "\t" then
+            --     -- space = 0
+            --     q = q - 1
+            -- end
+
+            if q == 0 then q = 1 end
+            space = (self.__bounds.right - x - total) / (q)
+
+            tx = tx
         end
 
         for j = 1, #lines[i] do

@@ -96,7 +96,7 @@ aa:apply_effect("pulse", { range = 0.06 })
 
 local palavra = Word:new({ text = "macaco", font = Calibri })
 
-local frase = Phrase:new({ text = "oi eu sou Qa saitama eh mais poderoso que o goku pronto falei d j asda --nuvem-- ba goku e ninguem --jean--me \nsegura --goomba-- eu sou forte! Forte pra caramba. \nJa disse que\tsou poderoso a- \tas<color>a--nuvem--</color>atha",
+local frase = Phrase:new({ text = "Em meio as sinuosas e confusas correntezas inimigas, o bom shinobi nao precisa se ocultar.\nasasas\nPara todos os inimigos, fadiga, descuido e cansaco o tempo trara.\n\n\tE sabio o shinobi que tem o tempo como amigo e sabe esperar.",
     font = Calibri })
 
 function love.load()
@@ -141,8 +141,8 @@ function love.draw()
 
     love.graphics.pop()
 
-    Calibri:print("mas que solidao\n <color, 1, 0, 0>ninguem --nuvem-- aqui--</color>ao lado\n\tachei a solucao\n \tnao sou\n <bold>mais</bold> maltratado --goomba-- --jean-- --goomba-- be gone!\t \tArroz"
-        , 50, 110, w)
+    -- Calibri:print("mas que solidao\n <color, 1, 0, 0>ninguem --nuvem-- aqui--</color>ao lado\n\tachei a solucao\n \tnao sou\n <bold>mais</bold> maltratado --goomba-- --jean-- --goomba-- be gone!\t \tArroz"
+    --     , 50, 110, w)
 
     Calibri:push()
     Calibri:set_font_size(14)
@@ -152,7 +152,7 @@ function love.draw()
     palavra:draw(500, 0)
 
     Calibri:push()
-    Calibri:set_font_size(20)
-    frase:draw(love.mouse.getX(), 80, "center")
+    Calibri:set_font_size(18)
+    frase:draw(love.mouse.getX(), 80, "left")
     Calibri:pop()
 end

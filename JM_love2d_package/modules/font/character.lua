@@ -143,7 +143,7 @@ function Character:__draw__(x, y)
     love.graphics.setColor(0, 0, 0, 0.2)
 
     if self.w and self.h then
-        love.graphics.rectangle("fill", x, y, self.w * self.sx, self.h * self.sy)
+        -- love.graphics.rectangle("fill", x, y, self.w * self.sx, self.h * self.sy)
     end
 
     love.graphics.push()
