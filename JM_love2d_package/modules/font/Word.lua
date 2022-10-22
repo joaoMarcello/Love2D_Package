@@ -1,4 +1,5 @@
 local EffectManager = require("/JM_love2d_package/effect_generator_module")
+local Affectable = require("/JM_love2d_package/modules/templates/Affectable")
 
 ---@class JM.Font.Word
 local Word = {}
@@ -25,7 +26,6 @@ function Word:__constructor__(args)
 
     self.__characters = {}
 
-
     local i = 1
     while (i <= #self.__text) do
         local cur_char = self.__text:sub(i, i)
@@ -43,8 +43,8 @@ function Word:__constructor__(args)
             table.insert(self.__characters, char_obj)
 
             if char_obj:is_animated() then
-                char_obj.__anima:set_size(nil, self.__font.__font_size * 1.5, nil, nil)
-                char_obj.__anima:apply_effect("pulse", { range = 0.06 })
+                char_obj.__anima:set_size(nil, self.__font.__font_size * 1.1, nil, nil)
+                -- char_obj.__anima:apply_effect("pulse", { range = 0.06 })
             end
         end
         i = i + 1

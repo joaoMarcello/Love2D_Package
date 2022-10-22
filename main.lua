@@ -96,7 +96,7 @@ aa:apply_effect("pulse", { range = 0.06 })
 
 local palavra = Word:new({ text = "macaco", font = Calibri })
 
-local frase = Phrase:new({ text = "Em meio as sinuosas e confusas correntezas inimigas, o bom shinobi nao precisa se ocultar.\nasasas\nPara todos os inimigos, fadiga, descuido e cansaco o tempo trara.\n\n\tE sabio o shinobi que tem o tempo como amigo e sabe esperar.",
+local frase = Phrase:new({ text = "Em meio as sinuosas e confusas correntezas inimigas, o bom shinobi --goomba--\t nao precisa se ocultar.\nasasas\nPara todos os inimigos, fadiga, descuido e cansaco o tempo trara.\n\n\tE sabio o shinobi que tem o tempo como amigo e sabe esperar.",
     font = Calibri })
 
 function love.load()
@@ -153,6 +153,6 @@ function love.draw()
 
     Calibri:push()
     Calibri:set_font_size(18)
-    frase:draw(love.mouse.getX(), 80, "left")
+    frase:draw(love.mouse.getX(), 80, "center")
     Calibri:pop()
 end

@@ -24,7 +24,7 @@ function Phrase:__constructor__(args)
     self.__separated_string = self:separate_string(self.__text)
     self.__words = {}
 
-    self.__bounds = { top = 0, left = 0, height = love.graphics.getHeight(), right = love.graphics.getWidth() }
+    self.__bounds = { top = 0, left = 0, height = love.graphics.getHeight(), right = love.graphics.getWidth() - 100 }
 
     for i = 1, #self.__separated_string do
         local w = Word:new({ text = self.__separated_string[i], font = self.__font })
@@ -62,7 +62,10 @@ function Phrase:get_lines(x, y)
             if pcall(function()
                 local last_added = self:__get_word_in_list(lines[cur_line], #lines[cur_line])
 
-                if last_added.__text ~= "\n" then
+                if last_added.__text ~= "\n"
+                    and last_added ~= "\t"
+                    and not self.__font:__is_a_nickname(last_added.__text, 1) then
+
                     table.remove(lines[cur_line], #lines[cur_line])
                 end
             end
@@ -170,6 +173,17 @@ function Phrase:separate_string(s)
             current_index = i + 1
         end
 
+        local r2 = self.__font:__is_a_nickname(s, i)
+        if r2 then
+            local w = s:sub(current_index, i - 1)
+            if w ~= "" and w ~= " " then
+                table.insert(words, w)
+            end
+            table.insert(words, s:sub(i, i + #r2 - 1))
+            current_index = i + #r2
+            i = current_index - 1
+        end
+
         if current_char == "\n" or current_char == "\t" then
             local w = s:sub(current_index, i - 1)
             if w ~= "" and w ~= " " then
@@ -179,7 +193,6 @@ function Phrase:separate_string(s)
             table.insert(words, current_char)
             current_index = i + 1
         end
-
 
         -- local r = is_a_tag(s, i)
         -- if r then
@@ -193,16 +206,7 @@ function Phrase:separate_string(s)
         --     i = current_index - 1
         -- end
 
-        local r2 = self.__font:__is_a_nickname(s, i)
-        if r2 then
-            local w = s:sub(current_index, i - 1)
-            if w ~= "" and w ~= " " then
-                table.insert(words, w)
-            end
-            table.insert(words, s:sub(i, i + #r2 - 1))
-            current_index = i + #r2
-            i = current_index - 1
-        end
+
 
         i = i + 1
     end
