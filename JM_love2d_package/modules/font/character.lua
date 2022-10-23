@@ -90,7 +90,7 @@ function Character:set_scale(value)
     self.sy = value
     self.sx = self.sy
     if self:is_animated() then
-        self.__anima:set_scale({ x = self.sx + 0.2, y = self.sy + 0.2 })
+        -- self.__anima:set_scale({ x = self.sx + 0.2, y = self.sy + 0.2 })
     end
 end
 

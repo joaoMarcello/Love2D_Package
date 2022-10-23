@@ -50,7 +50,7 @@ local Calibri = FontGenerator:new({
     tab_size = 4
 })
 
-Calibri:add_nickname("--goomba--", {
+Calibri:add_nickname_animated("--goomba--", {
     img = Test_anima.__img,
     frames_list = { { 27, 18, 58, 70 },
         { 151, 21, 58, 68 },
@@ -66,7 +66,7 @@ Calibri:add_nickname("--goomba--", {
     state = "back and forth"
 })
 
-Calibri:add_nickname("--jean--", {
+Calibri:add_nickname_animated("--jean--", {
     img = Test_anima.__img,
     frames_list = { { 27, 18, 58, 70 },
         { 151, 21, 58, 68 },
@@ -82,14 +82,19 @@ Calibri:add_nickname("--jean--", {
     flip_y = true
 })
 
-local aa = Calibri:add_nickname("--nuvem--", {
+Calibri:add_nickname("--a--", {
+    img = "/data/xbox.png",
+    frame = { 29, 31, 19, 36 }
+})
+
+local aa = Calibri:add_nickname_animated("--nuvem--", {
     img = "/data/cloud.png"
 })
 aa:apply_effect("pulse", { range = 0.06 })
 
+local text = " +=-@&$Em ... 'meio' àÀ áÁ ãÃ âÂ èÈ éÉ êÊ íÍ ìÌîÎ óÓòÒôÔõÕ úÚùÙûÛs %&*@# sinuosas e confusas correntezas inimigas, o bom shinobi não precisa se ocultar. Para todos porta-copos os inimigos, fadiga, descuido e cansaço o tempo trará\t--goomba-- --tt--.\n\nÉ sábio o shinobi que tem o tempo como amigo e sabe esperar. Logo, vamos todos tentar ser um bom shinobi.\n\n\t({[Sasuke Uchiha]})."
 
-local frase = Phrase:new({ text = "Em meio àÀ áÁ ãÃ âÂ èÈ éÉ êÊ íÍ ìÌîÎ óÓòÒôÔõÕ úÚùÙûÛs %&*@# sinuosas e confusas correntezas inimigas, o bom shinobi não precisa se ocultar. Para todos os inimigos, fadiga, descuido e cansaço o tempo trará\t--goomba--.\n\nÉ sábio o shinobi que tem o tempo como amigo e sabe esperar. Logo, vamos todos tentar ser um bom shinobi.\n\n\t({[Sasuke Uchiha]}).",
-    font = Calibri })
+local frase = Phrase:new({ text = text, font = Calibri })
 
 -- frase:color_pattern("a", { 0.8, 0, 0, 1 }, "all")
 frase:apply_freaky("bom shinobi", "all")

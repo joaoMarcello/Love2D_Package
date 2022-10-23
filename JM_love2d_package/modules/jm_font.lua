@@ -196,7 +196,7 @@ end
 
 ---@param nickname string
 ---@param args {img: love.Image|string, frames: number, frames_list: table,  speed: number, rotation: number, color: JM.Color, scale: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, stop_at_the_end: boolean, amount_cycle: number, state: JM.AnimaStates, bottom: number, kx: number, ky: number, width: number, height: number, ref_width: number, ref_height: number, duration: number}
-function Font:add_nickname(nickname, args)
+function Font:add_nickname_animated(nickname, args)
     assert(is_valid_nickname(nickname),
         "\nError: Invalid nickname. The nickname should start and ending with '--'. \nExamples: --icon--, -- emoji --.")
 
@@ -210,6 +210,41 @@ function Font:add_nickname(nickname, args)
         w = animation:__get_current_frame().w, --self.__ref_height,
         h = self.__ref_height
     })
+
+    table.insert(self.__nicknames, {
+        nick = nickname, index = #self.__characters + 1
+    })
+
+    table.insert(self.__characters, new_character)
+
+    return animation
+end
+
+---
+---@param nickname string
+---@param args {img: string|love.Image, frame: table, width: number, height: number}
+function Font:add_nickname(nickname, args)
+    assert(is_valid_nickname(nickname),
+        "\nError: Invalid nickname. The nickname should start and ending with '--'. \nExamples: --icon--, -- emoji --.")
+
+    if not args.height then args.height = self.__ref_height + 10 end
+    if not args.width then args.width = args.height end
+
+    local animation = Anima:new({
+        img = args.img,
+        frames_list = { args.frame },
+        width = args.width,
+        height = args.height,
+    })
+
+    local new_character = Character:new(nil, nil, {
+        id = nickname,
+        anima = animation,
+        w = args.width,
+        h = args.height
+    })
+
+    -- animation:set_size(new_character.w, new_character.h, animation:__get_current_frame().w, args.height)
 
     table.insert(self.__nicknames, {
         nick = nickname, index = #self.__characters + 1
