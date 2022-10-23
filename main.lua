@@ -88,17 +88,7 @@ local aa = Calibri:add_nickname("--nuvem--", {
 aa:apply_effect("pulse", { range = 0.06 })
 
 
-Calibri:add_nickname("--anta--", {
-    img = "/JM_love2d_package/data/Font/Calibri/calibri_black.png",
-    frames_list = { { 24, 377, 46, 84 } }
-})
-
-
-
-
-local palavra = Word:new({ text = "macaco", font = Calibri })
-
-local frase = Phrase:new({ text = "Em meio o bom shinobi\n as sinuosas e confusas correntezas inimigas, o bom shinobi\t. \t--goomba--\t nao precisa se ocultar.\nasasas\nPara o bom shinobi-todos os inimigos, --goomba--fadiga, descuido e cansaço o --nuvem-- tempo trara.\n\n\tE  à o bom  shinobi que tem o aspas tempo como amigo e sabe esperar.\nE o /bom shinobi. --anta-- s legal ser shinobi.\n\nEm meio o bom shinobi as sinuosas e confusas @ correntezas inimigas, o bom shinobi. \t--goomba--\t nao precisa se ocultar.\nasasas\nPara o bom shinobi-todos os inimigos, --goomba--fadiga, descuido e cansaço o tempo trara.",
+local frase = Phrase:new({ text = "Em ç Ç meio o bom shinobi\n as sinuosas e confusas correntezas inimigas, o bom shinobi. \t--goomba--\t nao precisa se ocultar.\nasasas\nPara o bom shinobi-todos os inimigos, --goomba--fadiga, descuido e cansaço o --nuvem-- tempo trara.\n\n\tE  àm o bom  shinobi que tem o aspas tempo como amigo e sabe esperar.\nE o /bom shinobi. --anta-- s legal ser shinobi.\n\nEm meio o bom shinobi as sinuosas e confusas @ correntezas inimigas, o bom shinobi. \t--goomba--\t nao precisa se ocultar.\nasasas\nPara o bom shinobi-todos os inimigos, --goomba--fadiga, descuido e cansaço o tempo trara.",
     font = Calibri })
 
 frase:color_pattern("a", { 0.8, 0, 0, 1 }, "all")
@@ -161,13 +151,13 @@ function love.draw()
 
     Calibri:push()
     Calibri:set_font_size(14)
-    Calibri:print("\tHello World", 0, 0)
+    Calibri:print("\t<color, 0,0,1>Hello </color>World", 0, 0)
     Calibri:pop()
 
-    palavra:draw(500, 0)
 
     Calibri:push()
     Calibri:set_font_size(16)
-    frase:draw(love.mouse.getX(), 100, "justified")
+    Calibri:set_tab_size(6)
+    frase:draw(love.mouse.getX(), 50, "justified")
     Calibri:pop()
 end

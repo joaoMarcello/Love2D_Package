@@ -171,6 +171,7 @@ end
 
 function Font:set_tab_size(value)
     self.__tab_size = value
+    self.__tab_char.w = self.__word_space * self.__tab_size
 end
 
 function Font:set_word_space(value)
@@ -501,7 +502,7 @@ function Font:print(text, x, y, w, h)
             return arg.char
         end
 
-        local character = get_(animated_char_stack[i]) 
+        local character = get_(animated_char_stack[i])
         local tx = animated_char_stack[i].x
         local ty = animated_char_stack[i].y
 

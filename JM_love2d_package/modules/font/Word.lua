@@ -38,6 +38,13 @@ function Word:__constructor__(args)
 
         local char_obj = self.__font:__get_char_equals(cur_char)
 
+        -- Verifying if current char is a special character
+        if not char_obj then
+            char_obj = self.__font:__get_char_equals(self.__text:sub(i, i + 1))
+            cur_char = self.__text:sub(i, i + 1)
+            i = i + 1
+        end
+
         if not char_obj and cur_char ~= "\n" and cur_char ~= "\t" then
             char_obj = self.__font:get_nule_character()
         end
@@ -183,7 +190,7 @@ function Word:draw(x, y)
     end
 
     love.graphics.setColor(0.9, 0, 0, 0.15)
-    love.graphics.rectangle("fill", x, y, self:get_width(), self.__font.__font_size)
+    -- love.graphics.rectangle("fill", x, y, self:get_width(), self.__font.__font_size)
 
 end
 

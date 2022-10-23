@@ -84,7 +84,6 @@ function Effect:__constructor__(object, args)
     self.__prior = 1
     self.__rad = 0
     self.__cycle_count = 0
-    self.__object = object
     self.__args = args
     self.__remove = false
     self.__update_time = 0
@@ -95,15 +94,9 @@ function Effect:__constructor__(object, args)
     self.__time_delay = args and args.delay or 0
 
     self.__type_transform = {}
+
     self.__obj_initial_color = { r = 1, g = 1, b = 1, a = 1 }
-    if object then
-        self.__obj_initial_color = {
-            r = self.__object:get_color()[1],
-            g = self.__object:get_color()[2],
-            b = self.__object:get_color()[3],
-            a = self.__object:get_color()[4]
-        }
-    end
+    self:set_object(object)
 
 end
 
@@ -144,6 +137,25 @@ function Effect:init()
     self.__update_time = 0
     self.__not_restaure = false
     self:__constructor__(self.__args)
+end
+
+function Effect:copy()
+    local obj = Effect:new(nil, self.__args)
+    return obj
+end
+
+---
+---@param object JM.Affectable
+function Effect:set_object(object)
+    self.__object = object
+    if self.__object then
+        self.__obj_initial_color = {
+            r = self.__object:get_color()[1],
+            g = self.__object:get_color()[2],
+            b = self.__object:get_color()[3],
+            a = self.__object:get_color()[4]
+        }
+    end
 end
 
 function Effect:__increment_cycle()

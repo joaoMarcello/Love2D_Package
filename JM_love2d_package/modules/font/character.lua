@@ -70,6 +70,7 @@ end
 
 function Character:copy()
     local obj = Character:new(self.__img, self.__quad, self.__args)
+
     if obj.__anima then
         obj.__anima = obj.__anima:copy()
     end
@@ -179,11 +180,11 @@ function Character:__draw__(x, y)
     end
 
     if self.__anima then
-        self.__anima:draw(x + self.w / 2 * self.sx, y + self.h / 2 * self.sy)
+        self.__anima:draw(x, y + self.h / 2 * self.sy)
 
     elseif not self.__img then
         love.graphics.setColor(0, 0, 0, 1)
-        love.graphics.rectangle("fill", x, y,
+        love.graphics.rectangle("fill", x - self.w / 2 * self.sx, y,
             self.w * self.sx,
             self.h * self.sy
         )
