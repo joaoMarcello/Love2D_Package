@@ -227,7 +227,7 @@ function Font:add_nickname(nickname, args)
     assert(is_valid_nickname(nickname),
         "\nError: Invalid nickname. The nickname should start and ending with '--'. \nExamples: --icon--, -- emoji --.")
 
-    if not args.height then args.height = self.__ref_height + 10 end
+    if not args.height then args.height = self.__ref_height end
     if not args.width then args.width = args.height end
 
     local animation = Anima:new({

@@ -96,13 +96,21 @@ function Phrase:__find_occurrences__(sentence, mode)
             local cur_sentence_word = Sentence:get_word_by_index(j).__text
             local startp, endp = word.__text:find(cur_sentence_word)
 
+            -- local startp = word.__text == cur_sentence_word
+            --     or word.__text:sub(1, #(word.__text) - 1) == cur_sentence_word
 
             if not startp then break end
 
             if j == #Sentence.__words then
-                if not (self.__font:string_is_nickname(word.__text)
+                if (self.__font:string_is_nickname(word.__text)
                     and word.__text ~= cur_sentence_word) then
 
+                elseif self.__font:string_is_nickname(cur_sentence_word)
+                    and cur_sentence_word ~= word.__text
+                then
+
+
+                else
                     table.insert(found_stack, i)
                     count = count + 1
                 end

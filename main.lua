@@ -47,7 +47,7 @@ Test_anima:apply_effect("jelly")
 local Calibri = FontGenerator:new({
     name = "calibri",
     font_size = 25,
-    tab_size = 4
+    tab_size = 2
 })
 
 Calibri:add_nickname_animated("--goomba--", {
@@ -82,9 +82,14 @@ Calibri:add_nickname_animated("--jean--", {
     flip_y = true
 })
 
-Calibri:add_nickname("--a--", {
+local button = Calibri:add_nickname_animated("--a--", {
     img = "/data/xbox.png",
-    frame = { 29, 31, 19, 36 }
+    frames_list = {
+        { 407, 831, 116, 117 },
+        { 400, 1016, 117, 116 },
+        { 407, 831, 116, 117 }
+    },
+    duration = 1
 })
 
 local aa = Calibri:add_nickname_animated("--nuvem--", {
@@ -92,12 +97,12 @@ local aa = Calibri:add_nickname_animated("--nuvem--", {
 })
 aa:apply_effect("pulse", { range = 0.06 })
 
-local text = " +=-@&$Em ... 'meio' àÀ áÁ ãÃ âÂ èÈ éÉ êÊ íÍ ìÌîÎ óÓòÒôÔõÕ úÚùÙûÛs %&*@# sinuosas e confusas correntezas inimigas, o bom shinobi não precisa se ocultar. Para todos porta-copos os inimigos, fadiga, descuido e cansaço o tempo trará\t--goomba-- --tt--.\n\nÉ sábio o shinobi que tem o tempo como amigo e sabe esperar. Logo, vamos todos tentar ser um bom shinobi.\n\n\t({[Sasuke Uchiha]})."
+local text = " += -a- @&$Em ... 'meio' àÀ áÁ ãÃ âÂ èÈ éÉ êÊ íÍ ìÌîÎ óÓòÒôÔõÕ úÚùÙûÛs %&*@# sinuosas e confusas correntezas inimigas, o bom shinobi não precisa se ocultar. Para todos porta-copos os inimigos, fadiga, descuido e cansaço o tempo trará\t--goomba-- \nPress\t --a-- \tto jump.\n\nÉ sábio o shinobi. que tem o tempo como amigo e sabe esperar. Logo, vamos todos tentar ser um bom shinobi.\n\n\t({[Sasuke Uchiha]})."
 
 local frase = Phrase:new({ text = text, font = Calibri })
 
--- frase:color_pattern("a", { 0.8, 0, 0, 1 }, "all")
-frase:apply_freaky("bom shinobi", "all")
+frase:color_pattern("jump", { 0.8, 0, 0, 1 }, 1)
+frase:apply_freaky("--a--", "all")
 frase:color_sentence("bom shinobi", { 1, 0, 0, 1 }, "all")
 
 frase:color_sentence("o tempo como amigo", { 0, 0, 1, 1 }, "all")
