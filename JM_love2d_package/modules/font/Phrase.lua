@@ -165,8 +165,7 @@ function Phrase:apply_freaky(sentence, mode)
                 local word_sentence = Sentence:get_word_by_index(i - where_found + 1)
 
                 local startp, endp = word.__text:find(word_sentence.__text)
-                local r = startp and word:freaky_effect(startp, endp, offset)
-                -- local r = startp and word:surge_effect(startp, endp, offset)
+                local r = startp and word:apply_effect(startp, endp, "freaky", offset)
             end
         end
     end

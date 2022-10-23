@@ -193,7 +193,15 @@ end
 function Effect:restaure_object()
     assert(self.__object, MSG_using_effect_with_no_associated_affectable)
 
-    self.__object:set_color(self.__obj_initial_color)
+    if Effect.__id == Effect.TYPE.flash
+        or Effect.__id == Effect.TYPE.fadein
+        or Effect.__id == Effect.TYPE.fadeout
+        or Effect.__id == Effect.TYPE.ghost
+        or Effect.__id == Effect.TYPE.flickering
+    then
+
+        self.__object:set_color(self.__obj_initial_color)
+    end
 
     self.__object:__set_effect_transform({
         rot = self.__type_transform.rot and 0,

@@ -477,7 +477,10 @@ function Font:print(text, x, y, w, h)
 
                 character:set_scale(self.__scale)
 
-                character:__draw__(tx, ty + self.__font_size - character.h * self.__scale)
+                local width = character.w * character.sx
+                local height = character.h * character.sy
+                character:draw_rec(tx, ty + self.__font_size - height, width, height)
+                -- character:__draw__(tx, ty + self.__font_size - character.h * self.__scale)
             end
         end
 
@@ -492,7 +495,13 @@ function Font:print(text, x, y, w, h)
 
     -- Drawing the animated characters
     for i = 1, #animated_char_stack do
-        local character = animated_char_stack[i].char
+        local get_ =
+        ---@return JM.Font.Character
+        function(arg)
+            return arg.char
+        end
+
+        local character = get_(animated_char_stack[i]) 
         local tx = animated_char_stack[i].x
         local ty = animated_char_stack[i].y
 

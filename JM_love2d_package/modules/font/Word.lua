@@ -62,18 +62,25 @@ end
 
 ---@param startp number|nil
 ---@param endp number|nil
+---@param effect_type "freaky"|"pump"
 ---@param offset number|nil
-function Word:freaky_effect(startp, endp, offset)
+function Word:apply_effect(startp, endp, effect_type, offset)
     if not startp then startp = 1 end
     if not endp then endp = #self.__characters end
     if not offset then offset = 0 end
 
     for i = startp, endp, 1 do
-        local eff = EffectManager:generate("float", {
-            range = 1.0,
-            speed = 0.2,
-            rad = math.pi * (i % 4) + offset
-        })
+        local eff
+
+        if effect_type == "freaky" then
+            eff = EffectManager:generate("float", {
+                range = 1.0,
+                speed = 0.2,
+                rad = math.pi * (i % 4) + offset
+            })
+        elseif effect_type == "pump" then
+            eff = EffectManager:generate("jelly")
+        end
 
         local char__ = self:__get_char_by_index(i)
         if char__ and char__:is_animated() then

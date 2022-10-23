@@ -85,6 +85,8 @@ Calibri:add_nickname("--jean--", {
 local aa = Calibri:add_nickname("--nuvem--", {
     img = "/data/cloud.png"
 })
+aa:apply_effect("pulse", { range = 0.06 })
+
 
 Calibri:add_nickname("--anta--", {
     img = "/JM_love2d_package/data/Font/Calibri/calibri_black.png",
@@ -92,12 +94,11 @@ Calibri:add_nickname("--anta--", {
 })
 
 
-aa:apply_effect("pulse", { range = 0.06 })
 
 
 local palavra = Word:new({ text = "macaco", font = Calibri })
 
-local frase = Phrase:new({ text = "Em meio o bom shinobi\n as sinuosas e confusas correntezas inimigas, o bom shinobi\t. \t--goomba--\t nao precisa se ocultar.\nasasas\nPara o bom shinobi-todos os inimigos, --goomba--fadiga, descuido e cansaço o tempo trara.\n\n\tE  à o bom  shinobi que tem o aspas tempo como amigo e sabe esperar.\nE o /bom shinobi. --anta-- s legal ser shinobi.\n\nEm meio o bom shinobi as sinuosas e confusas @ correntezas inimigas, o bom shinobi. \t--goomba--\t nao precisa se ocultar.\nasasas\nPara o bom shinobi-todos os inimigos, --goomba--fadiga, descuido e cansaço o tempo trara.",
+local frase = Phrase:new({ text = "Em meio o bom shinobi\n as sinuosas e confusas correntezas inimigas, o bom shinobi\t. \t--goomba--\t nao precisa se ocultar.\nasasas\nPara o bom shinobi-todos os inimigos, --goomba--fadiga, descuido e cansaço o --nuvem-- tempo trara.\n\n\tE  à o bom  shinobi que tem o aspas tempo como amigo e sabe esperar.\nE o /bom shinobi. --anta-- s legal ser shinobi.\n\nEm meio o bom shinobi as sinuosas e confusas @ correntezas inimigas, o bom shinobi. \t--goomba--\t nao precisa se ocultar.\nasasas\nPara o bom shinobi-todos os inimigos, --goomba--fadiga, descuido e cansaço o tempo trara.",
     font = Calibri })
 
 frase:color_pattern("a", { 0.8, 0, 0, 1 }, "all")
