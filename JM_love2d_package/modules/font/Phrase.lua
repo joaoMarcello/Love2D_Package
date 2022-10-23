@@ -326,14 +326,15 @@ end
 ---@param y number
 ---@param alignment "left"|"right"|"center"|"justified"|nil
 ---@param threshold number|nil
-function Phrase:draw_lines(lines, x, y, alignment, threshold)
+---@return JM.Font.CharacterPosition|nil
+function Phrase:draw_lines(lines, x, y, alignment, threshold, __max_char__)
     if not alignment then alignment = "left" end
     if not threshold then threshold = #lines end
 
     local tx, ty = x, y
     local space = 0
-
-    -- self.__font:push()
+    local character_count = { [1] = 0 }
+    local result
 
     for i = 1, #lines do
         if alignment == "right" then
@@ -367,12 +368,14 @@ function Phrase:draw_lines(lines, x, y, alignment, threshold)
         end
 
         for j = 1, #lines[i] do
-            local w = self:__get_word_in_list(lines[i], j)
-            local r = w:get_width() + space
+            local current_word = self:__get_word_in_list(lines[i], j)
+            local r = current_word:get_width() + space
 
-            w:draw(tx, ty)
+            result = current_word:draw(tx, ty, __max_char__, character_count)
 
             tx = tx + r
+
+            if result then return result end
         end
 
         tx = x
@@ -382,14 +385,14 @@ function Phrase:draw_lines(lines, x, y, alignment, threshold)
             break
         end
     end
-
-    -- self.__font:pop()
 end
 
 ---@param x number
 ---@param y number
 ---@param alignment "left"|"right"|"center"|"justified"|nil
-function Phrase:draw(x, y, alignment)
+---@param __max_char__ number|nil
+---@return JM.Font.CharacterPosition|nil
+function Phrase:draw(x, y, alignment, __max_char__)
     if x >= self.__bounds.right then return end
 
     if not self.__last_lines__
@@ -401,11 +404,13 @@ function Phrase:draw(x, y, alignment)
 
     local lines = self.__last_lines__.lines
 
-    self:draw_lines(lines, x, y, alignment, nil)
+    local result = self:draw_lines(lines, x, y, alignment, nil, __max_char__)
 
 
     love.graphics.setColor(0.4, 0.4, 0.4, 1)
     love.graphics.line(self.__bounds.right, 0, self.__bounds.right, 600)
+
+    return result
     ------------------------------------------------------------------------
 end
 

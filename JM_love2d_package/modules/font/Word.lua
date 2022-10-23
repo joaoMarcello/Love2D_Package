@@ -166,32 +166,40 @@ function Word:get_height()
     return h
 end
 
----
-function Word:draw(x, y)
-    local tx = x
-    local font = self.__font
+---@alias JM.Font.CharacterPosition {x: number, y:number, char: JM.Font.Character}
 
-    for i = 1, #self.__characters do
-        local cur_char = self:__get_char_by_index(i)
-
-        cur_char:set_color(cur_char.__color)
-        cur_char:set_scale(self.__font.__scale)
-
-        if not cur_char:is_animated() or true then
-            -- cur_char:__draw__(tx,
-            --     y + self.__font.__font_size - cur_char.h * cur_char.sy
-            -- )
-
-            cur_char:draw_rec(tx, y, cur_char.w * cur_char.sx, self.__font.__font_size)
-
-        end
-
-        tx = tx + cur_char.w * self.__font.__scale + self.__font.__character_space
-    end
-
+---@return JM.Font.CharacterPosition|nil
+function Word:draw(x, y, __max_char__, __character_count__)
     love.graphics.setColor(0.9, 0, 0, 0.15)
     -- love.graphics.rectangle("fill", x, y, self:get_width(), self.__font.__font_size)
 
+
+    local tx = x
+    local font = self.__font
+    local cur_char
+
+    for i = 1, #self.__characters do
+        cur_char = self:__get_char_by_index(i)
+
+        cur_char:set_color(cur_char.__color)
+        cur_char:set_scale(font.__scale)
+
+        if not cur_char:is_animated() or true then
+
+            cur_char:draw_rec(tx, y, cur_char.w * cur_char.sx, font.__font_size)
+
+        end
+
+        tx = tx + cur_char.w * font.__scale + font.__character_space
+
+        if __character_count__ then
+            __character_count__[1] = __character_count__[1] + 1
+
+            if __max_char__ and __character_count__[1] >= __max_char__ then
+                return { x = tx, y = y, char = cur_char }
+            end
+        end
+    end
 end
 
 return Word

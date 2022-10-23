@@ -88,15 +88,22 @@ local aa = Calibri:add_nickname("--nuvem--", {
 aa:apply_effect("pulse", { range = 0.06 })
 
 
-local frase = Phrase:new({ text = "Em ç Ç meio o bom shinobi\n as sinuosas e confusas correntezas inimigas, o bom shinobi. \t--goomba--\t nao precisa se ocultar.\nasasas\nPara o bom shinobi-todos os inimigos, --goomba--fadiga, descuido e cansaço o --nuvem-- tempo trara.\n\n\tE  àm o bom  shinobi que tem o aspas tempo como amigo e sabe esperar.\nE o /bom shinobi. --anta-- s legal ser shinobi.\n\nEm meio o bom shinobi as sinuosas e confusas @ correntezas inimigas, o bom shinobi. \t--goomba--\t nao precisa se ocultar.\nasasas\nPara o bom shinobi-todos os inimigos, --goomba--fadiga, descuido e cansaço o tempo trara.",
+local frase = Phrase:new({ text = "Em meio àÀ áÁ ãÃ âÂ èÈ éÉ êÊ íÍ ìÌîÎ óÓòÒôÔõÕ úÚùÙûÛs %&*@# sinuosas e confusas correntezas inimigas, o bom shinobi não precisa se ocultar. Para todos os inimigos, fadiga, descuido e cansaço o tempo trará\t--goomba--.\n\nÉ sábio o shinobi que tem o tempo como amigo e sabe esperar. Logo, vamos todos tentar ser um bom shinobi.\n\n\t({[Sasuke Uchiha]}).",
     font = Calibri })
 
-frase:color_pattern("a", { 0.8, 0, 0, 1 }, "all")
-frase:apply_freaky("o bom shinobi", "all")
-frase:color_sentence("o bom shinobi", { 0, 0, 0.6, 1 }, "all")
+-- frase:color_pattern("a", { 0.8, 0, 0, 1 }, "all")
+frase:apply_freaky("bom shinobi", "all")
+frase:color_sentence("bom shinobi", { 1, 0, 0, 1 }, "all")
 
-frase:apply_freaky("--goomba--", "all")
-frase:color_sentence("amigo", { 1, 0, 0.6, 1 }, "all")
+frase:color_sentence("o tempo como amigo", { 0, 0, 1, 1 }, "all")
+
+local current_max = 1
+local time = 0
+local speed = 0.05
+
+
+local last_char
+local adicional = 0
 
 function love.load()
     love.graphics.setBackgroundColor(0.1, 0.1, 0.1, 1)
@@ -104,6 +111,12 @@ function love.load()
 end
 
 function love.update(dt)
+    time = time + dt
+    if time >= speed + adicional then
+        time = time - speed - adicional
+        current_max = current_max + 1
+    end
+
     if love.keyboard.isDown("q") or love.keyboard.isDown("escape") then
         love.event.quit()
     end
@@ -158,6 +171,19 @@ function love.draw()
     Calibri:push()
     Calibri:set_font_size(16)
     Calibri:set_tab_size(6)
-    frase:draw(love.mouse.getX(), 50, "justified")
+    last_char = frase:draw(30, 50, "left", nil)
     Calibri:pop()
+
+    if last_char then
+        if last_char.char.__id == "." or last_char.char.__id == "\n" then
+            adicional = 0.8
+            love.graphics.setColor(0, 0, 0, 1)
+            love.graphics.rectangle("fill", last_char.x + 6, last_char.y, 2, 18)
+        elseif last_char.char.__id == "," then
+            adicional = 0.2
+        else
+            adicional = 0
+        end
+
+    end
 end
