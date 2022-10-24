@@ -308,8 +308,6 @@ function Phrase:separate_string(s)
         --     i = current_index - 1
         -- end
 
-
-
         i = i + 1
     end
 
@@ -389,6 +387,10 @@ function Phrase:draw_lines(lines, x, y, alignment, threshold, __max_char__)
             break
         end
     end
+end
+
+function Phrase:refresh()
+    self.__last_lines__ = nil
 end
 
 ---@param x number
