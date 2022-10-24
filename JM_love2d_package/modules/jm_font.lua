@@ -168,6 +168,7 @@ function Font:get_nule_character()
     return char_
 end
 
+---@return {font_size: number, character_space: number, color: JM.Color, line_space: number, word_space: number, tab_size: number, format: JM.Font.FormatOptions }
 function Font:__get_configuration()
     local config = {}
     config.font_size = self.__font_size
@@ -176,7 +177,7 @@ function Font:__get_configuration()
     config.line_space = self.__line_space
     config.word_space = self.__word_space
     config.tab_size = self.__tab_size
-
+    config.format = self.__format
     return config
 end
 
@@ -203,6 +204,7 @@ function Font:pop()
     self.__line_space = config.line_space
     self.__word_space = config.word_space
     self.__tab_size = config.tab_size
+    self.__format = config.format
 end
 
 function Font:set_character_space(value)

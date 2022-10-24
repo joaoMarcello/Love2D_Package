@@ -23,13 +23,20 @@ function Phrase:__constructor__(args)
     self.__font = args.font
     self.__font_config = self.__font:__get_configuration()
 
+    self.__font:push()
+
     self.__separated_string = self:separate_string(self.__text)
     self.__words = {}
 
     self.__bounds = { top = 0, left = 0, height = love.graphics.getHeight(), right = love.graphics.getWidth() - 100 }
 
     for i = 1, #self.__separated_string do
-        local w = Word:new({ text = self.__separated_string[i], font = self.__font })
+        local w = Word:new({ text = self.__separated_string[i],
+            font = self.__font,
+            format = self.__font:get_format_mode()
+        })
+
+        self:__verify_commands(w.__text)
 
         if w.__text ~= "" then
             if not self.__font:__is_a_nickname(w.__text, 1) then
@@ -39,6 +46,22 @@ function Phrase:__constructor__(args)
         end
     end
 
+    self.__font:pop()
+end
+
+function Phrase:__verify_commands(text)
+    local r = self:__is_a_tag(text, 1)
+    if r then
+        if r.tag == "<bold>" then
+            self.__font:set_format_mode(self.__font.format_options.bold)
+        elseif r.tag == "</bold>" then
+            self.__font:set_format_mode(self.__font_config.format)
+        elseif r.tag == "<color>" then
+            self.__font:set_color({ 0, 0, 1, 1 })
+        elseif r.tag == "</color>" then
+            self.__font:set_color(self.__font_config.color)
+        end
+    end
 end
 
 ---@param word string
@@ -190,9 +213,14 @@ function Phrase:get_lines(x, y)
     local cur_line = 1
     local word_char = Word:new({ text = " ", font = self.__font })
 
+
     for i = 1, #self.__words do
         local current_word = self:get_word_by_index(i)
         local next_word = self:get_word_by_index(i + 1)
+
+        if self:__is_a_tag(current_word.__text, 1) then
+            goto skip_word
+        end
 
         local r = current_word:get_width()
             + word_char:get_width()
@@ -203,14 +231,15 @@ function Phrase:get_lines(x, y)
             tx = x
 
             -- Try remove the last added space word
-            if pcall(function()
-                local last_added = self:__get_word_in_list(lines[cur_line], #lines[cur_line])
+            if pcall(
+                function()
+                    local last_added = self:__get_word_in_list(lines[cur_line], #lines[cur_line])
 
-                if last_added.__text == " " then
-                    table.remove(lines[cur_line], #lines[cur_line])
-                end
-            end
-            ) then
+                    if last_added.__text == " " then
+                        table.remove(lines[cur_line], #lines[cur_line])
+                    end
+                end)
+            then
                 cur_line = cur_line + 1
             end
         end
@@ -234,6 +263,7 @@ function Phrase:get_lines(x, y)
             table.insert(lines[cur_line], word_char)
         end
         tx = tx + r
+        ::skip_word::
     end
 
     table.insert(lines[cur_line], Word:new({ text = "\n", font = self.__font }))
@@ -255,6 +285,23 @@ function Phrase:__line_length(line)
     end
 
     return total_len
+end
+
+---@param text string
+---@param index number
+---@return {start:number, final:number, tag:string}|nil
+function Phrase:__is_a_tag(text, index)
+    local command = "color"
+
+    if text:sub(index, index) == "<" then
+        local startp, endp = text:find(">", index + 1)
+        if startp then
+            -- local start2, endp2 = text:find("</" .. command .. ">", endp)
+            -- if start2 then
+            return { start = startp, final = endp, tag = text:sub(index, endp) }
+            -- end
+        end
+    end
 end
 
 function Phrase:separate_string(s)
@@ -296,17 +343,17 @@ function Phrase:separate_string(s)
             current_index = i + 1
         end
 
-        -- local r = is_a_tag(s, i)
-        -- if r then
-        --     local w = s:sub(current_index, i - 1)
-        --     if w ~= "" and w ~= " " then
-        --         table.insert(words, w)
-        --     end
+        local r = self:__is_a_tag(s, i)
+        if r then
+            local w = s:sub(current_index, i - 1)
+            if w ~= "" and w ~= " " then
+                table.insert(words, w)
+            end
 
-        --     table.insert(words, r.tag)
-        --     current_index = r.final + 1
-        --     i = current_index - 1
-        -- end
+            table.insert(words, r.tag)
+            current_index = r.final + 1
+            i = current_index - 1
+        end
 
         i = i + 1
     end

@@ -4,7 +4,7 @@ local Affectable = require("/JM_love2d_package/modules/templates/Affectable")
 ---@class JM.Font.Word
 local Word = {}
 
----@param args {text: string, font: JM.Font.Font}
+---@param args {text: string, font: JM.Font.Font, format: JM.Font.FormatOptions}
 ---@return JM.Font.Word phrase
 function Word:new(args)
     local obj = {}
@@ -16,7 +16,7 @@ function Word:new(args)
     return obj
 end
 
----@param args {text: string, font: JM.Font.Font}
+---@param args {text: string, font: JM.Font.Font, format: JM.Font.FormatOptions}
 function Word:__constructor__(args)
     self.__text = args.text
     self.__font = args.font
@@ -25,7 +25,9 @@ function Word:__constructor__(args)
     self.__font_config = self.__font:__get_configuration()
 
     self.__characters = {}
-    self:__load_characters(self.__font.format_options.normal)
+
+    local format = args.format or self.__font.format_options.normal
+    self:__load_characters(format)
 end
 
 function Word:__load_characters(mode)
