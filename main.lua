@@ -105,9 +105,9 @@ local aa = Consolas:add_nickname_animated("--nuvem--", {
 
 local text = " Em meio às sinuosas --hh-- e a confusas correntezas inimigas, o bom shinobi não precisa se ocultar. Para todos os inimigos, fadiga, descuido e cansaço o tempo trará--goomba--.\nPress --a-- to jump.\n \tÉ sábio o a shinobi. que tem o tempo como amigo e sabe esperar. Logo, vamos todos tentar ser um bom shinobi --nuvem--.\t({[Sasuke Uchiha]})."
 
-local text2 = "Thanos aAáÁàÀãÃäÄ eEéÉèÈêÊëË iIíÍìÌîÎïÏ oOóÓòòôÔöÖõÕ uUúÚùÙûüÜ bBcCçÇdDfF gGhHjJkKlLmM nNpPqQrRsS {[(astha)]} |as_ \ntTvVwWxXyYzZ 0123456789 +-=/#@§ ?|!,.;: °º1ª¹²³£¢¬AsthaYuno ¨¬¬ ~ $ ~"
+local text2 = "Thanos aAáÁàÀãÃäÄ eEéÉèÈêÊëË iIíÍìÌîÎïÏ oOóÓòòôÔöÖõÕ uUúÚùÙûüÜ bBcCçÇdDfF gGhHjJkKlLmM nNpPqQrRsS {[(astha)]} |as_ \ntTvVwWxXyYzZ 0123456789 +-=/# @TMJ_por_JM § ?|!,.;: °º1ª¹²³£¢¬AsthaYuno * ¨¬¬ ~ $ ~ --a--"
     .. [["]]
-local frase = Phrase:new({ text = text2, font = Consolas })
+local frase = Phrase:new({ text = text, font = Consolas })
 
 frase:color_pattern("jump", { 0.8, 0, 0, 1 }, 1)
 frase:apply_freaky("shinobi", "all")

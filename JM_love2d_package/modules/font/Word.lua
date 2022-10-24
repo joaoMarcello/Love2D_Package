@@ -24,6 +24,14 @@ function Word:__constructor__(args)
 
     self.__font_config = self.__font:__get_configuration()
 
+    self:__load_characters(self.__font.format_options.bold)
+end
+
+function Word:__load_characters(mode)
+    local last_font_format = self.__font:get_format_mode()
+
+    self.__font:set_format_mode(mode)
+
     self.__characters = {}
 
     local i = 1
@@ -61,6 +69,12 @@ function Word:__constructor__(args)
         end
         i = i + 1
     end
+
+    self.__font:set_format_mode(last_font_format)
+end
+
+function Word:turn_into_bold()
+    self:__load_characters(self.__font.format_options.bold)
 end
 
 ---

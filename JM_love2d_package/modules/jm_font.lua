@@ -4,6 +4,14 @@ local Character = require("/JM_love2d_package/modules/font/character")
 local Utils = require("/JM_love2d_package/utils")
 local Anima = require "/JM_love2d_package/animation_module"
 
+---@enum JM.Font.FormatOptions
+local FontFormat = {
+    normal = 0,
+    bold = 1,
+    italic = 2,
+    bold_italic = 3
+}
+
 ---@alias JM.AvailableFonts
 ---|"calibri"
 ---|"JM caligraphy"
@@ -36,14 +44,14 @@ function Font:__constructor__(args)
         args = temp_table
     end
 
-    self.__img = love.graphics.newImage("/JM_love2d_package/data/Font/" .. args.name .. "/" .. args.name .. ".png")
-    self.__img:setFilter("linear", "nearest")
+    self.__normal_img = love.graphics.newImage("/JM_love2d_package/data/Font/" .. args.name .. "/" .. args.name .. ".png")
+    self.__normal_img:setFilter("linear", "nearest")
 
     self.__bold_img = love.graphics.newImage("/JM_love2d_package/data/Font/" ..
         args.name .. "/" .. args.name .. "_bold" .. ".png")
     self.__bold_img:setFilter("linear", "nearest")
 
-    self.__img = self.__bold_img
+    self.__img = self.__normal_img
 
     self.__quad = love.graphics.newQuad(
         0, 0,
@@ -59,34 +67,19 @@ function Font:__constructor__(args)
     self.__characters = {}
     self.__bold_characters = {}
 
-    self:__load_caracteres_from_csv(self.__characters, args.name)
-    self:__load_caracteres_from_csv(self.__bold_characters, args.name, "_bold")
+    self:__load_caracteres_from_csv(self.__characters,
+        args.name,
+        self.__normal_img
+    )
+    self:__load_caracteres_from_csv(self.__bold_characters,
+        args.name,
+        self.__bold_img,
+        "_bold"
+    )
 
-    -- local lines = Utils:get_lines_in_file("/JM_love2d_package/data/Font/" .. args.name .. "/" .. args.name .. ".txt")
+    self.__format = FontFormat.normal
 
-    -- for i = 2, #lines do
-    --     local parse = Utils:parse_csv_line(lines[i], ",")
-    --     local id = (parse[1])
-    --     if id == "" then
-    --         id = ","
-    --     elseif id == [[_"]] then
-    --         id = [["]]
-    --     end
-    --     local left = tonumber(parse[2])
-    --     local right = tonumber(parse[3])
-    --     local top = tonumber(parse[4])
-    --     local bottom = tonumber(parse[5])
-    --     local offset_y = tonumber(parse[6])
-    --     local offset_x = tonumber(parse[7])
-
-    --     if not left then
-    --         break
-    --     end
-    --     table.insert(self.__characters,
-    --         Character:new(self.__img, self.__quad,
-    --             { id = id, x = left, y = top, w = right - left, h = bottom - top, bottom = offset_y })
-    --     )
-    -- end
+    self.format_options = FontFormat
 
     self.__ref_height = self:__get_char_equals("A").h
         or self:__get_char_equals("0").h
@@ -116,6 +109,8 @@ function Font:__constructor__(args)
 
     table.insert(self.__characters, self.__space_char)
     table.insert(self.__characters, self.__tab_char)
+    table.insert(self.__bold_characters, self.__space_char)
+    table.insert(self.__bold_characters, self.__tab_char)
 
     self.__default_color = { 0.1, 0.1, 0.1, 1 }
 
@@ -124,7 +119,17 @@ function Font:__constructor__(args)
     self.__bounds = { x = 50, y = 110, w = 230, h = 500 }
 end
 
-function Font:__load_caracteres_from_csv(list, name, extend)
+---
+---@param value JM.Font.FormatOptions
+function Font:set_format_mode(value)
+    self.__format = value
+end
+
+function Font:get_format_mode()
+    return self.__format
+end
+
+function Font:__load_caracteres_from_csv(list, name, img, extend)
     if not extend then extend = "" end
 
     local lines = Utils:get_lines_in_file("/JM_love2d_package/data/Font/" .. name .. "/" .. name .. extend .. ".txt")
@@ -148,7 +153,7 @@ function Font:__load_caracteres_from_csv(list, name, extend)
             break
         end
         table.insert(list,
-            Character:new(self.__img, self.__quad,
+            Character:new(img, self.__quad,
                 { id = id, x = left, y = top, w = right - left, h = bottom - top, bottom = offset_y })
         )
     end
@@ -256,6 +261,7 @@ function Font:add_nickname_animated(nickname, args)
     })
 
     table.insert(self.__characters, new_character)
+    table.insert(self.__bold_characters, new_character)
 
     return animation
 end
@@ -291,6 +297,7 @@ function Font:add_nickname(nickname, args)
     })
 
     table.insert(self.__characters, new_character)
+    table.insert(self.__bold_characters, new_character)
 
     return animation
 end
@@ -359,13 +366,18 @@ end
 ---@param index number
 ---@return JM.Font.Character|nil
 function Font:__get_char_by_index(index)
-    return self.__bold_characters[index]
+    local list = self.__format == FontFormat.normal and self.__characters
+        or self.__bold_characters
+    return list[index]
 end
 
 ---@param c string
 ---@return JM.Font.Character|nil
 function Font:__get_char_equals(c)
-    for i = 1, #self.__bold_characters do
+    local list = self.__format == FontFormat.normal and self.__characters
+        or self.__bold_characters
+
+    for i = 1, #list do
         if c == self:__get_char_by_index(i).__id then
             return self:__get_char_by_index(i)
         end

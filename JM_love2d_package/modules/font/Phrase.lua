@@ -30,6 +30,7 @@ function Phrase:__constructor__(args)
 
     for i = 1, #self.__separated_string do
         local w = Word:new({ text = self.__separated_string[i], font = self.__font })
+
         if w.__text ~= "" then
             if not self.__font:__is_a_nickname(w.__text, 1) then
                 w:set_color(self.__font.__default_color)
