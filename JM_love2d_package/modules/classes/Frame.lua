@@ -13,14 +13,20 @@ function Frame:new(args)
 end
 
 --- Constructor.
----@param args {x: number, y:number, w:number, h:number}
+---@param args {left: number, right:number, top:number, bottom:number}
 function Frame:__constructor__(args)
-    self.x = args.x or args[1]
-    self.y = args.y or args[2]
-    self.w = args.w or args[3]
-    self.h = args.h or args[4]
+    local left = args.left or args[1]
+    local top = args.top or args[3]
+    local right = args.right or args[2]
+    local bottom = args.bottom or args[4]
+
+    self.x = left
+    self.y = top
+    self.w = right - left
+    self.h = bottom - top
     self.ox = self.w / 2
     self.oy = self.h / 2
+
     self.bottom = self.y + self.h
 end
 

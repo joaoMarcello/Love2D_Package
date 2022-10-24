@@ -157,6 +157,8 @@ function Font:__load_caracteres_from_csv(list, name, img, extend)
                 { id = id, x = left, y = top, w = right - left, h = bottom - top, bottom = offset_y })
         )
     end
+
+    table.insert(list, self:get_nule_character())
 end
 
 function Font:get_nule_character()
@@ -501,9 +503,6 @@ function Font:print(text, x, y, w, h)
 
         -- The width in pixels from previous Character object
         local last_w = last and last.w
-        -- or (prev_char == " " and self.__word_space)
-        -- or (prev_char) == "\t"
-        -- and self.__word_space * self.__tab_size
 
         if jump == 0 then
             jump = -1
@@ -514,15 +513,6 @@ function Font:print(text, x, y, w, h)
         local next_w = (next and next.w)
         -- or (next_char) == " " and self.__word_space
 
-        -- The current char is TAB
-        -- if current_char == "\t" then
-        --     tx = tx + (self.__word_space * self.__scale * self.__tab_size)
-
-        --     if w and next_w and tx + (next_w * self.__scale) + self.__character_space * 2 > w then
-        --         tx = x
-        --         ty = ty + self.__line_space + self.__ref_height * self.__scale
-        --     end
-        -- end
 
         local condition_1 = current_char == "\n"
 
@@ -544,12 +534,6 @@ function Font:print(text, x, y, w, h)
             end
         end
 
-        -- Current char is space
-        -- if current_char == " " then
-        --     tx = tx + (self.__word_space * self.__scale * 0) + (last_w and last_w * self.__scale or 0)
-        --     goto continue
-        -- end
-
         -- Updating the x position to draw
         if last_w and character then
             tx = tx + self.__character_space + last_w * self.__scale
@@ -570,7 +554,6 @@ function Font:print(text, x, y, w, h)
                 local width = character.w * character.sx
                 local height = character.h * character.sy
                 character:draw_rec(tx, ty + self.__font_size - height, width, height)
-                -- character:__draw__(tx, ty + self.__font_size - character.h * self.__scale)
             end
         end
 
@@ -579,6 +562,7 @@ function Font:print(text, x, y, w, h)
             jumped = jump
             last_was_nickname = found_a_nickname
         end
+
         -- The FOR loop end block
         ::continue::
     end -- END FOR each character in the text
@@ -596,8 +580,14 @@ function Font:print(text, x, y, w, h)
         local ty = animated_char_stack[i].y
 
         character:set_scale(self.__scale)
-        character:__draw__(tx,
-            ty + self.__font_size - (character.h * self.__scale)
+
+        character.__anima:set_size(
+            nil, self.__font_size * 1.4,
+            nil, character.__anima:__get_current_frame().h
+        )
+
+        character:draw(tx + character.w / 2 * character.sx,
+            ty + character.h / 2 * character.sy
         )
     end
 end

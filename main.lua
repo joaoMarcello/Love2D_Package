@@ -51,31 +51,31 @@ local Consolas = FontGenerator:new({
 
 Consolas:add_nickname_animated("--goomba--", {
     img = Test_anima.__img,
-    frames_list = { { 27, 18, 58, 70 },
-        { 151, 21, 58, 68 },
-        { 272, 21, 59, 68 },
-        { 392, 25, 68, 63 },
-        { 517, 26, 61, 63 },
-        { 638, 25, 57, 63 },
-        { 765, 24, 56, 65 },
-        { 889, 27, 55, 61 },
-        { 1007, 26, 63, 62 }
+    frames_list = { { 27, 85, 17, 89 },
+        { 150, 209, 17, 89 },
+        { 271, 331, 17, 89 },
+        { 391, 460, 17, 88 },
+        { 516, 579, 17, 89 },
+        { 637, 695, 17, 88 },
+        { 764, 821, 17, 89 },
+        { 888, 944, 17, 88 },
+        { 1006, 1070, 17, 88 }
     },
     duration = 1,
-    state = "back and forth"
+    state = "looping"
 })
 
 Consolas:add_nickname_animated("--jean--", {
     img = Test_anima.__img,
-    frames_list = { { 27, 18, 58, 70 },
-        { 151, 21, 58, 68 },
-        { 272, 21, 59, 68 },
-        { 392, 25, 68, 63 },
-        { 517, 26, 61, 63 },
-        { 638, 25, 57, 63 },
-        { 765, 24, 56, 65 },
-        { 889, 27, 55, 61 },
-        { 1007, 26, 63, 62 }
+    frames_list = { { 27, 85, 17, 89 },
+        { 150, 209, 20, 89 },
+        { 271, 331, 20, 89 },
+        { 391, 460, 24, 88 },
+        { 516, 579, 25, 89 },
+        { 637, 695, 24, 88 },
+        { 764, 821, 23, 89 },
+        { 888, 944, 26, 88 },
+        { 1006, 1070, 25, 88 }
     },
     duration = 0.7,
     flip_y = true
@@ -83,7 +83,7 @@ Consolas:add_nickname_animated("--jean--", {
 
 Consolas:add_nickname_animated("--hh--", {
     img = Test_anima.__img,
-    frames_list = { { 31, 40, 47, 25 },
+    frames_list = { { 1010, 1037, 37, 56 },
 
     },
 })
@@ -91,9 +91,9 @@ Consolas:add_nickname_animated("--hh--", {
 local button = Consolas:add_nickname_animated("--a--", {
     img = "/data/xbox.png",
     frames_list = {
-        { 407, 831, 116, 117 },
-        { 400, 1016, 117, 116 },
-        { 407, 831, 116, 117 }
+        { 407, 525, 831, 948 },
+        { 407, 525, 831, 948 },
+        { 401, 517, 1016, 1133 }
     },
     duration = 1
 })
@@ -110,8 +110,8 @@ local text2 = "Thanos aAáÁàÀãÃäÄ eEéÉèÈêÊëË iIíÍìÌîÎïÏ o
 local frase = Phrase:new({ text = text, font = Consolas })
 
 frase:color_pattern("jump", { 0.8, 0, 0, 1 }, 1)
-frase:apply_freaky("shinobi", "all")
 frase:color_sentence("bom shinobi", { 1, 0, 0, 1 }, "all")
+frase:apply_freaky("shinobi", "all")
 
 frase:color_sentence("o tempo como amigo", { 0, 0, 1, 1 }, "all")
 
@@ -159,6 +159,7 @@ function love.update(dt)
     Anima2:update(dt)
 
     frase:update(dt)
+    Consolas:update(dt)
 end
 
 function love.draw()
@@ -181,13 +182,12 @@ function love.draw()
     -- Calibri:print("mas que solidao\n <color, 1, 0, 0>ninguem --nuvem-- aqui--</color>ao lado\n\tachei a solucao\n \tnao sou\n <bold>mais</bold> maltratado --goomba-- --jean-- --goomba-- be gone!\t \tArroz"
     --     , 50, 110, w)
 
-    Consolas:print("\t<color, 0,0,1>Hello </color>World", 0, 0)
+    Consolas:print("\t<color, 0,0,1>Hello </color>World --goomba--", 0, 20)
 
 
     Consolas:push()
     Consolas:set_font_size(16)
-    -- Calibri:set_tab_size(6)
-    last_char = frase:draw(30, 50, "justified", nil)
+    last_char = frase:draw(30, 100, "center", nil)
     Consolas:pop()
 
     if last_char then

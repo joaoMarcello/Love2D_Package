@@ -60,6 +60,7 @@ function Phrase:color_pattern(word, color, mode)
                         w:set_color(color)
                     end
                 else
+                    w:turn_into_bold(startp, endp)
                     w:set_color(color, startp, endp)
                 end
 

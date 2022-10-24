@@ -98,7 +98,12 @@ function Anima:__constructor__(args)
         args.frames_list = {}
         local w = self.__img:getWidth() / self.__amount_frames
         for i = 1, self.__amount_frames do
-            table.insert(args.frames_list, { (i - 1) * w, 0, w, args.bottom or self.__img:getHeight() })
+            table.insert(args.frames_list, {
+                (i - 1) * w,
+                (i - 1) * w + w,
+                0,
+                args.bottom or self.__img:getHeight()
+            })
         end
     end
 
@@ -277,7 +282,7 @@ function Anima:set_ky(value)
 end
 
 ---
---- Diferentes estados da animacao
+--- Different animation states.
 ---
 ---@alias JM.AnimaStates
 ---|"looping" # (default) when animation reaches the last frame, the current frame is set to beginning.
@@ -364,7 +369,7 @@ end
 function Anima:update(dt)
     if not self.__is_enabled then return end
 
-    self.__update_time = (self.__update_time + dt) % 500000.
+    self.__update_time = (self.__update_time + dt) % 500000
 
     if not self.__initial_direction then
         self.__initial_direction = self.__direction
@@ -398,8 +403,7 @@ function Anima:update(dt)
             self.__cycle_count = (self.__cycle_count + 1) % 6000000
 
             if last_frame == self.__current_frame then
-                self.__current_frame = 1
-                    + self.__current_frame
+                self.__current_frame = (1 + self.__current_frame)
                     % self.__amount_frames
             end
 
@@ -422,7 +426,7 @@ function Anima:update(dt)
                         self:pause()
                     end
 
-                else -- ELSE: animation is in "come and back" state
+                else -- ELSE: animation is in "back and forth" state
 
                     self.__current_frame = self.__amount_frames
                     self.__frame_time = self.__frame_time + self.__speed
@@ -437,7 +441,7 @@ function Anima:update(dt)
 
                         self:pause()
                     end
-                end -- END ELSE animation in "come and back" state
+                end -- END ELSE animation in "back_and_forth" state
 
             end -- END ELSE if animation is repeating
 
