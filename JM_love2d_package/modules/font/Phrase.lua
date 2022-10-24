@@ -206,9 +206,6 @@ function Phrase:get_lines(x, y)
                 local last_added = self:__get_word_in_list(lines[cur_line], #lines[cur_line])
 
                 if last_added.__text == " " then
-                    -- and last_added.__text ~= "\t"
-                    -- and not self.__font:__is_a_nickname(last_added.__text, 1) then
-
                     table.remove(lines[cur_line], #lines[cur_line])
                 end
             end

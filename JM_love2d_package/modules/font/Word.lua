@@ -24,7 +24,7 @@ function Word:__constructor__(args)
 
     self.__font_config = self.__font:__get_configuration()
 
-    self:__load_characters(self.__font.format_options.bold)
+    self:__load_characters(self.__font.format_options.normal)
 end
 
 function Word:__load_characters(mode)
@@ -61,6 +61,7 @@ function Word:__load_characters(mode)
 
         if char_obj then
             char_obj = char_obj:copy()
+            char_obj:set_color(self.__font.__default_color)
             table.insert(self.__characters, char_obj)
 
             if char_obj:is_animated() then
