@@ -37,7 +37,13 @@ function Font:__constructor__(args)
     end
 
     self.__img = love.graphics.newImage("/JM_love2d_package/data/Font/" .. args.name .. "/" .. args.name .. ".png")
-    -- self.__img:setFilter("linear", "nearest")
+    self.__img:setFilter("linear", "nearest")
+
+    self.__bold_img = love.graphics.newImage("/JM_love2d_package/data/Font/" ..
+        args.name .. "/" .. args.name .. "_bold" .. ".png")
+    self.__bold_img:setFilter("linear", "nearest")
+
+    self.__img = self.__bold_img
 
     self.__quad = love.graphics.newQuad(
         0, 0,
@@ -51,32 +57,36 @@ function Font:__constructor__(args)
     self.__line_space = args.line_space or 13
 
     self.__characters = {}
+    self.__bold_characters = {}
 
-    local lines = Utils:get_lines_in_file("/JM_love2d_package/data/Font/" .. args.name .. "/" .. args.name .. ".txt")
+    self:__load_caracteres_from_csv(self.__characters, args.name)
+    self:__load_caracteres_from_csv(self.__bold_characters, args.name, "_bold")
 
-    for i = 2, #lines do
-        local parse = Utils:parse_csv_line(lines[i], ",")
-        local id = (parse[1])
-        if id == "" then
-            id = ","
-        elseif id == [[_"]] then
-            id = [["]]
-        end
-        local left = tonumber(parse[2])
-        local right = tonumber(parse[3])
-        local top = tonumber(parse[4])
-        local bottom = tonumber(parse[5])
-        local offset_y = tonumber(parse[6])
-        local offset_x = tonumber(parse[7])
+    -- local lines = Utils:get_lines_in_file("/JM_love2d_package/data/Font/" .. args.name .. "/" .. args.name .. ".txt")
 
-        if not left then
-            break
-        end
-        table.insert(self.__characters,
-            Character:new(self.__img, self.__quad,
-                { id = id, x = left, y = top, w = right - left, h = bottom - top, bottom = offset_y })
-        )
-    end
+    -- for i = 2, #lines do
+    --     local parse = Utils:parse_csv_line(lines[i], ",")
+    --     local id = (parse[1])
+    --     if id == "" then
+    --         id = ","
+    --     elseif id == [[_"]] then
+    --         id = [["]]
+    --     end
+    --     local left = tonumber(parse[2])
+    --     local right = tonumber(parse[3])
+    --     local top = tonumber(parse[4])
+    --     local bottom = tonumber(parse[5])
+    --     local offset_y = tonumber(parse[6])
+    --     local offset_x = tonumber(parse[7])
+
+    --     if not left then
+    --         break
+    --     end
+    --     table.insert(self.__characters,
+    --         Character:new(self.__img, self.__quad,
+    --             { id = id, x = left, y = top, w = right - left, h = bottom - top, bottom = offset_y })
+    --     )
+    -- end
 
     self.__ref_height = self:__get_char_equals("A").h
         or self:__get_char_equals("0").h
@@ -112,6 +122,36 @@ function Font:__constructor__(args)
     self.__nicknames = {}
 
     self.__bounds = { x = 50, y = 110, w = 230, h = 500 }
+end
+
+function Font:__load_caracteres_from_csv(list, name, extend)
+    if not extend then extend = "" end
+
+    local lines = Utils:get_lines_in_file("/JM_love2d_package/data/Font/" .. name .. "/" .. name .. extend .. ".txt")
+
+    for i = 2, #lines do
+        local parse = Utils:parse_csv_line(lines[i], ",")
+        local id = (parse[1])
+        if id == "" then
+            id = ","
+        elseif id == [[_"]] then
+            id = [["]]
+        end
+        local left = tonumber(parse[2])
+        local right = tonumber(parse[3])
+        local top = tonumber(parse[4])
+        local bottom = tonumber(parse[5])
+        local offset_y = tonumber(parse[6])
+        local offset_x = tonumber(parse[7])
+
+        if not left then
+            break
+        end
+        table.insert(list,
+            Character:new(self.__img, self.__quad,
+                { id = id, x = left, y = top, w = right - left, h = bottom - top, bottom = offset_y })
+        )
+    end
 end
 
 function Font:get_nule_character()
@@ -202,14 +242,12 @@ function Font:add_nickname_animated(nickname, args)
     assert(is_valid_nickname(nickname),
         "\nError: Invalid nickname. The nickname should start and ending with '--'. \nExamples: --icon--, -- emoji --.")
 
-    -- args.height = self.__font_size * 4
     local animation = Anima:new(args)
-    -- animation:set_size(nil, self.__font_size * 1.5, nil, animation:__get_current_frame().h)
 
     local new_character = Character:new(nil, nil, {
         id = nickname,
         anima = animation,
-        w = animation:__get_current_frame().w, --self.__ref_height,
+        w = self.__ref_height * 1.5,
         h = self.__ref_height
     })
 
@@ -321,13 +359,13 @@ end
 ---@param index number
 ---@return JM.Font.Character|nil
 function Font:__get_char_by_index(index)
-    return self.__characters[index]
+    return self.__bold_characters[index]
 end
 
 ---@param c string
 ---@return JM.Font.Character|nil
 function Font:__get_char_equals(c)
-    for i = 1, #self.__characters do
+    for i = 1, #self.__bold_characters do
         if c == self:__get_char_by_index(i).__id then
             return self:__get_char_by_index(i)
         end
@@ -444,7 +482,9 @@ function Font:print(text, x, y, w, h)
         end
 
         local character = self:__get_char_equals(current_char)
+        if not character then character = self:get_nule_character() end
         local last = self:__get_char_equals(prev_char)
+        if not last and i ~= 1 then last = self:get_nule_character() end
         local next = self:__get_char_equals(next_char)
 
         -- The width in pixels from previous Character object

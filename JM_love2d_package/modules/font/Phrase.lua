@@ -133,15 +133,15 @@ end
 function Phrase:color_sentence(sentence, color, mode)
     local result = self:__find_occurrences__(sentence, mode)
     local found_stack = result.stack
-    local Sentence = result.phrase
+    local phrase = result.phrase
 
     if #found_stack > 0 then
         for k = 1, #found_stack do
             local where_found = found_stack[k]
 
-            for i = where_found, where_found + #(Sentence.__words) - 1, 1 do
+            for i = where_found, where_found + #(phrase.__words) - 1, 1 do
                 local word = self:get_word_by_index(i)
-                local word_sentence = Sentence:get_word_by_index(i - where_found + 1)
+                local word_sentence = phrase:get_word_by_index(i - where_found + 1)
 
                 local startp, endp = word.__text:find(word_sentence.__text)
                 local r = startp and word:set_color(color, startp, endp)

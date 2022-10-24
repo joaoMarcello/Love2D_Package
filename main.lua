@@ -43,20 +43,13 @@ local hh = EffectGenerator:generate("swing", { delay = 1 })
 Test_anima:apply_effect("flash")
 Test_anima:apply_effect("jelly")
 
-
-local Calibri = FontGenerator:new({
-    name = "calibri",
-    font_size = 14,
-    tab_size = 4
-})
-
 local Consolas = FontGenerator:new({
     name = "consolas",
     font_size = 18,
     tab_size = 4
 })
 
-Calibri:add_nickname_animated("--goomba--", {
+Consolas:add_nickname_animated("--goomba--", {
     img = Test_anima.__img,
     frames_list = { { 27, 18, 58, 70 },
         { 151, 21, 58, 68 },
@@ -72,7 +65,7 @@ Calibri:add_nickname_animated("--goomba--", {
     state = "back and forth"
 })
 
-Calibri:add_nickname_animated("--jean--", {
+Consolas:add_nickname_animated("--jean--", {
     img = Test_anima.__img,
     frames_list = { { 27, 18, 58, 70 },
         { 151, 21, 58, 68 },
@@ -88,14 +81,14 @@ Calibri:add_nickname_animated("--jean--", {
     flip_y = true
 })
 
-Calibri:add_nickname_animated("--hh--", {
+Consolas:add_nickname_animated("--hh--", {
     img = Test_anima.__img,
     frames_list = { { 31, 40, 47, 25 },
 
     },
 })
 
-local button = Calibri:add_nickname_animated("--a--", {
+local button = Consolas:add_nickname_animated("--a--", {
     img = "/data/xbox.png",
     frames_list = {
         { 407, 831, 116, 117 },
@@ -105,14 +98,14 @@ local button = Calibri:add_nickname_animated("--a--", {
     duration = 1
 })
 
-local aa = Calibri:add_nickname_animated("--nuvem--", {
+local aa = Consolas:add_nickname_animated("--nuvem--", {
     img = "/data/cloud.png"
 })
 -- aa:apply_effect("pulse", { range = 0.06 })
 
-local text = " Em meio às sinuosas --hh-- e a confusas correntezas inimigas, o bom shinobi não precisa se ocultar. Para todos os inimigos, fadiga, descuido e cansaço o tempo trará--goomba--.\nPress --a-- to jump\t.\n\n\tÉ sábio o a shinobi. que tem o tempo como amigo e sabe esperar. Logo, vamos todos tentar ser um bom shinobi --nuvem--.\n\n\t({[Sasuke Uchiha]})."
+local text = " Em meio às sinuosas --hh-- e a confusas correntezas inimigas, o bom shinobi não precisa se ocultar. Para todos os inimigos, fadiga, descuido e cansaço o tempo trará--goomba--.\nPress --a-- to jump.\n \tÉ sábio o a shinobi. que tem o tempo como amigo e sabe esperar. Logo, vamos todos tentar ser um bom shinobi --nuvem--.\t({[Sasuke Uchiha]})."
 
-local text2 = "Thanos aAáÁàÀãÃäÄ eEéÉèÈêÊëË iIíÍìÌîÎïÏ oOóÓòòôÔöÖõÕ uUúÚùÙûüÜ bBcCçÇdDfF gGhHjJkKlLmM nNpPqQrRsS {[(astha)]} |as_ \ntTvVwWxXyYzZ 0123456789 +-=/#@§ ?|!,.;: °º1ª¹²³£¢¬AsthaYuno"
+local text2 = "Thanos aAáÁàÀãÃäÄ eEéÉèÈêÊëË iIíÍìÌîÎïÏ oOóÓòòôÔöÖõÕ uUúÚùÙûüÜ bBcCçÇdDfF gGhHjJkKlLmM nNpPqQrRsS {[(astha)]} |as_ \ntTvVwWxXyYzZ 0123456789 +-=/#@§ ?|!,.;: °º1ª¹²³£¢¬AsthaYuno ¨¬¬ ~ $ ~"
     .. [["]]
 local frase = Phrase:new({ text = text2, font = Consolas })
 
@@ -121,6 +114,8 @@ frase:apply_freaky("shinobi", "all")
 frase:color_sentence("bom shinobi", { 1, 0, 0, 1 }, "all")
 
 frase:color_sentence("o tempo como amigo", { 0, 0, 1, 1 }, "all")
+
+local occ = frase:__find_occurrences__("--nuvem--", 1)
 
 local current_max = 1
 local time = 0
@@ -163,7 +158,6 @@ function love.update(dt)
     Test_anima:update(dt)
     Anima2:update(dt)
 
-    Calibri:update(dt)
     frase:update(dt)
 end
 
@@ -187,17 +181,14 @@ function love.draw()
     -- Calibri:print("mas que solidao\n <color, 1, 0, 0>ninguem --nuvem-- aqui--</color>ao lado\n\tachei a solucao\n \tnao sou\n <bold>mais</bold> maltratado --goomba-- --jean-- --goomba-- be gone!\t \tArroz"
     --     , 50, 110, w)
 
-    Calibri:push()
-    -- Calibri:set_font_size(14)
-    Calibri:print("\t<color, 0,0,1>Hello </color>World", 0, 0)
-    Calibri:pop()
+    Consolas:print("\t<color, 0,0,1>Hello </color>World", 0, 0)
 
 
-    Calibri:push()
-    Calibri:set_font_size(18)
+    Consolas:push()
+    Consolas:set_font_size(16)
     -- Calibri:set_tab_size(6)
-    last_char = frase:draw(20, 50, "justified", nil)
-    Calibri:pop()
+    last_char = frase:draw(30, 50, "justified", nil)
+    Consolas:pop()
 
     if last_char then
         if last_char.char.__id == "." or last_char.char.__id == "\n" then

@@ -97,9 +97,9 @@ end
 function Character:set_scale(value)
     self.sy = value
     self.sx = self.sy
-    if self:is_animated() then
-        self.__anima:set_scale({ x = self.sx, y = self.sy })
-    end
+    -- if self:is_animated() then
+    --     self.__anima:set_scale({ x = self.sx, y = self.sy })
+    -- end
 end
 
 ---@param value boolean|nil
@@ -159,6 +159,7 @@ function Character:draw_rec(x, y, w, h)
 end
 
 function Character:__draw__(x, y)
+    -- if self.__id == "__nule__" then return end
 
     love.graphics.push()
 
@@ -183,7 +184,7 @@ function Character:__draw__(x, y)
     end
 
     if self.__anima then
-        self.__anima:draw(x, y + self.h / 2 * self.sy)
+        self.__anima:draw(x, y)
 
     elseif not self.__img then
         love.graphics.setColor(0, 0, 0, 1)

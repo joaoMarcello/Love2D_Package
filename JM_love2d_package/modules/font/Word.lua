@@ -41,8 +41,10 @@ function Word:__constructor__(args)
         -- Verifying if current char is a special character
         if not char_obj then
             char_obj = self.__font:__get_char_equals(self.__text:sub(i, i + 1))
-            cur_char = self.__text:sub(i, i + 1)
-            i = i + 1
+            if char_obj then
+                cur_char = self.__text:sub(i, i + 1)
+                i = i + 1
+            end
         end
 
         if not char_obj and cur_char ~= "\n" and cur_char ~= "\t" then
@@ -170,7 +172,7 @@ end
 
 ---@return JM.Font.CharacterPosition|nil
 function Word:draw(x, y, __max_char__, __character_count__)
-    love.graphics.setColor(0.9, 0, 0, 0.15)
+    -- love.graphics.setColor(0.9, 0, 0, 0.15)
     -- love.graphics.rectangle("fill", x, y, self:get_width(), self.__font.__font_size)
 
 
@@ -187,7 +189,16 @@ function Word:draw(x, y, __max_char__, __character_count__)
         if not cur_char:is_animated() then
             cur_char:draw_rec(tx, y, cur_char.w * cur_char.sx, font.__font_size)
         else
-            cur_char:draw_rec(tx, y, cur_char.w * cur_char.sx, font.__font_size)
+            cur_char.__anima:set_size(
+                nil, self.__font.__font_size * 1.4,
+                nil, cur_char.__anima:__get_current_frame().h
+            )
+
+            local pos_y = y + cur_char.h / 2 * cur_char.sy
+
+            local pos_x = tx + cur_char.w / 2 * cur_char.sx
+
+            cur_char:draw(pos_x, pos_y)
         end
 
         tx = tx + cur_char.w * font.__scale + font.__character_space
@@ -200,6 +211,11 @@ function Word:draw(x, y, __max_char__, __character_count__)
             end
         end
     end
+
+    -- if self.__text ~= " " then
+    --     love.graphics.setColor(0, 0, 0, 1)
+    --     love.graphics.rectangle("line", x, y, self:get_width(), self.__font.__font_size)
+    -- end
 end
 
 return Word
