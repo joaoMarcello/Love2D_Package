@@ -96,21 +96,18 @@ function Phrase:__find_occurrences__(sentence, mode)
             local cur_sentence_word = Sentence:get_word_by_index(j).__text
             local startp, endp = word.__text:find(cur_sentence_word)
 
-            -- local startp = word.__text == cur_sentence_word
-            --     or word.__text:sub(1, #(word.__text) - 1) == cur_sentence_word
+            local startp = word.__text == cur_sentence_word
+                or word.__text:sub(1, #(word.__text) - 1) == cur_sentence_word
 
             if not startp then break end
 
             if j == #Sentence.__words then
-                if (self.__font:string_is_nickname(word.__text)
-                    and word.__text ~= cur_sentence_word) then
-
-                elseif self.__font:string_is_nickname(cur_sentence_word)
-                    and cur_sentence_word ~= word.__text
+                if not (self.__font:string_is_nickname(word.__text)
+                    and word.__text ~= cur_sentence_word)
+                    and not (self.__font:string_is_nickname(cur_sentence_word)
+                        and cur_sentence_word ~= word.__text)
                 then
 
-
-                else
                     table.insert(found_stack, i)
                     count = count + 1
                 end
@@ -361,7 +358,7 @@ function Phrase:draw_lines(lines, x, y, alignment, threshold, __max_char__)
             if lines[i][#lines[i]] and lines[i][#lines[i]].__text == "\n" then
                 -- q = q - 1
                 q = q * 2 + 5
-
+                q = 100000000
             end
 
             -- if lines[i][1] and lines[i][1].__text == "\t" then

@@ -46,8 +46,14 @@ Test_anima:apply_effect("jelly")
 
 local Calibri = FontGenerator:new({
     name = "calibri",
-    font_size = 25,
-    tab_size = 2
+    font_size = 14,
+    tab_size = 4
+})
+
+local Consolas = FontGenerator:new({
+    name = "consolas",
+    font_size = 18,
+    tab_size = 4
 })
 
 Calibri:add_nickname_animated("--goomba--", {
@@ -82,6 +88,13 @@ Calibri:add_nickname_animated("--jean--", {
     flip_y = true
 })
 
+Calibri:add_nickname_animated("--hh--", {
+    img = Test_anima.__img,
+    frames_list = { { 31, 40, 47, 25 },
+
+    },
+})
+
 local button = Calibri:add_nickname_animated("--a--", {
     img = "/data/xbox.png",
     frames_list = {
@@ -95,14 +108,16 @@ local button = Calibri:add_nickname_animated("--a--", {
 local aa = Calibri:add_nickname_animated("--nuvem--", {
     img = "/data/cloud.png"
 })
-aa:apply_effect("pulse", { range = 0.06 })
+-- aa:apply_effect("pulse", { range = 0.06 })
 
-local text = " += -a- @&$Em ... 'meio' àÀ áÁ ãÃ âÂ èÈ éÉ êÊ íÍ ìÌîÎ óÓòÒôÔõÕ úÚùÙûÛs %&*@# sinuosas e confusas correntezas inimigas, o bom shinobi não precisa se ocultar. Para todos porta-copos os inimigos, fadiga, descuido e cansaço o tempo trará\t--goomba-- \nPress\t --a-- \tto jump.\n\nÉ sábio o shinobi. que tem o tempo como amigo e sabe esperar. Logo, vamos todos tentar ser um bom shinobi.\n\n\t({[Sasuke Uchiha]})."
+local text = " Em meio às sinuosas --hh-- e a confusas correntezas inimigas, o bom shinobi não precisa se ocultar. Para todos os inimigos, fadiga, descuido e cansaço o tempo trará--goomba--.\nPress --a-- to jump\t.\n\n\tÉ sábio o a shinobi. que tem o tempo como amigo e sabe esperar. Logo, vamos todos tentar ser um bom shinobi --nuvem--.\n\n\t({[Sasuke Uchiha]})."
 
-local frase = Phrase:new({ text = text, font = Calibri })
+local text2 = "Thanos aAáÁàÀãÃäÄ eEéÉèÈêÊëË iIíÍìÌîÎïÏ oOóÓòòôÔöÖõÕ uUúÚùÙûüÜ bBcCçÇdDfF gGhHjJkKlLmM nNpPqQrRsS {[(astha)]} |as_ \ntTvVwWxXyYzZ 0123456789 +-=/#@§ ?|!,.;: °º1ª¹²³£¢¬AsthaYuno"
+    .. [["]]
+local frase = Phrase:new({ text = text2, font = Consolas })
 
 frase:color_pattern("jump", { 0.8, 0, 0, 1 }, 1)
-frase:apply_freaky("--a--", "all")
+frase:apply_freaky("shinobi", "all")
 frase:color_sentence("bom shinobi", { 1, 0, 0, 1 }, "all")
 
 frase:color_sentence("o tempo como amigo", { 0, 0, 1, 1 }, "all")
@@ -173,15 +188,15 @@ function love.draw()
     --     , 50, 110, w)
 
     Calibri:push()
-    Calibri:set_font_size(14)
+    -- Calibri:set_font_size(14)
     Calibri:print("\t<color, 0,0,1>Hello </color>World", 0, 0)
     Calibri:pop()
 
 
     Calibri:push()
-    Calibri:set_font_size(16)
-    Calibri:set_tab_size(6)
-    last_char = frase:draw(30, 50, "left", nil)
+    Calibri:set_font_size(18)
+    -- Calibri:set_tab_size(6)
+    last_char = frase:draw(20, 50, "justified", nil)
     Calibri:pop()
 
     if last_char then

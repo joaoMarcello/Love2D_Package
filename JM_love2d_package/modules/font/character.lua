@@ -68,6 +68,14 @@ function Character:update(dt)
     self.__effect_manager:update(dt)
 end
 
+function Character:get_width()
+    return self.w * self.sx
+end
+
+function Character:get_height()
+    return self.h * self.sy
+end
+
 function Character:copy()
     local obj = Character:new(self.__img, self.__quad, self.__args)
 
@@ -90,7 +98,7 @@ function Character:set_scale(value)
     self.sy = value
     self.sx = self.sy
     if self:is_animated() then
-        -- self.__anima:set_scale({ x = self.sx + 0.2, y = self.sy + 0.2 })
+        self.__anima:set_scale({ x = self.sx, y = self.sy })
     end
 end
 
@@ -151,11 +159,6 @@ function Character:draw_rec(x, y, w, h)
 end
 
 function Character:__draw__(x, y)
-    love.graphics.setColor(0, 0, 0, 0.2)
-
-    if self.w and self.h then
-        -- love.graphics.rectangle("fill", x - self.w / 2, y - self.h / 2, self.w * self.sx, self.h * self.sy)
-    end
 
     love.graphics.push()
 
@@ -213,6 +216,12 @@ function Character:__draw__(x, y)
     end
 
     love.graphics.pop()
+
+    love.graphics.setColor(0, 0, 0, 0.5)
+
+    if self.w and self.h then
+        -- love.graphics.rectangle("fill", x - self.ox * self.sx, y - self.oy * self.sy, self.w * self.sx, self.h * self.sy)
+    end
 end
 
 return Character

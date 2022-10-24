@@ -36,7 +36,7 @@ function Font:__constructor__(args)
         args = temp_table
     end
 
-    self.__img = love.graphics.newImage("/JM_love2d_package/data/Font/calibri/" .. args.name .. ".png")
+    self.__img = love.graphics.newImage("/JM_love2d_package/data/Font/" .. args.name .. "/" .. args.name .. ".png")
     -- self.__img:setFilter("linear", "nearest")
 
     self.__quad = love.graphics.newQuad(
@@ -52,13 +52,15 @@ function Font:__constructor__(args)
 
     self.__characters = {}
 
-    local lines = Utils:get_lines_in_file("/JM_love2d_package/data/Font/Calibri/" .. args.name .. ".txt")
+    local lines = Utils:get_lines_in_file("/JM_love2d_package/data/Font/" .. args.name .. "/" .. args.name .. ".txt")
 
     for i = 2, #lines do
         local parse = Utils:parse_csv_line(lines[i], ",")
         local id = (parse[1])
         if id == "" then
             id = ","
+        elseif id == [[_"]] then
+            id = [["]]
         end
         local left = tonumber(parse[2])
         local right = tonumber(parse[3])
@@ -200,7 +202,7 @@ function Font:add_nickname_animated(nickname, args)
     assert(is_valid_nickname(nickname),
         "\nError: Invalid nickname. The nickname should start and ending with '--'. \nExamples: --icon--, -- emoji --.")
 
-    -- args.height = self.__font_size * 1.5
+    -- args.height = self.__font_size * 4
     local animation = Anima:new(args)
     -- animation:set_size(nil, self.__font_size * 1.5, nil, animation:__get_current_frame().h)
 
