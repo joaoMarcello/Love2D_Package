@@ -36,7 +36,7 @@ function Phrase:__constructor__(args)
             format = self.__font:get_format_mode()
         })
 
-        self:__verify_commands(w.__text)
+        -- self:__verify_commands(w.__text)
 
         if w.__text ~= "" then
             if not self.__font:__is_a_nickname(w.__text, 1) then
@@ -219,7 +219,7 @@ function Phrase:get_lines(x, y)
         local next_word = self:get_word_by_index(i + 1)
 
         if self:__is_a_tag(current_word.__text, 1) then
-            goto skip_word
+            -- goto skip_word
         end
 
         local r = current_word:get_width()
@@ -295,7 +295,13 @@ function Phrase:__is_a_tag(text, index)
 
     if text:sub(index, index) == "<" then
         local startp, endp = text:find(">", index + 1)
+        local start2
         if startp then
+            -- start2 = text:find("<", index + 1)
+            -- if start2 and start2 < startp then start2 = true end
+        end
+
+        if startp and not start2 then
             -- local start2, endp2 = text:find("</" .. command .. ">", endp)
             -- if start2 then
             return { start = startp, final = endp, tag = text:sub(index, endp) }
@@ -343,17 +349,17 @@ function Phrase:separate_string(s)
             current_index = i + 1
         end
 
-        local r = self:__is_a_tag(s, i)
-        if r then
-            local w = s:sub(current_index, i - 1)
-            if w ~= "" and w ~= " " then
-                table.insert(words, w)
-            end
+        -- local r = self:__is_a_tag(s, i)
+        -- if r then
+        --     local w = s:sub(current_index, i - 1)
+        --     if w ~= "" and w ~= " " then
+        --         table.insert(words, w)
+        --     end
 
-            table.insert(words, r.tag)
-            current_index = r.final + 1
-            i = current_index - 1
-        end
+        --     table.insert(words, r.tag)
+        --     current_index = r.final + 1
+        --     i = current_index - 1
+        -- end
 
         i = i + 1
     end

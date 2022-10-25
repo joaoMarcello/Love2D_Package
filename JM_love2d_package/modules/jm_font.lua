@@ -77,7 +77,7 @@ function Font:__constructor__(args)
         "_bold"
     )
 
-    self.__format = FontFormat.normal
+    self.__format = FontFormat.bold
 
     self.format_options = FontFormat
 

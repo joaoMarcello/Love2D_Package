@@ -103,9 +103,9 @@ local aa = Consolas:add_nickname_animated("--nuvem--", {
 })
 -- aa:apply_effect("pulse", { range = 0.06 })
 
-local text = " Em meio às --goomba--sinuosas --hh-- e a confusas correntezas inimigas, o <bold>bom shinobi</bold> <bold>não</bold> precisa se ocultar. Para todos os inimigos, <color> fadiga, descuido e cansaço</color> o tempo trará--goomba--.\nPress --a-- to jump.\n \tÉ sábio o a shinobi. que tem o tempo como amigo e sabe esperar. Logo, vamos todos tentar ser um bom shinobi --nuvem--.\t({[Sasuke Uchiha]})."
+local text = " Em <<meio às --goomba--sinuosas --hh-- e a confusas correntezas inimigas, o <bold> bom shinobi </bold><bold>não</bold> precisa se ocultar. Para todos os inimigos, <color> fadiga, descuido e cansaço</color> o tempo trará--goomba--.\nPress --a-- to jump.\n \tÉ sábio o a shinobi. que tem o tempo como amigo e sabe esperar. Logo, vamos todos tentar ser um bom shinobi --nuvem--.\t({[Sasuke Uchiha]})."
 
-local text2 = "Thanos aAáÁàÀãÃäÄ eEéÉèÈêÊëË iIíÍìÌîÎïÏ oOóÓòòôÔöÖõÕ uUúÚùÙûüÜ bBcCçÇdDfF gGhHjJkKlLmM nNpPqQrRsS {[(astha)]} |as_ \ntTvVwWxXyYzZ 0123456789 +-=/# @TMJ_por_JM § ?|!,.;: °º1ª¹²³£¢¬AsthaYuno * ¨¬¬ ~ $ ~ --a--"
+local text2 = "<color>Thanos</color> aAáÁàÀãÃäÄ eEéÉèÈêÊëË iIíÍìÌîÎïÏ oOóÓòòôÔöÖõÕ uUúÚùÙûüÜ bBcCçÇdDfF gGhHjJkKlLmM nNpPqQrRsS {[(astha)]} |as_ \ntTvVwWxXyYzZ 0123456789 +-=/# @TMJ_por_JM & § ?|!,.;: °º1ª¹²³£¢¬AsthaYuno * ¨¬¬ ~ $ ~ --a--"
     .. [["]]
 local frase = Phrase:new({ text = text, font = Consolas })
 
@@ -187,8 +187,8 @@ function love.draw()
 
     Consolas:push()
     if current_max >= 60 then
-        Consolas:set_font_size(12)
-        frase:refresh()
+        -- Consolas:set_font_size(12)
+        -- frase:refresh()
     end
     last_char = frase:draw(100, 100, "justified", nil)
     Consolas:pop()
