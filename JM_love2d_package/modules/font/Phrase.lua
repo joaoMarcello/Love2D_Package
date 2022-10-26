@@ -321,29 +321,32 @@ function Phrase:separate_string(s)
     while (current_init <= #(s)) do
         local regex = "[^[ ]]*.-[" .. sep .. "]"
         local find = s:match(regex, current_init)
-        local nick = find and string.match(find, "%-%-w-%-%-")
+        local nick = find and string.match(find, "%-%-%w-%-%-")
 
         if nick then
             local startp, endp = string.find(s, "%-%-%w-%-%-", current_init)
             local sub_s = s:sub(startp, endp)
             local prev_word = s:sub(current_init, startp - 1)
 
-            if startp ~= 1 and prev_word ~= "" and prev_word ~= " " then
+            if prev_word and prev_word ~= "" and prev_word ~= " " then
                 table.insert(words, prev_word)
             end
 
             if sub_s ~= "" then
                 table.insert(words, sub_s)
             end
+
             current_init = endp
+
         elseif find then
             local startp, endp = string.find(s, regex, current_init)
             local sub_s = s:sub(startp, endp - 1)
 
             if sub_s ~= "" then
-                if sub_s:sub(1, 1) == "\n" then
+                local sub2 = sub_s:sub(1, 1)
+                if sub2 == "\n" or sub2 == "\t" then
                     sub_s = sub_s:sub(2, #sub_s)
-                    table.insert(words, "\n")
+                    -- table.insert(words, sub2)
                 end
                 table.insert(words, sub_s)
             end
@@ -365,64 +368,6 @@ function Phrase:separate_string(s)
 
     return words
 end
-
--- function Phrase:separate_string(s)
---     local words = {}
---     local sep = " "
---     local i = 1
---     local current_index = 1
-
---     while (i <= #s) do
---         local current_char = s:sub(i, i)
-
---         if current_char == sep then
---             local w = s:sub(current_index, i - 1)
---             if w ~= "" and w ~= " " then
---                 table.insert(words, w)
---             end
---             -- table.insert(words, current_char)
---             current_index = i + 1
---         end
-
---         local r2 = self.__font:__is_a_nickname(s, i)
---         if r2 then
---             local w = s:sub(current_index, i - 1)
---             if w ~= "" and w ~= " " then
---                 table.insert(words, w)
---             end
---             table.insert(words, s:sub(i, i + #r2 - 1))
---             current_index = i + #r2
---             i = current_index - 1
---         end
-
---         if current_char == "\n" or current_char == "\t" then
---             local w = s:sub(current_index, i - 1)
---             if w ~= "" and w ~= " " then
---                 table.insert(words, w)
---             end
-
---             table.insert(words, current_char)
---             current_index = i + 1
---         end
-
---         -- local r = self:__is_a_tag(s, i)
---         -- if r then
---         --     local w = s:sub(current_index, i - 1)
---         --     if w ~= "" and w ~= " " then
---         --         table.insert(words, w)
---         --     end
-
---         --     table.insert(words, r.tag)
---         --     current_index = r.final + 1
---         --     i = current_index - 1
---         -- end
-
---         i = i + 1
---     end
-
---     table.insert(words, s:sub(current_index, #s))
---     return words
--- end
 
 function Phrase:update(dt)
     for i = 1, #self.__words, 1 do
@@ -501,12 +446,23 @@ function Phrase:refresh()
     self.__last_lines__ = nil
 end
 
+function Phrase:__debbug()
+    local s = self.__text
+    local w = self:separate_string(s)
+
+    for i = 1, #w do
+        self.__font:print(tostring(w[i]), 0, 50 * i)
+    end
+end
+
 ---@param x number
 ---@param y number
 ---@param alignment "left"|"right"|"center"|"justified"|nil
 ---@param __max_char__ number|nil
 ---@return JM.Font.CharacterPosition|nil
 function Phrase:draw(x, y, alignment, __max_char__)
+    self:__debbug()
+
     if x >= self.__bounds.right then return end
 
     if not self.__last_lines__

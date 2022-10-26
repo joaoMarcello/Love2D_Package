@@ -103,19 +103,17 @@ local aa = Consolas:add_nickname_animated("--nuvem--", {
 })
 -- aa:apply_effect("pulse", { range = 0.06 })
 
-local text = "Em meio às sinuosas e confusas correntezas"
+local text = "Em--a--meio às sinuosas e confusas corren --a--tezas inimigas,"
 
 local text2 = "<color>Thanos</color> aAáÁàÀãÃäÄ eEéÉèÈêÊëË iIíÍìÌîÎïÏ oOóÓòòôÔöÖõÕ uUúÚùÙûüÜ bBcCçÇdDfF gGhHjJkKlLmM nNpPqQrRsS {[(astha)]} |as_ \ntTvVwWxXyYzZ 0123456789 +-=/# @TMJ_por_JM & § ?|!,.;: °º1ª¹²³£¢¬AsthaYuno * ¨¬¬ ~ $ ~ --a--"
     .. [["]]
 local frase = Phrase:new({ text = text, font = Consolas })
 
-frase:color_pattern("astha yuno", { 0.8, 0, 0, 1 }, "all")
-frase:color_sentence("astha yuno", { 1, 0, 0, 1 }, "all")
-frase:apply_freaky("shinobi", "all")
+-- frase:color_pattern("a", { 0.8, 0, 0, 1 }, "all")
+-- frase:color_sentence("e", { 1, 0, 0, 1 }, "all")
+-- frase:apply_freaky("shinobi", "all")
 
-frase:color_sentence("o tempo como amigo", { 0, 0, 1, 1 }, "all")
-
-local occ = frase:__find_occurrences__("--nuvem--", 1)
+-- frase:color_sentence("o tempo como amigo", { 0, 0, 1, 1 }, "all")
 
 local current_max = 1
 local time = 0

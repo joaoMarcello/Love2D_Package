@@ -62,7 +62,7 @@ function Font:__constructor__(args)
     self.__font_size = args.font_size or 20
 
     self.__character_space = args.character_space or 2
-    self.__line_space = args.line_space or 13
+    self.__line_space = args.line_space or 11
 
     self.__characters = {}
     self.__bold_characters = {}
