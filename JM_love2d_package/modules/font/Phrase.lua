@@ -228,9 +228,16 @@ function Phrase:get_lines(x, y)
     for i = 1, #self.__words do
         local current_word = self:get_word_by_index(i)
         local next_word = self:get_word_by_index(i + 1)
+        local prev_word = self:get_word_by_index(i - 1)
 
-        if self:__is_a_command_tag(current_word.__text) then
-            goto skip_word
+        local cur_is_tag = self:__is_a_command_tag(current_word.__text)
+        local next_is_tag = self:__is_a_command_tag(next_word and next_word.__text or "")
+        local prev_was_tag = self:__is_a_command_tag(prev_word and prev_word.__text or "")
+
+        local last_added = lines[cur_line] and self:__get_word_in_list(lines[cur_line], #lines[cur_line])
+
+        if cur_is_tag then
+            -- goto skip_word
         end
 
         local r = current_word:get_width()
@@ -266,10 +273,11 @@ function Phrase:get_lines(x, y)
             table.insert(lines[cur_line - 1], current_word)
         end
 
-        if i ~= #self.__words
+        if i ~= #(self.__words)
             and current_word.__text ~= "\t"
             and current_word.__text ~= "\n"
-            and next_word and next_word.__text ~= "\t" then
+            and next_word and next_word.__text ~= "\t"
+        then
 
             table.insert(lines[cur_line], word_char)
         end
@@ -323,7 +331,7 @@ end
 
 ---@param s string
 function Phrase:separate_string(s, list)
-    s = s .. " "
+    s = s .. ""
     local sep = "\n "
     local current_init = 1
     local words = list or {}
@@ -368,7 +376,7 @@ function Phrase:separate_string(s, list)
             local startp, endp = string.find(s, regex, current_init)
             local sub_s = s:sub(startp, endp - 1)
 
-            if sub_s ~= "" then
+            if sub_s ~= "" and sub_s ~= " " then
                 table.insert(words, sub_s)
             end
 
@@ -430,7 +438,7 @@ function Phrase:draw_lines(lines, x, y, alignment, threshold, __max_char__)
             local q = #lines[i] - 1
             if lines[i][#lines[i]] and lines[i][#lines[i]].__text == "\n" then
                 q = q * 2 + 5
-                q = 100
+                -- q = 100
             end
 
             -- if lines[i][1] and lines[i][1].__text == "\t" then
@@ -483,7 +491,7 @@ end
 ---@param __max_char__ number|nil
 ---@return JM.Font.CharacterPosition|nil
 function Phrase:draw(x, y, alignment, __max_char__)
-    -- self:__debbug()
+    self:__debbug()
 
     if x >= self.__bounds.right then return end
 

@@ -103,7 +103,7 @@ local aa = Consolas:add_nickname_animated("--nuvem--", {
 })
 -- aa:apply_effect("pulse", { range = 0.06 })
 
-local text = " Em- <bold>---a-- meio às sinuosas e confusas</bold> -anta--c-- inimigas\n \n \n astha \tO <color, 0,0,1><bold>bom </bold>  shinobi</color> não precisa se ocultar."
+local text = "Em      meio às sinuosas e confusas</bold> -anta inimigas astha \tO     <color, 0,0,1><bold>bom </bold>shinobi </color>não precisa se ocultar."
 
 local text2 = "<color>Thanos</color> aAáÁàÀãÃäÄ eEéÉèÈêÊëË iIíÍìÌîÎïÏ oOóÓòòôÔöÖõÕ uUúÚùÙûüÜ bBcCçÇdDfF gGhHjJkKlLmM nNpPqQrRsS {[(astha)]} |as_ \ntTvVwWxXyYzZ 0123456789 +-=/# @TMJ_por_JM & § ?|!,.;: °º1ª¹²³£¢¬AsthaYuno * ¨¬¬ ~ $ ~ --a--"
     .. [["]]
