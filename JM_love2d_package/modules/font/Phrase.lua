@@ -392,7 +392,9 @@ function Phrase:separate_string(s, list)
         current_init = current_init + 1
     end
 
-    if s:sub(current_init, #s) ~= "" then
+    local rest = s:sub(current_init, #s)
+
+    if rest ~= "" and not rest:match(" *") then
         table.insert(words, s:sub(current_init, #s))
     end
 
