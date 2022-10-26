@@ -1,6 +1,6 @@
 local Word = require("/JM_love2d_package/modules/font/Word")
 local EffectGenerator = require("/JM_love2d_package/effect_generator_module")
-
+local Utils = require("/JM_love2d_package/utils")
 
 ---@class JM.Font.Phrase
 local Phrase = {}
@@ -36,7 +36,7 @@ function Phrase:__constructor__(args)
             format = self.__font:get_format_mode()
         })
 
-        -- self:__verify_commands(w.__text)
+        self:__verify_commands(w.__text)
 
         if w.__text ~= "" then
             if not self.__font:__is_a_nickname(w.__text, 1) then
@@ -52,13 +52,17 @@ end
 function Phrase:__verify_commands(text)
     local r = self:__is_a_tag(text, 1)
     if r then
-        if r.tag == "<bold>" then
+        if r.tag:match("< *bold *") then
             self.__font:set_format_mode(self.__font.format_options.bold)
-        elseif r.tag == "</bold>" then
+        elseif r.tag:match("< */ *bold *>") then
             self.__font:set_format_mode(self.__font_config.format)
-        elseif r.tag == "<color>" then
-            self.__font:set_color({ 0, 0, 1, 1 })
-        elseif r.tag == "</color>" then
+        elseif r.tag:match("< *color[ ,%d.]*") then
+            local parse = Utils:parse_csv_line(r.tag:sub(2, #r.tag - 1), ",")
+            local r = tonumber(parse[2]) or 1
+            local g = tonumber(parse[3]) or 0
+            local b = tonumber(parse[4]) or 0
+            self.__font:set_color({ r, g, b, 1 })
+        elseif r.tag:match("< */ *color *>") then
             self.__font:set_color(self.__font_config.color)
         end
     end
@@ -207,6 +211,12 @@ function Phrase:get_word_by_index(index)
     return self.__words[index]
 end
 
+---@param s string
+function Phrase:__is_a_command_tag(s)
+    return s:match("< *bold *>") or s:match("< */ *bold *>")
+        or s:match("< *color[%d, .]*>") or s:match("< */ *color *>")
+end
+
 ---@return table
 function Phrase:get_lines(x, y)
     local lines = {}
@@ -219,8 +229,8 @@ function Phrase:get_lines(x, y)
         local current_word = self:get_word_by_index(i)
         local next_word = self:get_word_by_index(i + 1)
 
-        if self:__is_a_tag(current_word.__text, 1) then
-            -- goto skip_word
+        if self:__is_a_command_tag(current_word.__text) then
+            goto skip_word
         end
 
         local r = current_word:get_width()
@@ -312,47 +322,59 @@ function Phrase:__is_a_tag(text, index)
 end
 
 ---@param s string
-function Phrase:separate_string(s)
+function Phrase:separate_string(s, list)
     s = s .. " "
-    local sep = "\n\t "
+    local sep = "\n "
     local current_init = 1
-    local words = {}
+    local words = list or {}
 
     while (current_init <= #(s)) do
         local regex = "[^[ ]]*.-[" .. sep .. "]"
-        local find = s:match(regex, current_init)
+        local tag_regex = "< *[%d, .%w/]*>"
+
+        local tag = s:match(tag_regex, current_init)
+        local find = not tag and s:match(regex, current_init)
         local nick = find and string.match(find, "%-%-%w-%-%-")
 
-        if nick and nick ~= "----" then
+        if tag then
+            local startp, endp = string.find(s, tag_regex, current_init)
+            local sub_s = s:sub(startp, endp)
+            local prev_s = s:sub(current_init, startp - 1)
+
+            if prev_s ~= "" and prev_s ~= " " then
+                self:separate_string(prev_s, words)
+            end
+
+            table.insert(words, sub_s)
+            current_init = endp
+
+        elseif nick and nick ~= "----" then
             local startp, endp = string.find(s, "%-%-%w-%-%-", current_init)
             local sub_s = s:sub(startp, endp)
             local prev_word = s:sub(current_init, startp - 1)
 
             if prev_word and prev_word ~= "" and prev_word ~= " " then
-                table.insert(words, prev_word)
+                self:separate_string(prev_word, words)
             end
 
-            if sub_s ~= "" then
+            if sub_s ~= "" and sub_s ~= " " then
                 table.insert(words, sub_s)
             end
 
             current_init = endp
 
         elseif find then
+
             local startp, endp = string.find(s, regex, current_init)
             local sub_s = s:sub(startp, endp - 1)
 
             if sub_s ~= "" then
-                local sub2 = sub_s:sub(1, 1)
-                if sub2 == "\n" or sub2 == "\t" then
-                    sub_s = sub_s:sub(2, #sub_s)
-                    -- table.insert(words, sub2)
-                end
                 table.insert(words, sub_s)
             end
 
-            if s:sub(endp, endp) == "\n" then table.insert(words, "\n") end
-            if s:sub(endp, endp) == "\t" then table.insert(words, "\t") end
+            if s:sub(endp, endp) == "\n" then
+                table.insert(words, "\n")
+            end
 
             current_init = endp
         else
@@ -408,7 +430,7 @@ function Phrase:draw_lines(lines, x, y, alignment, threshold, __max_char__)
             local q = #lines[i] - 1
             if lines[i][#lines[i]] and lines[i][#lines[i]].__text == "\n" then
                 q = q * 2 + 5
-                q = 100000000
+                q = 100
             end
 
             -- if lines[i][1] and lines[i][1].__text == "\t" then
@@ -461,7 +483,7 @@ end
 ---@param __max_char__ number|nil
 ---@return JM.Font.CharacterPosition|nil
 function Phrase:draw(x, y, alignment, __max_char__)
-    self:__debbug()
+    -- self:__debbug()
 
     if x >= self.__bounds.right then return end
 

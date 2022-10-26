@@ -61,7 +61,7 @@ function Font:__constructor__(args)
 
     self.__font_size = args.font_size or 20
 
-    self.__character_space = args.character_space or 2
+    self.__character_space = args.character_space or 1
     self.__line_space = args.line_space or 11
 
     self.__characters = {}
@@ -86,7 +86,7 @@ function Font:__constructor__(args)
         or self.__font_size
 
 
-    self.__word_space = self.__ref_height * 0.5
+    self.__word_space = self.__ref_height * 0.6
 
     self.__tab_size = args.tab_size or 4
 

@@ -103,13 +103,13 @@ local aa = Consolas:add_nickname_animated("--nuvem--", {
 })
 -- aa:apply_effect("pulse", { range = 0.06 })
 
-local text = "Em---a- meio às sinuosas e confusas corren --a--tezas inimigas,"
+local text = " Em- <bold>---a-- meio às sinuosas e confusas</bold> -anta--c-- inimigas\n \n \n astha \tO <color, 0,0,1><bold>bom </bold>  shinobi</color> não precisa se ocultar."
 
 local text2 = "<color>Thanos</color> aAáÁàÀãÃäÄ eEéÉèÈêÊëË iIíÍìÌîÎïÏ oOóÓòòôÔöÖõÕ uUúÚùÙûüÜ bBcCçÇdDfF gGhHjJkKlLmM nNpPqQrRsS {[(astha)]} |as_ \ntTvVwWxXyYzZ 0123456789 +-=/# @TMJ_por_JM & § ?|!,.;: °º1ª¹²³£¢¬AsthaYuno * ¨¬¬ ~ $ ~ --a--"
     .. [["]]
 local frase = Phrase:new({ text = text, font = Consolas })
 
--- frase:color_pattern("a", { 0.8, 0, 0, 1 }, "all")
+-- frase:color_pattern("c", { 0.8, 0, 0, 1 }, "all")
 -- frase:color_sentence("e", { 1, 0, 0, 1 }, "all")
 -- frase:apply_freaky("shinobi", "all")
 
