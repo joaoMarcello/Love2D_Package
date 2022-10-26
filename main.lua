@@ -103,14 +103,14 @@ local aa = Consolas:add_nickname_animated("--nuvem--", {
 })
 -- aa:apply_effect("pulse", { range = 0.06 })
 
-local text = " Em <<meio às --goomba--sinuosas --hh-- e a confusas correntezas inimigas, o <bold> bom shinobi </bold><bold>não</bold> precisa se ocultar. Para todos os inimigos, <color> fadiga, descuido e cansaço</color> o tempo trará--goomba--.\nPress --a-- to jump.\n \tÉ sábio o a shinobi. que tem o tempo como amigo e sabe esperar. Logo, vamos todos tentar ser um bom shinobi --nuvem--.\t({[Sasuke Uchiha]})."
+local text = "Em meio às sinuosas e confusas correntezas"
 
 local text2 = "<color>Thanos</color> aAáÁàÀãÃäÄ eEéÉèÈêÊëË iIíÍìÌîÎïÏ oOóÓòòôÔöÖõÕ uUúÚùÙûüÜ bBcCçÇdDfF gGhHjJkKlLmM nNpPqQrRsS {[(astha)]} |as_ \ntTvVwWxXyYzZ 0123456789 +-=/# @TMJ_por_JM & § ?|!,.;: °º1ª¹²³£¢¬AsthaYuno * ¨¬¬ ~ $ ~ --a--"
     .. [["]]
 local frase = Phrase:new({ text = text, font = Consolas })
 
-frase:color_pattern("jump", { 0.8, 0, 0, 1 }, 1)
-frase:color_sentence("bom shinobi", { 1, 0, 0, 1 }, "all")
+frase:color_pattern("astha yuno", { 0.8, 0, 0, 1 }, "all")
+frase:color_sentence("astha yuno", { 1, 0, 0, 1 }, "all")
 frase:apply_freaky("shinobi", "all")
 
 frase:color_sentence("o tempo como amigo", { 0, 0, 1, 1 }, "all")
@@ -190,7 +190,7 @@ function love.draw()
         -- Consolas:set_font_size(12)
         -- frase:refresh()
     end
-    last_char = frase:draw(100, 100, "justified", nil)
+    last_char = frase:draw(love.mouse.getX(), 100, "justified", nil)
     Consolas:pop()
 
     if last_char then

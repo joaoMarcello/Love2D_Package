@@ -209,8 +209,8 @@ end
 
 ---@return JM.Font.CharacterPosition|nil
 function Word:draw(x, y, __max_char__, __character_count__)
-    -- love.graphics.setColor(0.9, 0, 0, 0.15)
-    -- love.graphics.rectangle("fill", x, y, self:get_width(), self.__font.__font_size)
+    love.graphics.setColor(0.9, 0, 0, 0.15)
+    love.graphics.rectangle("fill", x, y, self:get_width(), self.__font.__font_size)
 
 
     local tx = x

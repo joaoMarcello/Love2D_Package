@@ -170,6 +170,7 @@ function Phrase:color_sentence(sentence, color, mode)
 
                 local startp, endp = word.__text:find(word_sentence.__text)
                 local r = startp and word:set_color(color, startp, endp)
+                r = startp and word:turn_into_bold(startp, endp)
             end
         end
     end
@@ -310,63 +311,118 @@ function Phrase:__is_a_tag(text, index)
     end
 end
 
+---@param s string
 function Phrase:separate_string(s)
+    s = s .. " "
+    local sep = "\n\t "
+    local current_init = 1
     local words = {}
-    local sep = " "
-    local i = 1
-    local current_index = 1
 
-    while (i <= #s) do
-        local current_char = s:sub(i, i)
+    while (current_init <= #(s)) do
+        local regex = "[^[ ]]*.-[" .. sep .. "]"
+        local find = s:match(regex, current_init)
+        local nick = find and string.match(find, "%-%-w-%-%-")
 
-        if current_char == sep then
-            local w = s:sub(current_index, i - 1)
-            if w ~= "" and w ~= " " then
-                table.insert(words, w)
-            end
-            -- table.insert(words, current_char)
-            current_index = i + 1
-        end
+        if nick then
+            local startp, endp = string.find(s, "%-%-%w-%-%-", current_init)
+            local sub_s = s:sub(startp, endp)
+            local prev_word = s:sub(current_init, startp - 1)
 
-        local r2 = self.__font:__is_a_nickname(s, i)
-        if r2 then
-            local w = s:sub(current_index, i - 1)
-            if w ~= "" and w ~= " " then
-                table.insert(words, w)
-            end
-            table.insert(words, s:sub(i, i + #r2 - 1))
-            current_index = i + #r2
-            i = current_index - 1
-        end
-
-        if current_char == "\n" or current_char == "\t" then
-            local w = s:sub(current_index, i - 1)
-            if w ~= "" and w ~= " " then
-                table.insert(words, w)
+            if startp ~= 1 and prev_word ~= "" and prev_word ~= " " then
+                table.insert(words, prev_word)
             end
 
-            table.insert(words, current_char)
-            current_index = i + 1
+            if sub_s ~= "" then
+                table.insert(words, sub_s)
+            end
+            current_init = endp
+        elseif find then
+            local startp, endp = string.find(s, regex, current_init)
+            local sub_s = s:sub(startp, endp - 1)
+
+            if sub_s ~= "" then
+                if sub_s:sub(1, 1) == "\n" then
+                    sub_s = sub_s:sub(2, #sub_s)
+                    table.insert(words, "\n")
+                end
+                table.insert(words, sub_s)
+            end
+
+            if s:sub(endp, endp) == "\n" then table.insert(words, "\n") end
+            if s:sub(endp, endp) == "\t" then table.insert(words, "\t") end
+
+            current_init = endp
+        else
+            break
         end
 
-        -- local r = self:__is_a_tag(s, i)
-        -- if r then
-        --     local w = s:sub(current_index, i - 1)
-        --     if w ~= "" and w ~= " " then
-        --         table.insert(words, w)
-        --     end
-
-        --     table.insert(words, r.tag)
-        --     current_index = r.final + 1
-        --     i = current_index - 1
-        -- end
-
-        i = i + 1
+        current_init = current_init + 1
     end
 
-    table.insert(words, s:sub(current_index, #s))
+    if s:sub(current_init, #s) ~= "" then
+        table.insert(words, s:sub(current_init, #s))
+    end
+
     return words
 end
+
+-- function Phrase:separate_string(s)
+--     local words = {}
+--     local sep = " "
+--     local i = 1
+--     local current_index = 1
+
+--     while (i <= #s) do
+--         local current_char = s:sub(i, i)
+
+--         if current_char == sep then
+--             local w = s:sub(current_index, i - 1)
+--             if w ~= "" and w ~= " " then
+--                 table.insert(words, w)
+--             end
+--             -- table.insert(words, current_char)
+--             current_index = i + 1
+--         end
+
+--         local r2 = self.__font:__is_a_nickname(s, i)
+--         if r2 then
+--             local w = s:sub(current_index, i - 1)
+--             if w ~= "" and w ~= " " then
+--                 table.insert(words, w)
+--             end
+--             table.insert(words, s:sub(i, i + #r2 - 1))
+--             current_index = i + #r2
+--             i = current_index - 1
+--         end
+
+--         if current_char == "\n" or current_char == "\t" then
+--             local w = s:sub(current_index, i - 1)
+--             if w ~= "" and w ~= " " then
+--                 table.insert(words, w)
+--             end
+
+--             table.insert(words, current_char)
+--             current_index = i + 1
+--         end
+
+--         -- local r = self:__is_a_tag(s, i)
+--         -- if r then
+--         --     local w = s:sub(current_index, i - 1)
+--         --     if w ~= "" and w ~= " " then
+--         --         table.insert(words, w)
+--         --     end
+
+--         --     table.insert(words, r.tag)
+--         --     current_index = r.final + 1
+--         --     i = current_index - 1
+--         -- end
+
+--         i = i + 1
+--     end
+
+--     table.insert(words, s:sub(current_index, #s))
+--     return words
+-- end
 
 function Phrase:update(dt)
     for i = 1, #self.__words, 1 do
@@ -406,7 +462,6 @@ function Phrase:draw_lines(lines, x, y, alignment, threshold, __max_char__)
 
             local q = #lines[i] - 1
             if lines[i][#lines[i]] and lines[i][#lines[i]].__text == "\n" then
-                -- q = q - 1
                 q = q * 2 + 5
                 q = 100000000
             end
