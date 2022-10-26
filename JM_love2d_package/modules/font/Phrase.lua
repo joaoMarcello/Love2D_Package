@@ -323,7 +323,7 @@ function Phrase:separate_string(s)
         local find = s:match(regex, current_init)
         local nick = find and string.match(find, "%-%-%w-%-%-")
 
-        if nick then
+        if nick and nick ~= "----" then
             local startp, endp = string.find(s, "%-%-%w-%-%-", current_init)
             local sub_s = s:sub(startp, endp)
             local prev_word = s:sub(current_init, startp - 1)
