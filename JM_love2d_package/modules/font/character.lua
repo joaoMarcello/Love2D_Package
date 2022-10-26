@@ -19,7 +19,7 @@ end
 function Character:__constructor__(img, quad, args)
     self.__img = img
     self.__quad = quad
-    self.__id = args.id
+    self.__id = args.id or ""
 
     self.x = args.x
     self.y = args.y

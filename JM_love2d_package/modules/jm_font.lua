@@ -382,7 +382,10 @@ function Font:__get_char_equals(c)
         or self.__bold_characters
 
     for i = 1, #list do
+        local char__ = self:__get_char_by_index(i)
+
         if c == self:__get_char_by_index(i).__id then
+            -- if char__ and char__.__id:match(c) then
             return self:__get_char_by_index(i)
         end
     end

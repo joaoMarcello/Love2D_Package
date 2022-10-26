@@ -174,7 +174,7 @@ function Phrase:color_sentence(sentence, color, mode)
 
                 local startp, endp = word.__text:find(word_sentence.__text)
                 local r = startp and word:set_color(color, startp, endp)
-                r = startp and word:turn_into_bold(startp, endp)
+                -- r = startp and word:turn_into_bold(startp, endp)
             end
         end
     end
@@ -331,7 +331,7 @@ end
 
 ---@param s string
 function Phrase:separate_string(s, list)
-    s = s .. ""
+    s = s .. " "
     local sep = "\n "
     local current_init = 1
     local words = list or {}

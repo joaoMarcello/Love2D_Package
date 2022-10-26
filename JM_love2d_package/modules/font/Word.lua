@@ -62,13 +62,18 @@ function Word:__load_characters(mode)
         end
 
         if char_obj then
+            local startp, endp = self.__text:find(cur_char, i)
+
             char_obj = char_obj:copy()
             char_obj:set_color(self.__font.__default_color)
             table.insert(self.__characters, char_obj)
 
             if char_obj:is_animated() then
+                char_obj:set_color({ 1, 1, 1, 1 })
                 char_obj.__anima:set_size(nil, self.__font.__font_size * 1.1, nil, nil)
             end
+        else
+            break
         end
         i = i + 1
     end
