@@ -597,4 +597,114 @@ function Font:print(text, x, y, w, h)
     end
 end
 
+function Font:print2(text, x, y, w, h, __i__, __color__, __x_origin__, __format__)
+    w = w or love.graphics.getWidth()
+    h = h or love.graphics.getHeight()
+
+    local tx = x
+    local ty = y
+    local current_color = __color__ or self.__default_color
+    local current_format = __format__ or self.format_options.normal
+    local x_origin = __x_origin__ or tx
+
+    local i = __i__ or 1
+    while (i <= #(text)) do
+        local char_string = text:sub(i, i)
+        local is_a_nick = self:__is_a_nickname(text, i)
+
+        if is_a_nick then
+            char_string = is_a_nick
+            i = i + #char_string
+        end
+
+        local startp, endp = text:find("< *color[%d .,]*>", i)
+        if startp then
+            local parse = Utils:parse_csv_line(text:sub(startp - 1, endp - 1))
+            local r = parse[2] or 1
+            local g = parse[3] or 0
+            local b = parse[4] or 0
+
+            local result = self:print2(text:sub(i, startp - 1), tx, ty, w, h, 1, current_color, x_origin, current_format)
+
+            current_color = { r, g, b, 1 }
+
+            tx = result.tx
+            ty = result.ty
+
+            i = endp
+            char_string = ""
+        else
+            startp, endp = text:find("< */ *color *>", i)
+            if startp then
+
+                local result = self:print2(text:sub(i, startp - 1), tx, ty, w, h, 1, current_color, x_origin)
+
+                current_color = self.__default_color
+
+                tx = result.tx
+                ty = result.ty
+
+                i = endp
+                char_string = ""
+            end
+        end
+
+        startp = nil
+        startp, endp = text:find("< *bold *>", i)
+        if startp then
+            local r = self:print2(text:sub(i, startp - 1), tx, ty, w, h, 1, current_color, x_origin, current_format)
+
+            current_format = self.format_options.bold
+            tx = r.tx
+            ty = r.ty
+
+            i = endp
+            char_string = ""
+        end
+
+        local char_obj = self:__get_char_equals(char_string)
+
+        if not char_obj then
+            char_obj = self:__get_char_equals(text:sub(i, i + 1))
+        end
+
+        if char_string == "\n"
+            or char_obj and tx + self.__word_space + char_obj:get_width() >= w
+        then
+            ty = ty + self.__ref_height * self.__scale + self.__line_space
+            tx = x_origin
+        end
+
+        if char_obj then
+            self:set_format_mode(current_format)
+            char_obj:set_color(current_color)
+            char_obj:set_scale(self.__scale)
+
+            if char_obj:is_animated() then
+                char_obj:set_color({ 1, 1, 1, 1 })
+
+                char_obj.__anima:set_size(
+                    nil, self.__font_size * 1.4,
+                    nil, char_obj.__anima:__get_current_frame().h
+                )
+
+                char_obj:draw(tx + char_obj.w / 2 * char_obj.sx,
+                    ty + char_obj.h / 2 * char_obj.sy
+                )
+            else
+
+                local width = char_obj.w * char_obj.sx
+                local height = char_obj.h * char_obj.sy
+                char_obj:draw_rec(tx, ty + self.__font_size - height, width, height)
+            end
+
+            tx = tx + char_obj:get_width() + self.__character_space
+        end
+
+        i = i + 1
+    end
+
+    return { tx = tx, ty = ty }
+end
+
 return Font

@@ -493,7 +493,7 @@ end
 ---@param __max_char__ number|nil
 ---@return JM.Font.CharacterPosition|nil
 function Phrase:draw(x, y, alignment, __max_char__)
-    self:__debbug()
+    -- self:__debbug()
 
     if x >= self.__bounds.right then return end
 

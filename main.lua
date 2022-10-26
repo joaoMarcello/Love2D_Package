@@ -180,8 +180,10 @@ function love.draw()
     -- Calibri:print("mas que solidao\n <color, 1, 0, 0>ninguem --nuvem-- aqui--</color>ao lado\n\tachei a solucao\n \tnao sou\n <bold>mais</bold> maltratado --goomba-- --jean-- --goomba-- be gone!\t \tArroz"
     --     , 50, 110, w)
 
-    Consolas:print("\t<color, 0,0,1>Hello </color>World --goomba--", 0, 20)
+    -- Consolas:print("\t<color, 0,0,1>Hello </color>World --goomba--", 0, 20)
 
+    Consolas:print2("Hello <bold>World",
+        10, 0)
 
     Consolas:push()
     if current_max >= 60 then
