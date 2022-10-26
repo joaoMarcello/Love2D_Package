@@ -237,14 +237,14 @@ function Phrase:get_lines(x, y)
         local last_added = lines[cur_line] and self:__get_word_in_list(lines[cur_line], #lines[cur_line])
 
         if cur_is_tag then
-            -- goto skip_word
+            goto skip_word
         end
 
         local r = current_word:get_width()
             + word_char:get_width()
 
         if tx + r > self.__bounds.right
-            or current_word.__text == "\n" then
+            or current_word.__text:match("\n ?") then
 
             tx = x
 
@@ -342,7 +342,7 @@ function Phrase:separate_string(s, list)
 
         local tag = s:match(tag_regex, current_init)
         local find = not tag and s:match(regex, current_init)
-        local nick = find and string.match(find, "%-%-%w-%-%-")
+        local nick = find and string.match(find, "%-%-%w-%-%-") and false
 
         if tag then
             local startp, endp = string.find(s, tag_regex, current_init)
@@ -439,7 +439,7 @@ function Phrase:draw_lines(lines, x, y, alignment, threshold, __max_char__)
 
             local q = #lines[i] - 1
             if lines[i][#lines[i]] and lines[i][#lines[i]].__text == "\n" then
-                q = q * 2 + 5
+                q = q * 2 + 7
                 -- q = 100
             end
 

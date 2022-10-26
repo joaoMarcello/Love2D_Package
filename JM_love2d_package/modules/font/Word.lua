@@ -155,11 +155,11 @@ end
 --- change the word color
 ---@param color JM.Color
 function Word:set_color(color, startp, endp)
-    if self.__font:__is_a_nickname(self.__text, 1) then
-        local char__ = self:__get_char_by_index(1)
-        if char__ and char__:is_animated() then char__.__anima:set_color(color) end
-        return
-    end
+    -- if self.__font:__is_a_nickname(self.__text, 1) then
+    --     local char__ = self:__get_char_by_index(1)
+    --     if char__ and char__:is_animated() then char__.__anima:set_color(color) end
+    --     return
+    -- end
 
     if not startp then startp = 1 end
     if not endp then endp = #self.__characters end

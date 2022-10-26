@@ -87,6 +87,10 @@ end
 
 function Character:set_color(value)
     self.__color = Affectable.set_color(self, value)
+
+    if self:is_animated() then
+        self.__anima:set_color(self.__color)
+    end
 end
 
 function Character:get_color()
