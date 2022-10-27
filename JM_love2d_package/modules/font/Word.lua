@@ -213,8 +213,8 @@ end
 
 ---@return JM.Font.CharacterPosition|nil
 function Word:draw(x, y, __max_char__, __character_count__)
-    love.graphics.setColor(0.9, 0, 0, 0.15)
-    love.graphics.rectangle("fill", x, y, self:get_width(), self.__font.__font_size)
+    -- love.graphics.setColor(0.9, 0, 0, 0.15)
+    -- love.graphics.rectangle("fill", x, y, self:get_width(), self.__font.__font_size)
 
 
     local tx = x
@@ -254,8 +254,8 @@ function Word:draw(x, y, __max_char__, __character_count__)
     end
 
     if self.__text ~= " " then
-        love.graphics.setColor(0, 0, 0, 1)
-        love.graphics.rectangle("line", x - 2, y - 2, self:get_width() + 4, self.__font.__font_size + 4)
+        -- love.graphics.setColor(0, 0, 0, 1)
+        -- love.graphics.rectangle("line", x - 2, y - 2, self:get_width() + 4, self.__font.__font_size + 4)
     end
 end
 
