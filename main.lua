@@ -184,7 +184,7 @@ function love.draw()
     --     0, 0, love.graphics.getWidth() - 300)
     Consolas:push()
     -- Consolas:set_font_size(16)
-    Consolas:printf("\tAquele<> que habita no esconderijo do altíssimo, à sombra do onipotente descansará. Diz o senhor, meu refúgio e meu baluarte. Deus meu em quem confio. Pois ele te livrará do laço do passarinheiro e da peste perniciosa. Cobrir-te-á com tuas penas, e sob tuas asas, estarás seguro. Tua verdade é pavê e escudo."
+    Consolas:printf("\tAquele <color> que habita</color> no esconderijo"
         , 0, 0)
     Consolas:pop()
 

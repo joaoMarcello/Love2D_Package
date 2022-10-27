@@ -599,6 +599,8 @@ end
 function Font:printf(text, x, y, limit_right, __i__, __color__, __x_origin__, __format__)
     if not text or text == "" then return { tx = x, ty = y } end
 
+    self:push()
+
     local tx = x
     local ty = y
     local current_color = __color__ or self.__default_color
@@ -611,12 +613,6 @@ function Font:printf(text, x, y, limit_right, __i__, __color__, __x_origin__, __
 
     while (i <= #(separated)) do
         local cur_word = separated[i] or ""
-
-        -- if cur_word == "\n"
-        -- then
-        --     ty = ty + self.__ref_height * self.__scale + self.__line_space
-        --     tx = x_origin
-        -- end
 
         self:set_format_mode(current_format)
 
@@ -637,10 +633,6 @@ function Font:printf(text, x, y, limit_right, __i__, __color__, __x_origin__, __
             j = j + 1
         end
 
-        -- if i ~= #separated then
-        --     table.insert(characters, self.__space_char)
-        -- end
-
         table.insert(words, characters)
 
         i = i + 1
@@ -649,9 +641,10 @@ function Font:printf(text, x, y, limit_right, __i__, __color__, __x_origin__, __
     -- self:push()
     -- -- self:set_font_size(10)
     -- for k, s in ipairs(separated) do
-    --     self:print(s, 600, k * 10)
+    --     -- self:print(s, 600, k * 10)
     -- end
     -- self:print(tostring(#separated) .. " " .. tostring(#words), 560, 0)
+    -- self:print(tostring(separated[2]:match("<.->") or "None"), 560, 50)
     -- self:pop()
 
     local get_char_obj =
@@ -665,19 +658,29 @@ function Font:printf(text, x, y, limit_right, __i__, __color__, __x_origin__, __
     ---@return number width
     function(args)
         local width = 0
-        for i = 1, #(args), 1 do
-            local char_obj = get_char_obj(args[i])
+        for _, obj in ipairs(args) do
+            local char_obj = get_char_obj(args[_])
             width = width + char_obj:get_width() + self.__character_space
         end
-        return width --- self.__character_space
+        return width - self.__character_space
     end
 
     local print =
     ---@param word_list table
     ---@param qx number
     ---@param qy number
-    function(word_list, qx, qy)
+    function(word_list, qx, qy, current_index)
         for k, word in ipairs(word_list) do
+
+            local r = separated[current_index + k] or ""
+            if r then
+                if r:match("<color>") then
+                    current_color = { 1, 0, 0, 1 }
+                elseif r:match("</color>") then
+                    current_color = { 0, 0, 0, 1 }
+                end
+            end
+
             for i = 1, #(word) do
                 local char_obj = get_char_obj(word[i])
                 if char_obj then
@@ -720,11 +723,11 @@ function Font:printf(text, x, y, limit_right, __i__, __color__, __x_origin__, __
             words[m]
         )
 
-        total_width = total_width + len(words[m]) + self.__space_char:get_width()
+        total_width = total_width + len(words[m]) + self.__space_char:get_width() + self.__character_space * 2
 
         if total_width + (words[m + 1] and len(words[m + 1]) or 0) >= limit_right
         then
-            print(line, tx, ty)
+            print(line, tx, ty, m - #line)
             line = nil
             total_width = 0
             tx = x_origin
@@ -736,15 +739,15 @@ function Font:printf(text, x, y, limit_right, __i__, __color__, __x_origin__, __
                     line,
                     { self.__space_char }
                 )
-
-                -- total_width = total_width + self.__space_char:get_width()
             end
         end
 
         if line and m == #words then
-            print(line, tx, ty)
+            print(line, tx, ty, m - #line)
         end
     end
+
+    self:pop()
 
     love.graphics.setColor(0, 0, 0, 0.3)
     love.graphics.line(limit_right, 0, limit_right, 600)
