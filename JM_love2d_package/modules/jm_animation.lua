@@ -270,7 +270,7 @@ end
 ---@return {ox: number, oy: number}
 function Anima:get_origin()
     local cf = self:__get_current_frame()
-    return cf:get_origin()
+    return cf:get_offset()
 end
 
 function Anima:set_kx(value)

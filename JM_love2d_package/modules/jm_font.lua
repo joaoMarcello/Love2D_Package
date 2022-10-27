@@ -3,6 +3,7 @@ local Affectable = require("/JM_love2d_package/modules/templates/Affectable")
 local Character = require("/JM_love2d_package/modules/font/character")
 local Utils = require("/JM_love2d_package/utils")
 local Anima = require "/JM_love2d_package/animation_module"
+local utf8 = require('utf8')
 
 ---@enum JM.Font.FormatOptions
 local FontFormat = {
@@ -152,6 +153,8 @@ function Font:__load_caracteres_from_csv(list, name, img, extend)
         if not left then
             break
         end
+
+
         table.insert(list,
             Character:new(img, self.__quad,
                 { id = id, x = left, y = top, w = right - left, h = bottom - top, bottom = offset_y })
@@ -666,7 +669,7 @@ function Font:print2(text, x, y, w, h, __i__, __color__, __x_origin__, __format_
                 local r = self:print2(text:sub(i, startp - 1), tx, ty, w, h, 1, current_color, x_origin, current_format)
 
                 current_format = self.format_options.normal
-                
+
                 tx = r.tx
                 ty = r.ty
 

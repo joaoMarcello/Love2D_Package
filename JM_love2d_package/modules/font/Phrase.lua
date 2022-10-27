@@ -412,11 +412,11 @@ end
 ---@param lines table
 ---@param x number
 ---@param y number
----@param alignment "left"|"right"|"center"|"justified"|nil
+---@param align "left"|"right"|"center"|"justified"|nil
 ---@param threshold number|nil
 ---@return JM.Font.CharacterPosition|nil
-function Phrase:draw_lines(lines, x, y, alignment, threshold, __max_char__)
-    if not alignment then alignment = "left" end
+function Phrase:draw_lines(lines, x, y, align, threshold, __max_char__)
+    if not align then align = "left" end
     if not threshold then threshold = #lines end
 
     local tx, ty = x, y
@@ -425,15 +425,15 @@ function Phrase:draw_lines(lines, x, y, alignment, threshold, __max_char__)
     local result
 
     for i = 1, #lines do
-        if alignment == "right" then
+        if align == "right" then
 
             tx = self.__bounds.right - self:__line_length(lines[i])
 
-        elseif alignment == "center" then
+        elseif align == "center" then
 
             tx = x + (self.__bounds.right - x) / 2 - self:__line_length(lines[i]) / 2
 
-        elseif alignment == "justified" then
+        elseif align == "justified" then
 
             local total = self:__line_length(lines[i])
 

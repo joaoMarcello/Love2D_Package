@@ -31,7 +31,7 @@ function Frame:__constructor__(args)
 end
 
 ---@return {ox: number, oy: number}
-function Frame:get_origin()
+function Frame:get_offset()
     return { ox = self.ox, oy = self.oy }
 end
 
