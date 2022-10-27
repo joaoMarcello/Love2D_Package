@@ -231,10 +231,6 @@ function Phrase:get_lines(x, y)
         local prev_word = self:get_word_by_index(i - 1)
 
         local cur_is_tag = self:__is_a_command_tag(current_word.__text)
-        local next_is_tag = self:__is_a_command_tag(next_word and next_word.__text or "")
-        local prev_was_tag = self:__is_a_command_tag(prev_word and prev_word.__text or "")
-
-        local last_added = lines[cur_line] and self:__get_word_in_list(lines[cur_line], #lines[cur_line])
 
         if cur_is_tag then
             goto skip_word
@@ -483,7 +479,7 @@ function Phrase:__debbug()
     local w = self:separate_string(s)
 
     for i = 1, #w do
-        self.__font:print(tostring(w[i]), 0, 50 * i)
+        self.__font:print2(tostring(w[i]), 0, 50 * i)
     end
 end
 

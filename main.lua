@@ -182,8 +182,9 @@ function love.draw()
 
     -- Consolas:print("\t<color, 0,0,1>Hello </color>World --goomba--", 0, 20)
 
-    Consolas:print2("asHell <bold>oWor</bold>ld",
-        10, 0)
+    Consolas:print2("Caro senhor Potter, \n\n \tChegou ao conhecimento do Ministério que o senhor executou o < color, 0, 0, 1 >feitiço do patrono <color>na <bold>presença de um trouxa< /color >< /bold >.\n\tSendo uma grave violação ao <bold>'Regulamento de <color, 1,0,1>Restrição à Prática de Magia por Menores'</bold>, o senhor</color> está expulso da <bold>Escola de Magia e Bruxaria de Hogwarts.</bold>\n\n \t\t\tEsperando que esteja bem,\n\t\t\t\t\tMafalda Hopkins --goomba--</bold> "
+        ,
+        0, 0, love.graphics.getWidth() - 300)
 
     Consolas:push()
     if current_max >= 60 then

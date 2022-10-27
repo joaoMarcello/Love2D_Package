@@ -60,6 +60,8 @@ function Font:__constructor__(args)
         self.__img:getDimensions()
     )
 
+    self.__nicknames = {}
+
     self.__font_size = args.font_size or 20
 
     self.__character_space = args.character_space or 1
@@ -114,8 +116,6 @@ function Font:__constructor__(args)
     table.insert(self.__bold_characters, self.__tab_char)
 
     self.__default_color = { 0.1, 0.1, 0.1, 1 }
-
-    self.__nicknames = {}
 
     self.__bounds = { x = 50, y = 110, w = 230, h = 500 }
 end
@@ -364,7 +364,7 @@ local function __is_command(s, index)
 end
 
 function Font:update(dt)
-    for i = 1, #self.__nicknames do
+    for i = 1, #(self.__nicknames) do
         local character = self.__characters[self.__nicknames[i].index]
         local r = character and character:update(dt)
     end
@@ -391,217 +391,107 @@ function Font:__get_char_equals(c)
             -- if char__ and char__.__id:match(c) then
             return self:__get_char_by_index(i)
         end
+
+        -- if self:string_is_nickname(c) then
+        --     for i = 1, #self.__nicknames do
+        --         local character = list[self.__nicknames[i].index]
+        --         if c == character.__id then
+        --             return character
+        --         end
+        --     end
+        -- end
     end
     return nil
 end
 
----@param text string
----@param x number # Position to draw in the x-axis.
----@param y number # Position to draw in the y-axis.
----@param w number|nil
----@param h number|nil
-function Font:print(text, x, y, w, h)
-    local tx = x
-    local ty = y
+---@param s string
+function Font:separate_string(s, list)
+    s = s .. " "
+    local sep = "\n "
+    local current_init = 1
+    local words = list or {}
 
-    local jump = -1
-    local jumped = 0
-    local last_was_nickname = nil
-    local last_was_command = nil
-    local color = self.__default_color
-    local change_color = nil
-    local italic = nil
-    local bold = nil
-    local animated_char_stack = {}
+    while (current_init <= #(s)) do
+        local regex = "[^[ ]]*.-[" .. sep .. "]"
+        local tag_regex = "< *[%d, .%w/]*>"
 
-    for i = 1, #text do
-        if jump > 0 then
-            jump = jump - 1
-            goto continue
-        end
+        local tag = s:match(tag_regex, current_init)
+        local find = not tag and s:match(regex, current_init)
+        local nick = find and string.match(find, "%-%-%w-%-%-") and false
 
-        local check_command = __is_command(text, i)
+        if tag then
+            local startp, endp = string.find(s, tag_regex, current_init)
+            local sub_s = s:sub(startp, endp)
+            local prev_s = s:sub(current_init, startp - 1)
 
-        -- Checking if current char is a valid tag
-        if check_command then
-            last_was_command = text:sub(i - 1, i - 1)
-
-            if check_command.command == "color" then
-                change_color = check_command
-                color = change_color.color
-            elseif check_command.command == "italic" then
-                italic = check_command
-                color = { 0, 0.5, 0.9, 1 }
-            elseif check_command.command == "bold" then
-                bold = check_command
-                color = { 1, 0, 1, 1 }
+            if prev_s ~= "" and prev_s ~= " " then
+                self:separate_string(prev_s, words)
             end
-            jump = check_command.final1 - check_command.start1
-            jumped = jump
-            goto continue
-        end -- END if current char is the start of a command
 
-        -- If detected color command tag...
-        if change_color then
-            color = change_color.color
+            table.insert(words, sub_s)
+            current_init = endp
 
-            if i > change_color.final2 then
-                color = self.__default_color
-                change_color = nil
-            elseif i >= change_color.start2 then
-                last_was_command = text:sub(i - 1, i - 1)
-                jump = change_color.final2 - change_color.start2
-                jumped = jump
-                goto continue
+        elseif nick and nick ~= "----" then
+            local startp, endp = string.find(s, "%-%-%w-%-%-", current_init)
+            local sub_s = s:sub(startp, endp)
+            local prev_word = s:sub(current_init, startp - 1)
+
+            if prev_word and prev_word ~= "" and prev_word ~= " " then
+                self:separate_string(prev_word, words)
             end
-        end
 
-        -- If detected italic command tag...
-        if italic then
-            if i > italic.final2 then
-                italic = nil
-                color = self.__default_color
-            elseif i >= italic.start2 then
-                last_was_command = text:sub(i - 1, i - 1)
-                jump = italic.final2 - italic.start2
-                jumped = jump
-                goto continue
+            if sub_s ~= "" and sub_s ~= " " then
+                table.insert(words, sub_s)
             end
-        end
 
-        -- If detected bold command tag...
-        if bold then
-            if i > bold.final2 then
-                bold = nil
-                color = self.__default_color
-            elseif i >= bold.start2 then
-                last_was_command = text:sub(i - 1, i - 1)
-                jump = bold.final2 - bold.start2
-                jumped = jump
-                goto continue
+            current_init = endp
+
+        elseif find then
+
+            local startp, endp = string.find(s, regex, current_init)
+            local sub_s = s:sub(startp, endp - 1)
+
+            if sub_s ~= "" and sub_s ~= " " then
+                table.insert(words, sub_s)
             end
-        end
 
-        local current_char = text:sub(i, i)
-        local prev_char = text:sub(i - 1 - jumped, i - 1 - jumped)
-        local next_char = text:sub(i + 1, i + 1)
-
-        -- Tells if current char is the init of a nickname. If true, this variable will store the whole nickname string.
-        local found_a_nickname = self:__is_a_nickname(text, i)
-
-        if found_a_nickname then
-            current_char = found_a_nickname
-        end
-
-        if last_was_nickname then
-            prev_char = last_was_nickname
-            last_was_nickname = nil
-        end
-
-        if last_was_command then
-            prev_char = last_was_command
-            last_was_command = nil
-        end
-
-        local character = self:__get_char_equals(current_char)
-        if not character then character = self:get_nule_character() end
-        local last = self:__get_char_equals(prev_char)
-        if not last and i ~= 1 then last = self:get_nule_character() end
-        local next = self:__get_char_equals(next_char)
-
-        -- The width in pixels from previous Character object
-        local last_w = last and last.w
-
-        if jump == 0 then
-            jump = -1
-            jumped = 0
-        end
-
-        -- The width in pixels from next Character object
-        local next_w = (next and next.w)
-        -- or (next_char) == " " and self.__word_space
-
-
-        local condition_1 = current_char == "\n"
-
-        -- The current x position will exceed the allowed width
-        local condition_2 = w and character and last_w
-            and tx + character.w * self.__scale + last_w * self.__scale + (self.__character_space * 2) > x + w
-
-        -- Broken line or current x position will exceed the desired width.
-        if condition_1 or condition_2 then
-
-            ty = ty + self.__line_space + self.__ref_height * self.__scale
-            tx = x
-
-            -- Current char is "\n"
-            if condition_1 then
-                goto continue
-            else -- Current x position is bigger than desired width
-                last_w = nil
+            if s:sub(endp, endp) == "\n" then
+                table.insert(words, "\n")
             end
-        end
 
-        -- Updating the x position to draw
-        if last_w and character then
-            tx = tx + self.__character_space + last_w * self.__scale
-        end
-
-        if h and ty >= y + h then
+            current_init = endp
+        else
             break
         end
 
-        if character then
-            if character:is_animated() then
-                table.insert(animated_char_stack, { char = character, x = tx, y = ty })
-            else
-                character:set_color(color)
-
-                character:set_scale(self.__scale)
-
-                local width = character.w * character.sx
-                local height = character.h * character.sy
-                character:draw_rec(tx, ty + self.__font_size - height, width, height)
-            end
-        end
-
-        if found_a_nickname then
-            jump = #found_a_nickname - 1
-            jumped = jump
-            last_was_nickname = found_a_nickname
-        end
-
-        -- The FOR loop end block
-        ::continue::
-    end -- END FOR each character in the text
-
-    -- Drawing the animated characters
-    for i = 1, #animated_char_stack do
-        local get_ =
-        ---@return JM.Font.Character
-        function(arg)
-            return arg.char
-        end
-
-        local character = get_(animated_char_stack[i])
-        local tx = animated_char_stack[i].x
-        local ty = animated_char_stack[i].y
-
-        character:set_scale(self.__scale)
-
-        character.__anima:set_size(
-            nil, self.__font_size * 1.4,
-            nil, character.__anima:__get_current_frame().h
-        )
-
-        character:draw(tx + character.w / 2 * character.sx,
-            ty + character.h / 2 * character.sy
-        )
+        current_init = current_init + 1
     end
+
+    local rest = s:sub(current_init, #s)
+
+    if rest ~= "" and not rest:match(" *") then
+        table.insert(words, s:sub(current_init, #s))
+    end
+
+    return words
 end
 
+function Font:__is_a_command_tag(s)
+    return (s:match("< *bold *>") and "<bold>")
+        or (s:match("< */ *bold *>") and "</bold>")
+        or (s:match("< *color[%d, .]*>") and "<color>")
+        or (s:match("< */ *color *>") and "</color>")
+        or false
+end
+
+---@param text string
 function Font:print2(text, x, y, w, h, __i__, __color__, __x_origin__, __format__)
-    w = w or love.graphics.getWidth()
+    if not text or text == "" then return { tx = x, ty = y } end
+
+    text = text
+    self:push()
+
+    w = w or nil --love.graphics.getWidth() - 100
     h = h or love.graphics.getHeight()
 
     local tx = x
@@ -620,60 +510,39 @@ function Font:print2(text, x, y, w, h, __i__, __color__, __x_origin__, __format_
             i = i + #char_string
         end
 
-        local startp, endp = text:find("< *color[%d .,]*>", i)
-        if startp then
-            local parse = Utils:parse_csv_line(text:sub(startp - 1, endp - 1))
-            local r = parse[2] or 1
-            local g = parse[3] or 0
-            local b = parse[4] or 0
+        local tag = text:match("<.->", i)
+        if tag then
+            local match = self:__is_a_command_tag(tag)
 
-            local result = self:print2(text:sub(i, startp - 1), tx, ty, w, h, 1, current_color, x_origin, current_format)
+            local startp, endp = text:find("<.->", i)
 
-            current_color = { r, g, b, 1 }
+            local result = match and self:print2(text:sub(i, startp - 1),
+                tx, ty, w, h, 1,
+                current_color, x_origin, current_format
+            )
 
-            tx = result.tx
-            ty = result.ty
+            if match == "<color>" then
+                local parse = Utils:parse_csv_line(text:sub(startp - 1, endp - 1))
+                local r = parse[2] or 1
+                local g = parse[3] or 0
+                local b = parse[4] or 0
 
-            i = endp
-            char_string = ""
-        else
-            startp, endp = text:find("< */ *color *>", i)
-            if startp then
-                local result = self:print2(text:sub(i, startp - 1), tx, ty, w, h, 1, current_color, x_origin)
-
+                current_color = { r, g, b, 1 }
+            elseif match == "</color>" then
                 current_color = self.__default_color
+            elseif match == "<bold>" then
+                current_format = self.format_options.bold
+            elseif match == "</bold>" then
+                current_format = self.format_options.normal
+            end
 
+            if match then
+                i = endp
+                if endp == #text then
+                    i = i + 1
+                end
                 tx = result.tx
                 ty = result.ty
-
-                i = endp
-                char_string = ""
-            end
-        end
-
-        startp = nil
-        startp, endp = text:find("<bold>", i)
-        if startp then
-            local r = self:print2(text:sub(i, startp - 1), tx, ty, w, h, 1, current_color, x_origin, current_format)
-
-            current_format = self.format_options.bold
-            tx = r.tx
-            ty = r.ty
-
-            i = endp
-            char_string = ""
-        else
-            startp, endp = text:find("< */ *bold *>", i)
-
-            if startp then
-                local r = self:print2(text:sub(i, startp - 1), tx, ty, w, h, 1, current_color, x_origin, current_format)
-
-                current_format = self.format_options.normal
-
-                tx = r.tx
-                ty = r.ty
-
-                i = endp
                 char_string = ""
             end
         end
@@ -687,7 +556,8 @@ function Font:print2(text, x, y, w, h, __i__, __color__, __x_origin__, __format_
         end
 
         if char_string == "\n"
-            or char_obj and tx + self.__word_space + char_obj:get_width() >= w
+            or (char_obj and w)
+            and tx + self.__word_space + char_obj:get_width() >= x_origin + w
         then
             ty = ty + self.__ref_height * self.__scale + self.__line_space
             tx = x_origin
@@ -721,6 +591,7 @@ function Font:print2(text, x, y, w, h, __i__, __color__, __x_origin__, __format_
         i = i + 1
     end
 
+    self:pop()
     return { tx = tx, ty = ty }
 end
 
