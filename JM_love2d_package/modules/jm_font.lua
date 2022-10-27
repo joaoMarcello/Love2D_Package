@@ -636,7 +636,6 @@ function Font:print2(text, x, y, w, h, __i__, __color__, __x_origin__, __format_
         else
             startp, endp = text:find("< */ *color *>", i)
             if startp then
-
                 local result = self:print2(text:sub(i, startp - 1), tx, ty, w, h, 1, current_color, x_origin)
 
                 current_color = self.__default_color
@@ -650,7 +649,7 @@ function Font:print2(text, x, y, w, h, __i__, __color__, __x_origin__, __format_
         end
 
         startp = nil
-        startp, endp = text:find("< *bold *>", i)
+        startp, endp = text:find("<bold>", i)
         if startp then
             local r = self:print2(text:sub(i, startp - 1), tx, ty, w, h, 1, current_color, x_origin, current_format)
 
@@ -660,7 +659,23 @@ function Font:print2(text, x, y, w, h, __i__, __color__, __x_origin__, __format_
 
             i = endp
             char_string = ""
+        else
+            startp, endp = text:find("< */ *bold *>", i)
+
+            if startp then
+                local r = self:print2(text:sub(i, startp - 1), tx, ty, w, h, 1, current_color, x_origin, current_format)
+
+                current_format = self.format_options.normal
+                
+                tx = r.tx
+                ty = r.ty
+
+                i = endp
+                char_string = ""
+            end
         end
+
+        self:set_format_mode(current_format)
 
         local char_obj = self:__get_char_equals(char_string)
 
@@ -676,7 +691,6 @@ function Font:print2(text, x, y, w, h, __i__, __color__, __x_origin__, __format_
         end
 
         if char_obj then
-            self:set_format_mode(current_format)
             char_obj:set_color(current_color)
             char_obj:set_scale(self.__scale)
 

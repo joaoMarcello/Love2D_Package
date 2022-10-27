@@ -109,7 +109,7 @@ local text2 = "<color>Thanos</color> aAáÁàÀãÃäÄ eEéÉèÈêÊëË iIí�
     .. [["]]
 local frase = Phrase:new({ text = text, font = Consolas })
 
-frase:color_pattern("c", { 0.8, 0, 0, 1 }, "all")
+-- frase:color_pattern("s", { 0.8, 0, 0, 1 }, "all")
 frase:color_sentence("e", { 1, 0, 0, 1 }, "all")
 frase:apply_freaky("meio", "all")
 
@@ -182,7 +182,7 @@ function love.draw()
 
     -- Consolas:print("\t<color, 0,0,1>Hello </color>World --goomba--", 0, 20)
 
-    Consolas:print2("Hello <bold>World",
+    Consolas:print2("asHell <bold>oWor</bold>ld",
         10, 0)
 
     Consolas:push()

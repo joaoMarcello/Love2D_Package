@@ -489,10 +489,10 @@ end
 
 ---@param x number
 ---@param y number
----@param alignment "left"|"right"|"center"|"justified"|nil
+---@param align "left"|"right"|"center"|"justified"|nil
 ---@param __max_char__ number|nil
 ---@return JM.Font.CharacterPosition|nil
-function Phrase:draw(x, y, alignment, __max_char__)
+function Phrase:draw(x, y, align, __max_char__)
     -- self:__debbug()
 
     if x >= self.__bounds.right then return end
@@ -506,7 +506,7 @@ function Phrase:draw(x, y, alignment, __max_char__)
 
     local lines = self.__last_lines__.lines
 
-    local result = self:draw_lines(lines, x, y, alignment, nil, __max_char__)
+    local result = self:draw_lines(lines, x, y, align, nil, __max_char__)
 
 
     love.graphics.setColor(0.4, 0.4, 0.4, 1)
