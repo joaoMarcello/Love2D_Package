@@ -103,7 +103,7 @@ local aa = Consolas:add_nickname_animated("--nuvem--", {
 })
 -- aa:apply_effect("pulse", { range = 0.06 })
 
-local text = "Caro senhor Potter,\tChegou ao conhecimento do Ministério que o senhor executou o < color, 0, 0, 1 >feitiço do patrono <color>na <bold>presença de um trouxa< /color >< /bold >.\tSendo uma grave violação ao <bold>'Regulamento de <color, 1,0,1>Restrição à Prática de Magia <color, 0.7, 1, 0.6>por Menores'</bold>, o senhor</color> está expulso da <bold>Escola de Magia e Bruxaria de Hogwarts.</bold>\t\t\tEsperando que esteja bem,\t\t\t\t\tMafalda Hopkins --goomba--</bold>Caro senhor Potter,\tChegou ao conhecimento do Ministério que o senhor executou o < color, 0, 0, 1 >feitiço do patrono <color>na <bold>presença de um trouxa< /color >< /bold >.\tSendo uma grave violação ao <bold>'Regulamento de <color, 1,0,1>Restrição à Prática de Magia <color, 0.7, 1, 0.6>por Menores'</bold>, o senhor</color> está expulso da <bold>Escola de Magia e Bruxaria de Hogwarts.</bold>\t\t\tEsperando que esteja bem,\t\t\t\t\tMafalda Hopkins --goomba--</bold>Caro senhor Potter,\tChegou ao conhecimento do Ministério que o senhor executou o < color, 0, 0, 1 >feitiço do patrono <color>na <bold>presença de um trouxa< /color >< /bold >.\tSendo uma grave violação ao <bold>'Regulamento de <color, 1,0,1>Restrição à Prática de Magia <color, 0.7, 1, 0.6>por Menores'</bold>, o senhor</color> está expulso da <bold>Escola de Magia e Bruxaria de Hogwarts.</bold>\t\t\tEsperando que esteja bem,\t\t\t\t\tMafalda Hopkins --goomba--</bold>Caro senhor Potter,\tChegou ao conhecimento do Ministério que o senhor executou o < color, 0, 0, 1 >feitiço do patrono <color>na <bold>presença de um trouxa< /color >< /bold >.\tSendo uma grave violação ao <bold>'Regulamento de <color, 1,0,1>Restrição à Prática de Magia <color, 0.7, 1, 0.6>por Menores'</bold>, o senhor</color> está expulso da <bold>Escola de Magia e Bruxaria de Hogwarts.</bold>\t\t\tEsperando que esteja bem,\t\t\t\t\tMafalda Hopkins --goomba--</bold> "
+local text = "Caro senhor Potter,\tChegou ao conhecimento do Ministério que o senhor executou o < color, 0, 0, 1 >feitiço do patrono <color>na <bold>presença de um trouxa< /color >< /bold >.\tSendo uma grave violação ao <bold>'Regulamento de <color, 1,0,1>Restrição à Prática de Magia <color, 0.7, 1, 0.6>por Menores'</bold>, o senhor</color> está expulso da <bold>Escola de Magia e Bruxaria de Hogwarts.</bold>\t\t\tEsperando que esteja bem,\t\t\t\t\tMafalda Hopkins --goomba--</bold> "
 
 local text2 = "<color>Thanos</color> aAáÁàÀãÃäÄ eEéÉèÈêÊëË iIíÍìÌîÎïÏ oOóÓòòôÔöÖõÕ uUúÚùÙûüÜ bBcCçÇdDfF gGhHjJkKlLmM nNpPqQrRsS {[(astha)]} |as_ \ntTvVwWxXyYzZ 0123456789 +-=/# @TMJ_por_JM & § ?|!,.;: °º1ª¹²³£¢¬AsthaYuno * ¨¬¬ ~ $ ~ --a--"
     .. [["]]
@@ -183,16 +183,16 @@ function love.draw()
     --     ,
     --     0, 0, love.graphics.getWidth() - 300)
     Consolas:push()
-    -- Consolas:set_font_size(16)
-    Consolas:printf("\tAquele <color> que habita</color> no esconderijo"
+    Consolas:set_font_size(12)
+    Consolas:printf("\tAquele que habita no esconderijo do altíssimo, à sombra do onipotente descansará. Diz o senhor, meu refúgio e meu baluarte. Deus meu em quem confio. Pois ele te livrará do laço do passarinheiro e da peste perniciosa. Cobrir-te-á com tuas penas, e sob tuas asas, estarás seguro. Tua verdade é pavê e escudo.Aquele que habita no esconderijo do altíssimo, à sombra do onipotente descansará. Diz o senhor, meu refúgio e meu baluarte. Deus meu em quem confio. Pois ele te livrará do laço do passarinheiro e da peste perniciosa. Cobrir-te-á com tuas penas, e sob tuas asas, estarás seguro. Tua verdade é pavê e escudo.Aquele que habita no esconderijo do altíssimo, à sombra do onipotente descansará. Diz o senhor, meu refúgio e meu baluarte. Deus meu em quem confio. Pois ele te livrará do laço do passarinheiro e da peste perniciosa. Cobrir-te-á com tuas penas, e sob tuas asas, estarás seguro. Tua verdade é pavê e escudo.Aquele que habita no esconderijo do altíssimo, à sombra do onipotente descansará. Diz o senhor, meu refúgio e meu baluarte. Deus meu em quem confio. Pois ele te livrará do laço do passarinheiro e da peste perniciosa. Cobrir-te-á com tuas penas, e sob tuas asas, estarás seguro. Tua verdade é pavê e escudo.Aquele que habita no esconderijo do altíssimo, à sombra do onipotente descansará. Diz o senhor, meu refúgio e meu baluarte. Deus meu em quem confio. Pois ele te livrará do laço do passarinheiro e da peste perniciosa. Cobrir-te-á com tuas penas, e sob tuas asas, estarás seguro. Tua verdade é pavê e escudo.Aquele que habita no esconderijo do altíssimo, à sombra do onipotente descansará. Diz o senhor, meu refúgio e meu baluarte. Deus meu em quem confio. Pois ele te livrará do laço do passarinheiro e da peste perniciosa. Cobrir-te-á com tuas penas, e sob tuas asas, estarás seguro. Tua verdade é pavê e escudo."
         , 0, 0)
     Consolas:pop()
 
-    -- Consolas:push()
-    -- Consolas:set_font_size(12)
-    -- frase:refresh()
-    -- -- last_char = frase:draw(love.mouse.getX(), 20, "justified", nil)
-    -- Consolas:pop()
+    Consolas:push()
+    Consolas:set_font_size(10)
+    frase:refresh()
+    -- last_char = frase:draw(love.mouse.getX(), 20, "justified", nil)
+    Consolas:pop()
 
     if last_char then
         if last_char.char.__id == "." or last_char.char.__id == "\n" then

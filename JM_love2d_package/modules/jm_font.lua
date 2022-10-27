@@ -712,6 +712,15 @@ function Font:printf(text, x, y, limit_right, __i__, __color__, __x_origin__, __
         end
     end
 
+    local line_width =
+    function(line)
+        local total = 0
+        for _, word in ipairs(line) do
+            total = total + len(word) + self.__character_space
+        end
+        return total
+    end
+
     local total_width = 0
     local line = {}
 
@@ -727,7 +736,9 @@ function Font:printf(text, x, y, limit_right, __i__, __color__, __x_origin__, __
 
         if total_width + (words[m + 1] and len(words[m + 1]) or 0) >= limit_right
         then
-            print(line, tx, ty, m - #line)
+            local lw = line_width(line)
+
+            print(line, tx + limit_right/2 - lw/2, ty, m - #line)
             line = nil
             total_width = 0
             tx = x_origin
