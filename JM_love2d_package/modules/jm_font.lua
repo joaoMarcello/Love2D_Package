@@ -3,7 +3,7 @@ local Affectable = require("/JM_love2d_package/modules/templates/Affectable")
 local Character = require("/JM_love2d_package/modules/font/character")
 local Utils = require("/JM_love2d_package/utils")
 local Anima = require "/JM_love2d_package/animation_module"
-local utf8 = require('utf8')
+local Phrase = require("/JM_love2d_package/modules/font/Phrase")
 
 ---@enum JM.Font.FormatOptions
 local FontFormat = {
@@ -485,10 +485,9 @@ function Font:__is_a_command_tag(s)
 end
 
 ---@param text string
-function Font:print2(text, x, y, w, h, __i__, __color__, __x_origin__, __format__)
+function Font:print(text, x, y, w, h, __i__, __color__, __x_origin__, __format__)
     if not text or text == "" then return { tx = x, ty = y } end
 
-    text = text
     self:push()
 
     w = w or nil --love.graphics.getWidth() - 100
@@ -516,7 +515,7 @@ function Font:print2(text, x, y, w, h, __i__, __color__, __x_origin__, __format_
 
             local startp, endp = text:find("<.->", i)
 
-            local result = match and self:print2(text:sub(i, startp - 1),
+            local result = match and self:print(text:sub(i, startp - 1),
                 tx, ty, w, h, 1,
                 current_color, x_origin, current_format
             )
@@ -582,6 +581,7 @@ function Font:print2(text, x, y, w, h, __i__, __color__, __x_origin__, __format_
 
                 local width = char_obj.w * char_obj.sx
                 local height = char_obj.h * char_obj.sy
+
                 char_obj:draw_rec(tx, ty + self.__font_size - height, width, height)
             end
 
@@ -593,6 +593,15 @@ function Font:print2(text, x, y, w, h, __i__, __color__, __x_origin__, __format_
 
     self:pop()
     return { tx = tx, ty = ty }
+end
+
+---@param text string
+function Font:printf(text, x, y, limit_right, __i__, __color__, __x_origin__, __format__)
+    if not text or text == "" then return { tx = x, ty = y } end
+
+
+    local fr = Phrase:new({ text = text, font = self })
+    fr:draw(x, y, "left")
 end
 
 return Font

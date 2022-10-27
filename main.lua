@@ -103,7 +103,7 @@ local aa = Consolas:add_nickname_animated("--nuvem--", {
 })
 -- aa:apply_effect("pulse", { range = 0.06 })
 
-local text = "Em<.>      <bold>meio às sinuosas e confusas --a--nt --a-- inim\nigas astha\n \tO     bom shinobi não precisa se ocultar."
+local text = "Em<.>      <color><bold>meio às</bold> <color, 0, 0, 1>sinuosas e confusas --a--nt --a-- inim\nigas <bold>astha</bold>\n \tO     bom shinobi não precisa</color> se ocultar. --goomba--"
 
 local text2 = "<color>Thanos</color> aAáÁàÀãÃäÄ eEéÉèÈêÊëË iIíÍìÌîÎïÏ oOóÓòòôÔöÖõÕ uUúÚùÙûüÜ bBcCçÇdDfF gGhHjJkKlLmM nNpPqQrRsS {[(astha)]} |as_ \ntTvVwWxXyYzZ 0123456789 +-=/# @TMJ_por_JM & § ?|!,.;: °º1ª¹²³£¢¬AsthaYuno * ¨¬¬ ~ $ ~ --a--"
     .. [["]]
@@ -177,14 +177,16 @@ function love.draw()
 
     love.graphics.pop()
 
-    -- Calibri:print("mas que solidao\n <color, 1, 0, 0>ninguem --nuvem-- aqui--</color>ao lado\n\tachei a solucao\n \tnao sou\n <bold>mais</bold> maltratado --goomba-- --jean-- --goomba-- be gone!\t \tArroz"
-    --     , 50, 110, w)
 
-    -- Consolas:print("\t<color, 0,0,1>Hello </color>World --goomba--", 0, 20)
 
-    Consolas:print2("Caro senhor Potter, \n\n \tChegou ao conhecimento do Ministério que o senhor executou o < color, 0, 0, 1 >feitiço do patrono <color>na <bold>presença de um trouxa< /color >< /bold >.\n\tSendo uma grave violação ao <bold>'Regulamento de <color, 1,0,1>Restrição à Prática de Magia por Menores'</bold>, o senhor</color> está expulso da <bold>Escola de Magia e Bruxaria de Hogwarts.</bold>\n\n \t\t\tEsperando que esteja bem,\n\t\t\t\t\tMafalda Hopkins --goomba--</bold> "
-        ,
-        0, 0, love.graphics.getWidth() - 300)
+    -- Consolas:print("Caro senhor Potter, \n\n \tChegou ao conhecimento do Ministério que o senhor executou o < color, 0, 0, 1 >feitiço do patrono <color>na <bold>presença de um trouxa< /color >< /bold >.\n\tSendo uma grave violação ao <bold>'Regulamento de <color, 1,0,1>Restrição à Prática de Magia <color, 0.7, 1, 0.6?>por Menores'</bold>, o senhor</color> está expulso da <bold>Escola de Magia e Bruxaria de Hogwarts.</bold>\n\n \t\t\tEsperando que esteja bem,\n\t\t\t\t\tMafalda Hopkins --goomba--</bold> "
+    --     ,
+    --     0, 0, love.graphics.getWidth() - 300)
+    Consolas:push()
+    Consolas:set_font_size(12)
+    Consolas:printf("Caro senhor Potter, \n\n \tChegou ao conhecimento do Ministério que o senhor executou o < color, 0, 0, 1 >feitiço do patrono <color>na <bold>presença de um trouxa< /color >< /bold >.\tSendo uma grave violação ao <bold>'Regulamento de <color, 1,0,1>Restrição à Prática de Magia <color, 0.7, 1, 0.6>por Menores'</bold>, o senhor</color> está expulso da <bold>Escola de Magia e Bruxaria de Hogwarts.</bold>\n \t\t\tEsperando que esteja bem,\n\t\t\t\t\tMafalda Hopkins --goomba--</bold>\nCaro senhor Potter, \n \tChegou ao conhecimento do Ministério que o senhor executou o < color, 0, 0, 1 >feitiço do patrono <color>na <bold>presença de um trouxa< /color >< /bold >.\n\tSendo uma grave violação ao <bold>'Regulamento de <color, 1,0,1>Restrição à Prática de Magia <color, 0.7, 1, 0.6>por Menores'</bold>, o senhor</color> está expulso da <bold>Escola de Magia e Bruxaria de Hogwarts.</bold>\n\n \t\t\tEsperando que esteja bem,\n\t\t\t\t\tMafalda Hopkins --goomba--</bold>Caro senhor Potter, \n\n \tChegou ao conhecimento do Ministério que o senhor executou o < color, 0, 0, 1 >feitiço do patrono <color>na <bold>presença de um trouxa< /color >< /bold >.\tSendo uma grave violação ao <bold>'Regulamento de <color, 1,0,1>Restrição à Prática de Magia <color, 0.7, 1, 0.6>por Menores'</bold>, o senhor</color> está expulso da <bold>Escola de Magia e Bruxaria de Hogwarts.</bold>\n \t\t\tEsperando que esteja bem,\n\t\t\t\t\tMafalda Hopkins --goomba--</bold>\nCaro senhor Potter, \n \tChegou ao conhecimento do Ministério que o senhor executou o < color, 0, 0, 1 >feitiço do patrono <color>na <bold>presença de um trouxa< /color >< /bold >.\n\tSendo uma grave violação ao <bold>'Regulamento de <color, 1,0,1>Restrição à Prática de Magia <color, 0.7, 1, 0.6>por Menores'</bold>, o senhor</color> está expulso da <bold>Escola de Magia e Bruxaria de Hogwarts.</bold>\n\n \t\t\tEsperando que esteja bem,\n\t\t\t\t\tMafalda Hopkins --goomba--</bold>"
+        , 0, 0)
+    Consolas:pop()
 
     Consolas:push()
     if current_max >= 60 then

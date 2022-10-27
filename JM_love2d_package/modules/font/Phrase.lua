@@ -479,7 +479,7 @@ function Phrase:__debbug()
     local w = self:separate_string(s)
 
     for i = 1, #w do
-        self.__font:print2(tostring(w[i]), 0, 50 * i)
+        self.__font:print(tostring(w[i]), 0, 50 * i)
     end
 end
 
