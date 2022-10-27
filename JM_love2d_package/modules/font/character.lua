@@ -222,10 +222,10 @@ function Character:__draw__(x, y)
 
     love.graphics.pop()
 
-    love.graphics.setColor(0, 0, 0, 0.5)
+    love.graphics.setColor(0, 0, 0, 0.4)
 
     if self.w and self.h then
-        -- love.graphics.rectangle("fill", x - self.ox * self.sx, y - self.oy * self.sy, self.w * self.sx, self.h * self.sy)
+        love.graphics.rectangle("line", x - self.ox * self.sx, y - self.oy * self.sy, self.w * self.sx, self.h * self.sy)
     end
 end
 

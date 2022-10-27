@@ -605,18 +605,18 @@ function Font:printf(text, x, y, limit_right, __i__, __color__, __x_origin__, __
     local current_format = __format__ or self.format_options.normal
     local x_origin = __x_origin__ or tx
     local i = __i__ or 1
-    local limit_right = love.graphics.getWidth() - 500
+    local limit_right = limit_right or love.mouse.getX()
     local separated = self:separate_string(text)
     local words = {}
 
     while (i <= #(separated)) do
         local cur_word = separated[i] or ""
 
-        if cur_word == "\n"
-        then
-            ty = ty + self.__ref_height * self.__scale + self.__line_space
-            tx = x_origin
-        end
+        -- if cur_word == "\n"
+        -- then
+        --     ty = ty + self.__ref_height * self.__scale + self.__line_space
+        --     tx = x_origin
+        -- end
 
         self:set_format_mode(current_format)
 
@@ -637,14 +637,22 @@ function Font:printf(text, x, y, limit_right, __i__, __color__, __x_origin__, __
             j = j + 1
         end
 
-        if i ~= #separated then
-            table.insert(characters, self.__space_char)
-        end
+        -- if i ~= #separated then
+        --     table.insert(characters, self.__space_char)
+        -- end
 
         table.insert(words, characters)
 
         i = i + 1
     end
+
+    -- self:push()
+    -- -- self:set_font_size(10)
+    -- for k, s in ipairs(separated) do
+    --     self:print(s, 600, k * 10)
+    -- end
+    -- self:print(tostring(#separated) .. " " .. tostring(#words), 560, 0)
+    -- self:pop()
 
     local get_char_obj =
     ---@return JM.Font.Character
@@ -657,71 +665,85 @@ function Font:printf(text, x, y, limit_right, __i__, __color__, __x_origin__, __
     ---@return number width
     function(args)
         local width = 0
-
         for i = 1, #(args), 1 do
             local char_obj = get_char_obj(args[i])
             width = width + char_obj:get_width() + self.__character_space
         end
-        return width - self.__character_space
+        return width --- self.__character_space
+    end
+
+    local print =
+    ---@param word_list table
+    ---@param qx number
+    ---@param qy number
+    function(word_list, qx, qy)
+        for k, word in ipairs(word_list) do
+            for i = 1, #(word) do
+                local char_obj = get_char_obj(word[i])
+                if char_obj then
+                    char_obj:set_color(current_color)
+                    char_obj:set_scale(self.__scale)
+
+                    if char_obj:is_animated() then
+                        char_obj:set_color({ 1, 1, 1, 1 })
+
+                        char_obj.__anima:set_size(
+                            nil, self.__font_size * 1.4,
+                            nil, char_obj.__anima:__get_current_frame().h
+                        )
+
+                        char_obj:draw(qx + char_obj.w / 2 * char_obj.sx,
+                            qy + char_obj.h / 2 * char_obj.sy
+                        )
+                    else
+
+                        local width = char_obj.w * char_obj.sx
+                        local height = char_obj.h * char_obj.sy
+
+                        char_obj:draw_rec(qx, qy + self.__font_size - height, width, height)
+                    end
+
+                    qx = qx + char_obj:get_width() + self.__character_space
+                end
+            end
+        end
     end
 
     local total_width = 0
-    local lines = {}
-    local current_line = 1
+    local line = {}
+
     for m = 1, #(words) do
-        if not lines[current_line] then lines[current_line] = {} end
-
-        -- Drawing characters
-        local characters = words[m]
-        for k = 1, #characters do
-            local char_obj = get_char_obj(characters[k])
-
-            if char_obj then
-                char_obj:set_color(current_color)
-                char_obj:set_scale(self.__scale)
-
-                if char_obj:is_animated() then
-                    char_obj:set_color({ 1, 1, 1, 1 })
-
-                    char_obj.__anima:set_size(
-                        nil, self.__font_size * 1.4,
-                        nil, char_obj.__anima:__get_current_frame().h
-                    )
-
-                    char_obj:draw(tx + char_obj.w / 2 * char_obj.sx,
-                        ty + char_obj.h / 2 * char_obj.sy
-                    )
-                else
-
-                    local width = char_obj.w * char_obj.sx
-                    local height = char_obj.h * char_obj.sy
-
-                    char_obj:draw_rec(tx, ty + self.__font_size - height, width, height)
-                end
-
-                tx = tx + char_obj:get_width() + self.__character_space
-            end
-        end -- END FOR Drawing characters
+        if not line then line = {} end
 
         table.insert(
-            lines[current_line],
-            { tx = tx, ty = ty, word = words[m] }
+            line,
+            words[m]
         )
 
-        if total_width + len(words[m])
-            + (words[m + 1] and len(words[m + 1]) or 0)
-            >= limit_right
+        total_width = total_width + len(words[m]) + self.__space_char:get_width()
+
+        if total_width + (words[m + 1] and len(words[m + 1]) or 0) >= limit_right
         then
-            lines[current_line].width = total_width
+            print(line, tx, ty)
+            line = nil
             total_width = 0
-            current_line = current_line + 1
             tx = x_origin
             ty = ty + self.__ref_height * self.__scale + self.__line_space
         else
-            total_width = total_width + len(words[m])
-                + (words[m + 1] and len(words[m + 1]) or 0)
+
+            if m ~= #words then
+                table.insert(
+                    line,
+                    { self.__space_char }
+                )
+
+                -- total_width = total_width + self.__space_char:get_width()
+            end
         end
 
+        if line and m == #words then
+            print(line, tx, ty)
+        end
     end
 
     love.graphics.setColor(0, 0, 0, 0.3)
