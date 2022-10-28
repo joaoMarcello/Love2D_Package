@@ -64,6 +64,10 @@ function Phrase:__verify_commands(text)
             self.__font:set_color({ r, g, b, 1 })
         elseif r.tag:match("< */ *color *>") then
             self.__font:set_color(self.__font_config.color)
+        elseif r.tag:match("< *italic *>") then
+            self.__font:set_format_mode(self.__font.format_options.italic)
+        elseif r.tag:match("< */ *italic *>") then
+            self.__font:set_format_mode(self.__font_config.format)
         end
     end
 end
@@ -213,8 +217,13 @@ end
 
 ---@param s string
 function Phrase:__is_a_command_tag(s)
-    return s:match("< *bold *>") or s:match("< */ *bold *>")
-        or s:match("< *color[%d, .]*>") or s:match("< */ *color *>")
+    return (s:match("< *bold *>") and "<bold>")
+        or (s:match("< */ *bold *>") and "</bold>")
+        or (s:match("< *italic *>") and "<italic>")
+        or (s:match("< */ *italic *>") and "</italic>")
+        or (s:match("< *color[%d, .]*>") and "<color>")
+        or (s:match("< */ *color *>") and "</color>")
+        or false
 end
 
 ---@return table

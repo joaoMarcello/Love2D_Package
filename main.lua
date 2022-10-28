@@ -103,14 +103,14 @@ local aa = Consolas:add_nickname_animated("--nuvem--", {
 })
 -- aa:apply_effect("pulse", { range = 0.06 })
 
-local text = "Caro senhor <bold>Potter,</bold> \n \n \tChegou ao conhecimento do Ministério que o senhor executou o < color, 0, 0, 1 >feitiço do patrono <color>na <bold>presença de um trouxa.< /color >< /bold >\n \tSendo uma grave violação ao <bold>'Regulamento de <color, 1,0,1>Restrição à Prática de Magia <color, 0.7, 0.1, 0.6>por Menores',</bold> o senhor</color> está expulso da <bold>Escola de Magia e Bruxaria de Hogwarts.\n \n </bold>\t\t\tEsperando que esteja bem,\n \t\t\t\t\tMafalda Hopkins --goomba--</bold> "
+local text = "Caro senhor <italic>Potter,</italic> \n \n \tChegou ao conhecimento do Ministério que o senhor executou o < color, 0, 0, 1 >feitiço do patrono <color>na <bold>presença de um trouxa.< /color >< /bold >\n \tSendo uma grave violação ao <bold>'Regulamento de <color, 1,0,1>Restrição à Prática de Magia <color, 0.7, 0.1, 0.6>por Menores',</bold> o senhor</color> está expulso da <bold>Escola de Magia e Bruxaria de Hogwarts.\n \n </bold>\t\t\tEsperando que esteja bem,\n \t\t\t\t\tMafalda Hopkins --goomba--</bold> "
 
 local text2 = "<color>Thanos</color> aAáÁàÀãÃäÄ eEéÉèÈêÊëË iIíÍìÌîÎïÏ oOóÓòòôÔöÖõÕ uUúÚùÙûüÜ bBcCçÇdDfF gGhHjJkKlLmM nNpPqQrRsS {[(astha)]} |as_ \n tTvVwWxXyYzZ 0123456789 +-=/# @TMJ_por_JM & § ?|!,.;: °º1ª¹²³£¢¬AsthaYuno * ¨¬¬ ~ $ ~ --a--"
     .. [["]]
 
 Consolas:push()
-Consolas:set_format_mode(Consolas.format_options.italic)
-local frase = Phrase:new({ text = text2, font = Consolas })
+-- Consolas:set_format_mode(Consolas.format_options.italic)
+local frase = Phrase:new({ text = text, font = Consolas })
 Consolas:pop()
 
 -- frase:color_pattern("s", { 0.8, 0, 0, 1 }, "all")
@@ -195,7 +195,7 @@ function love.draw()
     Consolas:pop()
 
     Consolas:push()
-    Consolas:set_font_size(12)
+    Consolas:set_font_size(14)
     frase:refresh()
     last_char = frase:draw(love.mouse.getX() + 20, 20, "justified", nil)
     Consolas:pop()
