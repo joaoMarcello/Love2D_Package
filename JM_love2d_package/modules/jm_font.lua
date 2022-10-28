@@ -612,7 +612,7 @@ function Font:printf(text, x, y, align, limit_right, __i__, __color__, __x_origi
     local tx = x
     local ty = y
     align = align or "left"
-    limit_right = limit_right or 500 --love.mouse.getX()
+    limit_right = limit_right or love.mouse.getX() - x
     local current_color = __color__ or self.__default_color
     local current_format = __format__ or self.format_options.normal
     local x_origin = __x_origin__ or tx
@@ -730,9 +730,11 @@ function Font:printf(text, x, y, align, limit_right, __i__, __color__, __x_origi
                     end
 
                     qx = qx + char_obj:get_width()
-                        + self.__character_space + exceed_space
+                        + self.__character_space
                 end
             end
+
+            qx = qx + exceed_space
         end
     end
 
@@ -762,14 +764,20 @@ function Font:printf(text, x, y, align, limit_right, __i__, __color__, __x_origi
         if total_width + (words[m + 1] and len(words[m + 1]) or 0) >= limit_right
         then
             local lw = line_width(line)
-            -- local ex_sp = align == "justify"
-            --     and
+
+            local div = #line - 1
+            div = div <= 0 and 1 or div
+
+            local ex_sp = align == "justify"
+                and (limit_right - lw) / div
+                or nil
+
             local pos_to_draw = (align == "left" and x)
                 or (align == "right" and (x + limit_right) - lw)
                 or (align == "center" and (x + limit_right) / 2 - lw / 2)
                 or x
 
-            print(line, pos_to_draw, ty, m - #line)
+            print(line, pos_to_draw, ty, m - #line, ex_sp)
             line = nil
             total_width = 0
             ty = ty + self.__ref_height * self.__scale + self.__line_space
