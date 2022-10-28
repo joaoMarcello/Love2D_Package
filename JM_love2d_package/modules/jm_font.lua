@@ -596,18 +596,27 @@ function Font:print(text, x, y, w, h, __i__, __color__, __x_origin__, __format__
 end
 
 ---@param text string
-function Font:printf(text, x, y, limit_right, __i__, __color__, __x_origin__, __format__)
+---@param x number
+---@param y number
+---@param align "left"|"right"|"center"|"justify"|nil
+---@param limit_right number|nil
+---@param __i__ any
+---@param __color__ any
+---@param __x_origin__ any
+---@param __format__ any
+function Font:printf(text, x, y, align, limit_right, __i__, __color__, __x_origin__, __format__)
     if not text or text == "" then return { tx = x, ty = y } end
 
     self:push()
 
     local tx = x
     local ty = y
+    align = align or "left"
+    limit_right = limit_right or 500 --love.mouse.getX()
     local current_color = __color__ or self.__default_color
     local current_format = __format__ or self.format_options.normal
     local x_origin = __x_origin__ or tx
     local i = __i__ or 1
-    local limit_right = limit_right or love.mouse.getX()
     local separated = self:separate_string(text)
     local words = {}
 
@@ -619,7 +628,19 @@ function Font:printf(text, x, y, limit_right, __i__, __color__, __x_origin__, __
         local characters = {}
         local j = 1
         while (j <= #cur_word) do
-            local char_obj = self:__get_char_equals(cur_word:sub(j, j))
+
+            local char_obj
+
+            local is_a_nick = self:__is_a_nickname(cur_word, j)
+
+            if is_a_nick then
+                char_obj = self:__get_char_equals(is_a_nick)
+                j = j + #is_a_nick - 1
+            end
+
+            char_obj = not char_obj
+                and self:__get_char_equals(cur_word:sub(j, j))
+                or char_obj
 
             if not char_obj then
                 char_obj = self:__get_char_equals(cur_word:sub(j, j + 1))
@@ -669,17 +690,19 @@ function Font:printf(text, x, y, limit_right, __i__, __color__, __x_origin__, __
     ---@param word_list table
     ---@param qx number
     ---@param qy number
-    function(word_list, qx, qy, current_index)
+    function(word_list, qx, qy, current_index, exceed_space)
+        exceed_space = exceed_space or 0
+
         for k, word in ipairs(word_list) do
 
-            local r = separated[current_index + k] or ""
-            if r then
-                if r:match("<color>") then
-                    current_color = { 1, 0, 0, 1 }
-                elseif r:match("</color>") then
-                    current_color = { 0, 0, 0, 1 }
-                end
-            end
+            -- local r = separated[current_index + k] or ""
+            -- if r then
+            --     if r:match("<color>") then
+            --         current_color = { 1, 0, 0, 1 }
+            --     elseif r:match("</color>") then
+            --         current_color = { 0, 0, 0, 1 }
+            --     end
+            -- end
 
             for i = 1, #(word) do
                 local char_obj = get_char_obj(word[i])
@@ -706,7 +729,8 @@ function Font:printf(text, x, y, limit_right, __i__, __color__, __x_origin__, __
                         char_obj:draw_rec(qx, qy + self.__font_size - height, width, height)
                     end
 
-                    qx = qx + char_obj:get_width() + self.__character_space
+                    qx = qx + char_obj:get_width()
+                        + self.__character_space + exceed_space
                 end
             end
         end
@@ -734,14 +758,20 @@ function Font:printf(text, x, y, limit_right, __i__, __color__, __x_origin__, __
 
         total_width = total_width + len(words[m]) + self.__space_char:get_width() + self.__character_space * 2
 
+
         if total_width + (words[m + 1] and len(words[m + 1]) or 0) >= limit_right
         then
             local lw = line_width(line)
+            -- local ex_sp = align == "justify"
+            --     and
+            local pos_to_draw = (align == "left" and x)
+                or (align == "right" and (x + limit_right) - lw)
+                or (align == "center" and (x + limit_right) / 2 - lw / 2)
+                or x
 
-            print(line, tx + limit_right/2 - lw/2, ty, m - #line)
+            print(line, pos_to_draw, ty, m - #line)
             line = nil
             total_width = 0
-            tx = x_origin
             ty = ty + self.__ref_height * self.__scale + self.__line_space
         else
 
@@ -754,14 +784,22 @@ function Font:printf(text, x, y, limit_right, __i__, __color__, __x_origin__, __
         end
 
         if line and m == #words then
-            print(line, tx, ty, m - #line)
+            local lw = line_width(line)
+
+            local pos_to_draw = (align == "left" and x)
+                or (align == "right" and tx + limit_right - lw)
+                or (align == "center" and tx + limit_right / 2 - lw / 2)
+                or x
+
+            print(line, pos_to_draw, ty, m - #line)
         end
     end
 
     self:pop()
 
     love.graphics.setColor(0, 0, 0, 0.3)
-    love.graphics.line(limit_right, 0, limit_right, 600)
+    love.graphics.line(x, 0, x, 600)
+    love.graphics.line(x + limit_right, 0, x + limit_right, 600)
 end
 
 return Font
