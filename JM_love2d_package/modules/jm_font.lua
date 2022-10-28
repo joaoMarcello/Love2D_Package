@@ -49,6 +49,10 @@ function Font:__constructor__(args)
         args.name .. "/" .. args.name .. "_bold" .. ".png")
     self.__bold_img:setFilter("linear", "nearest")
 
+    self.__italic_img = love.graphics.newImage("/JM_love2d_package/data/Font/" ..
+        args.name .. "/" .. args.name .. "_italic" .. ".png")
+    self.__italic_img:setFilter("linear", "nearest")
+
     self.__img = self.__normal_img
 
     self.__quad = love.graphics.newQuad(
@@ -62,10 +66,11 @@ function Font:__constructor__(args)
     self.__font_size = args.font_size or 20
 
     self.__character_space = args.character_space or 1
-    self.__line_space = args.line_space or 11
+    self.__line_space = args.line_space or 10
 
     self.__characters = {}
     self.__bold_characters = {}
+    self.__italic_characters = {}
 
     self:__load_caracteres_from_csv(self.__characters,
         args.name,
@@ -75,6 +80,11 @@ function Font:__constructor__(args)
         args.name,
         self.__bold_img,
         "_bold"
+    )
+    self:__load_caracteres_from_csv(self.__italic_characters,
+        args.name,
+        self.__italic_img,
+        "_italic"
     )
 
     self.__format = FontFormat.normal
@@ -111,6 +121,8 @@ function Font:__constructor__(args)
     table.insert(self.__characters, self.__tab_char)
     table.insert(self.__bold_characters, self.__space_char)
     table.insert(self.__bold_characters, self.__tab_char)
+    table.insert(self.__italic_characters, self.__space_char)
+    table.insert(self.__italic_characters, self.__tab_char)
 
     self.__default_color = args.color or { 0.1, 0.1, 0.1, 1 }
 
@@ -150,7 +162,6 @@ function Font:__load_caracteres_from_csv(list, name, img, extend)
         if not left then
             break
         end
-
 
         table.insert(list,
             Character:new(img, self.__quad,
@@ -266,6 +277,7 @@ function Font:add_nickname_animated(nickname, args)
 
     table.insert(self.__characters, new_character)
     table.insert(self.__bold_characters, new_character)
+    table.insert(self.__italic_characters, new_character)
 
     return animation
 end
@@ -301,6 +313,7 @@ function Font:add_nickname(nickname, args)
 
     table.insert(self.__characters, new_character)
     table.insert(self.__bold_characters, new_character)
+    table.insert(self.__italic_characters, new_character)
 
     return animation
 end
@@ -332,7 +345,9 @@ end
 ---@return JM.Font.Character|nil
 function Font:__get_char_by_index(index)
     local list = self.__format == FontFormat.normal and self.__characters
-        or self.__bold_characters
+        or self.__format == FontFormat.bold and self.__bold_characters
+        or self.__italic_characters
+
     return list[index]
 end
 
@@ -340,7 +355,8 @@ end
 ---@return JM.Font.Character|nil
 function Font:__get_char_equals(c)
     local list = self.__format == FontFormat.normal and self.__characters
-        or self.__bold_characters
+        or self.__format == FontFormat.bold and self.__bold_characters
+        or self.__italic_characters
 
     for i = 1, #list do
         local char__ = self:__get_char_by_index(i)
@@ -375,7 +391,7 @@ function Font:separate_string(s, list)
 
         local tag = s:match(tag_regex, current_init)
         local find = not tag and s:match(regex, current_init)
-        local nick = find and string.match(find, "%-%-%w-%-%-") and false
+        local nick = false --find and string.match(find, "%-%-%w-%-%-")
 
         if tag then
             local startp, endp = string.find(s, tag_regex, current_init)
@@ -437,6 +453,8 @@ end
 function Font:__is_a_command_tag(s)
     return (s:match("< *bold *>") and "<bold>")
         or (s:match("< */ *bold *>") and "</bold>")
+        or (s:match("< *italic *>") and "<italic>")
+        or (s:match("< */ *italic *>") and "</italic>")
         or (s:match("< *color[%d, .]*>") and "<color>")
         or (s:match("< */ *color *>") and "</color>")
         or false
@@ -495,6 +513,10 @@ function Font:print(text, x, y, w, h, __i__, __color__, __x_origin__, __format__
             elseif match == "<bold>" then
                 current_format = self.format_options.bold
             elseif match == "</bold>" then
+                current_format = original_format
+            elseif match == "<italic>" then
+                current_format = self.format_options.italic
+            elseif match == "</italic>" then
                 current_format = original_format
             end
 
@@ -592,6 +614,10 @@ function Font:printf(text, x, y, align, limit_right)
             current_format = self.format_options.bold
         elseif match == "</bold>" then
             current_format = original_format
+        elseif match == "<italic>" then
+            current_format = self.format_options.italic
+        elseif match == "</italic>" then
+            current_format = original_format
         end
 
         self:set_format_mode(current_format)
@@ -615,7 +641,16 @@ function Font:printf(text, x, y, align, limit_right)
 
             if not char_obj then
                 char_obj = self:__get_char_equals(cur_word:sub(j, j + 1))
-                j = j + 1
+                if char_obj then
+                    j = j + 1
+                end
+            end
+
+            if not char_obj and not cur_word:match("\n") then
+                local c_ = self:get_nule_character()
+                -- c_.__id = "\n"
+                -- c_.w = 0
+                table.insert(characters, c_)
             end
 
             if char_obj then
@@ -629,6 +664,10 @@ function Font:printf(text, x, y, align, limit_right)
 
         i = i + 1
     end
+
+    -- local tt = words[1][1].__id == "\n"
+    -- self:print(tostring(tt), 500, 10)
+
 
 
     local get_char_obj =
@@ -668,7 +707,7 @@ function Font:printf(text, x, y, align, limit_right)
             if index_action then
                 for _, action in ipairs(index_action) do
                     if action.i == k then
-                        action.action(tx, ty)
+                        action.action()
                     end
                 end
             end
@@ -709,7 +748,7 @@ function Font:printf(text, x, y, align, limit_right)
         if index_action then
             for _, action in ipairs(index_action) do
                 if action.i > #word_list then
-                    action.action(tx, ty)
+                    action.action()
                 end
             end
         end
@@ -766,24 +805,37 @@ function Font:printf(text, x, y, align, limit_right)
             table.insert(line_actions, action)
         end
 
+        local current_is_break_line = separated[m] == "\n"
+
         if not command_tag then
 
-            table.insert(
-                line,
-                words[m]
-            )
+            if not current_is_break_line or true then
+                table.insert(
+                    line,
+                    words[m]
+                )
+            end
 
             local next_index = next_not_command_index(m)
 
-            total_width = total_width + len(words[m]) + self.__space_char:get_width() + self.__character_space * 2
+            total_width = total_width + len(words[m])
+                + self.__space_char:get_width()
+                + self.__character_space * 2
 
             if total_width + (next_index and words[next_index]
-                and len(words[next_index]) or 0) >= limit_right
+                and len(words[next_index]) or 0) > limit_right
+
+                or current_is_break_line
+
+            -- or (next_index and separated[next_index]
+            --     and separated[next_index]:match("\n"))
             then
                 local lw = line_width(line)
 
                 local div = #line - 1
                 div = div <= 0 and 1 or div
+                div = separated[m] == "\n" and lw <= limit_right * 0.8
+                    and 100 or div
 
                 local ex_sp = align == "justify"
                     and (limit_right - lw) / div
@@ -796,7 +848,6 @@ function Font:printf(text, x, y, align, limit_right)
 
                 print(line, pos_to_draw, ty, line_actions, ex_sp)
 
-
                 total_width = 0
 
                 ty = ty + self.__ref_height * self.__scale
@@ -805,7 +856,12 @@ function Font:printf(text, x, y, align, limit_right)
                 line = {}
                 line_actions = {}
             else
-                if m ~= #words then
+                local next_index = next_not_command_index(m)
+
+                local next_is_broken_line = next_index and separated[next_index]
+                    and separated[next_index] == "\n"
+
+                if m ~= #words and not next_is_broken_line then
                     table.insert(
                         line,
                         { self.__space_char }
@@ -813,18 +869,18 @@ function Font:printf(text, x, y, align, limit_right)
                 end
             end
 
-            if line and m == #words then
-                local lw = line_width(line)
-
-                local pos_to_draw = (align == "left" and x)
-                    or (align == "right" and tx + limit_right - lw)
-                    or (align == "center" and tx + limit_right / 2 - lw / 2)
-                    or x
-
-                print(line, pos_to_draw, ty, line_actions)
-            end
         end
 
+        if line and m == #words then
+            local lw = line_width(line)
+
+            local pos_to_draw = (align == "left" and x)
+                or (align == "right" and tx + limit_right - lw)
+                or (align == "center" and tx + limit_right / 2 - lw / 2)
+                or x
+
+            print(line, pos_to_draw, ty, line_actions)
+        end
     end
 
     self:pop()

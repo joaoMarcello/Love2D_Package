@@ -191,8 +191,9 @@ function Character:__draw__(x, y)
         self.__anima:draw(x, y)
 
     elseif not self.__img then
-        love.graphics.setColor(0, 0, 0, 1)
-        love.graphics.rectangle("fill", x - self.w / 2 * self.sx, y,
+
+        love.graphics.setColor(0, 0, 0, 0.2)
+        love.graphics.rectangle("fill", x, y,
             self.w * self.sx,
             self.h * self.sy
         )

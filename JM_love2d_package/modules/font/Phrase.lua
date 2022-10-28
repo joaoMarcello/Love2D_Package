@@ -505,8 +505,8 @@ function Phrase:draw(x, y, align, __max_char__)
     local result = self:draw_lines(lines, x, y, align, nil, __max_char__)
 
 
-    love.graphics.setColor(0.4, 0.4, 0.4, 1)
-    love.graphics.line(self.__bounds.right, 0, self.__bounds.right, 600)
+    -- love.graphics.setColor(0.4, 0.4, 0.4, 1)
+    -- love.graphics.line(self.__bounds.right, 0, self.__bounds.right, 600)
 
     return result
     ------------------------------------------------------------------------

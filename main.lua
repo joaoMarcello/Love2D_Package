@@ -47,7 +47,6 @@ local Consolas = FontGenerator:new({
     name = "consolas",
     font_size = 18,
     tab_size = 4,
-    color = { 1, 1, 1, 1 }
 })
 
 Consolas:add_nickname_animated("--goomba--", {
@@ -106,11 +105,12 @@ local aa = Consolas:add_nickname_animated("--nuvem--", {
 
 local text = "Caro senhor <bold>Potter,</bold> \n \n \tChegou ao conhecimento do Ministério que o senhor executou o < color, 0, 0, 1 >feitiço do patrono <color>na <bold>presença de um trouxa.< /color >< /bold >\n \tSendo uma grave violação ao <bold>'Regulamento de <color, 1,0,1>Restrição à Prática de Magia <color, 0.7, 0.1, 0.6>por Menores',</bold> o senhor</color> está expulso da <bold>Escola de Magia e Bruxaria de Hogwarts.\n \n </bold>\t\t\tEsperando que esteja bem,\n \t\t\t\t\tMafalda Hopkins --goomba--</bold> "
 
-local text2 = "<color>Thanos</color> aAáÁàÀãÃäÄ eEéÉèÈêÊëË iIíÍìÌîÎïÏ oOóÓòòôÔöÖõÕ uUúÚùÙûüÜ bBcCçÇdDfF gGhHjJkKlLmM nNpPqQrRsS {[(astha)]} |as_ \ntTvVwWxXyYzZ 0123456789 +-=/# @TMJ_por_JM & § ?|!,.;: °º1ª¹²³£¢¬AsthaYuno * ¨¬¬ ~ $ ~ --a--"
+local text2 = "<color>Thanos</color> aAáÁàÀãÃäÄ eEéÉèÈêÊëË iIíÍìÌîÎïÏ oOóÓòòôÔöÖõÕ uUúÚùÙûüÜ bBcCçÇdDfF gGhHjJkKlLmM nNpPqQrRsS {[(astha)]} |as_ \n tTvVwWxXyYzZ 0123456789 +-=/# @TMJ_por_JM & § ?|!,.;: °º1ª¹²³£¢¬AsthaYuno * ¨¬¬ ~ $ ~ --a--"
     .. [["]]
 
 Consolas:push()
-local frase = Phrase:new({ text = text, font = Consolas })
+Consolas:set_format_mode(Consolas.format_options.italic)
+local frase = Phrase:new({ text = text2, font = Consolas })
 Consolas:pop()
 
 -- frase:color_pattern("s", { 0.8, 0, 0, 1 }, "all")
@@ -128,8 +128,8 @@ local last_char
 local adicional = 0
 
 function love.load()
-    love.graphics.setBackgroundColor(130 / 255., 221 / 255., 255 / 255.)
     love.graphics.setBackgroundColor(0.1, 0.1, 0.1, 1)
+    love.graphics.setBackgroundColor(130 / 255., 221 / 255., 255 / 255.)
 end
 
 function love.update(dt)
@@ -187,16 +187,17 @@ function love.draw()
     --     ,
     --     0, 0, love.graphics.getWidth() - 300)
     Consolas:push()
-    Consolas:set_font_size(10)
-    Consolas:set_color({ 1, 1, 1, 1 })
-    Consolas:printf("\tAquele que\n h--a-- habita <color, 0, 0, 1>no esconderijo do altíssimo, <color>à sombra do <color, 0.7, 0.5, 0.1>onipotente</color> --goomba--d--goomba--escansará. Diz o senhor, meu refúgio e meu baluarte. Deus meu em quem <bold>confio.</bold> Pois ele te livrará do laço do passarinheiro e da peste <color>perniciosa. <bold> Cobrir-te-á com tuas penas,</bold> e sob tuas asas, estarás seguro. <color, 0, 0.3,0.1>Tua verdade é pavê e escudo.\tAquele que h--a-- habita <color, 0, 0, 1>no esconderijo do altíssimo, <color>à sombra do <color, 0.7, 0.5, 0.1>onipotente</color> --goomba--descansará. Diz o senhor, meu refúgio e meu baluarte. Deus meu em quem confio. Pois ele te livrará do laço do passarinheiro e da peste <color>perniciosa. <bold> Cobrir-te-á com tuas penas,</bold> e sob tuas asas, estarás seguro. <color, 0, 0.3,0.1>Tua verdade é pavê e escudo.\tAquele que h--a-- habita <color, 0, 0, 1>no esconderijo do altíssimo, <color>à sombra do <color, 0.7, 0.5, 0.1>onipotente</color> --goomba--descansará. Diz o senhor, meu refúgio e meu baluarte. Deus meu em quem confio. Pois ele te livrará do laço do passarinheiro e da peste <color>perniciosa. <bold> Cobrir-te-á com tuas penas,</bold> e sob tuas asas, estarás seguro. <color, 0, 0.3,0.1>Tua verdade é pavê e escudo.\tAquele que h--a-- habita <color, 0, 0, 1>no esconderijo do altíssimo, <color>à sombra do <color, 0.7, 0.5, 0.1>onipotente</color> --goomba--descansará. Diz o senhor, meu refúgio e meu baluarte. Deus meu em quem confio. Pois ele te livrará do laço do passarinheiro e da peste <color>perniciosa. <bold> Cobrir-te-á com tuas penas,</bold> e sob tuas asas, estarás seguro. <color, 0, 0.3,0.1>Tua verdade é pavê e escudo.\tAquele que h--a-- habita <color, 0, 0, 1>no esconderijo do altíssimo, <color>à sombra do <color, 0.7, 0.5, 0.1>onipotente</color> --goomba--descansará. Diz o senhor, meu refúgio e meu baluarte. Deus meu em quem confio. Pois ele te livrará do laço do passarinheiro e da peste <color>perniciosa. <bold> Cobrir-te-á com tuas penas,</bold> e sob tuas asas, estarás seguro. <color, 0, 0.3,0.1>Tua verdade é pavê e <bold>escudo."
+    Consolas:set_font_size(16)
+    -- Consolas:set_format_mode(Consolas.format_options.italic)
+    -- Consolas:set_color({ 1, 1, 1, 1 })
+    Consolas:printf("\tAquele que\n h--a-- habita no <italic>esconderijo</italic> do altíssimo, <color>à <color, 0, 0, 1>sombra do <color, 0.7, 0.5, 0.1>onipotente</color> --goomba-- descansará \n \n \tDiz ao Senhor, meu refúgio e meu baluarte. Deus meu em quem confio. \n \n \tPois ele te livrará do <color, 0,0,1>laço do <color, 1, 0, 0>passarinheiro</color> e da peste perniciosa. Cobrir-te-á com suas penas e sob suas asas estarás seguro. Tua verdade é <bold>pavê e escudo.</bold>"
         , 30, -0, "justify")
     Consolas:pop()
 
     Consolas:push()
-    Consolas:set_font_size(10)
+    Consolas:set_font_size(12)
     frase:refresh()
-    last_char = frase:draw(love.mouse.getX() + 20, 20, "justified", current_max)
+    last_char = frase:draw(love.mouse.getX() + 20, 20, "justified", nil)
     Consolas:pop()
 
     if last_char then

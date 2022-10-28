@@ -71,8 +71,6 @@ function Word:__load_characters(mode)
                 char_obj:set_color({ 1, 1, 1, 1 })
                 char_obj.__anima:set_size(nil, self.__font.__font_size * 1.1, nil, nil)
             end
-        else
-            break
         end
         i = i + 1
     end
