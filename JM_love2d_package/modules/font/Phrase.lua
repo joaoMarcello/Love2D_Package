@@ -436,7 +436,7 @@ function Phrase:draw_lines(lines, x, y, align, threshold, __max_char__)
             local q = #lines[i] - 1
             if lines[i][#lines[i]] and lines[i][#lines[i]].__text == "\n" then
                 q = q * 2 + 7
-                -- q = 100
+                q = 100
             end
 
             -- if lines[i][1] and lines[i][1].__text == "\t" then

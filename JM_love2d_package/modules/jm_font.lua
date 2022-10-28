@@ -1,9 +1,6 @@
-local EffectManager = require("/JM_love2d_package/modules/classes/EffectManager")
-local Affectable = require("/JM_love2d_package/modules/templates/Affectable")
 local Character = require("/JM_love2d_package/modules/font/character")
 local Utils = require("/JM_love2d_package/utils")
 local Anima = require "/JM_love2d_package/animation_module"
-local Phrase = require("/JM_love2d_package/modules/font/Phrase")
 
 ---@enum JM.Font.FormatOptions
 local FontFormat = {
@@ -117,7 +114,7 @@ function Font:__constructor__(args)
 
     self.__default_color = { 0.1, 0.1, 0.1, 1 }
 
-    self.__bounds = { x = 50, y = 110, w = 230, h = 500 }
+    self.__bounds = { left = 0, top = 0, right = love.graphics.getWidth(), bottom = love.graphics.getHeight() }
 end
 
 ---
@@ -280,24 +277,23 @@ function Font:add_nickname(nickname, args)
     assert(is_valid_nickname(nickname),
         "\nError: Invalid nickname. The nickname should start and ending with '--'. \nExamples: --icon--, -- emoji --.")
 
-    if not args.height then args.height = self.__ref_height end
-    if not args.width then args.width = args.height end
+    if not args.bottom then args.bottom = self.__ref_height end
+    if not args.width then args.width = args.bottom end
 
     local animation = Anima:new({
         img = args.img,
         frames_list = { args.frame },
         width = args.width,
-        height = args.height,
+        height = args.bottom,
     })
 
     local new_character = Character:new(nil, nil, {
         id = nickname,
         anima = animation,
         w = args.width,
-        h = args.height
+        h = args.bottom
     })
 
-    -- animation:set_size(new_character.w, new_character.h, animation:__get_current_frame().w, args.height)
 
     table.insert(self.__nicknames, {
         nick = nickname, index = #self.__characters + 1
@@ -323,44 +319,6 @@ end
 
 function Font:string_is_nickname(s)
     return self:__is_a_nickname(s, 1)
-end
-
----@param s string
----@param index number
-local function __is_command(s, index)
-    local command = { "color", "italic", "bold" }
-
-    for i = 1, #command do
-        if s:sub(index, index) == "<" then
-            local startp, endp = s:find(">", index)
-
-            if startp then
-                local start2, endp2 = s:find("</" .. command[i] .. ">", endp)
-                if start2 then
-                    local command_line = s:sub(index + 1, endp - 1)
-                    local parse = Utils:parse_csv_line(command_line)
-
-                    if parse[1] == command[i] then
-                        local color = {
-                            tonumber(parse[2]),
-                            tonumber(parse[3]),
-                            tonumber(parse[4]),
-                            1
-                        }
-                        return {
-                            command = command[i],
-                            color = color,
-                            start1 = index,
-                            start2 = start2,
-                            final1 = endp,
-                            final2 = endp2
-                        }
-                    end
-                end
-
-            end
-        end
-    end
 end
 
 function Font:update(dt)
@@ -623,6 +581,14 @@ function Font:printf(text, x, y, align, limit_right, __i__, __color__, __x_origi
     while (i <= #(separated)) do
         local cur_word = separated[i] or ""
 
+        local match = self:__is_a_command_tag(cur_word)
+
+        if match == "<bold>" then
+            current_format = self.format_options.bold
+        elseif match == "</bold>" then
+            current_format = self.format_options.normal
+        end
+
         self:set_format_mode(current_format)
 
         local characters = {}
@@ -659,14 +625,6 @@ function Font:printf(text, x, y, align, limit_right, __i__, __color__, __x_origi
         i = i + 1
     end
 
-    -- self:push()
-    -- -- self:set_font_size(10)
-    -- for k, s in ipairs(separated) do
-    --     -- self:print(s, 600, k * 10)
-    -- end
-    -- self:print(tostring(#separated) .. " " .. tostring(#words), 560, 0)
-    -- self:print(tostring(separated[2]:match("<.->") or "None"), 560, 50)
-    -- self:pop()
 
     local get_char_obj =
     ---@return JM.Font.Character
@@ -690,19 +648,25 @@ function Font:printf(text, x, y, align, limit_right, __i__, __color__, __x_origi
     ---@param word_list table
     ---@param qx number
     ---@param qy number
-    function(word_list, qx, qy, current_index, exceed_space)
+    ---@param index_action table
+    function(word_list, qx, qy, index_action, exceed_space)
         exceed_space = exceed_space or 0
+
+        if qy > self.__bounds.bottom
+            or qy + self.__ref_height * self.__scale * 1.5 < self.__bounds.top
+        then
+            return
+        end
 
         for k, word in ipairs(word_list) do
 
-            -- local r = separated[current_index + k] or ""
-            -- if r then
-            --     if r:match("<color>") then
-            --         current_color = { 1, 0, 0, 1 }
-            --     elseif r:match("</color>") then
-            --         current_color = { 0, 0, 0, 1 }
-            --     end
-            -- end
+            if index_action then
+                for _, action in ipairs(index_action) do
+                    if action.i == k then
+                        action.action()
+                    end
+                end
+            end
 
             for i = 1, #(word) do
                 local char_obj = get_char_obj(word[i])
@@ -736,6 +700,14 @@ function Font:printf(text, x, y, align, limit_right, __i__, __color__, __x_origi
 
             qx = qx + exceed_space
         end
+
+        if index_action then
+            for _, action in ipairs(index_action) do
+                if action.i > #word_list then
+                    action.action()
+                end
+            end
+        end
     end
 
     local line_width =
@@ -747,60 +719,107 @@ function Font:printf(text, x, y, align, limit_right, __i__, __color__, __x_origi
         return total
     end
 
+    local next_not_command_index =
+    ---@param index number
+    function(index)
+        local current_index = index + 1
+
+        while (separated[current_index]
+            and self:__is_a_command_tag(separated[current_index])) do
+
+            current_index = current_index + 1
+        end
+
+        if not separated[current_index] then return nil end
+        return current_index
+    end
+
     local total_width = 0
     local line = {}
+    local line_actions = {}
 
     for m = 1, #(words) do
-        if not line then line = {} end
+        local command_tag = self:__is_a_command_tag(separated[m])
 
-        table.insert(
-            line,
-            words[m]
-        )
+        if command_tag and command_tag:match("color") then
+            local action = { i = #line + 1 }
 
-        total_width = total_width + len(words[m]) + self.__space_char:get_width() + self.__character_space * 2
+            if command_tag == "<color>" then
+                action.action = function()
+                    local parse = Utils:parse_csv_line(separated[m]:sub(2, #separated[m] - 1))
+                    local r = parse[2] or 1
+                    local g = parse[3] or 0
+                    local b = parse[4] or 0
+
+                    current_color = { r, g, b, 1 }
+                end
+            elseif command_tag == "</color>" then
+                action.action = function()
+                    current_color = { 0, 0, 0, 1 }
+                end
+            end
+            table.insert(line_actions, action)
+        end
+
+        if not command_tag then
+
+            table.insert(
+                line,
+                words[m]
+            )
+
+            local next_index = next_not_command_index(m)
+
+            total_width = total_width + len(words[m]) + self.__space_char:get_width() + self.__character_space * 2
+
+            if total_width + (next_index and words[next_index]
+                and len(words[next_index]) or 0) >= limit_right
+            then
+                local lw = line_width(line)
+
+                local div = #line - 1
+                div = div <= 0 and 1 or div
+
+                local ex_sp = align == "justify"
+                    and (limit_right - lw) / div
+                    or nil
+
+                local pos_to_draw = (align == "left" and x)
+                    or (align == "right" and (x + limit_right) - lw)
+                    or (align == "center" and x + limit_right / 2 - lw / 2)
+                    or x
+
+                print(line, pos_to_draw, ty, line_actions, ex_sp)
 
 
-        if total_width + (words[m + 1] and len(words[m + 1]) or 0) >= limit_right
-        then
-            local lw = line_width(line)
+                total_width = 0
 
-            local div = #line - 1
-            div = div <= 0 and 1 or div
+                ty = ty + self.__ref_height * self.__scale
+                    + self.__line_space
 
-            local ex_sp = align == "justify"
-                and (limit_right - lw) / div
-                or nil
+                line = {}
+                line_actions = {}
+            else
+                if m ~= #words then
+                    table.insert(
+                        line,
+                        { self.__space_char }
+                    )
+                end
+            end
 
-            local pos_to_draw = (align == "left" and x)
-                or (align == "right" and (x + limit_right) - lw)
-                or (align == "center" and (x + limit_right) / 2 - lw / 2)
-                or x
+            if line and m == #words then
+                local lw = line_width(line)
 
-            print(line, pos_to_draw, ty, m - #line, ex_sp)
-            line = nil
-            total_width = 0
-            ty = ty + self.__ref_height * self.__scale + self.__line_space
-        else
+                local pos_to_draw = (align == "left" and x)
+                    or (align == "right" and tx + limit_right - lw)
+                    or (align == "center" and tx + limit_right / 2 - lw / 2)
+                    or x
 
-            if m ~= #words then
-                table.insert(
-                    line,
-                    { self.__space_char }
-                )
+                print(line, pos_to_draw, ty, line_actions)
             end
         end
 
-        if line and m == #words then
-            local lw = line_width(line)
-
-            local pos_to_draw = (align == "left" and x)
-                or (align == "right" and tx + limit_right - lw)
-                or (align == "center" and tx + limit_right / 2 - lw / 2)
-                or x
-
-            print(line, pos_to_draw, ty, m - #line)
-        end
     end
 
     self:pop()

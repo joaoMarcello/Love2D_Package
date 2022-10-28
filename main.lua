@@ -103,7 +103,7 @@ local aa = Consolas:add_nickname_animated("--nuvem--", {
 })
 -- aa:apply_effect("pulse", { range = 0.06 })
 
-local text = "Caro senhor Potter,\tChegou ao conhecimento do Ministério que o senhor executou o < color, 0, 0, 1 >feitiço do patrono <color>na <bold>presença de um trouxa< /color >< /bold >.\tSendo uma grave violação ao <bold>'Regulamento de <color, 1,0,1>Restrição à Prática de Magia <color, 0.7, 1, 0.6>por Menores'</bold>, o senhor</color> está expulso da <bold>Escola de Magia e Bruxaria de Hogwarts.</bold>\t\t\tEsperando que esteja bem,\t\t\t\t\tMafalda Hopkins --goomba--</bold> "
+local text = "Caro senhor <bold>Potter,</bold> \n \tChegou ao conhecimento do Ministério que o senhor executou o < color, 0, 0, 1 >feitiço do patrono <color>na <bold>presença de um trouxa.< /color >< /bold >\tSendo uma grave violação ao <bold>'Regulamento de <color, 1,0,1>Restrição à Prática de Magia <color, 0.7, 0.1, 0.6>por Menores',</bold> o senhor</color> está expulso da <bold>Escola de Magia e Bruxaria de Hogwarts.\n </bold>\t\t\tEsperando que esteja bem,\n \t\t\t\t\tMafalda Hopkins --goomba--</bold> "
 
 local text2 = "<color>Thanos</color> aAáÁàÀãÃäÄ eEéÉèÈêÊëË iIíÍìÌîÎïÏ oOóÓòòôÔöÖõÕ uUúÚùÙûüÜ bBcCçÇdDfF gGhHjJkKlLmM nNpPqQrRsS {[(astha)]} |as_ \ntTvVwWxXyYzZ 0123456789 +-=/# @TMJ_por_JM & § ?|!,.;: °º1ª¹²³£¢¬AsthaYuno * ¨¬¬ ~ $ ~ --a--"
     .. [["]]
@@ -111,7 +111,7 @@ local frase = Phrase:new({ text = text, font = Consolas })
 
 -- frase:color_pattern("s", { 0.8, 0, 0, 1 }, "all")
 frase:color_sentence("e", { 1, 0, 0, 1 }, "all")
-frase:apply_freaky("meio", "all")
+frase:apply_freaky("Potter", "all")
 
 -- frase:color_sentence("o tempo como amigo", { 0, 0, 1, 1 }, "all")
 
@@ -183,15 +183,15 @@ function love.draw()
     --     ,
     --     0, 0, love.graphics.getWidth() - 300)
     Consolas:push()
-    Consolas:set_font_size(12)
-    Consolas:printf("\tAquele que h--a-- habita no esconderijo do altíssimo, à sombra do onipotente --goomba--descansará. Diz o senhor, meu refúgio e meu baluarte. Deus meu em quem confio. Pois ele te livrará do laço do passarinheiro e da peste perniciosa. Cobrir-te-á com tuas penas, e sob tuas asas, estarás seguro. Tua verdade é pavê e escudo.Aquele que habita no esconderijo do altíssimo, à sombra do onipotente descansará. Diz o senhor, meu refúgio e meu baluarte. Deus meu em quem confio. Pois ele te livrará do laço do passarinheiro e da peste perniciosa. Cobrir-te-á com tuas penas, e sob tuas asas, estarás seguro. Tua verdade é pavê e escudo.Aquele que habita no esconderijo do altíssimo, à sombra do onipotente descansará. Diz o senhor, meu refúgio e meu baluarte. Deus meu em quem confio. Pois ele te livrará do laço do passarinheiro e da peste perniciosa. Cobrir-te-á com tuas penas, e sob tuas asas, estarás seguro. Tua verdade é pavê e escudo.Aquele que habita no esconderijo do altíssimo, à sombra do onipotente descansará. Diz o senhor, meu refúgio e meu baluarte. Deus meu em quem confio. Pois ele te livrará do laço do passarinheiro e da peste perniciosa. Cobrir-te-á com tuas penas, e sob tuas asas, estarás seguro. Tua verdade é pavê e escudo.Aquele que habita no esconderijo do altíssimo, à sombra do onipotente descansará. Diz o senhor, meu refúgio e meu baluarte. Deus meu em quem confio. Pois ele te livrará do laço do passarinheiro e da peste perniciosa. Cobrir-te-á com tuas penas, e sob tuas asas, estarás seguro. Tua verdade é pavê e escudo.Aquele que habita no esconderijo do altíssimo, à sombra do onipotente descansará. Diz o senhor, meu refúgio e meu baluarte. Deus meu em quem confio. Pois ele te livrará do laço do passarinheiro e da peste perniciosa. Cobrir-te-á com tuas penas, e sob tuas asas, estarás seguro. Tua verdade é pavê e escudo."
-        , 30, 0, "justify")
+    Consolas:set_font_size(10)
+    Consolas:printf("\tAquele que h--a-- habita <color, 0, 0, 1>no esconderijo do altíssimo, <color>à sombra do <color, 0.7, 0.5, 0.1>onipotente</color> --goomba--d--goomba--escansará. Diz o senhor, meu refúgio e meu baluarte. Deus meu em quem confio. Pois ele te livrará do laço do passarinheiro e da peste <color>perniciosa. <bold> Cobrir-te-á com tuas penas,</bold> e sob tuas asas, estarás seguro. <color, 0, 0.3,0.1>Tua verdade é pavê e escudo.\tAquele que h--a-- habita <color, 0, 0, 1>no esconderijo do altíssimo, <color>à sombra do <color, 0.7, 0.5, 0.1>onipotente</color> --goomba--descansará. Diz o senhor, meu refúgio e meu baluarte. Deus meu em quem confio. Pois ele te livrará do laço do passarinheiro e da peste <color>perniciosa. <bold> Cobrir-te-á com tuas penas,</bold> e sob tuas asas, estarás seguro. <color, 0, 0.3,0.1>Tua verdade é pavê e escudo.\tAquele que h--a-- habita <color, 0, 0, 1>no esconderijo do altíssimo, <color>à sombra do <color, 0.7, 0.5, 0.1>onipotente</color> --goomba--descansará. Diz o senhor, meu refúgio e meu baluarte. Deus meu em quem confio. Pois ele te livrará do laço do passarinheiro e da peste <color>perniciosa. <bold> Cobrir-te-á com tuas penas,</bold> e sob tuas asas, estarás seguro. <color, 0, 0.3,0.1>Tua verdade é pavê e escudo.\tAquele que h--a-- habita <color, 0, 0, 1>no esconderijo do altíssimo, <color>à sombra do <color, 0.7, 0.5, 0.1>onipotente</color> --goomba--descansará. Diz o senhor, meu refúgio e meu baluarte. Deus meu em quem confio. Pois ele te livrará do laço do passarinheiro e da peste <color>perniciosa. <bold> Cobrir-te-á com tuas penas,</bold> e sob tuas asas, estarás seguro. <color, 0, 0.3,0.1>Tua verdade é pavê e escudo.\tAquele que h--a-- habita <color, 0, 0, 1>no esconderijo do altíssimo, <color>à sombra do <color, 0.7, 0.5, 0.1>onipotente</color> --goomba--descansará. Diz o senhor, meu refúgio e meu baluarte. Deus meu em quem confio. Pois ele te livrará do laço do passarinheiro e da peste <color>perniciosa. <bold> Cobrir-te-á com tuas penas,</bold> e sob tuas asas, estarás seguro. <color, 0, 0.3,0.1>Tua verdade é pavê e <bold>escudo."
+        , 30, -0, "justify")
     Consolas:pop()
 
     Consolas:push()
     Consolas:set_font_size(10)
     frase:refresh()
-    -- last_char = frase:draw(love.mouse.getX(), 20, "justified", nil)
+    last_char = frase:draw(love.mouse.getX(), 20, "justified", current_max)
     Consolas:pop()
 
     if last_char then

@@ -202,14 +202,6 @@ function Character:__draw__(x, y)
 
         self:setViewport(self.__img, self.__quad, x, y)
 
-        -- love.graphics.draw(self.__img, self.__quad,
-        --     x + self.w / 2 * self.sx,
-        --     y + (self.h + self.offset_y) / 2 * self.sy,
-        --     0,
-        --     self.sx, self.sy,
-        --     self.ox, self.oy
-        -- )
-
         love.graphics.draw(self.__img, self.__quad,
             x,
             y,
@@ -222,11 +214,11 @@ function Character:__draw__(x, y)
 
     love.graphics.pop()
 
-    love.graphics.setColor(0, 0, 0, 0.4)
 
-    if self.w and self.h then
-        love.graphics.rectangle("line", x - self.ox * self.sx, y - self.oy * self.sy, self.w * self.sx, self.h * self.sy)
-    end
+    -- if self.w and self.h then
+    --     love.graphics.setColor(0, 0, 0, 0.4)
+    --     love.graphics.rectangle("line", x - self.ox * self.sx, y - self.oy * self.sy, self.w * self.sx, self.h * self.sy)
+    -- end
 end
 
 return Character
