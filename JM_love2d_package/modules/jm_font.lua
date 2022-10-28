@@ -34,7 +34,7 @@ function Font:new(args)
 end
 
 ---@overload fun(self: table, args: string)
----@param args {name: string, font_size: number, line_space: number, tab_size: number, character_space: number}
+---@param args {name: string, font_size: number, line_space: number, tab_size: number, character_space: number, color: JM.Color}
 function Font:__constructor__(args)
     if type(args) == "string" then
         local temp_table = {}
@@ -112,7 +112,7 @@ function Font:__constructor__(args)
     table.insert(self.__bold_characters, self.__space_char)
     table.insert(self.__bold_characters, self.__tab_char)
 
-    self.__default_color = { 0.1, 0.1, 0.1, 1 }
+    self.__default_color = args.color or { 0.1, 0.1, 0.1, 1 }
 
     self.__bounds = { left = 0, top = 0, right = love.graphics.getWidth(), bottom = love.graphics.getHeight() }
 end
@@ -453,8 +453,13 @@ function Font:print(text, x, y, w, h, __i__, __color__, __x_origin__, __format__
 
     local tx = x
     local ty = y
+
     local current_color = __color__ or self.__default_color
-    local current_format = __format__ or self.format_options.normal
+    local original_color = self.__default_color
+
+    local current_format = __format__ or self.__format
+    local original_format = self.__format
+
     local x_origin = __x_origin__ or tx
 
     local i = __i__ or 1
@@ -486,11 +491,11 @@ function Font:print(text, x, y, w, h, __i__, __color__, __x_origin__, __format__
 
                 current_color = { r, g, b, 1 }
             elseif match == "</color>" then
-                current_color = self.__default_color
+                current_color = original_color
             elseif match == "<bold>" then
                 current_format = self.format_options.bold
             elseif match == "</bold>" then
-                current_format = self.format_options.normal
+                current_format = original_format
             end
 
             if match then
@@ -558,11 +563,7 @@ end
 ---@param y number
 ---@param align "left"|"right"|"center"|"justify"|nil
 ---@param limit_right number|nil
----@param __i__ any
----@param __color__ any
----@param __x_origin__ any
----@param __format__ any
-function Font:printf(text, x, y, align, limit_right, __i__, __color__, __x_origin__, __format__)
+function Font:printf(text, x, y, align, limit_right)
     if not text or text == "" then return { tx = x, ty = y } end
 
     self:push()
@@ -571,10 +572,14 @@ function Font:printf(text, x, y, align, limit_right, __i__, __color__, __x_origi
     local ty = y
     align = align or "left"
     limit_right = limit_right or love.mouse.getX() - x
-    local current_color = __color__ or self.__default_color
-    local current_format = __format__ or self.format_options.normal
-    local x_origin = __x_origin__ or tx
-    local i = __i__ or 1
+
+    local current_color = self.__default_color
+    local original_color = self.__default_color
+
+    local current_format = self.__format
+    local original_format = self.__format
+
+    local i = 1
     local separated = self:separate_string(text)
     local words = {}
 
@@ -586,7 +591,7 @@ function Font:printf(text, x, y, align, limit_right, __i__, __color__, __x_origi
         if match == "<bold>" then
             current_format = self.format_options.bold
         elseif match == "</bold>" then
-            current_format = self.format_options.normal
+            current_format = original_format
         end
 
         self:set_format_mode(current_format)
@@ -646,14 +651,14 @@ function Font:printf(text, x, y, align, limit_right, __i__, __color__, __x_origi
 
     local print =
     ---@param word_list table
-    ---@param qx number
-    ---@param qy number
+    ---@param tx number
+    ---@param ty number
     ---@param index_action table
-    function(word_list, qx, qy, index_action, exceed_space)
+    function(word_list, tx, ty, index_action, exceed_space)
         exceed_space = exceed_space or 0
 
-        if qy > self.__bounds.bottom
-            or qy + self.__ref_height * self.__scale * 1.5 < self.__bounds.top
+        if ty > self.__bounds.bottom
+            or ty + self.__ref_height * self.__scale * 1.5 < self.__bounds.top
         then
             return
         end
@@ -663,7 +668,7 @@ function Font:printf(text, x, y, align, limit_right, __i__, __color__, __x_origi
             if index_action then
                 for _, action in ipairs(index_action) do
                     if action.i == k then
-                        action.action()
+                        action.action(tx, ty)
                     end
                 end
             end
@@ -682,29 +687,29 @@ function Font:printf(text, x, y, align, limit_right, __i__, __color__, __x_origi
                             nil, char_obj.__anima:__get_current_frame().h
                         )
 
-                        char_obj:draw(qx + char_obj.w / 2 * char_obj.sx,
-                            qy + char_obj.h / 2 * char_obj.sy
+                        char_obj:draw(tx + char_obj.w / 2 * char_obj.sx,
+                            ty + char_obj.h / 2 * char_obj.sy
                         )
                     else
 
                         local width = char_obj.w * char_obj.sx
                         local height = char_obj.h * char_obj.sy
 
-                        char_obj:draw_rec(qx, qy + self.__font_size - height, width, height)
+                        char_obj:draw_rec(tx, ty + self.__font_size - height, width, height)
                     end
 
-                    qx = qx + char_obj:get_width()
+                    tx = tx + char_obj:get_width()
                         + self.__character_space
                 end
             end
 
-            qx = qx + exceed_space
+            tx = tx + exceed_space
         end
 
         if index_action then
             for _, action in ipairs(index_action) do
                 if action.i > #word_list then
-                    action.action()
+                    action.action(tx, ty)
                 end
             end
         end
@@ -755,7 +760,7 @@ function Font:printf(text, x, y, align, limit_right, __i__, __color__, __x_origi
                 end
             elseif command_tag == "</color>" then
                 action.action = function()
-                    current_color = { 0, 0, 0, 1 }
+                    current_color = original_color
                 end
             end
             table.insert(line_actions, action)
