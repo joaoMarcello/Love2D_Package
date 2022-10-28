@@ -121,7 +121,7 @@ function Word:apply_effect(startp, endp, effect_type, offset)
 
         if effect_type == "freaky" or true then
             eff = EffectManager:generate("float", {
-                range = 1.0,
+                range = 0.7,
                 speed = 0.2,
                 rad = math.pi * (i % 4) + offset
             })

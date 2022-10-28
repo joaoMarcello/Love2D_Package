@@ -215,16 +215,16 @@ function Phrase:get_word_by_index(index)
     return self.__words[index]
 end
 
----@param s string
-function Phrase:__is_a_command_tag(s)
-    return (s:match("< *bold *>") and "<bold>")
-        or (s:match("< */ *bold *>") and "</bold>")
-        or (s:match("< *italic *>") and "<italic>")
-        or (s:match("< */ *italic *>") and "</italic>")
-        or (s:match("< *color[%d, .]*>") and "<color>")
-        or (s:match("< */ *color *>") and "</color>")
-        or false
-end
+-- ---@param s string
+-- function Phrase:__is_a_command_tag(s)
+--     return (s:match("< *bold *>") and "<bold>")
+--         or (s:match("< */ *bold *>") and "</bold>")
+--         or (s:match("< *italic *>") and "<italic>")
+--         or (s:match("< */ *italic *>") and "</italic>")
+--         or (s:match("< *color[%d, .]*>") and "<color>")
+--         or (s:match("< */ *color *>") and "</color>")
+--         or false
+-- end
 
 ---@return table
 function Phrase:get_lines(x, y)
@@ -239,7 +239,7 @@ function Phrase:get_lines(x, y)
         local next_word = self:get_word_by_index(i + 1)
         local prev_word = self:get_word_by_index(i - 1)
 
-        local cur_is_tag = self:__is_a_command_tag(current_word.__text)
+        local cur_is_tag = self.__font:__is_a_command_tag(current_word.__text)
 
         if cur_is_tag then
             goto skip_word
