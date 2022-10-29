@@ -115,8 +115,8 @@ function Anima:__constructor__(args)
         self.__frames_list[i] = Frame:new(args.frames_list[i])
     end -- END FOR for generate frames objects
 
-    if args.width or args.bottom then
-        self:set_size(args.width, args.bottom, args.ref_width, args.ref_height)
+    if args.width or args.height then
+        self:set_size(args.width, args.height, args.ref_width, args.ref_height)
     end
 
     self.__quad = love.graphics.newQuad(0, 0,

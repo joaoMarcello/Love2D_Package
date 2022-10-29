@@ -26,6 +26,15 @@ Test_anima = Anima:new({
     }
 })
 
+local monica = Anima:new({
+    img = "/data/monica_01.png",
+    frames = 1,
+    height = 64 * 2.5,
+    ref_height = 64
+})
+monica:apply_effect("jelly", { range = 0.02 })
+-- monica:set_size(nil, 120, nil, 64)
+
 Anima2 = Test_anima:copy()
 Anima2:set_size(100, 120)
 Anima2:toggle_flip_x()
@@ -160,12 +169,14 @@ function love.update(dt)
 
     Test_anima:update(dt)
     Anima2:update(dt)
-
+    monica:update(dt)
     frase:update(dt)
     Consolas:update(dt)
 end
 
 function love.draw()
+
+    monica:draw_rec(100, 500, 100, 100)
 
     love.graphics.push()
 
@@ -196,7 +207,7 @@ function love.draw()
     Consolas:pop()
 
     Consolas:push()
-    Consolas:set_font_size(14)
+    Consolas:set_font_size(16)
     last_char = frase:draw(love.mouse.getX() + 20, 20, "justified", nil)
     Consolas:pop()
 
