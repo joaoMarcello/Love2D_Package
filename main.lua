@@ -62,7 +62,7 @@ Consolas:add_nickname_animated("--goomba--", {
         { 1006, 1070, 17, 88 }
     },
     duration = 1,
-    state = "looping"
+    is_reversed = false
 })
 
 Consolas:add_nickname_animated("--jean--", {
@@ -78,7 +78,7 @@ Consolas:add_nickname_animated("--jean--", {
         { 1006, 1070, 25, 88 }
     },
     duration = 0.7,
-    flip_y = true
+    flip_y = true,
 })
 
 Consolas:add_nickname_animated("--hh--", {
@@ -103,7 +103,7 @@ local aa = Consolas:add_nickname_animated("--nuvem--", {
 })
 -- aa:apply_effect("pulse", { range = 0.06 })
 
-local text = "Caro senhor <italic>Potter,</italic> \n \n \tChegou ao conhecimento do Ministério que o senhor executou o <italic>feitiço do patrono</italic> na presença de um trouxa.\n \tSendo uma grave violação ao <italic>'Regulamento de Restrição à Prática de Magia por Menores',</italic> o senhor está expulso da <bold>Escola de Magia e Bruxaria de Hogwarts.\n \n \n </bold>\t\t\tEsperando que esteja bem,\n \t\t\t\t\t<italic>Mafalda Hopkins --goomba--</bold> "
+local text = "<color, 0, 0, 0, 0.5Caro senhor --a--rroz<italic>Potter,</italic> \n \n \tChegou ao conhecimento do Ministério que o senhor executou o <italic>feitiço do patrono</italic> na presença de um trouxa.\n \tSendo uma grave violação ao <italic>'Regulamento de Restrição à Prática de Magia por Menores',</italic> o senhor está expulso da <bold>Escola de Magia e Bruxaria de Hogwarts.\n \n \n </bold>\t\t\tEsperando que esteja bem,\n \t\t\t\t\t<italic>Mafalda Hopkins --goomba--</bold> "
 
 local text2 = "<color>Thanos</color> aAáÁàÀãÃäÄ eEéÉèÈêÊëË iIíÍìÌîÎïÏ oOóÓòòôÔöÖõÕ uUúÚùÙûüÜ bBcCçÇdDfF gGhHjJkKlLmM nNpPqQrRsS {[(astha)]} |as_ \n tTvVwWxXyYzZ 0123456789 +-=/# @TMJ_por_JM & § ?|!,.;: °º1ª¹²³£¢¬AsthaYuno * ¨¬¬ ~ $ ~ --a--"
     .. [["]]
@@ -196,8 +196,7 @@ function love.draw()
 
     Consolas:push()
     Consolas:set_font_size(14)
-    frase:refresh()
-    last_char = frase:draw(love.mouse.getX() + 20, 20, "justified", current_max)
+    last_char = frase:draw(love.mouse.getX() + 20, 20, "justified", nil)
     Consolas:pop()
 
     if last_char then

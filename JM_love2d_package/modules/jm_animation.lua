@@ -27,7 +27,8 @@ local Anima = {}
 local ANIMA_STATES = {
     looping = 1,
     back_and_forth = 2,
-    random = 3
+    random = 3,
+    repeating_last_n_frames = 4
 }
 
 ---
@@ -53,7 +54,7 @@ end
 ---
 --- Internal method for constructor.
 ---
---- @param args {img: love.Image, frames: number, frames_list: table,  speed: number, rotation: number, color: JM.Color, scale: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, stop_at_the_end: boolean, amount_cycle: number, state: JM.AnimaStates, bottom: number, kx: number, ky: number, width: number, height: number, ref_width: number, ref_height: number, duration: number}  # A table containing the follow fields:
+--- @param args {img: love.Image, frames: number, frames_list: table,  speed: number, rotation: number, color: JM.Color, scale: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, stop_at_the_end: boolean, amount_cycle: number, state: JM.AnimaStates, bottom: number, kx: number, ky: number, width: number, height: number, ref_width: number, ref_height: number, duration: number, n: number}  # A table containing the follow fields:
 ---
 function Anima:__constructor__(args)
 
@@ -85,6 +86,8 @@ function Anima:__constructor__(args)
 
 
     self:set_state(args.state)
+
+    self.__N__ = args.n or 0
 
     self:set_flip({ x = args.flip_x, y = args.flip_y })
 
@@ -182,7 +185,7 @@ end
 ---@param stop_action function
 ---@param stop_action_args any
 function Anima:stop_at_the_end(value, stop_action, stop_action_args)
-    self.__stop_at_the_end = value
+    self.__stop_at_the_end = value and true or false
 
     if value then
         self:set_stop_action(stop_action, stop_action_args)
@@ -241,19 +244,19 @@ function Anima:get_scale()
     return self.__scale
 end
 
---- Sets Animation rotation to a number value.
+--- Sets Animation rotation in radians.
 ---@param value number
 function Anima:set_rotation(value)
     self.__rotation = value
 end
 
---- Gets Animation current rotation.
+--- Gets Animation current rotation in radians.
 ---@return number
 function Anima:get_rotation()
     return self.__rotation
 end
 
---- Return the animation color field.
+--- Gets the animation color field.
 ---@return table
 function Anima:get_color()
     return self.__color
@@ -267,8 +270,8 @@ function Anima:set_color(value)
     self.__color = Affectable.set_color(self, value)
 end
 
----@return {ox: number, oy: number}
-function Anima:get_origin()
+---@return {x: number, y: number}
+function Anima:get_offset()
     local cf = self:__get_current_frame()
     return cf:get_offset()
 end
@@ -288,6 +291,7 @@ end
 ---|"looping" # (default) when animation reaches the last frame, the current frame is set to beginning.
 ---|"random" # animation shows his frames in a aleatory order.
 ---|"back and forth" # when animation reaches the last frame, the direction of animation changes.
+---|"repeat last n" # When animation reaches the last frame, it backs to the last N frames
 
 --
 --- Set state.
@@ -304,21 +308,27 @@ function Anima:set_state(state)
         or state == "back_and_forth" then
 
         self.__current_state = ANIMA_STATES.back_and_forth
+    elseif state == "repeat last n" then
+        self.__current_state = ANIMA_STATES.repeating_last_n_frames
     else
         self.__current_state = ANIMA_STATES.looping
     end
 end
 
+function Anima:set_max_cycle(value)
+    self.__max_cycle = value
+end
+
 function Anima:set_visible(value)
-    self.__is_visible = value
+    self.__is_visible = value and true or false
 end
 
 ---
---- Reset animation field to his default values.
+--- Resets Animation's fields to his default values.
 ---
 function Anima:reset()
-    self.__update_time = 0.
-    self.__frame_time = 0.
+    self.__update_time = 0
+    self.__frame_time = 0
     self.__current_frame = (self.__direction > 0 and 1)
         or self.__amount_frames
     self.__update_time = 0
@@ -341,7 +351,7 @@ function Anima:__get_effect_transform()
     return Affectable.__get_effect_transform(self)
 end
 
---- Enabla a custom action to execute in animation update method.
+--- Enable a custom action to execute in Animation update method.
 ---@param custom_action function
 ---@param args any
 function Anima:set_custom_action(custom_action, args)
@@ -349,7 +359,7 @@ function Anima:set_custom_action(custom_action, args)
     self.__custom_action_args = args
 end
 
----
+--- Enable a custom action to execute when Animation stops.
 ---@param action function
 ---@param args any
 function Anima:set_stop_action(action, args)
@@ -379,22 +389,25 @@ function Anima:update(dt)
     self.__effect_manager:update(dt)
 
     if self.__custom_action then
-        self.__custom_action(self.__custom_action_args)
+        self.__custom_action(self, self.__custom_action_args)
     end
 
+
     if self.__stopped or
-        (self.__max_cycle and self.__cycle_count >= self.__max_cycle) then
+        (self.__max_cycle and self.__cycle_count >= self.__max_cycle)
+    then
 
         self.__stopped_time = (self.__stopped_time + dt) % 5000000
         return
     end
+
 
     self.__frame_time = self.__frame_time + dt
 
     if self.__frame_time >= self.__speed then
         self.__frame_time = self.__frame_time - self.__speed
 
-        if self:__is_random() then
+        if self:__is_in_random_state() then
             local last_frame = self.__current_frame
             math.random()
             self.__current_frame = 1
@@ -417,14 +430,18 @@ function Anima:update(dt)
 
             if self.__current_frame > self.__amount_frames then
 
-                if self:__is_repeating() then
+                if self:__is_in_looping_state() then
                     self.__current_frame = 1
                     self.__cycle_count = (self.__cycle_count + 1) % 600000
 
-                    if self:__is_stopping_in_the_end() then
+                    if self:__is_stopping_at_the_end() then
                         self.__current_frame = self.__amount_frames
                         self:pause()
                     end
+
+                elseif self:__is_in_repeating_last_n_state() then
+                    self.__current_frame = self.__current_frame - self.__N__
+                    self.__cycle_count = (self.__cycle_count + 1)
 
                 else -- ELSE: animation is in "back and forth" state
 
@@ -436,12 +453,12 @@ function Anima:update(dt)
                         self.__cycle_count = (self.__cycle_count + 1) % 600000
                     end
 
-                    if self:__is_stopping_in_the_end()
+                    if self:__is_stopping_at_the_end()
                         and self.__direction == self.__initial_direction then
 
                         self:pause()
                     end
-                end -- END ELSE animation in "back_and_forth" state
+                end -- END ELSE animation in "back and forth" state
 
             end -- END ELSE if animation is repeating
 
@@ -449,14 +466,18 @@ function Anima:update(dt)
 
             if self.__current_frame < 1 then
 
-                if self:__is_repeating() then
+                if self:__is_in_looping_state() then
                     self.__current_frame = self.__amount_frames
                     self.__cycle_count = (self.__cycle_count + 1) % 600000
 
-                    if self:__is_stopping_in_the_end() then
+                    if self:__is_stopping_at_the_end() then
                         self.__current_frame = 1
                         self:pause()
                     end
+
+                elseif self:__is_in_repeating_last_n_state() then
+                    self.__current_frame = self.__N__
+                    self.__cycle_count = (self.__cycle_count + 1)
 
                 else -- ELSE animation is not repeating
                     self.__current_frame = 1
@@ -467,7 +488,7 @@ function Anima:update(dt)
                         self.__cycle_count = (self.__cycle_count + 1) % 600000
                     end
 
-                    if self:__is_stopping_in_the_end()
+                    if self:__is_stopping_at_the_end()
                         and self.__direction == self.__initial_direction then
 
                         self:pause()
@@ -614,22 +635,26 @@ end
 --- Tells if animation should stop in the last frame.
 ---
 ---@return boolean result
-function Anima:__is_stopping_in_the_end()
+function Anima:__is_stopping_at_the_end()
     return self.__stop_at_the_end
 end
 
 ---
 --- Tells if animation is in repeating state.
 ---@return boolean result
-function Anima:__is_repeating()
+function Anima:__is_in_looping_state()
     return self.__current_state == ANIMA_STATES.looping
+end
+
+function Anima:__is_in_repeating_last_n_state()
+    return self.__current_state == ANIMA_STATES.repeating_last_n_frames
 end
 
 ---
 --- Tells if animation is in random state.
 ---
 ---@return boolean result
-function Anima:__is_random()
+function Anima:__is_in_random_state()
     return self.__current_state == ANIMA_STATES.random
 end
 

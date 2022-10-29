@@ -50,23 +50,25 @@ function Phrase:__constructor__(args)
 end
 
 function Phrase:__verify_commands(text)
-    local r = self:__is_a_tag(text, 1)
+    -- local r = self:__is_a_tag(text, 1)
+    local r = self.__font:__is_a_command_tag(text)
     if r then
-        if r.tag:match("< *bold *") then
+        if r:match("< *bold *>") then
             self.__font:set_format_mode(self.__font.format_options.bold)
-        elseif r.tag:match("< */ *bold *>") then
+        elseif r:match("< */ *bold *>") then
             self.__font:set_format_mode(self.__font_config.format)
-        elseif r.tag:match("< *color[ ,%d.]*") then
-            local parse = Utils:parse_csv_line(r.tag:sub(2, #r.tag - 1), ",")
+        elseif r:match("< *color[ ,%d.]*>") then
+            local parse = Utils:parse_csv_line(r:sub(2, #r - 1), ",")
             local r = tonumber(parse[2]) or 1
             local g = tonumber(parse[3]) or 0
             local b = tonumber(parse[4]) or 0
-            self.__font:set_color({ r, g, b, 1 })
-        elseif r.tag:match("< */ *color *>") then
+            local a = tonumber(parse[5]) or 1
+            self.__font:set_color({ r, g, b, a })
+        elseif r:match("< */ *color *>") then
             self.__font:set_color(self.__font_config.color)
-        elseif r.tag:match("< *italic *>") then
+        elseif r:match("< *italic *>") then
             self.__font:set_format_mode(self.__font.format_options.italic)
-        elseif r.tag:match("< */ *italic *>") then
+        elseif r:match("< */ *italic *>") then
             self.__font:set_format_mode(self.__font_config.format)
         end
     end
@@ -311,29 +313,6 @@ function Phrase:__line_length(line)
     return total_len
 end
 
----@param text string
----@param index number
----@return {start:number, final:number, tag:string}|nil
-function Phrase:__is_a_tag(text, index)
-    local command = "color"
-
-    if text:sub(index, index) == "<" then
-        local startp, endp = text:find(">", index + 1)
-        local start2
-        if startp then
-            -- start2 = text:find("<", index + 1)
-            -- if start2 and start2 < startp then start2 = true end
-        end
-
-        if startp and not start2 then
-            -- local start2, endp2 = text:find("</" .. command .. ">", endp)
-            -- if start2 then
-            return { start = startp, final = endp, tag = text:sub(index, endp) }
-            -- end
-        end
-    end
-end
-
 ---@param s string
 function Phrase:separate_string(s, list)
     s = s .. " "
@@ -346,8 +325,9 @@ function Phrase:separate_string(s, list)
         local tag_regex = "< *[%d, .%w/]*>"
 
         local tag = s:match(tag_regex, current_init)
+        tag = tag and self.__font:__is_a_command_tag(tag) or nil
         local find = not tag and s:match(regex, current_init)
-        local nick = find and string.match(find, "%-%-%w-%-%-") and false
+        local nick = false and find and string.match(find, "%-%-%w-%-%-")
 
         if tag then
             local startp, endp = string.find(s, tag_regex, current_init)
@@ -447,11 +427,6 @@ function Phrase:draw_lines(lines, x, y, align, threshold, __max_char__)
                 q = q * 2 + 7
                 q = 100
             end
-
-            -- if lines[i][1] and lines[i][1].__text == "\t" then
-            --     -- space = 0
-            --     q = q - 1
-            -- end
 
             if q == 0 then q = 1 end
             space = (self.__bounds.right - x - total) / (q)

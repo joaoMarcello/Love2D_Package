@@ -30,9 +30,9 @@ function Frame:__constructor__(args)
     self.bottom = self.y + self.h
 end
 
----@return {ox: number, oy: number}
+---@return {x: number, y: number}
 function Frame:get_offset()
-    return { ox = self.ox, oy = self.oy }
+    return { x = self.ox, y = self.oy }
 end
 
 --- Sets the Quad Viewport.

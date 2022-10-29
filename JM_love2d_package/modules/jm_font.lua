@@ -247,20 +247,16 @@ function Font:set_font_size(value)
 end
 
 ---@param nickname string
+---@return string|nil
 local function is_valid_nickname(nickname)
-    if #nickname > 4
-        and nickname:sub(1, 2) == "--"
-        and nickname:sub(#nickname - 1) == "--" then
-        return true
-    end
-    return false
+    return #nickname > 4 and nickname:match("%-%-[^%-][%w%p]-%-%-") or nil
 end
 
 ---@param nickname string
 ---@param args {img: love.Image|string, frames: number, frames_list: table,  speed: number, rotation: number, color: JM.Color, scale: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, stop_at_the_end: boolean, amount_cycle: number, state: JM.AnimaStates, bottom: number, kx: number, ky: number, width: number, height: number, ref_width: number, ref_height: number, duration: number}
 function Font:add_nickname_animated(nickname, args)
     assert(is_valid_nickname(nickname),
-        "\nError: Invalid nickname. The nickname should start and ending with '--'. \nExamples: --icon--, -- emoji --.")
+        "\nError: Invalid nickname. The nickname should start and ending with '--'. \nExamples: --icon--, --emoji--.")
 
     local animation = Anima:new(args)
 
