@@ -50,25 +50,26 @@ function Phrase:__constructor__(args)
 end
 
 function Phrase:__verify_commands(text)
-    -- local r = self:__is_a_tag(text, 1)
-    local r = self.__font:__is_a_command_tag(text)
-    if r then
-        if r:match("< *bold *>") then
+    local result = self.__font:__is_a_command_tag(text)
+
+    if result then
+        if result:match("< *bold *>") then
             self.__font:set_format_mode(self.__font.format_options.bold)
-        elseif r:match("< */ *bold *>") then
+        elseif result:match("< */ *bold *>") then
             self.__font:set_format_mode(self.__font_config.format)
-        elseif r:match("< *color[ ,%d.]*>") then
-            local parse = Utils:parse_csv_line(r:sub(2, #r - 1), ",")
+        elseif result == "<color>" then
+            local tag = text:match("< *color[ ,%d.]*>")
+            local parse = Utils:parse_csv_line(tag:sub(2, #tag - 1), ",")
             local r = tonumber(parse[2]) or 1
             local g = tonumber(parse[3]) or 0
             local b = tonumber(parse[4]) or 0
             local a = tonumber(parse[5]) or 1
             self.__font:set_color({ r, g, b, a })
-        elseif r:match("< */ *color *>") then
+        elseif result:match("< */ *color *>") then
             self.__font:set_color(self.__font_config.color)
-        elseif r:match("< *italic *>") then
+        elseif result:match("< *italic *>") then
             self.__font:set_format_mode(self.__font.format_options.italic)
-        elseif r:match("< */ *italic *>") then
+        elseif result:match("< */ *italic *>") then
             self.__font:set_format_mode(self.__font_config.format)
         end
     end
@@ -239,7 +240,6 @@ function Phrase:get_lines(x, y)
     for i = 1, #self.__words do
         local current_word = self:get_word_by_index(i)
         local next_word = self:get_word_by_index(i + 1)
-        local prev_word = self:get_word_by_index(i - 1)
 
         local cur_is_tag = self.__font:__is_a_command_tag(current_word.__text)
 

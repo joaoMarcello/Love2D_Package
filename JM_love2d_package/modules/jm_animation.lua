@@ -409,15 +409,15 @@ function Anima:update(dt)
 
         if self:__is_in_random_state() then
             local last_frame = self.__current_frame
-            math.random()
-            self.__current_frame = 1
-                + (math.random(0, self.__amount_frames) % self.__amount_frames)
+            local number = love.math.random(0, self.__amount_frames - 1)
+
+            self.__current_frame = 1 + (number % self.__amount_frames)
 
             self.__cycle_count = (self.__cycle_count + 1) % 6000000
 
             if last_frame == self.__current_frame then
-                self.__current_frame = (1 + self.__current_frame)
-                    % self.__amount_frames
+                self.__current_frame = 1 + (self.__current_frame
+                    % self.__amount_frames)
             end
 
             return

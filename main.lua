@@ -62,7 +62,8 @@ Consolas:add_nickname_animated("--goomba--", {
         { 1006, 1070, 17, 88 }
     },
     duration = 1,
-    is_reversed = false
+    is_reversed = false,
+    state = "looping"
 })
 
 Consolas:add_nickname_animated("--jean--", {
@@ -103,7 +104,7 @@ local aa = Consolas:add_nickname_animated("--nuvem--", {
 })
 -- aa:apply_effect("pulse", { range = 0.06 })
 
-local text = "<color, 0, 0, 0, 0.5Caro senhor --a--rroz<italic>Potter,</italic> \n \n \tChegou ao conhecimento do Ministério que o senhor executou o <italic>feitiço do patrono</italic> na presença de um trouxa.\n \tSendo uma grave violação ao <italic>'Regulamento de Restrição à Prática de Magia por Menores',</italic> o senhor está expulso da <bold>Escola de Magia e Bruxaria de Hogwarts.\n \n \n </bold>\t\t\tEsperando que esteja bem,\n \t\t\t\t\t<italic>Mafalda Hopkins --goomba--</bold> "
+local text = "<color, 0.2, 0.2, 0.2> Caro senhor --a--rroz<italic>Potter,</italic> \n \n \tChegou ao conhecimento do Ministério que o senhor executou o <italic>feitiço do patrono</italic> na presença de um trouxa.\n \tSendo uma grave violação ao <italic>'Regulamento de Restrição à Prática de Magia por Menores',</italic> o senhor está expulso da <bold>Escola de Magia e Bruxaria de Hogwarts.\n \n \n </bold>\t\t\tEsperando que esteja bem,\n \t\t\t\t\t<italic>Mafalda Hopkins --goomba--</bold> "
 
 local text2 = "<color>Thanos</color> aAáÁàÀãÃäÄ eEéÉèÈêÊëË iIíÍìÌîÎïÏ oOóÓòòôÔöÖõÕ uUúÚùÙûüÜ bBcCçÇdDfF gGhHjJkKlLmM nNpPqQrRsS {[(astha)]} |as_ \n tTvVwWxXyYzZ 0123456789 +-=/# @TMJ_por_JM & § ?|!,.;: °º1ª¹²³£¢¬AsthaYuno * ¨¬¬ ~ $ ~ --a--"
     .. [["]]
@@ -187,10 +188,10 @@ function love.draw()
     --     ,
     --     0, 0, love.graphics.getWidth() - 300)
     Consolas:push()
-    Consolas:set_font_size(16)
+    Consolas:set_font_size(12)
     -- Consolas:set_format_mode(Consolas.format_options.italic)
     -- Consolas:set_color({ 1, 1, 1, 1 })
-    Consolas:printf("\tAquele que\n h--a-- habita no <italic>esconderijo</italic> do altíssimo, <color>à <color, 0, 0, 1>sombra do <color, 0.7, 0.5, 0.1>onipotente</color> --goomba-- descansará \n \n \tDiz ao Senhor, meu refúgio e meu baluarte. Deus meu em quem confio. \n \n \tPois ele te livrará do <color, 0,0,1>laço do <color, 1, 0, 0>passarinheiro</color> e da peste perniciosa. Cobrir-te-á com suas penas e sob suas asas estarás seguro. Tua verdade é <bold>pavê e escudo.</bold>"
+    Consolas:printf("\tAquele que\n h--a-- habita no <italic>esconderijo</italic> do altíssimo, <color>à <color, 0, 0, 1>sombra do <color, 0.7, 0.5, 0.1>onipotente</color> --goomba-- descansará\n \n \tDiz ao Senhor, meu refúgio e meu baluarte. Deus meu em quem confio.\n \n \tPois ele te livrará do <color, 0,0,1>laço do <color, 1, 0, 0>passarinheiro</color> e da peste perniciosa. Cobrir-te-á com suas penas e sob suas asas estarás seguro. Tua verdade é <bold>pavê e escudo.</bold>"
         , 30, -0, "justify")
     Consolas:pop()
 

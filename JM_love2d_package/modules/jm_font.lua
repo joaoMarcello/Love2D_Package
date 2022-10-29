@@ -68,11 +68,11 @@ function Font:__constructor__(args)
     self.__character_space = args.character_space or 1
     self.__line_space = args.line_space or 10
 
-    self.__characters = {}
+    self.__normal_characters = {}
     self.__bold_characters = {}
     self.__italic_characters = {}
 
-    self:__load_caracteres_from_csv(self.__characters,
+    self:__load_caracteres_from_csv(self.__normal_characters,
         args.name,
         self.__normal_img
     )
@@ -117,8 +117,8 @@ function Font:__constructor__(args)
         h = self.__ref_height
     })
 
-    table.insert(self.__characters, self.__space_char)
-    table.insert(self.__characters, self.__tab_char)
+    table.insert(self.__normal_characters, self.__space_char)
+    table.insert(self.__normal_characters, self.__tab_char)
     table.insert(self.__bold_characters, self.__space_char)
     table.insert(self.__bold_characters, self.__tab_char)
     table.insert(self.__italic_characters, self.__space_char)
@@ -268,10 +268,10 @@ function Font:add_nickname_animated(nickname, args)
     })
 
     table.insert(self.__nicknames, {
-        nick = nickname, index = #self.__characters + 1
+        nick = nickname, index = #self.__normal_characters + 1
     })
 
-    table.insert(self.__characters, new_character)
+    table.insert(self.__normal_characters, new_character)
     table.insert(self.__bold_characters, new_character)
     table.insert(self.__italic_characters, new_character)
 
@@ -304,10 +304,10 @@ function Font:add_nickname(nickname, args)
 
 
     table.insert(self.__nicknames, {
-        nick = nickname, index = #self.__characters + 1
+        nick = nickname, index = #self.__normal_characters + 1
     })
 
-    table.insert(self.__characters, new_character)
+    table.insert(self.__normal_characters, new_character)
     table.insert(self.__bold_characters, new_character)
     table.insert(self.__italic_characters, new_character)
 
@@ -332,7 +332,7 @@ end
 
 function Font:update(dt)
     for i = 1, #(self.__nicknames) do
-        local character = self.__characters[self.__nicknames[i].index]
+        local character = self.__normal_characters[self.__nicknames[i].index]
         local r = character and character:update(dt)
     end
 end
@@ -340,7 +340,7 @@ end
 ---@param index number
 ---@return JM.Font.Character|nil
 function Font:__get_char_by_index(index)
-    local list = self.__format == FontFormat.normal and self.__characters
+    local list = self.__format == FontFormat.normal and self.__normal_characters
         or self.__format == FontFormat.bold and self.__bold_characters
         or self.__italic_characters
 
@@ -350,7 +350,7 @@ end
 ---@param c string
 ---@return JM.Font.Character|nil
 function Font:__get_char_equals(c)
-    local list = self.__format == FontFormat.normal and self.__characters
+    local list = self.__format == FontFormat.normal and self.__normal_characters
         or self.__format == FontFormat.bold and self.__bold_characters
         or self.__italic_characters
 
@@ -642,12 +642,12 @@ function Font:printf(text, x, y, align, limit_right)
                 end
             end
 
-            if not char_obj and not cur_word:match("\n") then
-                local c_ = self:get_nule_character()
-                -- c_.__id = "\n"
-                -- c_.w = 0
-                table.insert(characters, c_)
-            end
+            -- if not char_obj and cur_word:match("\n") then
+            --     local c_ = self:get_nule_character()
+            --     c_.__id = "\n"
+            --     c_.w = 0
+            --     table.insert(characters, c_)
+            -- end
 
             if char_obj then
                 table.insert(characters, char_obj)
@@ -822,9 +822,6 @@ function Font:printf(text, x, y, align, limit_right)
                 and len(words[next_index]) or 0) > limit_right
 
                 or current_is_break_line
-
-            -- or (next_index and separated[next_index]
-            --     and separated[next_index]:match("\n"))
             then
                 local lw = line_width(line)
 
