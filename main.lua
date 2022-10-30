@@ -29,10 +29,57 @@ Test_anima = Anima:new({
 local monica = Anima:new({
     img = "/data/monica_01.png",
     frames = 1,
-    height = 64 * 2.5,
+    height = 120,
     ref_height = 64
 })
 monica:apply_effect("jelly", { range = 0.02 })
+
+local monica_idle_normal = Anima:new({
+    img = "data/Monica/monica_idle_normal-Sheet.png",
+    frames = 5,
+    duration = 0.5,
+    height = 120 + 32,
+    ref_height = 64,
+    amount_cycle = 3
+})
+
+local monica_idle_blink = Anima:new({
+    img = "data/Monica/monica_idle_blink-Sheet.png",
+    frames = 5,
+    duration = 0.5,
+    height = 120 + 32,
+    ref_height = 64,
+    amount_cycle = 1
+})
+
+local current_animation = monica_idle_normal
+
+monica_idle_normal:set_custom_action(
+---@param self JM.Anima
+---@param param {idle_blink: JM.Anima}
+    function(self, param)
+        if self.__stopped_time > 0 then
+            param.idle_blink:reset()
+            current_animation = param.idle_blink
+        end
+    end,
+    { idle_blink = monica_idle_blink }
+)
+
+monica_idle_blink:set_custom_action(
+---@param self JM.Anima
+---@param param {idle_normal: JM.Anima}
+    function(self, param)
+        if self.__stopped_time > 0 then
+            param.idle_normal:reset()
+            param.idle_normal:set_max_cycle(love.math.random(3, 5))
+            current_animation = param.idle_normal
+
+        end
+    end,
+    { idle_normal = monica_idle_normal }
+)
+
 -- monica:set_size(nil, 120, nil, 64)
 
 Anima2 = Test_anima:copy()
@@ -170,13 +217,19 @@ function love.update(dt)
     Test_anima:update(dt)
     Anima2:update(dt)
     monica:update(dt)
+    current_animation:update(dt)
+
     frase:update(dt)
     Consolas:update(dt)
 end
 
 function love.draw()
 
+    love.graphics.setColor(1, 1, 1, 0.8)
+    love.graphics.rectangle("fill", 300, 500, 64, 120)
+
     monica:draw_rec(100, 500, 100, 100)
+    current_animation:draw_rec(300, 500, 64, 120)
 
     love.graphics.push()
 
@@ -187,9 +240,7 @@ function love.draw()
 
     -- Test_anima:draw_rec(200, 300, 100, 100)
 
-    -- love.graphics.setColor(1, 1, 1, 0.8)
-    -- love.graphics.rectangle("fill", 300, 100, 100, 100)
-    -- Anima2:draw_rec(300, 100, 100, 100)
+
 
     love.graphics.pop()
 
