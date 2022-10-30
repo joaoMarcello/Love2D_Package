@@ -72,19 +72,27 @@ function Font:__constructor__(args)
     self.__bold_characters = {}
     self.__italic_characters = {}
 
+    self.__hash_normal = {}
+    self.__hash_bold = {}
+    self.__hash_italic = {}
+
     self:__load_caracteres_from_csv(self.__normal_characters,
         args.name,
-        self.__normal_img
+        self.__normal_img,
+        nil,
+        self.__hash_normal
     )
     self:__load_caracteres_from_csv(self.__bold_characters,
         args.name,
         self.__bold_img,
-        "_bold"
+        "_bold",
+        self.__hash_bold
     )
     self:__load_caracteres_from_csv(self.__italic_characters,
         args.name,
         self.__italic_img,
-        "_italic"
+        "_italic",
+        self.__hash_italic
     )
 
     self.__format = FontFormat.normal
@@ -139,7 +147,7 @@ function Font:get_format_mode()
     return self.__format
 end
 
-function Font:__load_caracteres_from_csv(list, name, img, extend)
+function Font:__load_caracteres_from_csv(list, name, img, extend, hash)
     if not extend then extend = "" end
 
     local lines = Utils:get_lines_in_file("/JM_love2d_package/data/Font/" .. name .. "/" .. name .. extend .. ".txt")
@@ -163,10 +171,17 @@ function Font:__load_caracteres_from_csv(list, name, img, extend)
             break
         end
 
-        table.insert(list,
-            Character:new(img, self.__quad,
-                { id = id, x = left, y = top, w = right - left, h = bottom - top, bottom = offset_y })
+        local character_obj = Character:new(img, self.__quad,
+            { id = id, x = left, y = top, w = right - left, h = bottom - top, bottom = offset_y }
         )
+
+        table.insert(list,
+            character_obj
+        )
+
+        if hash then
+            hash[character_obj.__id] = character_obj
+        end
     end
 
     table.insert(list, self:get_nule_character())
@@ -274,6 +289,7 @@ function Font:add_nickname_animated(nickname, args)
     table.insert(self.__normal_characters, new_character)
     table.insert(self.__bold_characters, new_character)
     table.insert(self.__italic_characters, new_character)
+
 
     return animation
 end

@@ -72,7 +72,7 @@ monica_idle_blink:set_custom_action(
     function(self, param)
         if self.__stopped_time > 0 then
             param.idle_normal:reset()
-            param.idle_normal:set_max_cycle(love.math.random(3, 5))
+            param.idle_normal:set_max_cycle(love.math.random(2, 2))
             current_animation = param.idle_normal
 
         end
@@ -226,10 +226,10 @@ end
 function love.draw()
 
     love.graphics.setColor(1, 1, 1, 0.8)
-    love.graphics.rectangle("fill", 300, 500, 64, 120)
+    love.graphics.rectangle("fill", 300, 400, 64, 120)
 
-    monica:draw_rec(100, 500, 100, 100)
-    current_animation:draw_rec(300, 500, 64, 120)
+    -- monica:draw_rec(100, 500, 100, 100)
+    current_animation:draw_rec(300, 400, 64, 120)
 
     love.graphics.push()
 
