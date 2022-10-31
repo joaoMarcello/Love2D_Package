@@ -38,16 +38,16 @@ local monica_idle_normal = Anima:new({
     img = "data/Monica/monica_idle_normal-Sheet.png",
     frames = 5,
     duration = 0.5,
-    height = 120 + 32,
+    height = 64 * 2,
     ref_height = 64,
-    amount_cycle = 3
+    -- amount_cycle = 3
 })
 
 local monica_idle_blink = Anima:new({
     img = "data/Monica/monica_idle_blink-Sheet.png",
     frames = 5,
     duration = 0.5,
-    height = 120 + 32,
+    height = 64 * 2,
     ref_height = 64,
     amount_cycle = 1
 })
@@ -225,8 +225,8 @@ end
 
 function love.draw()
 
-    love.graphics.setColor(1, 1, 1, 0.8)
-    love.graphics.rectangle("fill", 300, 400, 64, 120)
+    love.graphics.setColor(0, 0, 0, 0.3)
+    -- love.graphics.rectangle("fill", 300, 400, 64, 120)
 
     -- monica:draw_rec(100, 500, 100, 100)
     current_animation:draw_rec(300, 400, 64, 120)

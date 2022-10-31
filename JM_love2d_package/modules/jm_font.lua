@@ -299,7 +299,7 @@ end
 ---@param args {img: string|love.Image, frame: table, width: number, height: number}
 function Font:add_nickname(nickname, args)
     assert(is_valid_nickname(nickname),
-        "\nError: Invalid nickname. The nickname should start and ending with '--'. \nExamples: --icon--, -- emoji --.")
+        "\nError: Invalid nickname. The nickname should start and ending with '--'. \nExamples: --icon--, --emoji--.")
 
     if not args.bottom then args.bottom = self.__ref_height end
     if not args.width then args.width = args.bottom end
