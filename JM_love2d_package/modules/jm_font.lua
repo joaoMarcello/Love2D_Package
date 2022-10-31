@@ -572,6 +572,130 @@ function Font:print(text, x, y, w, h, __i__, __color__, __x_origin__, __format__
     return { tx = tx, ty = ty }
 end
 
+local get_char_obj
+local len
+local print
+local line_width
+local next_not_command_index
+--- The functions below are used in the printf method
+do
+    get_char_obj =
+    ---@return JM.Font.Character
+    function(param)
+        return param
+    end
+
+    len =
+    ---@param args table
+    ---@return number width
+    function(self, args)
+        local width = 0
+        for _, obj in ipairs(args) do
+            local char_obj = get_char_obj(args[_])
+            width = width + char_obj:get_width() + self.__character_space
+        end
+        return width - self.__character_space
+    end
+
+    print =
+    ---@param word_list table
+    ---@param tx number
+    ---@param ty number
+    ---@param index_action table
+    ---@param current_color JM.Color
+    function(self, word_list, tx, ty, index_action, exceed_space, current_color)
+        exceed_space = exceed_space or 0
+
+        if ty > self.__bounds.bottom
+            or ty + self.__ref_height * self.__scale * 1.5 < self.__bounds.top
+        then
+            return
+        end
+
+        for k, word in ipairs(word_list) do
+
+            if index_action then
+                for _, action in ipairs(index_action) do
+                    if action.i == k then
+                        action.action()
+                    end
+                end
+            end
+
+            for i = 1, #(word) do
+                local char_obj = get_char_obj(word[i])
+                if char_obj then
+                    char_obj:set_color(current_color[1])
+                    char_obj:set_scale(self.__scale)
+
+                    if char_obj:is_animated() then
+                        char_obj:set_color({ 1, 1, 1, 1 })
+
+                        char_obj.__anima:set_size(
+                            nil, self.__font_size * 1.4,
+                            nil, char_obj.__anima:__get_current_frame().h
+                        )
+
+                        char_obj:draw(tx + char_obj.w / 2 * char_obj.sx,
+                            ty + char_obj.h / 2 * char_obj.sy
+                        )
+                    else
+
+                        local width = char_obj.w * char_obj.sx
+                        local height = char_obj.h * char_obj.sy
+
+                        char_obj:draw_rec(tx, ty + self.__font_size - height, width, height)
+                    end
+
+                    tx = tx + char_obj:get_width()
+                        + self.__character_space
+                end
+            end
+
+            tx = tx + exceed_space
+        end
+
+        if index_action then
+            for _, action in ipairs(index_action) do
+                if action.i > #word_list then
+                    action.action()
+                end
+            end
+        end
+    end
+
+
+    line_width =
+    ---@param self JM.Font.Font
+    ---@param line table
+    ---@return number
+    function(self, line)
+        local total = 0
+        for _, word in ipairs(line) do
+            total = total + len(self, word) + self.__character_space
+        end
+        return total
+    end
+
+    next_not_command_index =
+    ---@param self JM.Font.Font
+    ---@param index number
+    ---@param separated table
+    ---@return number|nil
+    function(self, index, separated)
+        local current_index = index + 1
+
+        while (separated[current_index]
+            and self:__is_a_command_tag(separated[current_index])) do
+
+            current_index = current_index + 1
+        end
+
+        if not separated[current_index] then return nil end
+        return current_index
+    end
+end --- End auxiliary methods for printf
+
 ---@param text string
 ---@param x number
 ---@param y number
@@ -587,7 +711,7 @@ function Font:printf(text, x, y, align, limit_right)
     align = align or "left"
     limit_right = limit_right or love.mouse.getX() - x
 
-    local current_color = self.__default_color
+    local current_color = { self.__default_color }
     local original_color = self.__default_color
 
     local current_format = self.__format
@@ -659,116 +783,8 @@ function Font:printf(text, x, y, align, limit_right)
 
     -- local tt = words[1][1].__id == "\n"
     -- self:print(tostring(tt), 500, 10)
+    self:print(tostring(print), 500, 10)
 
-
-
-    local get_char_obj =
-    ---@return JM.Font.Character
-    function(param)
-        return param
-    end
-
-    local len =
-    ---@param args table
-    ---@return number width
-    function(args)
-        local width = 0
-        for _, obj in ipairs(args) do
-            local char_obj = get_char_obj(args[_])
-            width = width + char_obj:get_width() + self.__character_space
-        end
-        return width - self.__character_space
-    end
-
-    local print =
-    ---@param word_list table
-    ---@param tx number
-    ---@param ty number
-    ---@param index_action table
-    function(word_list, tx, ty, index_action, exceed_space)
-        exceed_space = exceed_space or 0
-
-        if ty > self.__bounds.bottom
-            or ty + self.__ref_height * self.__scale * 1.5 < self.__bounds.top
-        then
-            return
-        end
-
-        for k, word in ipairs(word_list) do
-
-            if index_action then
-                for _, action in ipairs(index_action) do
-                    if action.i == k then
-                        action.action()
-                    end
-                end
-            end
-
-            for i = 1, #(word) do
-                local char_obj = get_char_obj(word[i])
-                if char_obj then
-                    char_obj:set_color(current_color)
-                    char_obj:set_scale(self.__scale)
-
-                    if char_obj:is_animated() then
-                        char_obj:set_color({ 1, 1, 1, 1 })
-
-                        char_obj.__anima:set_size(
-                            nil, self.__font_size * 1.4,
-                            nil, char_obj.__anima:__get_current_frame().h
-                        )
-
-                        char_obj:draw(tx + char_obj.w / 2 * char_obj.sx,
-                            ty + char_obj.h / 2 * char_obj.sy
-                        )
-                    else
-
-                        local width = char_obj.w * char_obj.sx
-                        local height = char_obj.h * char_obj.sy
-
-                        char_obj:draw_rec(tx, ty + self.__font_size - height, width, height)
-                    end
-
-                    tx = tx + char_obj:get_width()
-                        + self.__character_space
-                end
-            end
-
-            tx = tx + exceed_space
-        end
-
-        if index_action then
-            for _, action in ipairs(index_action) do
-                if action.i > #word_list then
-                    action.action()
-                end
-            end
-        end
-    end
-
-    local line_width =
-    function(line)
-        local total = 0
-        for _, word in ipairs(line) do
-            total = total + len(word) + self.__character_space
-        end
-        return total
-    end
-
-    local next_not_command_index =
-    ---@param index number
-    function(index)
-        local current_index = index + 1
-
-        while (separated[current_index]
-            and self:__is_a_command_tag(separated[current_index])) do
-
-            current_index = current_index + 1
-        end
-
-        if not separated[current_index] then return nil end
-        return current_index
-    end
 
     local total_width = 0
     local line = {}
@@ -787,11 +803,11 @@ function Font:printf(text, x, y, align, limit_right)
                     local g = parse[3] or 0
                     local b = parse[4] or 0
 
-                    current_color = { r, g, b, 1 }
+                    current_color[1] = { r, g, b, 1 }
                 end
             elseif command_tag == "</color>" then
                 action.action = function()
-                    current_color = original_color
+                    current_color[1] = original_color
                 end
             end
             table.insert(line_actions, action)
@@ -808,18 +824,18 @@ function Font:printf(text, x, y, align, limit_right)
                 )
             end
 
-            local next_index = next_not_command_index(m)
+            local next_index = next_not_command_index(self, m, separated)
 
-            total_width = total_width + len(words[m])
+            total_width = total_width + len(self, words[m])
                 + self.__space_char:get_width()
                 + self.__character_space * 2
 
             if total_width + (next_index and words[next_index]
-                and len(words[next_index]) or 0) > limit_right
+                and len(self, words[next_index]) or 0) > limit_right
 
                 or current_is_break_line
             then
-                local lw = line_width(line)
+                local lw = line_width(self, line)
 
                 local div = #line - 1
                 div = div <= 0 and 1 or div
@@ -835,7 +851,7 @@ function Font:printf(text, x, y, align, limit_right)
                     or (align == "center" and x + limit_right / 2 - lw / 2)
                     or x
 
-                print(line, pos_to_draw, ty, line_actions, ex_sp)
+                print(self, line, pos_to_draw, ty, line_actions, ex_sp, current_color)
 
                 total_width = 0
 
@@ -845,7 +861,7 @@ function Font:printf(text, x, y, align, limit_right)
                 line = {}
                 line_actions = {}
             else
-                local next_index = next_not_command_index(m)
+                local next_index = next_not_command_index(self, m, separated)
 
                 local next_is_broken_line = next_index and separated[next_index]
                     and separated[next_index] == "\n"
@@ -861,14 +877,14 @@ function Font:printf(text, x, y, align, limit_right)
         end
 
         if line and m == #words then
-            local lw = line_width(line)
+            local lw = line_width(self, line)
 
             local pos_to_draw = (align == "left" and x)
                 or (align == "right" and tx + limit_right - lw)
                 or (align == "center" and tx + limit_right / 2 - lw / 2)
                 or x
 
-            print(line, pos_to_draw, ty, line_actions)
+            print(self, line, pos_to_draw, ty, line_actions, nil, current_color)
         end
     end
 

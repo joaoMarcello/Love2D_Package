@@ -25,7 +25,7 @@ function Phrase:__constructor__(args)
 
     self.__font:push()
 
-    self.__separated_string = self:separate_string(self.__text)
+    self.__separated_string = self.__font:separate_string(self.__text)
     self.__words = {}
 
     self.__bounds = { top = 0, left = 0, height = love.graphics.getHeight(), right = love.graphics.getWidth() - 100 }
@@ -313,78 +313,78 @@ function Phrase:__line_length(line)
     return total_len
 end
 
----@param s string
-function Phrase:separate_string(s, list)
-    s = s .. " "
-    local sep = "\n "
-    local current_init = 1
-    local words = list or {}
+-- ---@param s string
+-- function Phrase:separate_string(s, list)
+--     s = s .. " "
+--     local sep = "\n "
+--     local current_init = 1
+--     local words = list or {}
 
-    while (current_init <= #(s)) do
-        local regex = "[^[ ]]*.-[" .. sep .. "]"
-        local tag_regex = "< *[%d, .%w/]*>"
+--     while (current_init <= #(s)) do
+--         local regex = "[^[ ]]*.-[" .. sep .. "]"
+--         local tag_regex = "< *[%d, .%w/]*>"
 
-        local tag = s:match(tag_regex, current_init)
-        tag = tag and self.__font:__is_a_command_tag(tag) or nil
-        local find = not tag and s:match(regex, current_init)
-        local nick = false and find and string.match(find, "%-%-%w-%-%-")
+--         local tag = s:match(tag_regex, current_init)
+--         tag = tag and self.__font:__is_a_command_tag(tag) or nil
+--         local find = not tag and s:match(regex, current_init)
+--         local nick = false and find and string.match(find, "%-%-%w-%-%-")
 
-        if tag then
-            local startp, endp = string.find(s, tag_regex, current_init)
-            local sub_s = s:sub(startp, endp)
-            local prev_s = s:sub(current_init, startp - 1)
+--         if tag then
+--             local startp, endp = string.find(s, tag_regex, current_init)
+--             local sub_s = s:sub(startp, endp)
+--             local prev_s = s:sub(current_init, startp - 1)
 
-            if prev_s ~= "" and prev_s ~= " " then
-                self:separate_string(prev_s, words)
-            end
+--             if prev_s ~= "" and prev_s ~= " " then
+--                 self:separate_string(prev_s, words)
+--             end
 
-            table.insert(words, sub_s)
-            current_init = endp
+--             table.insert(words, sub_s)
+--             current_init = endp
 
-        elseif nick and nick ~= "----" then
-            local startp, endp = string.find(s, "%-%-%w-%-%-", current_init)
-            local sub_s = s:sub(startp, endp)
-            local prev_word = s:sub(current_init, startp - 1)
+--         elseif nick and nick ~= "----" then
+--             local startp, endp = string.find(s, "%-%-%w-%-%-", current_init)
+--             local sub_s = s:sub(startp, endp)
+--             local prev_word = s:sub(current_init, startp - 1)
 
-            if prev_word and prev_word ~= "" and prev_word ~= " " then
-                self:separate_string(prev_word, words)
-            end
+--             if prev_word and prev_word ~= "" and prev_word ~= " " then
+--                 self:separate_string(prev_word, words)
+--             end
 
-            if sub_s ~= "" and sub_s ~= " " then
-                table.insert(words, sub_s)
-            end
+--             if sub_s ~= "" and sub_s ~= " " then
+--                 table.insert(words, sub_s)
+--             end
 
-            current_init = endp
+--             current_init = endp
 
-        elseif find then
+--         elseif find then
 
-            local startp, endp = string.find(s, regex, current_init)
-            local sub_s = s:sub(startp, endp - 1)
+--             local startp, endp = string.find(s, regex, current_init)
+--             local sub_s = s:sub(startp, endp - 1)
 
-            if sub_s ~= "" and sub_s ~= " " then
-                table.insert(words, sub_s)
-            end
+--             if sub_s ~= "" and sub_s ~= " " then
+--                 table.insert(words, sub_s)
+--             end
 
-            if s:sub(endp, endp) == "\n" then
-                table.insert(words, "\n")
-            end
+--             if s:sub(endp, endp) == "\n" then
+--                 table.insert(words, "\n")
+--             end
 
-            current_init = endp
-        else
-            break
-        end
+--             current_init = endp
+--         else
+--             break
+--         end
 
-        current_init = current_init + 1
-    end
+--         current_init = current_init + 1
+--     end
 
-    local rest = s:sub(current_init, #s)
+--     local rest = s:sub(current_init, #s)
 
-    if rest ~= "" and not rest:match(" *") then
-        table.insert(words, s:sub(current_init, #s))
-    end
+--     if rest ~= "" and not rest:match(" *") then
+--         table.insert(words, s:sub(current_init, #s))
+--     end
 
-    return words
-end
+--     return words
+-- end
 
 function Phrase:update(dt)
     for i = 1, #self.__words, 1 do
@@ -460,7 +460,7 @@ end
 
 function Phrase:__debbug()
     local s = self.__text
-    local w = self:separate_string(s)
+    local w = self.__font:separate_string(s)
 
     for i = 1, #w do
         self.__font:print(tostring(w[i]), 0, 50 * i)
