@@ -15,7 +15,7 @@ local FontFormat = {
 ---|"JM caligraphy"
 
 ---@class JM.Font.Font
----@field __nicknames {nick: string, index: number}
+---@field __nicknames table
 local Font = {}
 
 ---@overload fun(self: table, args: JM.AvailableFonts): JM.Font.Font
@@ -72,27 +72,19 @@ function Font:__constructor__(args)
     self.__bold_characters = {}
     self.__italic_characters = {}
 
-    self.__hash_normal = {}
-    self.__hash_bold = {}
-    self.__hash_italic = {}
-
     self:__load_caracteres_from_csv(self.__normal_characters,
         args.name,
-        self.__normal_img,
-        nil,
-        self.__hash_normal
+        self.__normal_img
     )
     self:__load_caracteres_from_csv(self.__bold_characters,
         args.name,
         self.__bold_img,
-        "_bold",
-        self.__hash_bold
+        "_bold"
     )
     self:__load_caracteres_from_csv(self.__italic_characters,
         args.name,
         self.__italic_img,
-        "_italic",
-        self.__hash_italic
+        "_italic"
     )
 
     self.__format = FontFormat.normal
@@ -125,12 +117,13 @@ function Font:__constructor__(args)
         h = self.__ref_height
     })
 
-    table.insert(self.__normal_characters, self.__space_char)
-    table.insert(self.__normal_characters, self.__tab_char)
-    table.insert(self.__bold_characters, self.__space_char)
-    table.insert(self.__bold_characters, self.__tab_char)
-    table.insert(self.__italic_characters, self.__space_char)
-    table.insert(self.__italic_characters, self.__tab_char)
+    self.__normal_characters[" "] = self.__space_char
+    self.__bold_characters[" "] = self.__space_char
+    self.__italic_characters[" "] = self.__space_char
+
+    self.__normal_characters["\t"] = self.__tab_char
+    self.__bold_characters["\t"] = self.__tab_char
+    self.__italic_characters["\t"] = self.__tab_char
 
     self.__default_color = args.color or { 0.1, 0.1, 0.1, 1 }
 
@@ -175,16 +168,12 @@ function Font:__load_caracteres_from_csv(list, name, img, extend, hash)
             { id = id, x = left, y = top, w = right - left, h = bottom - top, bottom = offset_y }
         )
 
-        table.insert(list,
-            character_obj
-        )
-
-        if hash then
-            hash[character_obj.__id] = character_obj
-        end
+        list[character_obj.__id] = character_obj
     end
 
-    table.insert(list, self:get_nule_character())
+    local nule_char = self:get_nule_character()
+
+    list[nule_char.__id] = nule_char
 end
 
 function Font:get_nule_character()
@@ -282,86 +271,85 @@ function Font:add_nickname_animated(nickname, args)
         h = self.__ref_height
     })
 
-    table.insert(self.__nicknames, {
-        nick = nickname, index = #self.__normal_characters + 1
-    })
+    table.insert(self.__nicknames, nickname)
 
-    table.insert(self.__normal_characters, new_character)
-    table.insert(self.__bold_characters, new_character)
-    table.insert(self.__italic_characters, new_character)
-
+    self.__normal_characters[new_character.__id] = new_character
+    self.__bold_characters[new_character.__id] = new_character
+    self.__italic_characters[new_character.__id] = new_character
 
     return animation
 end
 
----
----@param nickname string
----@param args {img: string|love.Image, frame: table, width: number, height: number}
-function Font:add_nickname(nickname, args)
-    assert(is_valid_nickname(nickname),
-        "\nError: Invalid nickname. The nickname should start and ending with '--'. \nExamples: --icon--, --emoji--.")
+-- ---
+-- ---@param nickname string
+-- ---@param args {img: string|love.Image, frame: table, width: number, height: number}
+-- function Font:add_nickname(nickname, args)
+--     assert(is_valid_nickname(nickname),
+--         "\nError: Invalid nickname. The nickname should start and ending with '--'. \nExamples: --icon--, --emoji--.")
 
-    if not args.bottom then args.bottom = self.__ref_height end
-    if not args.width then args.width = args.bottom end
+--     if not args.bottom then args.bottom = self.__ref_height end
+--     if not args.width then args.width = args.bottom end
 
-    local animation = Anima:new({
-        img = args.img,
-        frames_list = { args.frame },
-        width = args.width,
-        height = args.bottom,
-    })
+--     local animation = Anima:new({
+--         img = args.img,
+--         frames_list = { args.frame },
+--         width = args.width,
+--         height = args.bottom,
+--     })
 
-    local new_character = Character:new(nil, nil, {
-        id = nickname,
-        anima = animation,
-        w = args.width,
-        h = args.bottom
-    })
+--     local new_character = Character:new(nil, nil, {
+--         id = nickname,
+--         anima = animation,
+--         w = args.width,
+--         h = args.bottom
+--     })
 
 
-    table.insert(self.__nicknames, {
-        nick = nickname, index = #self.__normal_characters + 1
-    })
+--     table.insert(self.__nicknames, {
+--         nick = nickname, index = #self.__normal_characters + 1
+--     })
 
-    table.insert(self.__normal_characters, new_character)
-    table.insert(self.__bold_characters, new_character)
-    table.insert(self.__italic_characters, new_character)
+--     table.insert(self.__normal_characters, new_character)
+--     table.insert(self.__bold_characters, new_character)
+--     table.insert(self.__italic_characters, new_character)
 
-    return animation
-end
+--     return animation
+-- end
 
 ---@param s string
 ---@return string|nil nickname
 function Font:__is_a_nickname(s, index)
-    for i = 1, #self.__nicknames do
-        local nick = self.__nicknames[i].nick
-        if s:sub(index, index + #nick - 1) == nick then
-            return nick
+    for _, nickname in ipairs(self.__nicknames) do
+        if s:sub(index, index + #nickname - 1) == nickname then
+            return nickname
         end
     end
     return nil
 end
 
+---
 function Font:string_is_nickname(s)
     return self:__is_a_nickname(s, 1)
 end
 
+---
 function Font:update(dt)
-    for i = 1, #(self.__nicknames) do
-        local character = self.__normal_characters[self.__nicknames[i].index]
+    for _, nickname in ipairs(self.__nicknames) do
+        local character = self:__get_char_equals(nickname)
         local r = character and character:update(dt)
     end
 end
 
----@param index number
----@return JM.Font.Character|nil
-function Font:__get_char_by_index(index)
-    local list = self.__format == FontFormat.normal and self.__normal_characters
-        or self.__format == FontFormat.bold and self.__bold_characters
-        or self.__italic_characters
+-- ---
+-- ---@param index number
+-- ---@return JM.Font.Character|nil
+-- function Font:__get_char_by_index(index)
+--     local list = self.__format == FontFormat.normal and self.__normal_characters
+--         or self.__format == FontFormat.bold and self.__bold_characters
+--         or self.__italic_characters
 
-    return list[index]
-end
+--     return list[index]
+-- end
 
 ---@param c string
 ---@return JM.Font.Character|nil
@@ -370,24 +358,16 @@ function Font:__get_char_equals(c)
         or self.__format == FontFormat.bold and self.__bold_characters
         or self.__italic_characters
 
-    for i = 1, #list do
-        local char__ = self:__get_char_by_index(i)
+    return list[c]
 
-        if c == self:__get_char_by_index(i).__id then
-            -- if char__ and char__.__id:match(c) then
-            return self:__get_char_by_index(i)
-        end
+    -- for i = 1, #list do
+    --     local char__ = self:__get_char_by_index(i)
 
-        -- if self:string_is_nickname(c) then
-        --     for i = 1, #self.__nicknames do
-        --         local character = list[self.__nicknames[i].index]
-        --         if c == character.__id then
-        --             return character
-        --         end
-        --     end
-        -- end
-    end
-    return nil
+    --     if c == self:__get_char_by_index(i).__id then
+    --         return self:__get_char_by_index(i)
+    --     end
+    -- end
+    -- return nil
 end
 
 ---@param s string

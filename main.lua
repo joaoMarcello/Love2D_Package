@@ -225,11 +225,11 @@ end
 
 function love.draw()
 
-    love.graphics.setColor(0, 0, 0, 0.3)
-    -- love.graphics.rectangle("fill", 300, 400, 64, 120)
+    love.graphics.setColor(0, 0, 0, 0.8)
+    love.graphics.rectangle("line", 300, love.graphics.getHeight() - 128, 64, 120)
 
     -- monica:draw_rec(100, 500, 100, 100)
-    current_animation:draw_rec(300, 400, 64, 120)
+    current_animation:draw_rec(300, love.graphics.getHeight() - 128, 64, 120)
 
     love.graphics.push()
 
