@@ -43,6 +43,8 @@ local monica_idle_normal = Anima:new({
     -- amount_cycle = 3
 })
 
+-- monica_idle_normal:apply_effect("stretchVertical", { range = 0.02 })
+
 local monica_idle_blink = Anima:new({
     img = "data/Monica/monica_idle_blink-Sheet.png",
     frames = 5,
@@ -189,6 +191,13 @@ function love.load()
     love.graphics.setBackgroundColor(130 / 255., 221 / 255., 255 / 255.)
 end
 
+local rec = {
+    x = 300,
+    y = love.graphics.getHeight() - 120 - 64,
+    w = 58,
+    h = 120
+}
+
 function love.update(dt)
     time = time + dt
     if time >= speed + adicional then
@@ -198,6 +207,14 @@ function love.update(dt)
 
     if love.keyboard.isDown("q") or love.keyboard.isDown("escape") then
         love.event.quit()
+    end
+
+    if love.keyboard.isDown("left") then
+        rec.x = rec.x - 128 * dt
+        current_animation:set_flip({ x = true })
+    elseif love.keyboard.isDown("right") then
+        rec.x = rec.x + 128 * dt
+        current_animation:set_flip({ x = false })
     end
 
     if Test_anima:time_updating() >= 4 then
@@ -225,30 +242,26 @@ end
 
 function love.draw()
 
-    love.graphics.setColor(0, 0, 0, 0.8)
-    love.graphics.rectangle("line", 300, love.graphics.getHeight() - 128, 64, 120)
+    do
+        love.graphics.setColor(245 / 255, 160 / 255, 151 / 255, 1)
+        love.graphics.rectangle("fill", 0, love.graphics.getHeight() - 64 - 64 * 5, 64 * 4, 64 * 5)
 
-    -- monica:draw_rec(100, 500, 100, 100)
-    current_animation:draw_rec(300, love.graphics.getHeight() - 128, 64, 120)
+        love.graphics.setColor(142 / 255, 82 / 255, 82 / 255, 1)
+        love.graphics.rectangle("fill", 0, love.graphics.getHeight() - 64 - 64 * 5, 64 * 1, 64 * 5)
 
-    love.graphics.push()
+        love.graphics.setColor(20 / 255, 160 / 255, 46 / 255, 1)
+        love.graphics.rectangle("fill", 0, love.graphics.getHeight() - 64, love.graphics.getWidth(), 64)
 
-    love.graphics.setColor(1, 1, 1, 0.8)
-    local w = 230
-    local h = 500
-    -- love.graphics.rectangle("fill", 50, 110, w, h)
+        love.graphics.setColor(89 / 255, 193 / 255, 56 / 255, 1)
+        love.graphics.rectangle("fill", 0, love.graphics.getHeight() - 64, love.graphics.getWidth(), 8)
+    end
 
-    -- Test_anima:draw_rec(200, 300, 100, 100)
+    current_animation:draw_rec(rec.x, rec.y, rec.w, rec.h)
 
-
-
-    love.graphics.pop()
-
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.rectangle("line", rec.x, rec.y, rec.w, rec.h)
 
 
-    -- Consolas:print("Caro senhor Potter, \n\n \tChegou ao conhecimento do Ministério que o senhor executou o < color, 0, 0, 1 >feitiço do patrono <color>na <bold>presença de um trouxa< /color >< /bold >.\n\tSendo uma grave violação ao <bold>'Regulamento de <color, 1,0,1>Restrição à Prática de Magia <color, 0.7, 1, 0.6?>por Menores'</bold>, o senhor</color> está expulso da <bold>Escola de Magia e Bruxaria de Hogwarts.</bold>\n\n \t\t\tEsperando que esteja bem,\n\t\t\t\t\tMafalda Hopkins --goomba--</bold> "
-    --     ,
-    --     0, 0, love.graphics.getWidth() - 300)
     Consolas:push()
     Consolas:set_font_size(12)
     -- Consolas:set_format_mode(Consolas.format_options.italic)
@@ -258,7 +271,7 @@ function love.draw()
     Consolas:pop()
 
     Consolas:push()
-    Consolas:set_font_size(16)
+    Consolas:set_font_size(24)
     last_char = frase:draw(love.mouse.getX() + 20, 20, "justified", nil)
     Consolas:pop()
 

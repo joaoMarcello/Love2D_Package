@@ -212,8 +212,8 @@ end
 ---@param flip {x: boolean, y:boolean}
 function Anima:set_flip(flip)
     self.__flip = {
-        x = (flip and flip.x and -1) or (self.__flip and self.__flip.x) or 1,
-        y = (flip and flip.y and -1) or (self.__flip and self.__flip.y) or 1
+        x = (flip and flip.x and -1) or 1,
+        y = (flip and flip.y and -1) or 1
     }
 end
 
