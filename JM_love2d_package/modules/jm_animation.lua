@@ -89,7 +89,7 @@ function Anima:__constructor__(args)
 
     self.__N__ = args.n or 0
 
-    self:set_flip({ x = args.flip_x, y = args.flip_y })
+    self.__flip = { x = 1, y = 1 }
 
     self:set_scale(args.scale)
 
@@ -208,13 +208,13 @@ function Anima:set_img(file_name)
 end
 
 ---
---- Set flip in x and y axis.
----@param flip {x: boolean, y:boolean}
-function Anima:set_flip(flip)
-    self.__flip = {
-        x = (flip and flip.x and -1) or 1,
-        y = (flip and flip.y and -1) or 1
-    }
+function Anima:set_flip_x(flip)
+    self.__flip.x = flip and -1 or 1
+end
+
+---
+function Anima:set_flip_y(flip)
+    self.__flip.y = flip and -1 or 1
 end
 
 function Anima:toggle_flip_x()
@@ -583,7 +583,7 @@ function Anima:__draw_with_no_effects__(x, y)
 
     if self.__is_visible then
         love.graphics.draw(self.__img, self.__quad,
-            (x), (y),
+            math.floor(x), math.floor(y),
             self.__rotation, self.__scale.x * self.__flip.x,
             self.__scale.y * self.__flip.y,
             current_frame.ox, current_frame.oy,

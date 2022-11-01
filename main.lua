@@ -36,19 +36,19 @@ monica:apply_effect("jelly", { range = 0.02 })
 
 local monica_idle_normal = Anima:new({
     img = "data/Monica/monica_idle_normal-Sheet.png",
-    frames = 5,
-    duration = 0.5,
+    frames = 6,
+    duration = 0.6,
     height = 64 * 2,
     ref_height = 64,
-    -- amount_cycle = 3
+    amount_cycle = 2
 })
 
 -- monica_idle_normal:apply_effect("stretchVertical", { range = 0.02 })
 
 local monica_idle_blink = Anima:new({
     img = "data/Monica/monica_idle_blink-Sheet.png",
-    frames = 5,
-    duration = 0.5,
+    frames = 6,
+    duration = 0.6,
     height = 64 * 2,
     ref_height = 64,
     amount_cycle = 1
@@ -63,6 +63,7 @@ monica_idle_normal:set_custom_action(
         if self.__stopped_time > 0 then
             param.idle_blink:reset()
             current_animation = param.idle_blink
+            current_animation:set_flip_x(self:__is_flipped_in_x())
         end
     end,
     { idle_blink = monica_idle_blink }
@@ -74,9 +75,9 @@ monica_idle_blink:set_custom_action(
     function(self, param)
         if self.__stopped_time > 0 then
             param.idle_normal:reset()
-            param.idle_normal:set_max_cycle(love.math.random(2, 2))
+            param.idle_normal:set_max_cycle(love.math.random(2, 4))
             current_animation = param.idle_normal
-
+            current_animation:set_flip_x(self:__is_flipped_in_x())
         end
     end,
     { idle_normal = monica_idle_normal }
@@ -212,10 +213,10 @@ function love.update(dt)
 
     if love.keyboard.isDown("left") then
         rec.x = rec.x - 128 * dt
-        current_animation:set_flip({ x = true })
+        current_animation:set_flip_x(true)
     elseif love.keyboard.isDown("right") then
         rec.x = rec.x + 128 * dt
-        current_animation:set_flip({ x = false })
+        current_animation:set_flip_x(false)
     end
 
     if Test_anima:time_updating() >= 4 then
