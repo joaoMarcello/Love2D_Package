@@ -36,43 +36,58 @@ function Word:__load_characters(mode)
     self.__font:set_format_mode(mode)
     self.__characters = {}
 
-    local i = 1
-    while (i <= #self.__text) do
-        local cur_char = self.__text:sub(i, i)
+    -- local i = 1
+    -- while (i <= #self.__text) do
+    --     local cur_char = self.__text:sub(i, i)
 
-        local is_nick = self.__font:__is_a_nickname(self.__text, i)
-        if is_nick then
-            cur_char = is_nick
-            i = i + #is_nick - 1
+    --     local is_nick = self.__font:__is_a_nickname(self.__text, i)
+    --     if is_nick then
+    --         cur_char = is_nick
+    --         i = i + #is_nick - 1
+    --     end
+
+    --     local char_obj = self.__font:__get_char_equals(cur_char)
+
+    --     -- Verifying if current char is a special character
+    --     if not char_obj then
+    --         char_obj = self.__font:__get_char_equals(self.__text:sub(i, i + 1))
+    --         if char_obj then
+    --             cur_char = self.__text:sub(i, i + 1)
+    --             i = i + 1
+    --         end
+    --     end
+
+    --     if not char_obj and cur_char ~= "\n" and cur_char ~= "\t" then
+    --         char_obj = self.__font:get_nule_character()
+    --     end
+
+    --     if char_obj then
+    --         char_obj = char_obj:copy()
+    --         char_obj:set_color(self.__font.__default_color)
+
+    --         table.insert(self.__characters, char_obj)
+
+    --         if char_obj:is_animated() then
+    --             char_obj:set_color({ 1, 1, 1, 1 })
+    --             char_obj.__anima:set_size(nil, self.__font.__font_size * 1.1, nil, nil)
+    --         end
+    --     end
+    --     i = i + 1
+    -- end
+
+    local iterator = self.__font:get_text_iterator(self.__text)
+    while (iterator:has_next()) do
+        local char_obj = iterator:next()
+
+        char_obj = char_obj:copy()
+        char_obj:set_color(self.__font.__default_color)
+
+        table.insert(self.__characters, char_obj)
+
+        if char_obj:is_animated() then
+            char_obj:set_color({ 1, 1, 1, 1 })
+            char_obj.__anima:set_size(nil, self.__font.__font_size * 1.1, nil, nil)
         end
-
-        local char_obj = self.__font:__get_char_equals(cur_char)
-
-        -- Verifying if current char is a special character
-        if not char_obj then
-            char_obj = self.__font:__get_char_equals(self.__text:sub(i, i + 1))
-            if char_obj then
-                cur_char = self.__text:sub(i, i + 1)
-                i = i + 1
-            end
-        end
-
-        if not char_obj and cur_char ~= "\n" and cur_char ~= "\t" then
-            char_obj = self.__font:get_nule_character()
-        end
-
-        if char_obj then
-            char_obj = char_obj:copy()
-            char_obj:set_color(self.__font.__default_color)
-
-            table.insert(self.__characters, char_obj)
-
-            if char_obj:is_animated() then
-                char_obj:set_color({ 1, 1, 1, 1 })
-                char_obj.__anima:set_size(nil, self.__font.__font_size * 1.1, nil, nil)
-            end
-        end
-        i = i + 1
     end
 
     self.__font:set_format_mode(last_font_format)

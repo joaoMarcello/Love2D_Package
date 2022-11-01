@@ -1,6 +1,7 @@
 local Character = require("/JM_love2d_package/modules/font/character")
 local Utils = require("/JM_love2d_package/utils")
 local Anima = require "/JM_love2d_package/animation_module"
+local Iterator = require("/JM_love2d_package/modules/font/font_iterator")
 
 ---@enum JM.Font.FormatOptions
 local FontFormat = {
@@ -95,11 +96,9 @@ function Font:__constructor__(args)
         or self:__get_char_equals("0").h
         or self.__font_size
 
-
     self.__word_space = self.__ref_height * 0.6
 
     self.__tab_size = args.tab_size or 4
-
 
     self:set_font_size(self.__font_size)
 
@@ -128,6 +127,11 @@ function Font:__constructor__(args)
     self.__default_color = args.color or { 0.1, 0.1, 0.1, 1 }
 
     self.__bounds = { left = 0, top = 0, right = love.graphics.getWidth(), bottom = love.graphics.getHeight() }
+end
+
+---@return JM.Font.CharactersIterator
+function Font:get_text_iterator(text)
+    return Iterator:new(text, self)
 end
 
 ---
