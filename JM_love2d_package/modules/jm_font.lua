@@ -742,43 +742,8 @@ function Font:printf(text, x, y, align, limit_right)
 
         self:set_format_mode(current_format)
 
-        local characters = {}
-        local j = 1
-        while (j <= #cur_word) do
-
-            local char_obj
-
-            local is_a_nick = self:__is_a_nickname(cur_word, j)
-
-            if is_a_nick then
-                char_obj = self:__get_char_equals(is_a_nick)
-                j = j + #is_a_nick - 1
-            end
-
-            char_obj = not char_obj
-                and self:__get_char_equals(cur_word:sub(j, j))
-                or char_obj
-
-            if not char_obj then
-                char_obj = self:__get_char_equals(cur_word:sub(j, j + 1))
-                if char_obj then
-                    j = j + 1
-                end
-            end
-
-            -- if not char_obj and cur_word:match("\n") then
-            --     local c_ = self:get_nule_character()
-            --     c_.__id = "\n"
-            --     c_.w = 0
-            --     table.insert(characters, c_)
-            -- end
-
-            if char_obj then
-                table.insert(characters, char_obj)
-            end
-
-            j = j + 1
-        end
+        local characters = self:get_text_iterator(cur_word)
+        characters = characters:get_characters_list()
 
         table.insert(words, characters)
 
@@ -895,8 +860,8 @@ function Font:printf(text, x, y, align, limit_right)
     self:pop()
 
     love.graphics.setColor(0, 0, 0, 0.3)
-    love.graphics.line(x, 0, x, 600)
-    love.graphics.line(x + limit_right, 0, x + limit_right, 600)
+    love.graphics.line(x, 0, x, love.graphics.getHeight())
+    love.graphics.line(x + limit_right, 0, x + limit_right, love.graphics.getHeight())
 end
 
 return Font

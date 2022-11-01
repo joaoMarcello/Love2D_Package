@@ -187,6 +187,7 @@ local last_char
 local adicional = 0
 
 function love.load()
+    love.graphics.setDefaultFilter("linear", "nearest")
     love.graphics.setBackgroundColor(0.1, 0.1, 0.1, 1)
     love.graphics.setBackgroundColor(130 / 255., 221 / 255., 255 / 255.)
 end
