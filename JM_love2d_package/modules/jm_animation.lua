@@ -1,13 +1,6 @@
---[[ Lua library for animation in LÖVE.
+--[[ Lua module for animation in LÖVE 2D.
 
-    Some of the main functions include:
-
-    * :new -- Class constructor.
-    * :update --
-    * :draw --
-    * :draw_rec --
-
-    @author Joao Moreira, 2022.
+    Copyright (c) 2022, Joao Moreira.
 ]]
 
 local EffectManager = require("/JM_love2d_package/modules/classes/EffectManager")
@@ -110,10 +103,12 @@ function Anima:__constructor__(args)
         end
     end
 
+
     -- Generating the Frame objects and inserting them into the frames_list
     for i = 1, #args.frames_list do
         self.__frames_list[i] = Frame:new(args.frames_list[i])
     end -- END FOR for generate frames objects
+
 
     if args.width or args.height then
         self:set_size(args.width, args.height, args.ref_width, args.ref_height)
@@ -583,7 +578,7 @@ function Anima:__draw_with_no_effects__(x, y)
 
     if self.__is_visible then
         love.graphics.draw(self.__img, self.__quad,
-            math.floor(x), math.floor(y),
+            (x), (y),
             self.__rotation, self.__scale.x * self.__flip.x,
             self.__scale.y * self.__flip.y,
             current_frame.ox, current_frame.oy,
