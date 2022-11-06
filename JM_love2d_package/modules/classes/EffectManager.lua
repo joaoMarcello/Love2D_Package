@@ -10,6 +10,7 @@ local Popin = require("/JM_love2d_package/modules/classes/Popin")
 local Fadein = require("/JM_love2d_package/modules/classes/Fadein")
 local Ghost = require("/JM_love2d_package/modules/classes/Ghost")
 local Disc = require("/JM_love2d_package/modules/classes/Disc")
+local Sample = require("/JM_love2d_package/modules/classes/shader")
 
 -- Global variable for control the unique id's from EffectManager class.
 ---
@@ -363,6 +364,8 @@ function EffectManager:apply_effect(object, eff_type, effect_args, __only_get__)
             { idle = idle, pointing = pointing, floating = floating })
 
         eff = idle
+    elseif eff_type == "shader" then
+        eff = Sample:new(object, effect_args)
     end
 
     if eff then

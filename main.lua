@@ -4,15 +4,15 @@ local FontGenerator = require("/JM_love2d_package/modules/jm_font")
 local Phrase = require("/JM_love2d_package/modules/font/Phrase")
 local Word = require("/JM_love2d_package/modules/font/Word")
 
-local current_test = require("/test/test_animation")
+local current_test = require("/test/first_test")
 local r
 
 
 function love.load()
     love.graphics.setDefaultFilter("linear", "nearest")
-    love.graphics.setBackgroundColor(0.1, 0.1, 0.1, 1)
     love.graphics.setBackgroundColor(130 / 255., 221 / 255., 255 / 255.)
     -- love.graphics.setBackgroundColor(20 / 255., 52 / 255., 100 / 255.)
+    love.graphics.setBackgroundColor(0.1, 0.1, 0.1, 1)
 
     r = current_test.load and current_test:load()
 end

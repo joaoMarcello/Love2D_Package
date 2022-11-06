@@ -6,30 +6,25 @@ local Word = require("/JM_love2d_package/modules/font/Word")
 
 local t = {}
 
-local monica = Anima:new({
-    img = "/data/monica_01.png",
-    frames = 1,
-    height = 120,
-    ref_height = 64
-})
-monica:apply_effect("jelly", { range = 0.02 })
-
 local monica_idle_normal = Anima:new({
     img = "data/Monica/monica_idle_normal-Sheet.png",
     frames = 6,
     duration = 0.5,
-    height = 64 * 2,
+    height = 64 * 1,
     ref_height = 64,
     -- amount_cycle = 2
 })
+monica_idle_normal:apply_effect("shader")
+monica_idle_normal:apply_effect("ufo")
 
 local monica_run = Anima:new({
-    img = "/data/Monica/monica-run.png",
+    img = "/data/Monica/monica-run-dust.png",
     frames = 8,
     duration = 0.6,
-    height = 64 * 2,
+    height = 64 * 1,
     ref_height = 64
 })
+monica_run:apply_effect("shader")
 
 -- monica_idle_normal:apply_effect("eight")
 
@@ -37,7 +32,7 @@ local monica_idle_blink = Anima:new({
     img = "data/Monica/monica_idle_blink-Sheet.png",
     frames = 6,
     duration = 0.5,
-    height = 64 * 2,
+    height = 64 * 1,
     ref_height = 64,
     amount_cycle = 1
 })
@@ -85,13 +80,14 @@ end
 local rec = {
     x = 300,
     y = love.graphics.getHeight() - 120 - 64,
-    w = 58,
-    h = 120
+    w = 28,
+    h = 58
 }
+rec.y = love.graphics.getHeight() - rec.h - 64
 
 local direction = 1
 function t:update(dt)
-    local speed = 64 * 5
+    local speed = 64 * 3
     if love.keyboard.isDown("left") then
         direction = -1
         rec.x = rec.x - speed * dt
@@ -116,6 +112,16 @@ function t:keyreleased(key)
     end
 end
 
+local shadercode = [[
+    vec4 effect( vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords )
+{
+    vec4 c = Texel(texture, texture_coords); // This reads a color from our texture at the coordinates LOVE gave us (0-1, 0-1)
+    return vec4(1.0, 0.0, 0.0, 1.0);
+}
+  ]]
+
+local myShader = love.graphics.newShader(shadercode)
+
 function t:draw()
     do
         -- love.graphics.setColor(245 / 255, 160 / 255, 151 / 255, 1)
@@ -131,9 +137,11 @@ function t:draw()
         love.graphics.rectangle("fill", 0, love.graphics.getHeight() - 64, love.graphics.getWidth(), 8)
     end
 
+    -- love.graphics.setShader(myShader)
     current_animation:draw_rec(rec.x, rec.y, rec.w, rec.h)
+    love.graphics.setShader()
 
-    love.graphics.setColor(1, 1, 1, 0.1)
+    love.graphics.setColor(1, 1, 1, 0.8)
     love.graphics.rectangle("line", rec.x, rec.y, rec.w, rec.h)
 end
 
