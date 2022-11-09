@@ -12,9 +12,9 @@ local monica_idle_normal = Anima:new({
     duration = 0.5,
     height = 64 * 1,
     ref_height = 64,
-    -- amount_cycle = 2
+    amount_cycle = 2
 })
-monica_idle_normal:apply_effect("shader")
+-- monica_idle_normal:apply_effect("jelly")
 -- monica_idle_normal:apply_effect("ufo")
 
 local monica_run = Anima:new({
@@ -145,8 +145,8 @@ function t:draw()
     current_animation:draw_rec(math.floor(rec.x), math.floor(rec.y), rec.w, rec.h)
     love.graphics.setShader()
 
-    love.graphics.setColor(1, 1, 1, 0.8)
-    -- love.graphics.rectangle("line", rec.x, rec.y, rec.w, rec.h)
+    love.graphics.setColor(1, 0, 1, 0.6)
+    love.graphics.rectangle("line", rec.x, rec.y, rec.w, rec.h)
 end
 
 return t
