@@ -15,7 +15,7 @@ local monica_idle_normal = Anima:new({
     -- amount_cycle = 2
 })
 monica_idle_normal:apply_effect("shader")
-monica_idle_normal:apply_effect("ufo")
+-- monica_idle_normal:apply_effect("ufo")
 
 local monica_run = Anima:new({
     img = "/data/Monica/monica-run-dust.png",
@@ -24,7 +24,7 @@ local monica_run = Anima:new({
     height = 64 * 1,
     ref_height = 64
 })
-monica_run:apply_effect("shader")
+-- monica_run:apply_effect("flash")
 
 -- monica_idle_normal:apply_effect("eight")
 
@@ -66,34 +66,35 @@ monica_idle_blink:set_custom_action(
     { idle_normal = monica_idle_normal }
 )
 
+local rec
+
 function t:load()
-    love.graphics.setDefaultFilter("linear", "nearest")
-    love.graphics.setBackgroundColor(0.1, 0.1, 0.1, 1)
-    love.graphics.setBackgroundColor(130 / 255., 221 / 255., 255 / 255.)
+    love.graphics.setDefaultFilter("nearest", "nearest")
+    -- love.graphics.setBackgroundColor(0.1, 0.1, 0.1, 1)
+    -- love.graphics.setBackgroundColor(130 / 255., 221 / 255., 255 / 255.)
     -- love.graphics.setBackgroundColor(20 / 255., 52 / 255., 100 / 255.)
+    rec = {
+        x = 300,
+        y = SCREEN_HEIGHT - 120 - 64,
+        w = 28,
+        h = 58
+    }
+    rec.y = SCREEN_HEIGHT - rec.h - 64
 end
 
 function t:keypressed(key)
 
 end
 
-local rec = {
-    x = 300,
-    y = love.graphics.getHeight() - 120 - 64,
-    w = 28,
-    h = 58
-}
-rec.y = love.graphics.getHeight() - rec.h - 64
-
 local direction = 1
 function t:update(dt)
     local speed = 64 * 3
-    if love.keyboard.isDown("left") then
+    if love.keyboard.isDown("left") and rec.x > 0 then
         direction = -1
         rec.x = rec.x - speed * dt
         current_animation = monica_run
         current_animation:set_flip_x(true)
-    elseif love.keyboard.isDown("right") then
+    elseif love.keyboard.isDown("right") and rec.x + rec.w < SCREEN_WIDTH then
         direction = 1
         rec.x = rec.x + speed * dt
         current_animation = monica_run
@@ -124,6 +125,9 @@ local myShader = love.graphics.newShader(shadercode)
 
 function t:draw()
     do
+        love.graphics.setColor(130 / 255, 221 / 255, 255 / 255)
+        love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
+
         -- love.graphics.setColor(245 / 255, 160 / 255, 151 / 255, 1)
         -- love.graphics.rectangle("fill", 0, love.graphics.getHeight() - 64 - 64 * 5, 64 * 4, 64 * 5)
 
@@ -131,18 +135,18 @@ function t:draw()
         -- love.graphics.rectangle("fill", 0, love.graphics.getHeight() - 64 - 64 * 5, 64 * 1, 64 * 5)
 
         love.graphics.setColor(20 / 255, 160 / 255, 46 / 255, 1)
-        love.graphics.rectangle("fill", 0, love.graphics.getHeight() - 64, love.graphics.getWidth(), 64)
+        love.graphics.rectangle("fill", 0, SCREEN_HEIGHT - 64, love.graphics.getWidth(), 64)
 
         love.graphics.setColor(89 / 255, 193 / 255, 56 / 255, 1)
-        love.graphics.rectangle("fill", 0, love.graphics.getHeight() - 64, love.graphics.getWidth(), 8)
+        love.graphics.rectangle("fill", 0, SCREEN_HEIGHT - 64, love.graphics.getWidth(), 8)
     end
 
     -- love.graphics.setShader(myShader)
-    current_animation:draw_rec(rec.x, rec.y, rec.w, rec.h)
+    current_animation:draw_rec(math.floor(rec.x), math.floor(rec.y), rec.w, rec.h)
     love.graphics.setShader()
 
     love.graphics.setColor(1, 1, 1, 0.8)
-    love.graphics.rectangle("line", rec.x, rec.y, rec.w, rec.h)
+    -- love.graphics.rectangle("line", rec.x, rec.y, rec.w, rec.h)
 end
 
 return t
