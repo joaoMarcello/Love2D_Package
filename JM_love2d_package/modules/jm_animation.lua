@@ -27,7 +27,7 @@ local ANIMA_STATES = {
 ---
 --- Animation class constructor.
 ---
---- @param args {img: love.Image|string, frames: number, frames_list: table,  speed: number, rotation: number, color: JM.Color, scale: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, stop_at_the_end: boolean, amount_cycle: number, state: JM.AnimaStates, bottom: number, kx: number, ky: number, width: number, height: number, ref_width: number, ref_height: number, duration: number} # A table containing the following fields:
+--- @param args {img: love.Image|string, frames: number, frames_list: table,  speed: number, rotation: number, color: JM.Color, scale: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, stop_at_the_end: boolean, amount_cycle: number, state: JM.AnimaStates, bottom: number, kx: number, ky: number, width: number, height: number, ref_width: number, ref_height: number, duration: number, n: number}  # A table containing the following fields:
 -- * img (Required): The source image for animation (could be a Love.Image or a string containing the file path). All the frames in the source image should be in the horizontal.
 -- * frames: The amount of frames in the animation.
 -- * speed: Time in seconds to update frame.
@@ -47,7 +47,7 @@ end
 ---
 --- Internal method for constructor.
 ---
---- @param args {img: love.Image, frames: number, frames_list: table,  speed: number, rotation: number, color: JM.Color, scale: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, stop_at_the_end: boolean, amount_cycle: number, state: JM.AnimaStates, bottom: number, kx: number, ky: number, width: number, height: number, ref_width: number, ref_height: number, duration: number, n: number}  # A table containing the follow fields:
+--- @param args {img: love.Image|string, frames: number, frames_list: table,  speed: number, rotation: number, color: JM.Color, scale: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, stop_at_the_end: boolean, amount_cycle: number, state: JM.AnimaStates, bottom: number, kx: number, ky: number, width: number, height: number, ref_width: number, ref_height: number, duration: number, n: number}  # A table containing the follow fields:
 ---
 function Anima:__constructor__(args)
 
@@ -368,13 +368,27 @@ function Anima:__execute_stop_action__()
     end
 end
 
+--- Sets a custom method that executes on every frame change.
+---@param action function
+---@param args any
+function Anima:set_on_frame_change_action(action, args)
+    self.__on_frame_change_action = action
+    self.__on_frame_change_args = args
+end
+
+function Anima:__execute_on_frame_change_action()
+    if self.__on_frame_change_action then
+        self.__on_frame_change_action(self, self.__on_frame_change_args)
+    end
+end
+
 ---
 -- Execute the animation logic.
 ---@param dt number # The delta time.
 function Anima:update(dt)
     if not self.__is_enabled then return end
 
-    self.__update_time = (self.__update_time + dt) % 500000
+    self.__update_time = (self.__update_time + dt)
 
     if not self.__initial_direction then
         self.__initial_direction = self.__direction
@@ -400,7 +414,10 @@ function Anima:update(dt)
     self.__frame_time = self.__frame_time + dt
 
     if self.__frame_time >= self.__speed then
+
         self.__frame_time = self.__frame_time - self.__speed
+
+        self:__execute_on_frame_change_action()
 
         if self:__is_in_random_state() then
             local last_frame = self.__current_frame

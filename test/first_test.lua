@@ -3,6 +3,7 @@ local EffectGenerator = require("/JM_love2d_package/effect_generator_module")
 local FontGenerator = require("/JM_love2d_package/modules/jm_font")
 local Phrase = require("/JM_love2d_package/modules/font/Phrase")
 local Word = require("/JM_love2d_package/modules/font/Word")
+local Camera = require("/Camera")
 
 local t = {}
 
@@ -68,18 +69,24 @@ monica_idle_blink:set_custom_action(
 
 local rec
 
+local camera
 function t:load()
     love.graphics.setDefaultFilter("nearest", "nearest")
     -- love.graphics.setBackgroundColor(0.1, 0.1, 0.1, 1)
     -- love.graphics.setBackgroundColor(130 / 255., 221 / 255., 255 / 255.)
     -- love.graphics.setBackgroundColor(20 / 255., 52 / 255., 100 / 255.)
     rec = {
-        x = 300,
+        x = SCREEN_WIDTH * 0.25,
         y = SCREEN_HEIGHT - 120 - 64,
         w = 28,
         h = 58
     }
     rec.y = SCREEN_HEIGHT - rec.h - 64
+
+    camera = Camera(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
+    camera:setFollowLerp(0.2)
+    camera:setFollowLead(0)
+    camera:setFollowStyle("PLATFORMER")
 end
 
 function t:keypressed(key)
@@ -102,6 +109,8 @@ function t:update(dt)
     end
 
     current_animation:update(dt)
+    camera:update(dt)
+    camera:follow(rec.x, rec.y)
 end
 
 function t:keyreleased(key)
@@ -124,6 +133,7 @@ local shadercode = [[
 local myShader = love.graphics.newShader(shadercode)
 
 function t:draw()
+    -- camera:attach()
     do
         love.graphics.setColor(130 / 255, 221 / 255, 255 / 255)
         love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
@@ -135,10 +145,10 @@ function t:draw()
         -- love.graphics.rectangle("fill", 0, love.graphics.getHeight() - 64 - 64 * 5, 64 * 1, 64 * 5)
 
         love.graphics.setColor(20 / 255, 160 / 255, 46 / 255, 1)
-        love.graphics.rectangle("fill", 0, SCREEN_HEIGHT - 64, love.graphics.getWidth(), 64)
+        love.graphics.rectangle("fill", 0, SCREEN_HEIGHT - 64, SCREEN_WIDTH, 64)
 
         love.graphics.setColor(89 / 255, 193 / 255, 56 / 255, 1)
-        love.graphics.rectangle("fill", 0, SCREEN_HEIGHT - 64, love.graphics.getWidth(), 8)
+        love.graphics.rectangle("fill", 0, SCREEN_HEIGHT - 64, SCREEN_WIDTH, 8)
     end
 
     -- love.graphics.setShader(myShader)
@@ -147,6 +157,8 @@ function t:draw()
 
     love.graphics.setColor(1, 0, 1, 0.6)
     love.graphics.rectangle("line", rec.x, rec.y, rec.w, rec.h)
+
+    -- camera:detach()
 end
 
 return t
