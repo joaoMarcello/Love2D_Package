@@ -12,7 +12,7 @@ local FontFormat = {
 }
 
 ---@alias JM.AvailableFonts
----|"calibri"
+---|"consolas"
 ---|"JM caligraphy"
 
 ---@class JM.Font.Font

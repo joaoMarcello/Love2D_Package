@@ -558,19 +558,29 @@ function Anima:__draw__(x, y)
     return self:__draw_with_no_effects__(x, y)
 end
 
+-- Some local variables to store global modules.
+local love_graphics = love.graphics
+local love_graphics_draw = love_graphics.draw
+local love_graphics_rectangle = love_graphics.rectangle
+local love_graphics_set_color = love_graphics.setColor
+local love_graphics_push = love_graphics.push
+local love_graphics_pop = love_graphics.pop
+local love_graphics_apply_transform = love_graphics.applyTransform
+local love_math_new_transform = love.math.newTransform
+
 ---
---- Draw the animation without apply any effect.
+--- Draws the animation without apply any effect.
 ---
 ---@param x number # The top-left position to draw (x-axis).
 ---@param y number # The top-left position to draw (y-axis).
 function Anima:__draw_with_no_effects__(x, y)
 
-    love.graphics.push()
+    love_graphics_push()
 
     local effect_transform = self:__get_effect_transform()
 
     if effect_transform then
-        local transform = love.math.newTransform()
+        local transform = love_math_new_transform()
 
         transform:setTransformation(
             x + effect_transform.ox,
@@ -584,17 +594,17 @@ function Anima:__draw_with_no_effects__(x, y)
             effect_transform.ky
         )
 
-        love.graphics.applyTransform(transform)
+        love_graphics_apply_transform(transform)
     end -- END if exists a effect transform.
 
     local current_frame = self:__get_current_frame()
 
     current_frame:setViewport(self.__img, self.__quad)
 
-    love.graphics.setColor(self.__color)
+    love_graphics_set_color(self.__color)
 
     if self.__is_visible then
-        love.graphics.draw(self.__img, self.__quad,
+        love_graphics_draw(self.__img, self.__quad,
             (x), (y),
             self.__rotation, self.__scale.x * self.__flip.x,
             self.__scale.y * self.__flip.y,
@@ -604,7 +614,7 @@ function Anima:__draw_with_no_effects__(x, y)
         )
     end
 
-    love.graphics.pop()
+    love_graphics_pop()
 
 end
 

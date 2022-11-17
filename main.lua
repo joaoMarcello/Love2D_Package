@@ -9,13 +9,10 @@ local canvas
 SCREEN_WIDTH = 1366 / 2
 SCREEN_HEIGHT = 768 / 2
 
-SCREEN_WIDTH = 1980 / 3
-SCREEN_HEIGHT = 1080 / 3
-
 function love.load()
     love.mouse.setVisible(false)
     love.graphics.setDefaultFilter("nearest", "nearest")
-    love.graphics.setBackgroundColor(0, 0, 0, 1)
+    love.graphics.setBackgroundColor(0.4, 0.4, 0.4, 1)
 
     r = current_test.load and current_test:load()
 
@@ -34,25 +31,34 @@ function love.keyreleased(key)
     r = current_test.keyreleased and current_test:keyreleased(key)
 end
 
+local set_canvas = love.graphics.setCanvas
+local grap_clear = love.graphics.clear
+local set_blend_mode = love.graphics.setBlendMode
+local grap_set_color = love.graphics.setColor
+local grap_draw = love.graphics.draw
+
+local scale = love.graphics.getHeight() / (SCREEN_HEIGHT)
+-- scale = 1
+local pos_y = math.floor(love.graphics.getHeight() / 2 - SCREEN_HEIGHT * scale / 2)
+local pos_x = math.floor(love.graphics.getWidth() / 2 - SCREEN_WIDTH * scale / 2)
+
 function love.draw()
-    love.graphics.setCanvas(canvas)
-    love.graphics.clear(0, 0, 0, 0)
-    love.graphics.setBlendMode("alpha")
+
+    set_canvas(canvas)
+    grap_clear(0, 0, 0, 0)
+    set_blend_mode("alpha")
 
     r = current_test.draw and current_test:draw()
 
-    love.graphics.setCanvas()
+    set_canvas()
+    -----------------------------------------------------------------------
 
-
-    local scale = love.graphics.getWidth() / (SCREEN_WIDTH)
-    local pos_y = love.graphics.getHeight() / 2 - SCREEN_HEIGHT * scale / 2
-    local pos_x = love.graphics.getWidth() / 2 - SCREEN_WIDTH * scale / 2
-
-    love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.setBlendMode("alpha", "premultiplied")
-    love.graphics.draw(canvas,
-        math.floor(pos_x),
-        math.floor(pos_y),
+    grap_set_color(1, 1, 1, 1)
+    set_blend_mode("alpha", "premultiplied")
+    grap_draw(canvas,
+        pos_x,
+        pos_y,
         0,
         scale, scale)
+
 end

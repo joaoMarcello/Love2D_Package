@@ -162,15 +162,24 @@ function Character:draw_rec(x, y, w, h)
     self:__draw__(x, y)
 end
 
+local love_graphics = love.graphics
+local love_graphics_draw = love_graphics.draw
+local love_graphics_rectangle = love_graphics.rectangle
+local love_graphics_set_color = love_graphics.setColor
+local love_graphics_push = love_graphics.push
+local love_graphics_pop = love_graphics.pop
+local love_graphics_apply_transform = love_graphics.applyTransform
+local love_math_new_transform = love.math.newTransform
+
 function Character:__draw__(x, y)
     -- if self.__id == "__nule__" then return end
 
-    love.graphics.push()
+    love_graphics_push()
 
     local eff_transf = self:__get_effect_transform()
 
     if eff_transf then
-        local transform = love.math.newTransform()
+        local transform = love_math_new_transform()
 
         transform:setTransformation(
             x + eff_transf.ox,
@@ -184,7 +193,7 @@ function Character:__draw__(x, y)
             eff_transf.ky
         )
 
-        love.graphics.applyTransform(transform)
+        love_graphics_apply_transform(transform)
     end
 
     if self.__anima then
@@ -192,18 +201,18 @@ function Character:__draw__(x, y)
 
     elseif not self.__img then
 
-        love.graphics.setColor(0, 0, 0, 0.2)
-        love.graphics.rectangle("fill", x, y,
+        love_graphics_set_color(0, 0, 0, 0.2)
+        love_graphics_rectangle("fill", x, y,
             self.w * self.sx,
             self.h * self.sy
         )
 
     elseif self.__id ~= "\t" and self.__id ~= " " then
-        love.graphics.setColor(self:get_color())
+        love_graphics_set_color(self:get_color())
 
         self:setViewport(self.__img, self.__quad, x, y)
 
-        love.graphics.draw(self.__img, self.__quad,
+        love_graphics_draw(self.__img, self.__quad,
             x,
             y,
             0,
@@ -213,7 +222,7 @@ function Character:__draw__(x, y)
 
     end
 
-    love.graphics.pop()
+    love_graphics_pop()
 
 
     -- if self.w and self.h then

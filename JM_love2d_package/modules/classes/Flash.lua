@@ -9,7 +9,7 @@ local Flash = Effect:new(nil, nil)
 --- Class Effect constructor.
 ---
 ---@param object JM.Affectable|nil
----@param args {range: number, alpha: number, speed: number, color: table}|nil
+---@param args {speed: number, color: table, min: number, max: number}
 ---@return JM.Effect effect
 function Flash:new(object, args)
     local ef = Effect:new(object, args)
@@ -67,8 +67,7 @@ function Flash:draw(x, y)
 
     -- self.__object:__draw__(x, y)
     self.__object:__draw__(x, y)
-    love.graphics.setBlendMode('alpha', 'premultiplied')
-
+    love.graphics.setBlendMode('alpha')
     self.__object:set_color(self.__obj_initial_color)
 end
 

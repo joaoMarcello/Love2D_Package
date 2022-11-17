@@ -6,6 +6,7 @@ local Word = require("/JM_love2d_package/modules/font/Word")
 local Camera = require("/Camera")
 
 local t = {}
+local Consolas = FontGenerator:new({ name = "consolas", font_size = 14 })
 
 local monica_idle_normal = Anima:new({
     img = "data/Monica/monica_idle_normal-Sheet.png",
@@ -15,11 +16,11 @@ local monica_idle_normal = Anima:new({
     ref_height = 64,
     amount_cycle = 2
 })
--- monica_idle_normal:apply_effect("jelly")
+-- monica_idle_normal:apply_effect("pulse")
 -- monica_idle_normal:apply_effect("ufo")
 
 local monica_run = Anima:new({
-    img = "/data/Monica/monica-run-dust.png",
+    img = "/data/Monica/monica-run.png",
     frames = 8,
     duration = 0.6,
     height = 64 * 1,
@@ -98,19 +99,17 @@ function t:update(dt)
     local speed = 64 * 3
     if love.keyboard.isDown("left") and rec.x > 0 then
         direction = -1
-        rec.x = rec.x - speed * dt
+        rec.x = math.floor(rec.x - speed * dt)
         current_animation = monica_run
         current_animation:set_flip_x(true)
     elseif love.keyboard.isDown("right") and rec.x + rec.w < SCREEN_WIDTH then
         direction = 1
-        rec.x = rec.x + speed * dt
+        rec.x = math.ceil(rec.x + speed * dt)
         current_animation = monica_run
         current_animation:set_flip_x(false)
     end
 
     current_animation:update(dt)
-    camera:update(dt)
-    camera:follow(rec.x, rec.y)
 end
 
 function t:keyreleased(key)
@@ -131,34 +130,53 @@ local shadercode = [[
   ]]
 
 local myShader = love.graphics.newShader(shadercode)
+local graph_set_color = love.graphics.setColor
+local graph_rect = love.graphics.rectangle
 
 function t:draw()
-    -- camera:attach()
+    love.graphics.push()
+    local value = -rec.x + math.floor(SCREEN_WIDTH * 0.25)
+    love.graphics.translate(value, 0)
     do
-        love.graphics.setColor(130 / 255, 221 / 255, 255 / 255)
-        love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
+        graph_set_color(130 / 255, 221 / 255, 255 / 255)
+        graph_rect("fill", 0, 0, SCREEN_WIDTH * 2, SCREEN_HEIGHT)
 
-        -- love.graphics.setColor(245 / 255, 160 / 255, 151 / 255, 1)
-        -- love.graphics.rectangle("fill", 0, love.graphics.getHeight() - 64 - 64 * 5, 64 * 4, 64 * 5)
+        graph_set_color(245 / 255, 160 / 255, 151 / 255, 1)
+        graph_rect("fill", 0, SCREEN_HEIGHT - 64 * 3, 64 * 4, 64 * 3)
 
-        -- love.graphics.setColor(142 / 255, 82 / 255, 82 / 255, 1)
-        -- love.graphics.rectangle("fill", 0, love.graphics.getHeight() - 64 - 64 * 5, 64 * 1, 64 * 5)
+        graph_set_color(142 / 255, 82 / 255, 82 / 255, 1)
+        graph_rect("fill", 0, SCREEN_HEIGHT - 64 * 3, 64 * 1, 64 * 3)
 
-        love.graphics.setColor(20 / 255, 160 / 255, 46 / 255, 1)
-        love.graphics.rectangle("fill", 0, SCREEN_HEIGHT - 64, SCREEN_WIDTH, 64)
+        graph_set_color(20 / 255, 160 / 255, 46 / 255, 1)
+        graph_rect("fill", 0, SCREEN_HEIGHT - 64, SCREEN_WIDTH, 64)
 
-        love.graphics.setColor(89 / 255, 193 / 255, 56 / 255, 1)
-        love.graphics.rectangle("fill", 0, SCREEN_HEIGHT - 64, SCREEN_WIDTH, 8)
+        graph_set_color(89 / 255, 193 / 255, 56 / 255, 1)
+        graph_rect("fill", 0, SCREEN_HEIGHT - 64, SCREEN_WIDTH, 8)
     end
 
     -- love.graphics.setShader(myShader)
     current_animation:draw_rec(math.floor(rec.x), math.floor(rec.y), rec.w, rec.h)
     love.graphics.setShader()
 
-    love.graphics.setColor(1, 0, 1, 0.6)
-    love.graphics.rectangle("line", rec.x, rec.y, rec.w, rec.h)
+    graph_set_color(1, 0, 1, 0.6)
+    graph_rect("line", rec.x, rec.y, rec.w, rec.h)
 
-    -- camera:detach()
+
+    graph_set_color(0, 0, 0, 0.25)
+    for i = 1, 64 do
+        love.graphics.line(32 * (i - 1), 0, 32 * (i - 1), SCREEN_HEIGHT)
+    end
+
+    for i = 1, 16 do
+        love.graphics.line(0, SCREEN_HEIGHT - 32 * (i - 1), SCREEN_WIDTH * 2, SCREEN_HEIGHT - 32 * (i - 1))
+    end
+
+    love.graphics.pop()
+
+    Consolas:push()
+    Consolas:set_font_size(14)
+    Consolas:print("\tMônica and friends", 0, 10)
+    Consolas:pop()
 end
 
 return t

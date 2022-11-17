@@ -1,5 +1,6 @@
 local Effect = require("/JM_love2d_package/modules/classes/Effect")
 
+---@class JM.Effect.Sample:JM.Effect
 local Sample = Effect:new()
 
 local shadercode = [[
@@ -60,6 +61,7 @@ function Sample:new(object, args)
     return obj
 end
 
+---@param self JM.Effect
 function Sample:__constructor__(args)
     self.__alpha = 1
     self.__min = 0
