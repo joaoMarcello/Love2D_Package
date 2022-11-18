@@ -1,5 +1,5 @@
 local utf8 = require("utf8")
-local current_test = require("/test/first_test")
+local current_test = require("test.first_test")
 local r
 
 local canvas
@@ -17,6 +17,10 @@ function love.load()
     r = current_test.load and current_test:load()
 
     canvas = love.graphics.newCanvas(SCREEN_WIDTH, SCREEN_HEIGHT)
+end
+
+function love.keypressed(key)
+    r = current_test.keypressed and current_test:keypressed(key)
 end
 
 function love.update(dt)

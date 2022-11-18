@@ -1,18 +1,32 @@
 local Anima = require "/JM_love2d_package/animation_module"
 local EffectGenerator = require("/JM_love2d_package/effect_generator_module")
 local FontGenerator = require("/JM_love2d_package/modules/jm_font")
-local Phrase = require("/JM_love2d_package/modules/font/Phrase")
-local Word = require("/JM_love2d_package/modules/font/Word")
 local Camera = require("/Camera")
 
 local t = {}
 local Consolas = FontGenerator:new({ name = "consolas", font_size = 14 })
+Consolas:add_nickname_animated("--goomba--", {
+    img = "/data/goomba.png",
+    frames_list = { { 27, 85, 17, 89 },
+        { 150, 209, 17, 89 },
+        { 271, 331, 17, 89 },
+        { 391, 460, 17, 88 },
+        { 516, 579, 17, 89 },
+        { 637, 695, 17, 88 },
+        { 764, 821, 17, 89 },
+        { 888, 944, 17, 88 },
+        { 1006, 1070, 17, 88 }
+    },
+    duration = 1,
+    is_reversed = false,
+    state = "looping"
+})
 
 local monica_idle_normal = Anima:new({
     img = "data/Monica/monica_idle_normal-Sheet.png",
     frames = 6,
     duration = 0.5,
-    height = 64 * 1,
+    height = 64,
     ref_height = 64,
     amount_cycle = 2
 })
@@ -23,7 +37,7 @@ local monica_run = Anima:new({
     img = "/data/Monica/monica-run.png",
     frames = 8,
     duration = 0.6,
-    height = 64 * 1,
+    height = 64,
     ref_height = 64
 })
 -- monica_run:apply_effect("flash")
@@ -80,7 +94,31 @@ function t:load()
         x = SCREEN_WIDTH * 0.25,
         y = SCREEN_HEIGHT - 120 - 64,
         w = 28,
-        h = 58
+        h = 58,
+        jump = false,
+        speed_y = 0,
+        gravity = (64 + 16) * 10,
+        max_speed = 64 * 5,
+        speed_x = 0,
+        acc = 64 * 3,
+        dacc = 64 * 10,
+        direction = 1,
+        accelerate = function(self, dt, acc, direction)
+            if self.speed_x == 0 then
+                self.speed_x = 32 * direction
+            end
+            self.speed_x = self.speed_x + acc * dt * direction
+
+            if math.abs(self.speed_x) > self.max_speed then
+                self.speed_x = self.max_speed * direction
+            end
+        end,
+        run = function(self, dt, acc)
+            if math.abs(self.speed_x) ~= 0 then
+                self.x = self.x
+                    + (self.speed_x * dt + (acc * dt * dt) / 2)
+            end
+        end
     }
     rec.y = SCREEN_HEIGHT - rec.h - 64
 
@@ -91,31 +129,76 @@ function t:load()
 end
 
 function t:keypressed(key)
-
+    if key == "space" then
+        if not rec.jump then
+            rec.jump = true
+            rec.speed_y = -math.sqrt(2 * rec.gravity * 32 * 3.5)
+        end
+    end
 end
 
-local direction = 1
+local function round(value)
+    local dif = math.abs(value)
+    dif = dif - math.floor(dif)
+
+    if dif >= 0.5 then
+        return value > 0 and math.ceil(value) or math.floor(value)
+    else
+        return value > 0 and math.floor(value) or math.ceil(value)
+    end
+end
+
 function t:update(dt)
-    local speed = 64 * 3
-    if love.keyboard.isDown("left") and rec.x > 0 then
-        direction = -1
-        rec.x = math.floor(rec.x - speed * dt)
+    if love.keyboard.isDown("left")
+        and rec.x > 0
+        and rec.speed_x <= 0
+    then
+        rec.direction = -1
+        rec:accelerate(dt, rec.acc, -1)
+        rec:run(dt, rec.acc)
+
         current_animation = monica_run
         current_animation:set_flip_x(true)
-    elseif love.keyboard.isDown("right") and rec.x + rec.w < SCREEN_WIDTH then
-        direction = 1
-        rec.x = math.ceil(rec.x + speed * dt)
+    elseif love.keyboard.isDown("right")
+        and rec.x + rec.w < SCREEN_WIDTH
+        and rec.speed_x >= 0
+    then
+        rec.direction = 1
+        rec:accelerate(dt, rec.acc, 1)
+        rec:run(dt, rec.acc)
+
         current_animation = monica_run
         current_animation:set_flip_x(false)
+
+    elseif math.abs(rec.speed_x) ~= 0 then
+
+        rec:accelerate(dt, rec.dacc, rec.speed_x > 0 and -1 or 1)
+        rec:run(dt, rec.dacc)
+        if rec.direction > 0 and rec.speed_x < 0 then rec.speed_x = 0 end
+        if rec.direction < 0 and rec.speed_x > 0 then rec.speed_x = 0 end
     end
 
+    --
+
+    rec.y = rec.y + rec.speed_y * dt + (rec.gravity * dt * dt) / 2
+    rec.speed_y = rec.speed_y + rec.gravity * dt
+
+    if rec.speed_y > 0 and rec.y + rec.h + 5 >= SCREEN_HEIGHT - 64 then
+        rec.y = SCREEN_HEIGHT - 64 - rec.h
+        rec.speed_y = 0
+        rec.jump = false
+    end
+
+    rec.x = round(rec.x)
+    rec.y = round(rec.y)
     current_animation:update(dt)
+    Consolas:update(dt)
 end
 
 function t:keyreleased(key)
     if key == "left" or key == "right" then
         if current_animation == monica_run then
-            monica_idle_normal:set_flip_x(direction < 0 and true)
+            monica_idle_normal:set_flip_x(rec.direction < 0 and true)
             current_animation = monica_idle_normal
         end
     end
@@ -135,7 +218,8 @@ local graph_rect = love.graphics.rectangle
 
 function t:draw()
     love.graphics.push()
-    local value = -rec.x + math.floor(SCREEN_WIDTH * 0.25)
+    local value = -(rec.x) + math.floor(SCREEN_WIDTH * 0.25)
+
     love.graphics.translate(value, 0)
     do
         graph_set_color(130 / 255, 221 / 255, 255 / 255)
@@ -175,7 +259,8 @@ function t:draw()
 
     Consolas:push()
     Consolas:set_font_size(14)
-    Consolas:print("\tMônica and friends", 0, 10)
+    Consolas:print("--goomba--Mônica and friends", 10, 10)
+    Consolas:print(tostring(rec.speed_x), 10, 40)
     Consolas:pop()
 end
 

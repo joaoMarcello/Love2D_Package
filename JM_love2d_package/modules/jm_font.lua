@@ -19,8 +19,8 @@ local FontFormat = {
 ---@field __nicknames table
 local Font = {}
 
----@overload fun(self: table, args: JM.AvailableFonts): JM.Font.Font
----@param args {name: JM.AvailableFonts, font_size: number, line_space: number, tab_size: number}
+---@overload fun(self: table, args: JM.AvailableFonts)
+---@param args {name: JM.AvailableFonts, font_size: number, line_space: number, tab_size: number, character_space: number, color: JM.Color}
 ---@return JM.Font.Font new_Font
 function Font:new(args)
     local obj = {}
@@ -34,8 +34,8 @@ function Font:new(args)
     return obj
 end
 
----@overload fun(self: table, args: string)
----@param args {name: string, font_size: number, line_space: number, tab_size: number, character_space: number, color: JM.Color}
+---@overload fun(self: table, args: JM.AvailableFonts)
+---@param args {name: JM.AvailableFonts, font_size: number, line_space: number, tab_size: number, character_space: number, color: JM.Color}
 function Font:__constructor__(args)
     if type(args) == "string" then
         local temp_table = {}
@@ -261,7 +261,7 @@ local function is_valid_nickname(nickname)
 end
 
 ---@param nickname string
----@param args {img: love.Image|string, frames: number, frames_list: table,  speed: number, rotation: number, color: JM.Color, scale: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, stop_at_the_end: boolean, amount_cycle: number, state: JM.AnimaStates, bottom: number, kx: number, ky: number, width: number, height: number, ref_width: number, ref_height: number, duration: number}
+--- @param args {img: love.Image|string, frames: number, frames_list: table,  speed: number, rotation: number, color: JM.Color, scale: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, stop_at_the_end: boolean, amount_cycle: number, state: JM.AnimaStates, bottom: number, kx: number, ky: number, width: number, height: number, ref_width: number, ref_height: number, duration: number, n: number}
 function Font:add_nickname_animated(nickname, args)
     assert(is_valid_nickname(nickname),
         "\nError: Invalid nickname. The nickname should start and ending with '--'. \nExamples: --icon--, --emoji--.")
@@ -338,8 +338,12 @@ end
 
 ---
 function Font:update(dt)
-    for _, nickname in ipairs(self.__nicknames) do
-        local character = self:__get_char_equals(nickname)
+    -- for _, nickname in ipairs(self.__nicknames) do
+    --     local character = self:__get_char_equals(nickname)
+    --     local r = character and character:update(dt)
+    -- end
+    for i = 1, #(self.__nicknames), 1 do
+        local character = self:__get_char_equals(self.__nicknames[i])
         local r = character and character:update(dt)
     end
 end
@@ -483,7 +487,7 @@ function Font:print(text, x, y, w, h, __i__, __color__, __x_origin__, __format__
 
         if is_a_nick then
             char_string = is_a_nick
-            i = i + #char_string
+            i = i + #char_string - 1
         end
 
         local tag = text:match("<.->", i)
@@ -752,7 +756,7 @@ function Font:printf(text, x, y, align, limit_right)
 
     -- local tt = words[1][1].__id == "\n"
     -- self:print(tostring(tt), 500, 10)
-    self:print(tostring(print), 500, 10)
+    -- self:print(tostring(print), 500, 10)
 
 
     local total_width = 0
