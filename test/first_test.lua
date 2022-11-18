@@ -97,7 +97,7 @@ function t:load()
         h = 58,
         jump = false,
         speed_y = 0,
-        gravity = (64 + 16) * 10,
+        gravity = (32 * 3.5) * 9.8,
         max_speed = 64 * 5,
         speed_x = 0,
         acc = 64 * 3,
@@ -159,6 +159,7 @@ function t:update(dt)
 
         current_animation = monica_run
         current_animation:set_flip_x(true)
+
     elseif love.keyboard.isDown("right")
         and rec.x + rec.w < SCREEN_WIDTH
         and rec.speed_x >= 0
@@ -171,17 +172,21 @@ function t:update(dt)
         current_animation:set_flip_x(false)
 
     elseif math.abs(rec.speed_x) ~= 0 then
-
-        rec:accelerate(dt, rec.dacc, rec.speed_x > 0 and -1 or 1)
-        rec:run(dt, rec.dacc)
+        local dacc = rec.dacc
+            * ((love.keyboard.isDown("left") or love.keyboard.isDown("right"))
+                and 1.5 or 1)
+        rec:accelerate(dt, dacc, rec.speed_x > 0 and -1 or 1)
+        rec:run(dt, dacc)
         if rec.direction > 0 and rec.speed_x < 0 then rec.speed_x = 0 end
         if rec.direction < 0 and rec.speed_x > 0 then rec.speed_x = 0 end
     end
 
-    --
-
     rec.y = rec.y + rec.speed_y * dt + (rec.gravity * dt * dt) / 2
     rec.speed_y = rec.speed_y + rec.gravity * dt
+
+    if rec.jump and rec.speed_y < 0 and not love.keyboard.isDown("space") then
+        rec.speed_y = 0
+    end
 
     if rec.speed_y > 0 and rec.y + rec.h + 5 >= SCREEN_HEIGHT - 64 then
         rec.y = SCREEN_HEIGHT - 64 - rec.h
@@ -216,6 +221,30 @@ local myShader = love.graphics.newShader(shadercode)
 local graph_set_color = love.graphics.setColor
 local graph_rect = love.graphics.rectangle
 
+local tile = {}
+tile.img = love.graphics.newImage("/data/groundTile.png")
+tile.size = 50
+tile.scale = 32 / 50
+tile.quads = {}
+for i = 1, 4 do
+    tile.quads[i] = {}
+    for j = 1, 4 do
+        tile.quads[i][j] = love.graphics.newQuad(
+            (i - 1) * tile.size,
+            (j - 1) * tile.size,
+            50, 50,
+            tile.img:getWidth(),
+            tile.img:getHeight()
+        )
+    end
+end
+
+tile.draw = function(self, i, j, x, y)
+    local quad = tile.quads[i][j]
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.draw(self.img, quad, x, y, 0, self.scale, self.scale, 0, 0)
+end
+
 function t:draw()
     love.graphics.push()
     local value = -(rec.x) + math.floor(SCREEN_WIDTH * 0.25)
@@ -231,11 +260,11 @@ function t:draw()
         graph_set_color(142 / 255, 82 / 255, 82 / 255, 1)
         graph_rect("fill", 0, SCREEN_HEIGHT - 64 * 3, 64 * 1, 64 * 3)
 
-        graph_set_color(20 / 255, 160 / 255, 46 / 255, 1)
-        graph_rect("fill", 0, SCREEN_HEIGHT - 64, SCREEN_WIDTH, 64)
+        -- graph_set_color(20 / 255, 160 / 255, 46 / 255, 1)
+        -- graph_rect("fill", 0, SCREEN_HEIGHT - 64, SCREEN_WIDTH, 64)
 
-        graph_set_color(89 / 255, 193 / 255, 56 / 255, 1)
-        graph_rect("fill", 0, SCREEN_HEIGHT - 64, SCREEN_WIDTH, 8)
+        -- graph_set_color(89 / 255, 193 / 255, 56 / 255, 1)
+        -- graph_rect("fill", 0, SCREEN_HEIGHT - 64, SCREEN_WIDTH, 8)
     end
 
     -- love.graphics.setShader(myShader)
@@ -243,10 +272,32 @@ function t:draw()
     love.graphics.setShader()
 
     graph_set_color(1, 0, 1, 0.6)
-    graph_rect("line", rec.x, rec.y, rec.w, rec.h)
+    -- graph_rect("line", rec.x, rec.y, rec.w, rec.h)
 
 
-    graph_set_color(0, 0, 0, 0.25)
+    for i = 1, 2 do
+        for j = 0, 35 do
+            if i == 1 and j == 0 then
+                tile:draw(1, 1, 0, SCREEN_HEIGHT - 32 * 2)
+            elseif i == 2 and j == 0 then
+                tile:draw(1, 2, 0, SCREEN_HEIGHT - 32 * 1)
+            elseif i == 1 then
+                if j % 2 == 0 then
+                    tile:draw(2, 1, j * 32, SCREEN_HEIGHT - 64 + 32 * (i - 1))
+                else
+                    tile:draw(3, 1, j * 32, SCREEN_HEIGHT - 64 + 32 * (i - 1))
+                end
+            elseif i == 2 then
+                if j % 2 == 0 then
+                    tile:draw(2, 2, j * 32, SCREEN_HEIGHT - 64 + 32 * (i - 1))
+                else
+                    tile:draw(3, 2, j * 32, SCREEN_HEIGHT - 64 + 32 * (i - 1))
+                end
+            end
+        end
+    end
+
+    graph_set_color(0, 0, 0, 0.1)
     for i = 1, 64 do
         love.graphics.line(32 * (i - 1), 0, 32 * (i - 1), SCREEN_HEIGHT)
     end
@@ -255,12 +306,13 @@ function t:draw()
         love.graphics.line(0, SCREEN_HEIGHT - 32 * (i - 1), SCREEN_WIDTH * 2, SCREEN_HEIGHT - 32 * (i - 1))
     end
 
+
     love.graphics.pop()
 
     Consolas:push()
     Consolas:set_font_size(14)
     Consolas:print("--goomba--Mônica and friends", 10, 10)
-    Consolas:print(tostring(rec.speed_x), 10, 40)
+    Consolas:print(tostring(rec.speed_y), 10, 40)
     Consolas:pop()
 end
 
