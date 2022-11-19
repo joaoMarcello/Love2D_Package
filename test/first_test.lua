@@ -2,7 +2,7 @@ local JM_package = require("/JM_love2d_package/JM_package")
 local Anima = JM_package.Anima
 local FontGenerator = JM_package.Font
 local EffectManager = JM_package.EffectGenerator
-local Eff = require("/JM_love2d_package/modules/classes/EffectManager")
+
 local t = {}
 local Consolas = FontGenerator:new({ name = "consolas", font_size = 14 })
 Consolas:add_nickname_animated("--goomba--", {
@@ -31,6 +31,8 @@ local monica_idle_normal = Anima:new({
     amount_cycle = 2
 })
 
+local my_effect = EffectManager:generate_effect("flash")
+
 -- monica_idle_normal:apply_effect("ufo")
 
 local monica_run = Anima:new({
@@ -55,14 +57,22 @@ local monica_idle_blink = Anima:new({
 
 local current_animation = monica_idle_normal
 
+---@param new_anima JM.Anima
+---@param last_anima JM.Anima
+local function change_animation(new_anima, last_anima)
+    new_anima:reset()
+    current_animation = new_anima
+    current_animation:set_flip_x(last_anima:__is_flipped_in_x())
+    my_effect:apply(new_anima, false)
+    last_anima:reset()
+end
+
 monica_idle_normal:set_custom_action(
 ---@param self JM.Anima
 ---@param param {idle_blink: JM.Anima}
     function(self, param)
         if self.__stopped_time > 0 then
-            param.idle_blink:reset()
-            current_animation = param.idle_blink
-            current_animation:set_flip_x(self:__is_flipped_in_x())
+            change_animation(param.idle_blink, self)
         end
     end,
     { idle_blink = monica_idle_blink }
@@ -73,10 +83,8 @@ monica_idle_blink:set_custom_action(
 ---@param param {idle_normal: JM.Anima}
     function(self, param)
         if self.__stopped_time > 0 then
-            param.idle_normal:reset()
             param.idle_normal:set_max_cycle(love.math.random(2, 4))
-            current_animation = param.idle_normal
-            current_animation:set_flip_x(self:__is_flipped_in_x())
+            change_animation(param.idle_normal, self)
         end
     end,
     { idle_normal = monica_idle_normal }
@@ -88,7 +96,7 @@ function t:load()
     love.graphics.setDefaultFilter("nearest", "nearest")
 
     rec = {
-        x = SCREEN_WIDTH * 0.25,
+        x = 0,
         y = SCREEN_HEIGHT - 120 - 64,
         w = 28,
         h = 58,
@@ -189,6 +197,7 @@ function t:update(dt)
     rec.x = round(rec.x)
     rec.y = round(rec.y)
     current_animation:update(dt)
+    my_effect:apply(current_animation, false)
     Consolas:update(dt)
 end
 

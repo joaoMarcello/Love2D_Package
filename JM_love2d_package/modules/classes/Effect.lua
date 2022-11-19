@@ -232,7 +232,7 @@ end
 
 --- Forca efeito em um objeto que nao era dele.
 ---@param object JM.Affectable
-function Effect:apply(object)
+function Effect:apply(object, reset)
     if not object then return end
 
     if object and object ~= self.__object then
@@ -245,7 +245,7 @@ function Effect:apply(object)
     end
 
     self.__object = object
-    self:restart(true)
+    self:restart(reset)
 end
 
 ---comment

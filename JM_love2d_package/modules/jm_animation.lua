@@ -333,6 +333,7 @@ function Anima:reset()
     self.__stopped = nil
     self.__is_visible = true
     self.__is_enabled = true
+    self.__effect_manager:stop_all()
 end
 
 ---@param arg {x: number, y: number, rot: number, sx: number, sy: number, ox: number, oy: number, kx: number, ky: number}

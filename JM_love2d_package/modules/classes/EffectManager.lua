@@ -112,7 +112,6 @@ function EffectManager:stop_all()
     if self.__effects_list then
         self.__effects_list = {}
         self.__effects_clear = true
-        collectgarbage("collect")
         return true
     end
     return false
