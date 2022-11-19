@@ -1,8 +1,8 @@
-local Anima = require "/JM_love2d_package/animation_module"
-local EffectGenerator = require("/JM_love2d_package/effect_generator_module")
-local FontGenerator = require("/JM_love2d_package/modules/jm_font")
-local Camera = require("/Camera")
-
+local JM_package = require("/JM_love2d_package/JM_package")
+local Anima = JM_package.Anima
+local FontGenerator = JM_package.Font
+local EffectManager = JM_package.EffectGenerator
+local Eff = require("/JM_love2d_package/modules/classes/EffectManager")
 local t = {}
 local Consolas = FontGenerator:new({ name = "consolas", font_size = 14 })
 Consolas:add_nickname_animated("--goomba--", {
@@ -30,7 +30,7 @@ local monica_idle_normal = Anima:new({
     ref_height = 64,
     amount_cycle = 2
 })
--- monica_idle_normal:apply_effect("pulse")
+
 -- monica_idle_normal:apply_effect("ufo")
 
 local monica_run = Anima:new({
@@ -84,12 +84,9 @@ monica_idle_blink:set_custom_action(
 
 local rec
 
-local camera
 function t:load()
     love.graphics.setDefaultFilter("nearest", "nearest")
-    -- love.graphics.setBackgroundColor(0.1, 0.1, 0.1, 1)
-    -- love.graphics.setBackgroundColor(130 / 255., 221 / 255., 255 / 255.)
-    -- love.graphics.setBackgroundColor(20 / 255., 52 / 255., 100 / 255.)
+
     rec = {
         x = SCREEN_WIDTH * 0.25,
         y = SCREEN_HEIGHT - 120 - 64,
@@ -121,11 +118,6 @@ function t:load()
         end
     }
     rec.y = SCREEN_HEIGHT - rec.h - 64
-
-    camera = Camera(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
-    camera:setFollowLerp(0.2)
-    camera:setFollowLead(0)
-    camera:setFollowStyle("PLATFORMER")
 end
 
 function t:keypressed(key)
@@ -138,10 +130,10 @@ function t:keypressed(key)
 end
 
 local function round(value)
-    local dif = math.abs(value)
-    dif = dif - math.floor(dif)
+    local absolute = math.abs(value)
+    local decimal = absolute - math.floor(absolute)
 
-    if dif >= 0.5 then
+    if decimal >= 0.5 then
         return value > 0 and math.ceil(value) or math.floor(value)
     else
         return value > 0 and math.floor(value) or math.ceil(value)
@@ -161,7 +153,7 @@ function t:update(dt)
         current_animation:set_flip_x(true)
 
     elseif love.keyboard.isDown("right")
-        and rec.x + rec.w < SCREEN_WIDTH
+        -- and rec.x + rec.w < SCREEN_WIDTH
         and rec.speed_x >= 0
     then
         rec.direction = 1
@@ -246,13 +238,14 @@ tile.draw = function(self, i, j, x, y)
 end
 
 function t:draw()
+    graph_set_color(130 / 255, 221 / 255, 255 / 255)
+    graph_rect("fill", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
+
     love.graphics.push()
     local value = -(rec.x) + math.floor(SCREEN_WIDTH * 0.25)
 
     love.graphics.translate(value, 0)
     do
-        graph_set_color(130 / 255, 221 / 255, 255 / 255)
-        graph_rect("fill", 0, 0, SCREEN_WIDTH * 2, SCREEN_HEIGHT)
 
         graph_set_color(245 / 255, 160 / 255, 151 / 255, 1)
         graph_rect("fill", 0, SCREEN_HEIGHT - 64 * 3, 64 * 4, 64 * 3)
@@ -312,7 +305,7 @@ function t:draw()
     Consolas:push()
     Consolas:set_font_size(14)
     Consolas:print("--goomba--Mônica and friends", 10, 10)
-    Consolas:print(tostring(rec.speed_y), 10, 40)
+    Consolas:print(tostring(round(-0.499999999)), 10, 40)
     Consolas:pop()
 end
 

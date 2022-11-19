@@ -1,4 +1,4 @@
-local Effect = require("/JM_love2d_package/modules/classes/Effect")
+local Effect = require((...):gsub("Rotate", "Effect"))
 
 ---@class JM.Effect.Rotate: JM.Effect
 local Rotate = Effect:new()

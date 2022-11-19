@@ -1,4 +1,4 @@
-local Effect = require("/JM_love2d_package/modules/classes/Effect")
+local Effect = require((...):gsub("Swing", "Effect"))
 
 ---@class JM.Effect.Swing: JM.Effect
 local Swing = Effect:new()

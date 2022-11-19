@@ -1,4 +1,4 @@
-local Effect = require("/JM_love2d_package/modules/classes/Effect")
+local Effect = require((...):gsub("Float", "Effect"))
 
 ---@class JM.Effect.Float: JM.Effect
 local Float__ = Effect:new(nil, nil)

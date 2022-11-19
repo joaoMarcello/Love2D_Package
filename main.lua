@@ -42,7 +42,7 @@ local grap_set_color = love.graphics.setColor
 local grap_draw = love.graphics.draw
 
 local scale = love.graphics.getHeight() / (SCREEN_HEIGHT)
--- scale = 1
+scale = 1
 local pos_y = math.floor(love.graphics.getHeight() / 2 - SCREEN_HEIGHT * scale / 2)
 local pos_x = math.floor(love.graphics.getWidth() / 2 - SCREEN_WIDTH * scale / 2)
 

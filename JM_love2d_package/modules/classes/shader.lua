@@ -1,4 +1,4 @@
-local Effect = require("/JM_love2d_package/modules/classes/Effect")
+local Effect = require((...):gsub("shader", "Effect"))
 
 ---@class JM.Effect.Sample:JM.Effect
 local Sample = Effect:new()
