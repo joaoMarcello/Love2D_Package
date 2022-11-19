@@ -31,7 +31,7 @@ local monica_idle_normal = Anima:new({
     amount_cycle = 2
 })
 
-local my_effect = EffectManager:generate_effect("flash")
+local my_effect = EffectManager:generate_effect("idle", { color = { 0.9, 0.9, 0.9, 1 } })
 
 -- monica_idle_normal:apply_effect("ufo")
 
@@ -56,15 +56,18 @@ local monica_idle_blink = Anima:new({
 })
 
 local current_animation = monica_idle_normal
+my_effect:apply(current_animation)
 
 ---@param new_anima JM.Anima
 ---@param last_anima JM.Anima
 local function change_animation(new_anima, last_anima)
+    if new_anima == last_anima then return end
+
     new_anima:reset()
     current_animation = new_anima
     current_animation:set_flip_x(last_anima:__is_flipped_in_x())
     my_effect:apply(new_anima, false)
-    last_anima:reset()
+    my_effect:update(love.timer.getDelta())
 end
 
 monica_idle_normal:set_custom_action(
@@ -157,7 +160,7 @@ function t:update(dt)
         rec:accelerate(dt, rec.acc, -1)
         rec:run(dt, rec.acc)
 
-        current_animation = monica_run
+        change_animation(monica_run, current_animation)
         current_animation:set_flip_x(true)
 
     elseif love.keyboard.isDown("right")
@@ -168,7 +171,7 @@ function t:update(dt)
         rec:accelerate(dt, rec.acc, 1)
         rec:run(dt, rec.acc)
 
-        current_animation = monica_run
+        change_animation(monica_run, current_animation)
         current_animation:set_flip_x(false)
 
     elseif math.abs(rec.speed_x) ~= 0 then
@@ -205,7 +208,7 @@ function t:keyreleased(key)
     if key == "left" or key == "right" then
         if current_animation == monica_run then
             monica_idle_normal:set_flip_x(rec.direction < 0 and true)
-            current_animation = monica_idle_normal
+            change_animation(monica_idle_normal, current_animation)
         end
     end
 end

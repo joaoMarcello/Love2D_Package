@@ -236,6 +236,8 @@ function Effect:apply(object, reset)
     if not object then return end
 
     if object and object ~= self.__object then
+        if self.__object then self:restaure_object() end
+
         self.__obj_initial_color = {
             r = object:get_color()[1],
             g = object:get_color()[2],

@@ -71,7 +71,7 @@ end
 function Flash:__constructor__(args)
     self.__id = Effect.TYPE.flash
     self.__alpha = 1
-    self.__speed = args and args.speed or 3
+    self.__speed = args and args.speed or 0.3
     self.__color = args and args.color or { 238 / 255, 243 / 255, 46 / 255, 1 }
     -- self.__color = { 0.4, 0.4, 0.4, 1 }
     local max = args and args.max or 1
