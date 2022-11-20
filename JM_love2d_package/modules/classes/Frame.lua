@@ -1,7 +1,7 @@
 ---@class JM.Anima.Frame
 local Frame = {}
 
----@param args {x: number, y:number, w:number, h:number}
+---@param args {left: number, right:number, top:number, bottom:number}
 function Frame:new(args)
     local obj = {}
     setmetatable(obj, self)
@@ -30,9 +30,8 @@ function Frame:__constructor__(args)
     self.bottom = self.y + self.h
 end
 
----@return {x: number, y: number}
 function Frame:get_offset()
-    return { x = self.ox, y = self.oy }
+    return self.ox, self.oy
 end
 
 --- Sets the Quad Viewport.

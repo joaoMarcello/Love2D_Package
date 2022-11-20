@@ -1,8 +1,13 @@
 local utf8 = require("utf8")
 local current_test = require("test.first_test")
-local r
 
 local canvas
+
+local set_canvas = love.graphics.setCanvas
+local grap_clear = love.graphics.clear
+local set_blend_mode = love.graphics.setBlendMode
+local grap_set_color = love.graphics.setColor
+local grap_draw = love.graphics.draw
 
 -- SCREEN_WIDTH = 320 * 2
 -- SCREEN_HEIGHT = 160 * 2
@@ -14,13 +19,13 @@ function love.load()
     love.graphics.setDefaultFilter("nearest", "nearest")
     love.graphics.setBackgroundColor(0.4, 0.4, 0.4, 1)
 
-    r = current_test.load and current_test:load()
+    local r = current_test.load and current_test:load()
 
     canvas = love.graphics.newCanvas(SCREEN_WIDTH, SCREEN_HEIGHT)
 end
 
 function love.keypressed(key)
-    r = current_test.keypressed and current_test:keypressed(key)
+    local r = current_test.keypressed and current_test:keypressed(key)
 end
 
 function love.update(dt)
@@ -28,25 +33,22 @@ function love.update(dt)
         love.event.quit()
     end
 
-    r = current_test.update and current_test:update(dt)
+    local r = current_test.update and current_test:update(dt)
 end
 
 function love.keyreleased(key)
-    r = current_test.keyreleased and current_test:keyreleased(key)
+    local r = current_test.keyreleased and current_test:keyreleased(key)
 end
 
-local set_canvas = love.graphics.setCanvas
-local grap_clear = love.graphics.clear
-local set_blend_mode = love.graphics.setBlendMode
-local grap_set_color = love.graphics.setColor
-local grap_draw = love.graphics.draw
-
 local scale = love.graphics.getHeight() / (SCREEN_HEIGHT)
-scale = 1
+scale = 1.7
 local pos_y = math.floor(love.graphics.getHeight() / 2 - SCREEN_HEIGHT * scale / 2)
 local pos_x = math.floor(love.graphics.getWidth() / 2 - SCREEN_WIDTH * scale / 2)
 
-pos_x, pos_y = 0, 0
+pos_x, pos_y = 100, 50
+SCALE = scale
+POS_X = pos_x
+POS_Y = pos_y
 
 function love.draw()
 
@@ -54,7 +56,7 @@ function love.draw()
     grap_clear(0, 0, 0, 0)
     set_blend_mode("alpha")
 
-    r = current_test.draw and current_test:draw()
+    local r = current_test.draw and current_test:draw()
 
     set_canvas()
     -----------------------------------------------------------------------

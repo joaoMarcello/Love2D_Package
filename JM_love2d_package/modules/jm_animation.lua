@@ -265,7 +265,6 @@ function Anima:set_color(value)
     self.__color = Affectable.set_color(self, value)
 end
 
----@return {x: number, y: number}
 function Anima:get_offset()
     local cf = self:__get_current_frame()
     return cf:get_offset()

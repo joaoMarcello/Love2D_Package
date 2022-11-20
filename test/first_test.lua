@@ -100,7 +100,7 @@ function t:load()
     love.graphics.setDefaultFilter("nearest", "nearest")
 
     rec = {
-        x = 32 * 11,
+        x = 0,
         y = SCREEN_HEIGHT - 120 - 64,
         w = 28,
         h = 58,
@@ -127,11 +127,15 @@ function t:load()
                 self.x = self.x
                     + (self.speed_x * dt + (acc * dt * dt) / 2)
             end
+        end,
+        get_cx = function(self)
+            return self.x + self.w / 2
         end
     }
     rec.y = SCREEN_HEIGHT - rec.h - 64
 
-    t.camera = Camera:new(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
+    t.camera = Camera:new(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 1, SCALE)
+    t.camera:set_viewport(POS_X, POS_Y, SCREEN_WIDTH, SCREEN_HEIGHT)
 end
 
 function t:keypressed(key)
@@ -166,7 +170,7 @@ function t:update(dt)
         change_animation(monica_run, current_animation)
         current_animation:set_flip_x(true)
 
-        -- t.camera.offset_x = t.camera.viewport.w * 0.75
+        t.camera:set_offset_x(SCREEN_WIDTH - 32 * 8)
 
     elseif love.keyboard.isDown("right")
         -- and rec.x + rec.w < SCREEN_WIDTH
@@ -179,7 +183,7 @@ function t:update(dt)
         change_animation(monica_run, current_animation)
         current_animation:set_flip_x(false)
 
-        -- t.camera.offset_x = t.camera.viewport.w * 0.25
+        t.camera:set_offset_x(32 * 8)
 
     elseif math.abs(rec.speed_x) ~= 0 then
         local dacc = rec.dacc
@@ -210,10 +214,8 @@ function t:update(dt)
     my_effect:apply(current_animation, false)
     Consolas:update(dt)
 
-    if current_animation:time_updating() >= 2 then
-        -- t.camera.offset_x = t.camera.viewport.w * 0.5
-    end
-    t.camera:follow(rec.x, rec.y)
+
+    t.camera:follow(rec:get_cx(), rec.y)
     t.camera:update(dt)
 end
 
@@ -290,8 +292,8 @@ function t:draw()
     current_animation:draw_rec(math.floor(rec.x), math.floor(rec.y), rec.w, rec.h)
     love.graphics.setShader()
 
-    graph_set_color(1, 0, 1, 0.6)
-    -- graph_rect("line", rec.x, rec.y, rec.w, rec.h)
+    graph_set_color(1, 0, 1, 0.9)
+    graph_rect("line", rec.x, rec.y, rec.w, rec.h)
 
 
     for i = 1, 2 do
@@ -317,22 +319,30 @@ function t:draw()
     end
 
     graph_set_color(0, 0, 0, 0.1)
-    for i = 1, 64 do
-        love.graphics.line(32 * (i - 1), 0, 32 * (i - 1), SCREEN_HEIGHT)
+    for i = 1, 300 do
+        local x = -32 * 45 + 32 * (i - 1)
+        love.graphics.line(x, 0, x, SCREEN_HEIGHT)
     end
 
     for i = 1, 16 do
-        love.graphics.line(0, SCREEN_HEIGHT - 32 * (i - 1), SCREEN_WIDTH * 2, SCREEN_HEIGHT - 32 * (i - 1))
+        love.graphics.line(-32 * 45, SCREEN_HEIGHT - 32 * (i - 1), SCREEN_WIDTH * 3, SCREEN_HEIGHT - 32 * (i - 1))
     end
 
+    graph_set_color(1, 0, 0, 0.7)
+    local mx, my = love.mouse.getPosition()
+    mx, my = t.camera:to_camera(mx, my)
+    love.graphics.circle("fill", mx, my, 32 / SCALE)
+
+
     t.camera:detach()
-    -- love.graphics.pop()
+
 
     Consolas:push()
     Consolas:set_font_size(14)
     Consolas:print("--goomba--Mônica and friends", 10, 10)
     local mp = tostring(love.mouse.getX()) .. " - " .. tostring(love.mouse.getY())
-    Consolas:print(tostring(rec.speed_x), 10, 40)
+    Consolas:print(tostring(mp), 10, 40)
+    Consolas:print(tostring(mx) .. " - " .. tostring(my), 100, 55)
     Consolas:pop()
 end
 
