@@ -2,6 +2,7 @@ local JM_package = require("/JM_love2d_package/JM_package")
 local Anima = JM_package.Anima
 local FontGenerator = JM_package.Font
 local EffectManager = JM_package.EffectGenerator
+local Camera = JM_package.Camera
 
 local t = {}
 local Consolas = FontGenerator:new({ name = "consolas", font_size = 14 })
@@ -28,7 +29,7 @@ local monica_idle_normal = Anima:new({
     duration = 0.5,
     height = 64,
     ref_height = 64,
-    amount_cycle = 2
+    -- amount_cycle = 2
 })
 
 local my_effect = EffectManager:generate_effect("idle", { color = { 0.9, 0.9, 0.9, 1 } })
@@ -99,7 +100,7 @@ function t:load()
     love.graphics.setDefaultFilter("nearest", "nearest")
 
     rec = {
-        x = 0,
+        x = 32 * 11,
         y = SCREEN_HEIGHT - 120 - 64,
         w = 28,
         h = 58,
@@ -129,6 +130,8 @@ function t:load()
         end
     }
     rec.y = SCREEN_HEIGHT - rec.h - 64
+
+    t.camera = Camera:new(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
 end
 
 function t:keypressed(key)
@@ -153,7 +156,7 @@ end
 
 function t:update(dt)
     if love.keyboard.isDown("left")
-        and rec.x > 0
+        -- and rec.x > 0
         and rec.speed_x <= 0
     then
         rec.direction = -1
@@ -162,6 +165,8 @@ function t:update(dt)
 
         change_animation(monica_run, current_animation)
         current_animation:set_flip_x(true)
+
+        -- t.camera.offset_x = t.camera.viewport.w * 0.75
 
     elseif love.keyboard.isDown("right")
         -- and rec.x + rec.w < SCREEN_WIDTH
@@ -173,6 +178,8 @@ function t:update(dt)
 
         change_animation(monica_run, current_animation)
         current_animation:set_flip_x(false)
+
+        -- t.camera.offset_x = t.camera.viewport.w * 0.25
 
     elseif math.abs(rec.speed_x) ~= 0 then
         local dacc = rec.dacc
@@ -202,6 +209,12 @@ function t:update(dt)
     current_animation:update(dt)
     my_effect:apply(current_animation, false)
     Consolas:update(dt)
+
+    if current_animation:time_updating() >= 2 then
+        -- t.camera.offset_x = t.camera.viewport.w * 0.5
+    end
+    t.camera:follow(rec.x, rec.y)
+    t.camera:update(dt)
 end
 
 function t:keyreleased(key)
@@ -253,10 +266,11 @@ function t:draw()
     graph_set_color(130 / 255, 221 / 255, 255 / 255)
     graph_rect("fill", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
 
-    love.graphics.push()
-    local value = -(rec.x) + math.floor(SCREEN_WIDTH * 0.25)
+    -- love.graphics.push()
+    -- local value = -(rec.x) + math.floor(SCREEN_WIDTH * 0.25)
+    -- love.graphics.translate(value, 0)
+    t.camera:attach()
 
-    love.graphics.translate(value, 0)
     do
 
         graph_set_color(245 / 255, 160 / 255, 151 / 255, 1)
@@ -311,13 +325,14 @@ function t:draw()
         love.graphics.line(0, SCREEN_HEIGHT - 32 * (i - 1), SCREEN_WIDTH * 2, SCREEN_HEIGHT - 32 * (i - 1))
     end
 
-
-    love.graphics.pop()
+    t.camera:detach()
+    -- love.graphics.pop()
 
     Consolas:push()
     Consolas:set_font_size(14)
     Consolas:print("--goomba--Mônica and friends", 10, 10)
-    Consolas:print(tostring(round(-0.499999999)), 10, 40)
+    local mp = tostring(love.mouse.getX()) .. " - " .. tostring(love.mouse.getY())
+    Consolas:print(tostring(rec.speed_x), 10, 40)
     Consolas:pop()
 end
 

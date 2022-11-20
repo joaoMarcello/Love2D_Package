@@ -13,4 +13,7 @@ JM.EffectGenerator = require(string.gsub(
     path, "JM_package", "modules.classes.EffectManager"
 ))
 
+---@type JM.Camera.Camera
+JM.Camera = require(string.gsub(path, "JM_package", "modules.jm_camera"))
+
 return JM

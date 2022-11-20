@@ -10,7 +10,7 @@ SCREEN_WIDTH = 1366 / 2
 SCREEN_HEIGHT = 768 / 2
 
 function love.load()
-    love.mouse.setVisible(false)
+    -- love.mouse.setVisible(false)
     love.graphics.setDefaultFilter("nearest", "nearest")
     love.graphics.setBackgroundColor(0.4, 0.4, 0.4, 1)
 
@@ -45,6 +45,8 @@ local scale = love.graphics.getHeight() / (SCREEN_HEIGHT)
 scale = 1
 local pos_y = math.floor(love.graphics.getHeight() / 2 - SCREEN_HEIGHT * scale / 2)
 local pos_x = math.floor(love.graphics.getWidth() / 2 - SCREEN_WIDTH * scale / 2)
+
+pos_x, pos_y = 0, 0
 
 function love.draw()
 
