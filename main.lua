@@ -45,7 +45,7 @@ scale = 1.7
 local pos_y = math.floor(love.graphics.getHeight() / 2 - SCREEN_HEIGHT * scale / 2)
 local pos_x = math.floor(love.graphics.getWidth() / 2 - SCREEN_WIDTH * scale / 2)
 
-pos_x, pos_y = 100, 50
+pos_x, pos_y = 75, 75
 SCALE = scale
 POS_X = pos_x
 POS_Y = pos_y

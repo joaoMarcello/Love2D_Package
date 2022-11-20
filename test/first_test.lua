@@ -100,7 +100,7 @@ function t:load()
     love.graphics.setDefaultFilter("nearest", "nearest")
 
     rec = {
-        x = 0,
+        x = 64,
         y = SCREEN_HEIGHT - 120 - 64,
         w = 28,
         h = 58,
@@ -134,8 +134,8 @@ function t:load()
     }
     rec.y = SCREEN_HEIGHT - rec.h - 64
 
-    t.camera = Camera:new(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 1, SCALE)
-    t.camera:set_viewport(POS_X, POS_Y, SCREEN_WIDTH, SCREEN_HEIGHT)
+    t.camera = Camera:new(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 1)
+    t.camera:set_offset_x(32 * 8)
 end
 
 function t:keypressed(key)
@@ -158,6 +158,12 @@ local function round(value)
     end
 end
 
+local function to_world(x, y)
+    x, y = x - POS_X, y - POS_Y
+    x, y = x / SCALE, y / SCALE
+    return x, y
+end
+
 function t:update(dt)
     if love.keyboard.isDown("left")
         -- and rec.x > 0
@@ -173,7 +179,7 @@ function t:update(dt)
         t.camera:set_offset_x(SCREEN_WIDTH - 32 * 8)
 
     elseif love.keyboard.isDown("right")
-        -- and rec.x + rec.w < SCREEN_WIDTH
+        -- and rec.x + rec.w < t.camera.bounds_right
         and rec.speed_x >= 0
     then
         rec.direction = 1
@@ -217,6 +223,16 @@ function t:update(dt)
 
     t.camera:follow(rec:get_cx(), rec.y)
     t.camera:update(dt)
+
+    if rec.x + rec.w > t.camera.bounds_right then
+        rec.x = t.camera.bounds_right - rec.w
+        rec.speed_x = 0
+    end
+
+    if rec.x < t.camera.bounds_left then
+        rec.x = t.camera.bounds_left
+        rec.speed_x = 0
+    end
 end
 
 function t:keyreleased(key)
@@ -303,9 +319,15 @@ function t:draw()
             elseif i == 2 and j == 0 then
                 tile:draw(1, 2, 0, SCREEN_HEIGHT - 32 * 1)
             elseif i == 1 then
-                if j % 2 == 0 then
+                local left = j * 32
+                local right = left + 32
+                local top = SCREEN_HEIGHT - 64 + 32 * (i - 1)
+                local bottom = top + 32
+                local result = t.camera:rect_is_on_screen(left, right, top, bottom)
+
+                if j % 2 == 0 and result then
                     tile:draw(2, 1, j * 32, SCREEN_HEIGHT - 64 + 32 * (i - 1))
-                else
+                elseif result then
                     tile:draw(3, 1, j * 32, SCREEN_HEIGHT - 64 + 32 * (i - 1))
                 end
             elseif i == 2 then
@@ -317,6 +339,10 @@ function t:draw()
             end
         end
     end
+
+    graph_set_color(0, 0, 0, 0.5)
+    graph_rect("fill", 32 * 34, 32 * 4, 32, 32)
+    graph_rect("fill", 32 * 10, 32 * 4, 32, 32)
 
     graph_set_color(0, 0, 0, 0.1)
     for i = 1, 300 do
@@ -330,9 +356,18 @@ function t:draw()
 
     graph_set_color(1, 0, 0, 0.7)
     local mx, my = love.mouse.getPosition()
+    mx, my = to_world(mx, my)
     mx, my = t.camera:to_camera(mx, my)
-    love.graphics.circle("fill", mx, my, 32 / SCALE)
+    love.graphics.rectangle("fill", mx, my, 32, 32)
 
+    local mx2, my2 = love.mouse.getPosition()
+    mx2, my2 = to_world(mx2, my2)
+    mx2, my2 = t.camera:to_camera(mx2, my2)
+    local point_on_screen = t.camera:rect_is_on_screen(mx2,
+        mx2 + 32,
+        my2,
+        my2 + 32
+    )
 
     t.camera:detach()
 
@@ -342,7 +377,8 @@ function t:draw()
     Consolas:print("--goomba--Mônica and friends", 10, 10)
     local mp = tostring(love.mouse.getX()) .. " - " .. tostring(love.mouse.getY())
     Consolas:print(tostring(mp), 10, 40)
-    Consolas:print(tostring(mx) .. " - " .. tostring(my), 100, 55)
+    Consolas:print(tostring(mx2) .. " - " .. tostring(my2), 100, 55)
+    Consolas:print("p:" .. tostring(point_on_screen), 200, 100)
     Consolas:pop()
 end
 

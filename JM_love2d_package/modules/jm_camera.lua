@@ -13,24 +13,24 @@ local love_translate = love.graphics.translate
 local love_pop = love.graphics.pop
 local love_push = love.graphics.push
 local love_scale = love.graphics.scale
-local sin, cos, atan2, sqrt = math.sin, math.cos, math.atan2, math.sqrt
+local sin, cos, atan2, sqrt, abs = math.sin, math.cos, math.atan2, math.sqrt, math.abs
 
 
 ---@class JM.Camera.Camera
 local Camera = {}
 
 ---@return JM.Camera.Camera
-function Camera:new(x, y, w, h, scale, global_scale)
+function Camera:new(x, y, w, h, scale)
     local obj = {}
     setmetatable(obj, self)
     self.__index = self
 
-    Camera.__constructor__(obj, x, y, w, h, scale, global_scale)
+    Camera.__constructor__(obj, x, y, w, h, scale)
 
     return obj
 end
 
-function Camera:__constructor__(x, y, w, h, scale, global_scale)
+function Camera:__constructor__(x, y, w, h, scale)
 
     self.viewport_x = 0
     self.viewport_y = 0
@@ -39,8 +39,6 @@ function Camera:__constructor__(x, y, w, h, scale, global_scale)
 
     self.x = x or 0
     self.y = y or 0
-
-    self.global_scale = global_scale or 1
 
     self.scale = 1
     self.angle = 0
@@ -55,15 +53,19 @@ function Camera:__constructor__(x, y, w, h, scale, global_scale)
 
     self.platform_box_w = 64 * 1 / self.scale
 
-    self.bounds_left = 0
+    self.bounds_left = -32 * 0
     self.bounds_top = -100
-    self.bounds_right = 32 * 22
+    self.bounds_right = 32 * 35
     self.bounds_bottom = self.viewport_h
+    self:set_bounds()
 
     self.follow_speed_x = (32 * 8)
     self.follow_acc = 32 * 3
 
-    self.debug = true
+    self.lock_x = false
+    self.lock_y = false
+
+    self.debug = false
 end
 
 function Camera:set_viewport(x, y, w, h)
@@ -74,19 +76,36 @@ function Camera:set_viewport(x, y, w, h)
 end
 
 function Camera:to_camera(x, y)
-    x, y = x - self.viewport_x, y - self.viewport_y
-    x, y = x / self.global_scale, y / self.global_scale
-
+    y = y or 0
     x = x / self.scale
     y = y / self.scale
     return x + self.x, y + self.y
 end
 
 function Camera:to_screen(x, y)
-    x, y = x - self.x, y - self.y
-    x, y = x * self.scale, y * self.scale
+    y = y or 0
+    x = x - self.x
+    y = y - self.y
 
-    return x, y
+    return x * self.scale, y * self.scale
+end
+
+function Camera:lock_x_axis(value)
+    self.lock_x = (value and true) or false
+end
+
+function Camera:lock_y_axis(value)
+    self.lock_y = (value and true) or false
+end
+
+function Camera:lock_movements()
+    self:lock_x_axis(true)
+    self:lock_y_axis(true)
+end
+
+function Camera:unlock_movements()
+    self:lock_x_axis(false)
+    self:lock_y_axis(false)
 end
 
 function Camera:follow(x, y)
@@ -124,8 +143,8 @@ function Camera:set_offset_x(value)
 end
 
 function Camera:set_position(x, y)
-    self.x = (x and x) or self.x
-    self.y = (y and y) or self.y
+    self.x = (not self.lock_x and (x and x)) or self.x
+    self.y = (not self.lock_y and (y and y)) or self.y
 end
 
 function Camera:move(dx, dy)
@@ -135,6 +154,40 @@ function Camera:move(dx, dy)
     )
 end
 
+function Camera:set_bounds(left, right, top, bottom)
+    self.bounds_left = (left and left) or self.bounds_left
+    self.bounds_right = (right and right) or self.bounds_right
+    self.bounds_top = (top and top) or self.bounds_top
+    self.bounds_bottom = (bottom and bottom) or self.bounds_bottom
+
+    if self.bounds_right - self.bounds_left < self.viewport_w then
+        self.bounds_right = self.bounds_left + self.viewport_w
+    end
+
+    if self.bounds_bottom - self.bounds_top < self.viewport_h then
+        self.bounds_bottom = self.bounds_top + self.viewport_h
+    end
+end
+
+function Camera:rect_is_on_screen(left, right, top, bottom)
+    local left, top = self:to_camera(left, top)
+    local right, bottom = self:to_camera(right, bottom)
+
+    local cLeft, ctop = self:to_camera(self.x, self.y)
+    local cright, cbottom = self:to_camera(
+        self.x + (self.viewport_w / self.scale),
+        self.y + self.viewport_h / self.scale
+    )
+
+    return (right >= cLeft and left <= cright)
+        and (bottom >= ctop and top <= cbottom)
+end
+
+function Camera:point_is_on_screen(x, y)
+    return self:rect_is_on_screen(x, x, y, y)
+end
+
+--- Side scrolling platform.
 ---@param camera JM.Camera.Camera
 local function platform_update(camera, dt)
     local self = camera
@@ -142,9 +195,9 @@ local function platform_update(camera, dt)
         if self.x ~= self.target.x then
             local cos_r = cos(self.target.angle)
 
-            self:move((self.follow_speed_x) * dt * cos_r)
+            self:move(self.follow_speed_x * dt * cos_r)
 
-            self:move(math.abs(self.target.range_x) * cos_r)
+            self:move(abs(self.target.range_x) * cos_r)
 
             local temp = self.follow_speed_x * dt * cos_r * 0.5
 
@@ -157,16 +210,33 @@ local function platform_update(camera, dt)
             self.x = round(self.x)
         end
     end
+    -- local px = self:to_camera(32 * 20)
+    -- if self:to_camera(self.x + self.offset_x) > px then
+    --     self:set_position(self:to_screen(px - self.offset_x))
+    --     self:lock_movements()
+    -- end
+end
 
+---@param self JM.Camera.Camera
+local function no_lerp_update(self, dt)
+    if self.target then
+        self.offset_x = self.viewport_w * 0.5
+        self:set_position(self.target.x)
+    end
 end
 
 function Camera:update(dt)
     platform_update(self, dt)
+    -- no_lerp_update(self, dt)
 
-    if self.x < self.bounds_left then self.x = self.bounds_left end
+    local left = self:to_camera(self.bounds_left)
+    local right = self:to_camera(self.bounds_right - self.viewport_w / self.scale)
+    local px = self:to_camera(self.x)
 
-    if self.x > self.bounds_right then
-        self:set_position(self.bounds_right)
+    if px < left then
+        self:set_position(self:to_screen(left))
+    elseif px > right then
+        self:set_position(self:to_screen(right))
     end
 end
 
@@ -187,6 +257,8 @@ end
 function Camera:detach()
     love_pop()
 
+    if not self.debug then return end
+
     love.graphics.setColor(0, 0, 0, 1)
     love.graphics.print("distance: " .. tostring(self.target.distance), 10, 75)
     love.graphics.print("angle: " .. tostring(self.target.angle), 10, 95)
@@ -194,8 +266,8 @@ function Camera:detach()
     love.graphics.print("t_speed_x: " .. tostring(self.target.range_x), 10, 125)
     love.graphics.print(tostring(math.cos(self.target.angle)), 100, 200)
     love.graphics.print("Scale: " .. tostring(self.scale), self.viewport_w - 100)
-
-    if not self.debug then return end
+    love.graphics.print("Cam_X: " .. tostring(self.x), self.viewport_w - 100, 25)
+    love.graphics.print("Cam_X2: " .. tostring(self:to_camera(self.x)), self.viewport_w - 100, 50)
     love.graphics.setColor(1, 1, 1, 0.5)
     love.graphics.rectangle("fill", self.offset_x, 0, 2, self.viewport_h)
     -- love.graphics.rectangle("fill", self.offset_x, 0, 2, self.viewport.h)
