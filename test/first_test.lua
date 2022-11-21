@@ -176,7 +176,7 @@ function t:update(dt)
         change_animation(monica_run, current_animation)
         current_animation:set_flip_x(true)
 
-        t.camera:set_offset_x(SCREEN_WIDTH - 32 * 8)
+        -- t.camera:set_offset_x(SCREEN_WIDTH - 32 * 8)
 
     elseif love.keyboard.isDown("right")
         -- and rec.x + rec.w < t.camera.bounds_right
@@ -189,7 +189,7 @@ function t:update(dt)
         change_animation(monica_run, current_animation)
         current_animation:set_flip_x(false)
 
-        t.camera:set_offset_x(32 * 8)
+        -- t.camera:set_offset_x(32 * 8)
 
     elseif math.abs(rec.speed_x) ~= 0 then
         local dacc = rec.dacc

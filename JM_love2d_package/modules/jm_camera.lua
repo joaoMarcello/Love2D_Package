@@ -43,7 +43,7 @@ function Camera:__constructor__(x, y, w, h, scale)
     self.scale = 1
     self.angle = 0
 
-    ---@type {x:number, y:number, angle:number, distance:number, range_x:number, range_y:number, last_x:number, last_y:number}|nil
+    ---@type {x:number, y:number, angle:number, distance:number, range_x:number, range_y:number, last_x:number, last_y:number, direction_x:number, direction_y:number, last_direction_x:number, last_direction_y:number}|nil
     self.target = nil
 
     self.offset_x = round(self.viewport_w * 0.25 * 1 / self.scale)
@@ -51,11 +51,11 @@ function Camera:__constructor__(x, y, w, h, scale)
     -- self.offset_x = 0
     self.offset_y = 0
 
-    self.platform_box_w = 64 * 1 / self.scale
+    self.deadzone_w = 64 * 1 / self.scale
 
     self.bounds_left = -32 * 0
     self.bounds_top = -100
-    self.bounds_right = 32 * 35
+    self.bounds_right = 32 * 60
     self.bounds_bottom = self.viewport_h
     self:set_bounds()
 
@@ -65,7 +65,7 @@ function Camera:__constructor__(x, y, w, h, scale)
     self.lock_x = false
     self.lock_y = false
 
-    self.debug = false
+    self.debug = true
 end
 
 function Camera:set_viewport(x, y, w, h)
@@ -116,10 +116,19 @@ function Camera:follow(x, y)
 
     target.last_x = target.x or x
     target.last_y = target.y or y
+
     target.x = x
     target.y = y
+
     target.range_x = (x - target.last_x)
     target.range_y = (y - target.last_y)
+
+    target.last_direction_x = target.direction_x ~= 0 and target.direction_x
+        or target.last_direction_x or 1
+
+    target.direction_x = (target.range_x > 0 and 1)
+        or (target.range_x < 0 and -1)
+        or 0
 
     local target_distance_x = (target.x - self.x)
     local target_distance_y = 0 --self.target.y - self.y
@@ -134,6 +143,7 @@ function Camera:follow(x, y)
 end
 
 function Camera:set_offset_x(value)
+    value = round(value)
     if self.offset_x ~= value then
         if self.target then
             self.target.x = nil
@@ -187,12 +197,15 @@ function Camera:point_is_on_screen(x, y)
     return self:rect_is_on_screen(x, x, y, y)
 end
 
---- Side scrolling platform.
+--- Moves the camera position until reaches the target position.
 ---@param camera JM.Camera.Camera
-local function platform_update(camera, dt)
+local function chase_target(camera, dt, chase_x_axis, chase_y_axis)
     local self = camera
+    local objective = false
+
     if self.target then
-        if self.x ~= self.target.x then
+
+        if chase_x_axis and self.x ~= self.target.x then
             local cos_r = cos(self.target.angle)
 
             self:move(self.follow_speed_x * dt * cos_r)
@@ -205,16 +218,54 @@ local function platform_update(camera, dt)
                 or (cos_r < 0 and self.x + temp < self.target.x)
             then
                 self:set_position(self.target.x)
+                objective = true
             end
 
             self.x = round(self.x)
         end
+
     end
+
+    return objective
     -- local px = self:to_camera(32 * 20)
     -- if self:to_camera(self.x + self.offset_x) > px then
     --     self:set_position(self:to_screen(px - self.offset_x))
     --     self:lock_movements()
     -- end
+end
+
+---@param self JM.Camera.Camera
+local function platformer_update(self, dt)
+    if not self.target then return end
+
+    local target = self.target or {}
+
+    if not self.lock_x then
+        local objective = chase_target(self, dt, true)
+        self:lock_x_axis(objective and target.direction_x ~= target.last_direction_x)
+    else
+        if self.target.direction_x > 0 then
+            local right = self.x + self.deadzone_w / 2 / self.scale
+            right = self:to_camera(right)
+
+            if self:to_camera(self.target.x) > right then
+                self:lock_x_axis(false)
+            end
+        elseif self.target.direction_x < 0 then
+            local left = self.x - self.deadzone_w / 2 / self.scale
+            left = self:to_camera(left)
+
+            if self:to_camera(self.target.x) < left then
+                self:lock_x_axis(false)
+            end
+        end
+    end
+
+    if self.target.direction_x < 0 and not self.lock_x then
+        self:set_offset_x(self.viewport_w * 0.6)
+    elseif self.target.direction_x > 0 and not self.lock_x then
+        self:set_offset_x(self.viewport_w * 0.4)
+    end
 end
 
 ---@param self JM.Camera.Camera
@@ -226,17 +277,22 @@ local function no_lerp_update(self, dt)
 end
 
 function Camera:update(dt)
-    platform_update(self, dt)
+    platformer_update(self, dt)
     -- no_lerp_update(self, dt)
 
     local left = self:to_camera(self.bounds_left)
     local right = self:to_camera(self.bounds_right - self.viewport_w / self.scale)
     local px = self:to_camera(self.x)
 
+    local lock = self.lock_x
     if px < left then
+        self:lock_x_axis(false)
         self:set_position(self:to_screen(left))
+        self:lock_x_axis(lock)
     elseif px > right then
+        self:lock_x_axis(false)
         self:set_position(self:to_screen(right))
+        self:lock_x_axis(lock)
     end
 end
 
@@ -267,11 +323,13 @@ function Camera:detach()
     love.graphics.print(tostring(math.cos(self.target.angle)), 100, 200)
     love.graphics.print("Scale: " .. tostring(self.scale), self.viewport_w - 100)
     love.graphics.print("Cam_X: " .. tostring(self.x), self.viewport_w - 100, 25)
-    love.graphics.print("Cam_X2: " .. tostring(self:to_camera(self.x)), self.viewport_w - 100, 50)
+    love.graphics.print("target_dir: " .. tostring(self.target.direction_x), self.viewport_w - 100, 50)
+    love.graphics.print("last_dir: " .. tostring(self.target.last_direction_x), self.viewport_w - 100, 75)
+
     love.graphics.setColor(1, 1, 1, 0.5)
     love.graphics.rectangle("fill", self.offset_x, 0, 2, self.viewport_h)
-    -- love.graphics.rectangle("fill", self.offset_x, 0, 2, self.viewport.h)
-    -- love.graphics.rectangle("fill", self.offset_x, 0, 2, self.viewport.h)
+    love.graphics.rectangle("fill", self.offset_x + self.deadzone_w / 2, 0, 2, self.viewport_h)
+    love.graphics.rectangle("fill", self.offset_x - self.deadzone_w / 2, 0, 2, self.viewport_h)
 end
 
 return Camera
