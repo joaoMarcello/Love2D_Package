@@ -100,7 +100,7 @@ function t:load()
     love.graphics.setDefaultFilter("nearest", "nearest")
 
     rec = {
-        x = 64,
+        x = 450,
         y = SCREEN_HEIGHT - 120 - 64,
         w = 28,
         h = 58,
@@ -130,6 +130,9 @@ function t:load()
         end,
         get_cx = function(self)
             return self.x + self.w / 2
+        end,
+        get_cy = function(self)
+            return self.y + self.h / 2
         end
     }
     rec.y = SCREEN_HEIGHT - rec.h - 64
@@ -221,7 +224,7 @@ function t:update(dt)
     Consolas:update(dt)
 
 
-    t.camera:follow(rec:get_cx(), rec.y)
+    t.camera:follow(rec:get_cx(), rec:get_cy())
     t.camera:update(dt)
 
     if rec.x + rec.w > t.camera.bounds_right then

@@ -46,21 +46,23 @@ function Camera:__constructor__(x, y, w, h, scale)
     ---@type {x:number, y:number, angle:number, distance:number, range_x:number, range_y:number, last_x:number, last_y:number, direction_x:number, direction_y:number, last_direction_x:number, last_direction_y:number}|nil
     self.target = nil
 
-    self.offset_x = round(self.viewport_w * 0.25 * 1 / self.scale)
-    self.offset_x = 0 --round(32 * 6 * 1 / self.scale)
-    -- self.offset_x = 0
-    self.offset_y = 0
+    self.offset_x = 0
+    self.offset_y1 = self.viewport_h * 0.5
+    self.offset_y2 = self.viewport_h * 0.8
 
-    self.deadzone_w = 64 * 1 / self.scale
+    self.deadzone_w = 32 * 1.5
 
     self.bounds_left = -32 * 0
-    self.bounds_top = -100
+    self.bounds_top = -0
     self.bounds_right = 32 * 60
     self.bounds_bottom = self.viewport_h
     self:set_bounds()
 
     self.follow_speed_x = (32 * 8)
     self.follow_acc = 32 * 3
+
+    self.delay_x = 1
+    self.delay_y = 0.2
 
     self.lock_x = false
     self.lock_y = false
@@ -113,6 +115,7 @@ function Camera:follow(x, y)
     local target = self.target or {}
 
     x = x - self.offset_x / self.scale
+    y = y - self.offset_y1 / self.scale
 
     target.last_x = target.x or x
     target.last_y = target.y or y
@@ -131,7 +134,7 @@ function Camera:follow(x, y)
         or 0
 
     local target_distance_x = (target.x - self.x)
-    local target_distance_y = 0 --self.target.y - self.y
+    local target_distance_y = target.y - self.y
 
     target.distance = sqrt(
         target_distance_x ^ 2 + target_distance_y ^ 2
@@ -155,6 +158,8 @@ end
 function Camera:set_position(x, y)
     self.x = (not self.lock_x and (x and x)) or self.x
     self.y = (not self.lock_y and (y and y)) or self.y
+    self.x = round(self.x)
+    self.y = round(self.y)
 end
 
 function Camera:move(dx, dy)
@@ -204,24 +209,38 @@ local function chase_target(camera, dt, chase_x_axis, chase_y_axis)
     local objective = false
 
     if self.target then
+        local target = self.target or {}
 
-        if chase_x_axis and self.x ~= self.target.x then
-            local cos_r = cos(self.target.angle)
+        if chase_x_axis and self.x ~= target.x then
+            local cos_r = cos(target.angle)
 
             self:move(self.follow_speed_x * dt * cos_r)
 
-            self:move(abs(self.target.range_x) * cos_r)
+            self:move(abs(target.range_x) * cos_r * self.delay_x)
 
-            local temp = self.follow_speed_x * dt * cos_r * 0.5
+            local temp = self.follow_speed_x * dt * cos_r * 0
 
-            if (cos_r > 0 and self.x + temp > self.target.x)
-                or (cos_r < 0 and self.x + temp < self.target.x)
+            if (cos_r > 0 and self.x + temp > target.x)
+                or (cos_r < 0 and self.x + temp < target.x)
             then
-                self:set_position(self.target.x)
+                self:set_position(target.x)
                 objective = true
             end
+        end
 
-            self.x = round(self.x)
+        if chase_y_axis and self.y ~= target.y then
+            local sin_r = sin(target.angle)
+
+            self:move(nil, self.follow_speed_x * dt * sin_r)
+
+            self:move(nil, abs(target.range_y) * sin_r * self.delay_y)
+
+            if (sin_r > 0 and self.y > target.y)
+                or (sin_r < 0 and self.y < target.y)
+            then
+                self:set_position(nil, target.y)
+                objective = true
+            end
         end
 
     end
@@ -235,24 +254,26 @@ local function chase_target(camera, dt, chase_x_axis, chase_y_axis)
 end
 
 ---@param self JM.Camera.Camera
-local function platformer_update(self, dt)
-    if not self.target then return end
-
+local function Mario_world_x_axis_logic(self, dt)
     local target = self.target or {}
+    local deadzone_w = self.deadzone_w / self.scale
 
     if not self.lock_x then
         local objective = chase_target(self, dt, true)
-        self:lock_x_axis(objective and target.direction_x ~= target.last_direction_x)
+
+        self:lock_x_axis(objective
+            and target.direction_x ~= target.last_direction_x
+        )
     else
         if self.target.direction_x > 0 then
-            local right = self.x + self.deadzone_w / 2 / self.scale
+            local right = self.x + deadzone_w / 2
             right = self:to_camera(right)
 
             if self:to_camera(self.target.x) > right then
                 self:lock_x_axis(false)
             end
         elseif self.target.direction_x < 0 then
-            local left = self.x - self.deadzone_w / 2 / self.scale
+            local left = self.x - deadzone_w / 2
             left = self:to_camera(left)
 
             if self:to_camera(self.target.x) < left then
@@ -260,16 +281,30 @@ local function platformer_update(self, dt)
             end
         end
     end
+end
+
+---@param self JM.Camera.Camera
+local function platformer_update(self, dt)
+    if not self.target then return end
+
+    self.follow_speed_x = 32 * 6
+    self.delay_x = 1
+    self.delay_y = 1
+    local left_focus = self.viewport_w * 0.4
+    local right_focus = self.viewport_w * 0.6
+
+    -- Mario_world_x_axis_logic(self, dt)
+    chase_target(self, dt, true, true)
 
     if self.target.direction_x < 0 and not self.lock_x then
-        self:set_offset_x(self.viewport_w * 0.6)
+        self:set_offset_x(right_focus)
     elseif self.target.direction_x > 0 and not self.lock_x then
-        self:set_offset_x(self.viewport_w * 0.4)
+        self:set_offset_x(left_focus)
     end
 end
 
 ---@param self JM.Camera.Camera
-local function no_lerp_update(self, dt)
+local function metroidvania_update(self, dt)
     if self.target then
         self.offset_x = self.viewport_w * 0.5
         self:set_position(self.target.x)
@@ -278,20 +313,21 @@ end
 
 function Camera:update(dt)
     platformer_update(self, dt)
-    -- no_lerp_update(self, dt)
 
-    local left = self:to_camera(self.bounds_left)
-    local right = self:to_camera(self.bounds_right - self.viewport_w / self.scale)
-    local px = self:to_camera(self.x)
+    local left, top = self:to_camera(self.bounds_left, self.bounds_top)
+    local right, bottom = self:to_camera(self.bounds_right - self.viewport_w / self.scale, self.bounds_bottom)
+    local px, py = self:to_camera(self.x, self.y)
 
     local lock = self.lock_x
     if px < left then
+        local x = self:to_screen(left)
         self:lock_x_axis(false)
-        self:set_position(self:to_screen(left))
+        self:set_position(x)
         self:lock_x_axis(lock)
     elseif px > right then
+        local x = self:to_screen(right)
         self:lock_x_axis(false)
-        self:set_position(self:to_screen(right))
+        self:set_position(x)
         self:lock_x_axis(lock)
     end
 end
@@ -299,7 +335,7 @@ end
 function Camera:attach()
     love_push()
     love_scale(self.scale, self.scale)
-    love_translate(-self.x, self.y)
+    love_translate(-self.x, -self.y)
 end
 
 local function rad2degr(value)
@@ -326,8 +362,11 @@ function Camera:detach()
     love.graphics.print("target_dir: " .. tostring(self.target.direction_x), self.viewport_w - 100, 50)
     love.graphics.print("last_dir: " .. tostring(self.target.last_direction_x), self.viewport_w - 100, 75)
 
-    love.graphics.setColor(1, 1, 1, 0.5)
+    love.graphics.setColor(0, 0, 0, 0.6)
     love.graphics.rectangle("fill", self.offset_x, 0, 2, self.viewport_h)
+    love.graphics.rectangle("fill", 0, self.offset_y1, self.viewport_w, 2)
+    love.graphics.rectangle("fill", 0, self.offset_y2, self.viewport_w, 2)
+    love.graphics.setColor(1, 1, 1, 0.5)
     love.graphics.rectangle("fill", self.offset_x + self.deadzone_w / 2, 0, 2, self.viewport_h)
     love.graphics.rectangle("fill", self.offset_x - self.deadzone_w / 2, 0, 2, self.viewport_h)
 end
