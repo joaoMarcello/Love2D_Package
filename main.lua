@@ -1,5 +1,5 @@
 local utf8 = require("utf8")
-local current_test = require("test.first_test")
+local current_test = require("/test/camera_test")
 
 local canvas
 
@@ -41,7 +41,7 @@ function love.keyreleased(key)
 end
 
 local scale = love.graphics.getHeight() / (SCREEN_HEIGHT)
-scale = 1.7
+scale = 1
 local pos_y = math.floor(love.graphics.getHeight() / 2 - SCREEN_HEIGHT * scale / 2)
 local pos_x = math.floor(love.graphics.getWidth() / 2 - SCREEN_WIDTH * scale / 2)
 

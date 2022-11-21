@@ -224,7 +224,7 @@ function t:update(dt)
     Consolas:update(dt)
 
 
-    t.camera:follow(rec:get_cx(), rec:get_cy())
+    t.camera:follow(rec:get_cx(), 0 + t.camera.offset_y1)
     t.camera:update(dt)
 
     if rec.x + rec.w > t.camera.bounds_right then
