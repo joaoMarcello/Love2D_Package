@@ -21,9 +21,9 @@ local function round(value)
 end
 
 local player = {
-    x = 700,
-    y = 0,
-    w = 64,
+    x = 600,
+    y = 100,
+    w = 30,
     h = 32,
     speed = 32 * 7,
     get_cx = function(self) return self.x + self.w / 2 end,
@@ -72,6 +72,7 @@ function main:load()
     main.camera = Camera:new(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 1)
     main.camera:set_offset_x(SCREEN_WIDTH * 0.5)
     main.camera:set_offset_y(SCREEN_HEIGHT * 0.5)
+    main.camera:look_at(player:get_cx() + 300, player:get_cy() + 100)
 end
 
 function main:update(dt)
@@ -104,7 +105,7 @@ function main:draw()
 
         love.graphics.setColor(0, 1, 0, 1)
         love.graphics.rectangle("fill", -300, camera.bounds_bottom - 2, 3000, 2)
-        love.graphics.rectangle("fill", -300, camera.bounds_top + 2, 3000, 2)
+        love.graphics.rectangle("fill", -300, camera.bounds_top, 3000, 2)
         love.graphics.rectangle("fill", camera.bounds_left, camera.bounds_top, 2, 3000)
         love.graphics.rectangle("fill", camera.bounds_right - 2, camera.bounds_top, 2, 3000)
     end

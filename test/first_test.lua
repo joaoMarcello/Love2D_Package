@@ -29,7 +29,7 @@ local monica_idle_normal = Anima:new({
     duration = 0.5,
     height = 64,
     ref_height = 64,
-    -- amount_cycle = 2
+    amount_cycle = 2
 })
 
 local my_effect = EffectManager:generate_effect("idle", { color = { 0.9, 0.9, 0.9, 1 } })
@@ -96,6 +96,28 @@ monica_idle_blink:set_custom_action(
 
 local rec
 
+local function collision(x1, y1, w1, h1, x2, y2, w2, h2)
+    return x1 + w1 > x2
+        and x1 < x2 + w2
+        and y1 + h1 > y2
+        and y1 < y2 + h2
+end
+
+local rects = {
+    { x = 0, y = 32 * 10, w = 32 * 50, h = 32 * 2 },
+    { x = 32 * 16, y = 32 * 7, w = 32 * 4, h = 32 * 3 },
+    { x = 32 * 20, y = 32 * 4, w = 32 * 4, h = 32 * 3 },
+    { x = 32 * 24, y = 32 * 1, w = 32 * 4, h = 32 * 3 },
+}
+
+local function check_collision(x, y, w, h)
+    for _, rec in ipairs(rects) do
+        if collision(x, y, w, h, rec.x, rec.y, rec.w, rec.h) then
+            return rec
+        end
+    end
+end
+
 function t:load()
     love.graphics.setDefaultFilter("nearest", "nearest")
 
@@ -133,6 +155,9 @@ function t:load()
         end,
         get_cy = function(self)
             return self.y + self.h / 2
+        end,
+        rect = function(self)
+            return self.x, self.y, self.w, self.h
         end
     }
     rec.y = SCREEN_HEIGHT - rec.h - 64
@@ -204,7 +229,11 @@ function t:update(dt)
         if rec.direction < 0 and rec.speed_x > 0 then rec.speed_x = 0 end
     end
 
+    local temp = rec.y
     rec.y = rec.y + rec.speed_y * dt + (rec.gravity * dt * dt) / 2
+    if temp == rec.y then
+
+    end
     rec.speed_y = rec.speed_y + rec.gravity * dt
 
     if rec.jump and rec.speed_y < 0 and not love.keyboard.isDown("space") then
@@ -213,8 +242,32 @@ function t:update(dt)
 
     if rec.speed_y > 0 and rec.y + rec.h + 5 >= SCREEN_HEIGHT - 64 then
         rec.y = SCREEN_HEIGHT - 64 - rec.h
+        -- rec.speed_y = 0
+        -- rec.jump = false
+    end
+
+    local obj
+    local rx, ry, rw, rh = rec:rect()
+    obj = rec.speed_y >= 0 and check_collision(rx, ry, rw, rh + 10)
+    if obj then
+        rec.y = obj.y - rec.h - 1
         rec.speed_y = 0
         rec.jump = false
+        obj = nil
+    end
+
+    obj = rec.speed_x >= 0 and check_collision(rx, ry, rw + 3, rh)
+    if obj then
+        rec.x = obj.x - rec.w
+        rec.speed_x = 0
+        obj = nil
+    end
+
+    obj = rec.speed_x <= 0 and check_collision(rx - 3, ry, rw, rh)
+    if obj then
+        rec.speed_x = 0
+        rec.x = obj.x + obj.w
+        obj = nil
     end
 
     rec.x = round(rec.x)
@@ -224,7 +277,7 @@ function t:update(dt)
     Consolas:update(dt)
 
 
-    t.camera:follow(rec:get_cx(), 0 + t.camera.offset_y1)
+    t.camera:follow(rec:get_cx(), rec:get_cy()) -- 0 + t.camera.offset_y
     t.camera:update(dt)
 
     if rec.x + rec.w > t.camera.bounds_right then
@@ -355,6 +408,11 @@ function t:draw()
 
     for i = 1, 16 do
         love.graphics.line(-32 * 45, SCREEN_HEIGHT - 32 * (i - 1), SCREEN_WIDTH * 3, SCREEN_HEIGHT - 32 * (i - 1))
+    end
+
+    graph_set_color(0, 0, 0, 0.5)
+    for i = 1, #rects do
+        graph_rect("fill", rects[i].x, rects[i].y, rects[i].w, rects[i].h)
     end
 
     graph_set_color(1, 0, 0, 0.7)
