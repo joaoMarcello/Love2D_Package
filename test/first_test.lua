@@ -104,7 +104,7 @@ local function collision(x1, y1, w1, h1, x2, y2, w2, h2)
 end
 
 local rects = {
-    { x = 0, y = 32 * 10, w = 32 * 50, h = 32 * 2 },
+    { x = 0, y = 32 * 10, w = 32 * 30, h = 32 * 2 },
     { x = 32 * 16, y = 32 * 7, w = 32 * 4, h = 32 * 3 },
     { x = 32 * 20, y = 32 * 4, w = 32 * 4, h = 32 * 3 },
     { x = 32 * 24, y = 32 * 1, w = 32 * 4, h = 32 * 3 },
@@ -123,7 +123,7 @@ function t:load()
 
     rec = {
         x = 450,
-        y = SCREEN_HEIGHT - 120 - 64,
+        y = -100,
         w = 28,
         h = 58,
         jump = false,
@@ -160,17 +160,18 @@ function t:load()
             return self.x, self.y, self.w, self.h
         end
     }
-    rec.y = SCREEN_HEIGHT - rec.h - 64
+    rec.y = 0
 
     t.camera = Camera:new(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 1)
     t.camera:set_offset_x(32 * 8)
+    t.camera:set_offset_y(SCREEN_HEIGHT * 0.5)
 end
 
 function t:keypressed(key)
     if key == "space" then
         if not rec.jump then
             rec.jump = true
-            rec.speed_y = -math.sqrt(2 * rec.gravity * 32 * 3.5)
+            rec.speed_y = -math.sqrt(2 * rec.gravity * 32 * 10)
         end
     end
 end
@@ -229,26 +230,27 @@ function t:update(dt)
         if rec.direction < 0 and rec.speed_x > 0 then rec.speed_x = 0 end
     end
 
-    local temp = rec.y
     rec.y = rec.y + rec.speed_y * dt + (rec.gravity * dt * dt) / 2
-    if temp == rec.y then
-
-    end
     rec.speed_y = rec.speed_y + rec.gravity * dt
 
     if rec.jump and rec.speed_y < 0 and not love.keyboard.isDown("space") then
-        rec.speed_y = 0
+        rec.speed_y = math.sqrt(2 * rec.gravity * 1)
     end
 
     if rec.speed_y > 0 and rec.y + rec.h + 5 >= SCREEN_HEIGHT - 64 then
-        rec.y = SCREEN_HEIGHT - 64 - rec.h
+        -- rec.y = SCREEN_HEIGHT - 64 - rec.h
         -- rec.speed_y = 0
         -- rec.jump = false
     end
 
+    if rec.y + rec.h > t.camera.bounds_bottom then
+        rec.y = t.camera.bounds_bottom - rec.h
+        rec.jump = nil
+    end
+
     local obj
     local rx, ry, rw, rh = rec:rect()
-    obj = rec.speed_y >= 0 and check_collision(rx, ry, rw, rh + 10)
+    obj = rec.speed_y >= 0 and check_collision(rx, ry, rw, rh + 32)
     if obj then
         rec.y = obj.y - rec.h - 1
         rec.speed_y = 0
@@ -403,11 +405,11 @@ function t:draw()
     graph_set_color(0, 0, 0, 0.1)
     for i = 1, 300 do
         local x = -32 * 45 + 32 * (i - 1)
-        love.graphics.line(x, 0, x, SCREEN_HEIGHT)
+        love.graphics.line(x, 0, x, SCREEN_HEIGHT * 50)
     end
 
-    for i = 1, 16 do
-        love.graphics.line(-32 * 45, SCREEN_HEIGHT - 32 * (i - 1), SCREEN_WIDTH * 3, SCREEN_HEIGHT - 32 * (i - 1))
+    for i = 1, 100 do
+        love.graphics.line(-32 * 1, 32 * (i - 1), SCREEN_WIDTH * 50, 32 * (i - 1))
     end
 
     graph_set_color(0, 0, 0, 0.5)

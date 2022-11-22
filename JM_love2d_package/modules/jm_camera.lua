@@ -71,11 +71,13 @@ function Camera:__constructor__(x, y, w, h, scale)
 
     self.bounds_left = 0 ---32 * 6
     self.bounds_top = -32 * 8
-    self.bounds_right = self.viewport_w + 32 * 10 --32 * 60
-    self.bounds_bottom = self.viewport_h --+ 32 * 8
+    self.bounds_right = self.viewport_w + 32 * 60
+    self.bounds_bottom = self.viewport_h + 32 * 60
     self:set_bounds()
 
     self.follow_speed_x = (32 * 8)
+    self.follow_speed_y = (32 * 8)
+
     self.follow_acc = 32 * 3
 
     self.delay_x = 1
@@ -216,15 +218,13 @@ function Camera:follow(x, y)
 
 
     target.angle_x = atan2(
-        self:type_horizontal() == 5 and 0
-        or target_distance_y,
+        target_distance_y,
         target_distance_x
     )
 
     target.angle_y = atan2(
         target_distance_y,
-        self:type_vertical() == 5 and 0
-        or target_distance_x
+        target_distance_x
     )
 end
 
@@ -338,7 +338,7 @@ local function chase_target(camera, dt, chase_x_axis, chase_y_axis)
                 sin_r = sin_r / abs(sin_r)
             end
 
-            self:move(nil, self.follow_speed_x * dt * sin_r)
+            self:move(nil, self.follow_speed_y * dt * sin_r)
 
             self:move(nil, abs(target.range_y) * sin_r * self.delay_y)
 
@@ -472,9 +472,16 @@ local function platformer_update(self, dt)
     -- dynamic_y_axis_logic(self, dt)
     dynamic_x_axis_logic(self, dt)
 
-    if self.target.direction_y == 0 then
-        chase_target(self, dt, nil, true)
+    local bottom = self:__y_to_camera(self.y + self.deadzone_h / 2)
+    local cy = self:__y_to_camera(self.target.y)
+
+    if self.target.direction_y == 0 or cy > bottom then
+        self.follow_speed_y = self.follow_speed_y + 32 * 15 * dt
+        chase_target(self, dt, false, true)
+    else
+        self.follow_speed_y = 0
     end
+
 end
 
 ---@param self JM.Camera.Camera

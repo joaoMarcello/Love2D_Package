@@ -71,7 +71,7 @@ function main:load()
 
     main.camera = Camera:new(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 1)
     main.camera:set_offset_x(SCREEN_WIDTH * 0.5)
-    main.camera:set_offset_y(SCREEN_HEIGHT * 0.5)
+    main.camera:set_offset_y(SCREEN_HEIGHT * 0.2)
     main.camera:look_at(player:get_cx() + 300, player:get_cy() + 100)
 end
 
@@ -79,7 +79,7 @@ function main:update(dt)
     local camera = self.camera
 
     player:update(dt, camera)
-    camera:follow(player:get_cx(), player:get_cy())
+    -- camera:follow(player:get_cx(), player:get_cy())
     camera:update(dt)
 end
 
