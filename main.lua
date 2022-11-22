@@ -54,11 +54,11 @@ local shadercode = [[
     vec4 effect( vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords )
 {
     vec4 pix = Texel(texture, texture_coords);
-    if (pix.r == 1 && pix.g == 0 && pix.b == 1){
+    if ( (pix.r == 1 && pix.g == 0 && pix.b == 1) || (pix.r == 1 && pix.g == 1 && pix.b == 0)){
         return vec4(0, 0, 0, 0);
     }
     else{
-        return vec4(pix[0], pix[1], pix[2], 1);
+        return pix;//return vec4(pix[0]*0.3, pix[1]*0.3, pix[2]*0.3, 1);
     }
 }
   ]]
@@ -66,8 +66,15 @@ local my_shader = love.graphics.newShader(shadercode)
 
 function love.draw()
 
+    love.graphics.setColor(130 / 255, 221 / 255, 255 / 255)
+    love.graphics.rectangle("fill", pos_x, pos_y, SCREEN_WIDTH * SCALE, SCREEN_HEIGHT * SCALE)
+
     set_canvas(canvas)
     grap_clear(0, 0, 0, 0)
+
+    -- love.graphics.setColor(1, 1, 0, 1)
+    -- love.graphics.rectangle("fill", 0, 0, SCREEN_WIDTH * SCALE, SCREEN_HEIGHT * SCALE)
+
     set_blend_mode("alpha")
 
     local r = current_test.draw and current_test:draw()
@@ -75,7 +82,7 @@ function love.draw()
     set_canvas()
     -----------------------------------------------------------------------
 
-    -- love.graphics.setShader(my_shader)
+    love.graphics.setShader(my_shader)
 
     grap_set_color(1, 1, 1, 1)
     set_blend_mode("alpha", "premultiplied")
@@ -86,6 +93,4 @@ function love.draw()
         scale, scale)
 
     love.graphics.setShader()
-
-
 end

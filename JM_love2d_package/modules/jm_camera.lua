@@ -32,17 +32,17 @@ local MOVEMENTS_TYPES = {
 local Camera = {}
 
 ---@return JM.Camera.Camera
-function Camera:new(x, y, w, h, scale)
+function Camera:new(x, y, w, h)
     local obj = {}
     setmetatable(obj, self)
     self.__index = self
 
-    Camera.__constructor__(obj, x, y, w, h, scale)
+    Camera.__constructor__(obj, x, y, w, h)
 
     return obj
 end
 
-function Camera:__constructor__(x, y, w, h, scale)
+function Camera:__constructor__(x, y, w, h)
 
     self.viewport_x = 0
     self.viewport_y = 0

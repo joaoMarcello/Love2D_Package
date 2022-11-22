@@ -162,7 +162,7 @@ function t:load()
     }
     rec.y = 0
 
-    t.camera = Camera:new(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 1)
+    t.camera = Camera:new(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
     t.camera:set_offset_x(32 * 8)
     t.camera:set_offset_y(t.camera.viewport_h * 0.3)
 end
@@ -323,11 +323,11 @@ local shadercode2 = [[
         return vec4(0, 0, 0, 0);
     }
     else{
-        return vec4(pix[0], pix[1], pix[2], pix[3]);
+        return pix;
     }
 }
   ]]
-local my_shader2 = love.graphics.newShader(shadercode2)
+local pink_to_none = love.graphics.newShader(shadercode2)
 
 local myShader = love.graphics.newShader(shadercode)
 local graph_set_color = love.graphics.setColor
@@ -368,8 +368,8 @@ end
 
 function t:draw()
 
-    graph_set_color(130 / 255, 221 / 255, 255 / 255)
-    graph_rect("fill", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
+    -- graph_set_color(130 / 255, 221 / 255, 255 / 255)
+    -- graph_rect("fill", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
 
     t.camera:attach()
 
@@ -388,14 +388,13 @@ function t:draw()
         -- graph_rect("fill", 0, SCREEN_HEIGHT - 64, SCREEN_WIDTH, 8)
     end
 
-
-
     graph_set_color(1, 0, 1, 0.9)
     graph_rect("line", rec.x, rec.y, rec.w, rec.h)
 
     current_animation:draw_rec(math.floor(rec.x), math.floor(rec.y), rec.w, rec.h)
 
-    -- love.graphics.setShader(myShader)
+    -- love.graphics.setShader(pink_to_none)
+
     for i = 1, 2 do
         for j = 0, 35 do
             if i == 1 and j == 0 then
@@ -423,10 +422,13 @@ function t:draw()
             end
         end
     end
-    love.graphics.setShader()
 
-    -- love.graphics.setColor(1, 0, 1, 1)
-    -- love.graphics.circle("fill", rec:get_cx(), rec:get_cy(), 50)
+    love.graphics.setColor(1, 0, 0, 1)
+    love.graphics.circle("fill", rec:get_cx(), rec:get_cy(), 130)
+    love.graphics.setColor(1, 0, 1, 1)
+    love.graphics.circle("fill", rec:get_cx(), rec:get_cy(), 128)
+    current_animation:draw_rec(math.floor(rec.x), math.floor(rec.y), rec.w, rec.h)
+
 
     -- graph_set_color(0, 0, 0, 0)
     -- love.graphics.setShader(my_shader2)
@@ -449,9 +451,9 @@ function t:draw()
     end
 
     for i = 1, #rects do
-        graph_set_color(1, 0, 0, 0.9)
+        graph_set_color(1, 0.1, 0.1, 1)
         graph_rect("line", rects[i].x, rects[i].y, rects[i].w, rects[i].h)
-        graph_set_color(0, 0, 0, 0.2)
+        graph_set_color(0, 0, 0, 0)
         graph_rect("fill", rects[i].x, rects[i].y, rects[i].w, rects[i].h)
     end
 
@@ -471,7 +473,6 @@ function t:draw()
     )
 
     t.camera:detach()
-
 
     Consolas:push()
     Consolas:set_font_size(14)

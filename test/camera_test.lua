@@ -69,7 +69,7 @@ local player = {
 function main:load()
     love.graphics.setDefaultFilter("nearest", "nearest")
 
-    main.camera = Camera:new(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 1)
+    main.camera = Camera:new(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
     main.camera:set_offset_x(SCREEN_WIDTH * 0.5)
     main.camera:set_offset_y(SCREEN_HEIGHT * 0.2)
     main.camera:look_at(player:get_cx() + 300, player:get_cy() + 100)
