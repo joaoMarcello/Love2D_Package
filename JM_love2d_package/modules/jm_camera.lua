@@ -70,13 +70,16 @@ function Camera:__constructor__(x, y, w, h, scale)
     self.deadzone_h = 32 * 1.5
 
     self.bounds_left = 0 ---32 * 6
-    self.bounds_top = -32 * 8
+    self.bounds_top = -0
     self.bounds_right = self.viewport_w + 32 * 60
-    self.bounds_bottom = self.viewport_h + 32 * 60
+    self.bounds_bottom = self.viewport_h
     self:set_bounds()
 
-    self.follow_speed_x = (32 * 8)
+    self.follow_speed_x = (32 * 9)
     self.follow_speed_y = (32 * 8)
+
+    self.acc_x = 32 * 5
+    self.acc_y = 32 * 5
 
     self.follow_acc = 32 * 3
 
@@ -177,6 +180,7 @@ end
 
 function Camera:follow(x, y)
     if not self.target then self.target = {} end
+
     local target = self.target or {}
 
     x = x - self.offset_x / self.scale
@@ -298,7 +302,15 @@ function Camera:point_is_on_screen(x, y)
     return self:rect_is_on_screen(x, x, y, y)
 end
 
---- Moves the camera position until reaches the target position.
+function Camera:is_locked_in_x()
+    return self.lock_x
+end
+
+function Camera:is_locked_in_y()
+    return self.lock_y
+end
+
+--- Moves the camera's position until reaches the target's position.
 ---@param camera JM.Camera.Camera
 local function chase_target(camera, dt, chase_x_axis, chase_y_axis)
     local self = camera
@@ -312,6 +324,7 @@ local function chase_target(camera, dt, chase_x_axis, chase_y_axis)
 
             if self.y <= self.bounds_top
                 or self.y >= self.bounds_bottom - self.viewport_h / self.scale
+                or not self:point_is_on_screen(target.x, target.y)
             then
                 cos_r = cos_r / abs(cos_r)
             end
@@ -334,6 +347,7 @@ local function chase_target(camera, dt, chase_x_axis, chase_y_axis)
 
             if self.x <= self.bounds_left
                 or self.x >= self.bounds_right - self.viewport_w / self.scale
+                or not self:point_is_on_screen(target.x, target.y)
             then
                 sin_r = sin_r / abs(sin_r)
             end
@@ -361,16 +375,18 @@ local function chase_target(camera, dt, chase_x_axis, chase_y_axis)
     -- end
 end
 
-function Camera:is_locked_in_x()
-    return self.lock_x
-end
-
-function Camera:is_locked_in_y()
-    return self.lock_y
+---@param self JM.Camera.Camera
+local function chase_target_y(self, dt)
+    return chase_target(self, dt, nil, true)
 end
 
 ---@param self JM.Camera.Camera
-local function dynamic_x_axis_logic(self, dt)
+local function chase_target_x(self, dt)
+    return chase_target(self, dt, true)
+end
+
+---@param self JM.Camera.Camera
+local function dynamic_x_offset(self, dt)
     if not self.target then return end
 
     local target = self.target or {}
@@ -382,7 +398,7 @@ local function dynamic_x_axis_logic(self, dt)
     local move_right_offset = move_left_offset == right_focus and left_focus or right_focus
 
     if not self:is_locked_in_x() then
-        local objective = chase_target(self, dt, true)
+        local objective = chase_target_x(self, dt)
 
         self:lock_x_axis(objective
             and target.direction_x ~= target.last_direction_x
@@ -413,19 +429,19 @@ local function dynamic_x_axis_logic(self, dt)
 end
 
 ---@param self JM.Camera.Camera
-local function dynamic_y_axis_logic(self, dt)
+local function dynamic_y_offset(self, dt)
     if not self.target then return end
 
     local target = self.target or {}
     local deadzone_h = self.deadzone_h / self.scale
     local top_focus = self.viewport_h * 0.3
-    local bottom_focus = self.viewport_h * 0.2
+    local bottom_focus = self.viewport_h * 0.6
 
-    local move_up = top_focus > bottom_focus and top_focus or bottom_focus
-    local move_down = move_up == top_focus and bottom_focus or top_focus
+    local top_offset = top_focus > bottom_focus and top_focus or bottom_focus
+    local bottom_offset = top_offset == top_focus and bottom_focus or top_focus
 
     if not self:is_locked_in_y() then
-        local objective = chase_target(self, dt, false, true)
+        local objective = chase_target_y(self, dt)
 
         self:lock_y_axis(objective
             and target.direction_y ~= target.last_direction_y
@@ -452,44 +468,58 @@ local function dynamic_y_axis_logic(self, dt)
     end
 
     if self.target.direction_y < 0 and not self.lock_y then
-        self:set_offset_y(move_up)
+        self:set_offset_y(top_offset)
     elseif self.target.direction_y > 0 and not self.lock_y then
-        self:set_offset_y(move_down)
+        self:set_offset_y(bottom_offset)
     end
 end
 
--- dynamic_y_axis_logic({})
+---@param self JM.Camera.Camera
+local function chase_y_when_not_moving(self, dt)
+    if not self.target then return end
 
+    --- parameters
+    local target = self.target or {}
+    local acc = 32 * 15
+    self.deadzone_h = 100
+    local deadzone_height = self.deadzone_h / 2
+    local top_limit = self:__y_to_camera(self.viewport_h * 0.2)
+    local delay = 1
+    self.delay_y = delay
+
+    local bottom = self:__y_to_camera(self.y + deadzone_height)
+    local cy = self:__y_to_camera(target.y)
+
+    if target.direction_y == 0
+        or target.y + self.offset_y / self.scale < top_limit
+    then
+        self.follow_speed_y = self.follow_speed_y + acc * dt
+        chase_target_y(self, dt)
+    else
+        self.follow_speed_y = 0
+    end
+
+    if cy > bottom then
+        self:set_position(nil, target.y - deadzone_height)
+    end
+end
+
+-- chase_y_when_not_falling({})
 
 ---@param self JM.Camera.Camera
 local function platformer_update(self, dt)
     if not self.target then return end
 
-    self.follow_speed_x = 32 * 6
+    -- self.follow_speed_x = 32 * 6
+    -- self.follow_speed_y = 32 * 4
     self.delay_x = 1
     self.delay_y = 1
 
-    -- dynamic_y_axis_logic(self, dt)
-    dynamic_x_axis_logic(self, dt)
-
-    local bottom = self:__y_to_camera(self.y + self.deadzone_h / 2)
-    local cy = self:__y_to_camera(self.target.y)
-
-    if self.target.direction_y == 0 or cy > bottom then
-        self.follow_speed_y = self.follow_speed_y + 32 * 15 * dt
-        chase_target(self, dt, false, true)
-    else
-        self.follow_speed_y = 0
-    end
-
-end
-
----@param self JM.Camera.Camera
-local function metroidvania_update(self, dt)
-    if self.target then
-        self.offset_x = self.viewport_w * 0.5
-        self:set_position(self.target.x)
-    end
+    dynamic_x_offset(self, dt)
+    -- chase_target_x(self, dt)
+    -- chase_target_y(self, dt)
+    -- dynamic_y_offset(self, dt)
+    chase_y_when_not_moving(self, dt)
 end
 
 function Camera:update(dt)
@@ -530,6 +560,9 @@ function Camera:update(dt)
 end
 
 function Camera:attach()
+
+    love.graphics.setScissor(0, 0, self.viewport_w, self.viewport_h)
+
     love_push()
     love_scale(self.scale, self.scale)
     love_translate(-self.x, -self.y)
@@ -545,6 +578,7 @@ end
 
 function Camera:detach()
     love_pop()
+    love.graphics.setScissor()
 
     if not self.debug then return end
 
@@ -571,6 +605,13 @@ function Camera:detach()
     love.graphics.rectangle("fill", self.offset_x - self.deadzone_w / 2, 0, 2, self.viewport_h)
     love.graphics.rectangle("fill", 0, self.offset_y - self.deadzone_h / 2, self.viewport_w, 2)
     love.graphics.rectangle("fill", 0, self.offset_y + self.deadzone_h / 2, self.viewport_w, 2)
+
+    love.graphics.setColor(1, 0, 0, 1)
+    love.graphics.rectangle("fill", 0, 0, 2, self.viewport_h)
+    love.graphics.rectangle("fill", self.viewport_w - 2, 0, 2, self.viewport_h)
+    love.graphics.rectangle("fill", 0, 0, self.viewport_w, 2)
+    love.graphics.rectangle("fill", 0, self.viewport_h - 2, self.viewport_w, 2)
+
 end
 
 return Camera

@@ -41,14 +41,28 @@ function love.keyreleased(key)
 end
 
 local scale = love.graphics.getHeight() / (SCREEN_HEIGHT)
-scale = 1.7
+scale = 1.55
 local pos_y = math.floor(love.graphics.getHeight() / 2 - SCREEN_HEIGHT * scale / 2)
 local pos_x = math.floor(love.graphics.getWidth() / 2 - SCREEN_WIDTH * scale / 2)
 
-pos_x, pos_y = 75, 75
+pos_x, pos_y = 300, 75
 SCALE = scale
 POS_X = pos_x
 POS_Y = pos_y
+
+local shadercode = [[
+    vec4 effect( vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords )
+{
+    vec4 pix = Texel(texture, texture_coords);
+    if (pix.r == 1 && pix.g == 0 && pix.b == 1){
+        return vec4(0, 0, 0, 0);
+    }
+    else{
+        return vec4(pix[0], pix[1], pix[2], 1);
+    }
+}
+  ]]
+local my_shader = love.graphics.newShader(shadercode)
 
 function love.draw()
 
@@ -61,6 +75,8 @@ function love.draw()
     set_canvas()
     -----------------------------------------------------------------------
 
+    -- love.graphics.setShader(my_shader)
+
     grap_set_color(1, 1, 1, 1)
     set_blend_mode("alpha", "premultiplied")
     grap_draw(canvas,
@@ -68,5 +84,8 @@ function love.draw()
         pos_y,
         0,
         scale, scale)
+
+    love.graphics.setShader()
+
 
 end

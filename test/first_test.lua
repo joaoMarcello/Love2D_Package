@@ -164,14 +164,14 @@ function t:load()
 
     t.camera = Camera:new(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 1)
     t.camera:set_offset_x(32 * 8)
-    t.camera:set_offset_y(SCREEN_HEIGHT * 0.5)
+    t.camera:set_offset_y(t.camera.viewport_h * 0.3)
 end
 
 function t:keypressed(key)
     if key == "space" then
         if not rec.jump then
             rec.jump = true
-            rec.speed_y = -math.sqrt(2 * rec.gravity * 32 * 10)
+            rec.speed_y = -math.sqrt(2 * rec.gravity * 32 * 3.5)
         end
     end
 end
@@ -250,7 +250,7 @@ function t:update(dt)
 
     local obj
     local rx, ry, rw, rh = rec:rect()
-    obj = rec.speed_y >= 0 and check_collision(rx, ry, rw, rh + 32)
+    obj = rec.speed_y >= 0 and check_collision(rx, ry, rw, rh + 15)
     if obj then
         rec.y = obj.y - rec.h - 1
         rec.speed_y = 0
@@ -305,10 +305,29 @@ end
 local shadercode = [[
     vec4 effect( vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords )
 {
-    vec4 c = Texel(texture, texture_coords); // This reads a color from our texture at the coordinates LOVE gave us (0-1, 0-1)
-    return vec4(1.0, 0.0, 0.0, 1.0);
+    vec4 pix = Texel(texture, texture_coords);
+    if (pix.a != 0){
+        return vec4(0, 0, 1, 1);
+    }
+    else{
+        return pix;
+    }
 }
   ]]
+
+local shadercode2 = [[
+    vec4 effect( vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords )
+{
+    vec4 pix = Texel(texture, texture_coords);
+    if (pix.r == 1 && pix.g == 0 && pix.b == 1){
+        return vec4(0, 0, 0, 0);
+    }
+    else{
+        return vec4(pix[0], pix[1], pix[2], pix[3]);
+    }
+}
+  ]]
+local my_shader2 = love.graphics.newShader(shadercode2)
 
 local myShader = love.graphics.newShader(shadercode)
 local graph_set_color = love.graphics.setColor
@@ -318,33 +337,40 @@ local tile = {}
 tile.img = love.graphics.newImage("/data/groundTile.png")
 tile.size = 50
 tile.scale = 32 / 50
+tile.global_q = love.graphics.newQuad(0, 0, 50, 50, tile.img:getWidth(), tile.img:getHeight())
 tile.quads = {}
 for i = 1, 4 do
     tile.quads[i] = {}
     for j = 1, 4 do
-        tile.quads[i][j] = love.graphics.newQuad(
-            (i - 1) * tile.size,
-            (j - 1) * tile.size,
-            50, 50,
-            tile.img:getWidth(),
-            tile.img:getHeight()
-        )
+        tile.quads[i][j] = {}
+        tile.quads[i][j].x = (i - 1) * tile.size
+        tile.quads[i][j].y = (j - 1) * tile.size
+
+        -- tile.quads[i][j] = love.graphics.newQuad(
+        --     (i - 1) * tile.size,
+        --     (j - 1) * tile.size,
+        --     50, 50,
+        --     tile.img:getWidth(),
+        --     tile.img:getHeight()
+        -- )
     end
 end
 
 tile.draw = function(self, i, j, x, y)
-    local quad = tile.quads[i][j]
+    local quad = tile.global_q
+    -- local quad = tile.quads[i][j]
+
+    quad:setViewport(tile.quads[i][j].x, tile.quads[i][j].y, 50, 50, tile.img:getWidth(), tile.img:getHeight())
+
     love.graphics.setColor(1, 1, 1, 1)
     love.graphics.draw(self.img, quad, x, y, 0, self.scale, self.scale, 0, 0)
 end
 
 function t:draw()
+
     graph_set_color(130 / 255, 221 / 255, 255 / 255)
     graph_rect("fill", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
 
-    -- love.graphics.push()
-    -- local value = -(rec.x) + math.floor(SCREEN_WIDTH * 0.25)
-    -- love.graphics.translate(value, 0)
     t.camera:attach()
 
     do
@@ -362,14 +388,14 @@ function t:draw()
         -- graph_rect("fill", 0, SCREEN_HEIGHT - 64, SCREEN_WIDTH, 8)
     end
 
-    -- love.graphics.setShader(myShader)
-    current_animation:draw_rec(math.floor(rec.x), math.floor(rec.y), rec.w, rec.h)
-    love.graphics.setShader()
+
 
     graph_set_color(1, 0, 1, 0.9)
     graph_rect("line", rec.x, rec.y, rec.w, rec.h)
 
+    current_animation:draw_rec(math.floor(rec.x), math.floor(rec.y), rec.w, rec.h)
 
+    -- love.graphics.setShader(myShader)
     for i = 1, 2 do
         for j = 0, 35 do
             if i == 1 and j == 0 then
@@ -397,6 +423,16 @@ function t:draw()
             end
         end
     end
+    love.graphics.setShader()
+
+    -- love.graphics.setColor(1, 0, 1, 1)
+    -- love.graphics.circle("fill", rec:get_cx(), rec:get_cy(), 50)
+
+    -- graph_set_color(0, 0, 0, 0)
+    -- love.graphics.setShader(my_shader2)
+    -- graph_rect("fill", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
+    -- current_animation:draw_rec(math.floor(rec.x), math.floor(rec.y), rec.w, rec.h)
+    -- love.graphics.setShader()
 
     graph_set_color(0, 0, 0, 0.5)
     graph_rect("fill", 32 * 34, 32 * 4, 32, 32)
@@ -412,8 +448,10 @@ function t:draw()
         love.graphics.line(-32 * 1, 32 * (i - 1), SCREEN_WIDTH * 50, 32 * (i - 1))
     end
 
-    graph_set_color(0, 0, 0, 0.5)
     for i = 1, #rects do
+        graph_set_color(1, 0, 0, 0.9)
+        graph_rect("line", rects[i].x, rects[i].y, rects[i].w, rects[i].h)
+        graph_set_color(0, 0, 0, 0.2)
         graph_rect("fill", rects[i].x, rects[i].y, rects[i].w, rects[i].h)
     end
 
@@ -439,10 +477,11 @@ function t:draw()
     Consolas:set_font_size(14)
     Consolas:print("--goomba--Mônica and friends", 10, 10)
     local mp = tostring(love.mouse.getX()) .. " - " .. tostring(love.mouse.getY())
-    Consolas:print(tostring(mp), 10, 40)
-    Consolas:print(tostring(mx2) .. " - " .. tostring(my2), 100, 55)
-    Consolas:print("p:" .. tostring(point_on_screen), 200, 100)
+    -- Consolas:print(tostring(mp), 10, 40)
+    -- Consolas:print(tostring(mx2) .. " - " .. tostring(my2), 100, 55)
+    -- Consolas:print("p:" .. tostring(point_on_screen), 200, 100)
     Consolas:pop()
+
 end
 
 return t
