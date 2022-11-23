@@ -26,9 +26,12 @@ local sin, cos, atan2, sqrt, abs = math.sin, math.cos, math.atan2, math.sqrt, ma
 
 ---@enum JM.Camera.Type
 local CAMERA_TYPES = {
-    platform = 1,
-    metroidvania = 2,
-    top_view = 3
+    Free = 0,
+    SuperMarioWorld = 1,
+    Metroid = 2,
+    SuperMarioBros = 3,
+    Zelda_ALTTP = 4,
+    Zelda_GBC = 5
 }
 
 ---@class JM.Camera.Camera
@@ -36,27 +39,39 @@ local Camera = {}
 
 ---@param self JM.Camera.Camera
 ---@return JM.Camera.Camera
-function Camera:new(x, y, w, h)
+function Camera:new(args)
     local obj = {}
     setmetatable(obj, self)
     self.__index = self
 
-    Camera.__constructor__(obj, x, y, w, h)
+    Camera.__constructor__(obj, args.x, args.y, args.w, args.h,
+        args.bounds, args.canvas_width, args.canvas_height,
+        args.tile_size, args.color
+    )
 
     return obj
 end
 
-function Camera:__constructor__(x, y, w, h)
-
-    self.viewport_x = 0
-    self.viewport_y = 0
-    self.viewport_w = w or love.graphics.getWidth()
-    self.viewport_h = h or love.graphics.getHeight()
-
-    self.x = x or 0
-    self.y = y or 0
+function Camera:__constructor__(x, y, w, h, bounds, canvas_width, canvas_height, tile_size, color)
 
     self.scale = 1
+
+    self.viewport_x = x or 0
+    self.viewport_y = y or 0
+
+    self.canvas_width = canvas_width or love.graphics.getWidth()
+    self.canvas_height = canvas_height or love.graphics.getHeight()
+
+    self.viewport_w = w or self.canvas_width
+    self.viewport_w = self.viewport_w - self.viewport_x
+    self.viewport_h = h or self.canvas_height
+    self.viewport_h = self.viewport_h - self.viewport_y
+
+    self.tile_size = tile_size or 32
+
+    self.x = 0
+    self.y = 0
+
     self.angle = 0
 
     self.type = CAMERA_TYPES.top_view
@@ -70,30 +85,49 @@ function Camera:__constructor__(x, y, w, h)
     self.offset_x = 0
     self.offset_y = self.viewport_h * 0.5
 
-    self.deadzone_w = 32 * 1.5
-    self.deadzone_h = 32 * 1.5
+    self.deadzone_w = self.tile_size * 1.5
+    self.deadzone_h = self.tile_size * 1.5
 
-    self.bounds_left = -32 * 6
-    self.bounds_top = -32 * 10
-    self.bounds_right = self.viewport_w / self.scale + 32 * 60
-    self.bounds_bottom = self.viewport_h / self.scale + 32 * 0
+    self.bounds_left = bounds and bounds.left or -32 * 6
+    self.bounds_top = bounds and bounds.top or -32 * 10
+    self.bounds_right = bounds and bounds.right or self.viewport_w / self.scale + 32 * 60
+    self.bounds_bottom = bounds and bounds.bottom or self.viewport_h / self.scale + 32 * 0
     self:set_bounds()
 
     self.follow_speed_x = (32 * 9)
     self.follow_speed_y = (32 * 8)
 
-    self.acc_x = 32 * 5
-    self.acc_y = 32 * 5
+    self.acc_x = self.tile_size * 5
+    self.acc_y = self.tile_size * 5
 
-    self.follow_acc = 32 * 3
+    self.follow_acc = self.tile_size * 3
 
+    -- when delay equals 1, there's no delay
     self.delay_x = 1
-    self.delay_y = 0.2
+    self.delay_y = 1
 
     self.lock_x = false
     self.lock_y = false
 
-    self.debug = false
+    self.color = color and true or false
+    self.color_r = color and color[1] or 0.5
+    self.color_g = color and color[2] or 0.9
+    self.color_b = color and color[3] or 0.9
+    self.color_a = color and color[4] or 1
+
+    self.debug = true
+end
+
+function Camera:get_color()
+    return self.color_r, self.color_g, self.color_b, self.color_a
+end
+
+function Camera:set_background_color(r, g, b, a)
+    self.color = true
+    self.color_r = r or 0.5
+    self.color_g = g or 0
+    self.color_b = b or 0
+    self.color_a = a or 1
 end
 
 function Camera:set_type(s)
@@ -140,7 +174,7 @@ function Camera:follow(x, y)
 
     local target = self.target or {}
 
-    x = x - self.offset_x / self.scale
+    x = x - (self.offset_x) / self.scale
     y = y - self.offset_y / self.scale
 
     target.last_x = target.x or x
@@ -440,7 +474,7 @@ local function chase_y_when_not_moving(self, dt)
     --- parameters
     local target = self.target or {}
     local acc = 32 * 15
-    self.deadzone_h = 100
+    self.deadzone_h = self.tile_size * 3
     local deadzone_height = self.deadzone_h / 2
     local top_limit = self:__y_to_camera(self.viewport_h * 0.2)
     local delay = 1
@@ -458,7 +492,7 @@ local function chase_y_when_not_moving(self, dt)
         self.follow_speed_y = 0
     end
 
-    if cy > bottom then
+    if cy > bottom and target.direction_y == 1 then
         self:set_position(nil, target.y - deadzone_height)
     end
 end
@@ -521,13 +555,17 @@ end
 function Camera:attach()
 
     love_set_scissor(
-        self.viewport_x, self.viewport_y,
-        self.viewport_w, self.viewport_h
+        self.viewport_x,
+        self.viewport_y,
+        self.viewport_w,
+        self.viewport_h
     )
+
+    local r = self.color and love.graphics.clear(self:get_color())
 
     love_push()
     love_scale(self.scale, self.scale)
-    love_translate(-self.x, -self.y)
+    love_translate(-self.x + self.viewport_x / self.scale, -self.y + self.viewport_y / self.scale)
 end
 
 ---@param self JM.Camera.Camera
@@ -550,19 +588,25 @@ local function debbug(self)
     end
 
     love.graphics.setColor(0, 0, 0, 0.6)
-    love.graphics.rectangle("fill", self.offset_x, 0, 2, self.viewport_h)
-    love.graphics.rectangle("fill", 0, self.offset_y, self.viewport_w, 2)
+    love.graphics.rectangle("fill", self.viewport_x + self.offset_x, self.viewport_y, 2, self.viewport_h)
+    love.graphics.rectangle("fill", self.viewport_x, self.viewport_y + self.offset_y, self.viewport_w - self.viewport_x,
+        2)
     love.graphics.setColor(1, 1, 1, 0.5)
-    love.graphics.rectangle("fill", self.offset_x + self.deadzone_w / 2, 0, 2, self.viewport_h)
-    love.graphics.rectangle("fill", self.offset_x - self.deadzone_w / 2, 0, 2, self.viewport_h)
-    love.graphics.rectangle("fill", 0, self.offset_y - self.deadzone_h / 2, self.viewport_w, 2)
-    love.graphics.rectangle("fill", 0, self.offset_y + self.deadzone_h / 2, self.viewport_w, 2)
+    love.graphics.rectangle("fill", self.viewport_x + self.offset_x + self.deadzone_w / 2, self.viewport_y, 2,
+        self.viewport_h)
+    love.graphics.rectangle("fill", self.viewport_x + self.offset_x - self.deadzone_w / 2, self.viewport_y, 2,
+        self.viewport_h)
+    love.graphics.rectangle("fill", self.viewport_x, self.viewport_y + self.offset_y - self.deadzone_h / 2,
+        self.viewport_w - self.viewport_x, 2)
+    love.graphics.rectangle("fill", self.viewport_x, self.viewport_y + self.offset_y + self.deadzone_h / 2,
+        self.viewport_w - self.viewport_x, 2)
 
     love.graphics.setColor(1, 0, 0, 1)
-    love.graphics.rectangle("fill", 0, 0, 2, self.viewport_h)
-    love.graphics.rectangle("fill", self.viewport_w - 2, 0, 2, self.viewport_h)
-    love.graphics.rectangle("fill", 0, 0, self.viewport_w, 2)
-    love.graphics.rectangle("fill", 0, self.viewport_h - 2, self.viewport_w, 2)
+    love.graphics.rectangle("fill", self.viewport_x, self.viewport_y, 2, self.viewport_h)
+    love.graphics.rectangle("fill", self.viewport_x + self.viewport_w - 2, self.viewport_y, 2, self.viewport_h)
+    love.graphics.rectangle("fill", self.viewport_x, self.viewport_y, self.viewport_w, 2)
+    love.graphics.rectangle("fill", self.viewport_x, self.viewport_y + self.viewport_h - 2,
+        self.viewport_w, 2)
 end
 
 function Camera:detach()

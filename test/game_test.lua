@@ -33,7 +33,7 @@ local function round(value)
     end
 end
 
-local Game = Screen:new(100, 100)
+local Game = Screen:new(32, 32)
 local camera = Game.camera
 -- camera:set_bounds(nil, nil, -100, 32 * 60)
 
@@ -445,11 +445,11 @@ Game:set_draw_action(
             love.graphics.line(-32 * 1, 32 * (i - 1), Game.w * 50, 32 * (i - 1))
         end
 
-        love.graphics.setColor(1, 0, 0, 1)
-        love.graphics.circle("fill", rec:get_cx(), rec:get_cy(), 130)
-        love.graphics.setColor(1, 0, 1, 1)
-        love.graphics.circle("fill", rec:get_cx(), rec:get_cy(), 128)
-        current_animation:draw_rec(math.floor(rec.x), math.floor(rec.y), rec.w, rec.h)
+        -- love.graphics.setColor(1, 0, 0, 1)
+        -- love.graphics.circle("fill", rec:get_cx(), rec:get_cy(), 130)
+        -- love.graphics.setColor(1, 0, 1, 1)
+        -- love.graphics.circle("fill", rec:get_cx(), rec:get_cy(), 128)
+        -- current_animation:draw_rec(math.floor(rec.x), math.floor(rec.y), rec.w, rec.h)
 
         for i = 1, #rects do
             graph_set_color(1, 0.1, 0.1, 1)
