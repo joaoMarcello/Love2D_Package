@@ -37,7 +37,7 @@ function Screen:__constructor__(x, y, w, h)
     self.w = w or (1366 / 2) --love.graphics.getWidth()
     self.h = h or (768 / 2) --love.graphics.getHeight()
 
-    self.scale_x = 1
+    self.scale_x = 1.55
     self.scale_y = self.scale_x
 
     self.camera = Camera:new(0, 0, self.w, self.h)
@@ -111,6 +111,10 @@ function Screen:update(dt)
     return r
 end
 
+function Screen:set_shader(shader)
+    self.shader = shader
+end
+
 function Screen:draw()
     set_canvas(self.canvas)
     clear_screen(0, 0, 0, 0)
@@ -135,6 +139,8 @@ function Screen:draw()
 
     set_canvas()
     --============================================================
+    love.graphics.setShader(self.shader)
+
     set_color_draw(1, 1, 1, 1)
     set_blend_mode("alpha", "premultiplied")
     love_draw(self.canvas,
@@ -142,6 +148,8 @@ function Screen:draw()
         self.y,
         0,
         self.scale_x, self.scale_y)
+
+    love.graphics.setShader()
 
     return r
 end

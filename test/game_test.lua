@@ -170,9 +170,9 @@ Game:set_load_action(
         }
         rec.y = 0
 
-        Game.camera:look_at(rec.x, rec.y)
+        Game.camera:jump_to(rec.x, rec.y)
         Game.camera:set_offset_x(32 * 8)
-        Game.camera:set_offset_y(Game.camera.viewport_h * 0.3)
+        Game.camera:set_offset_y(Game.camera.viewport_h * 0.4)
     end
 )
 
@@ -355,6 +355,30 @@ tile.draw = function(self, i, j, x, y)
     love.graphics.draw(self.img, quad, x, y, 0, self.scale, self.scale, 0, 0)
 end
 
+
+local shadercode = [[
+    vec4 effect( vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords )
+{
+    vec4 pix = Texel(texture, texture_coords);
+    if ( (pix.r == 1 && pix.g == 0 && pix.b == 1) || (pix.r == 1 && pix.g == 1 && pix.b == 0)){
+        return vec4(0, 0, 0, 0);
+    }
+    else{
+        return pix;//return vec4(pix[0]*0.3, pix[1]*0.3, pix[2]*0.3, 1);
+    }
+}
+  ]]
+local my_shader = love.graphics.newShader(shadercode)
+
+Game:set_shader(my_shader)
+
+Game:set_background_draw(
+    function()
+        -- love.graphics.setColor(0, 0, 1, 1)
+        -- love.graphics.rectangle("fill", 0, 0, Game.w, Game.h)
+    end
+)
+
 Game:set_draw_action(
     function()
         do
@@ -439,6 +463,8 @@ Game:set_draw_action(
         mx, my = Game:to_world(mx, my)
         mx, my = Game.camera:to_camera(mx, my)
         love.graphics.rectangle("fill", mx, my, 32, 32)
+
+        love.graphics.setShader()
     end
 )
 
