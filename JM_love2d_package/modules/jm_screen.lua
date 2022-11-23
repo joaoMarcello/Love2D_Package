@@ -46,6 +46,10 @@ function Screen:__constructor__(x, y, w, h)
     self.canvas:setFilter("nearest", "nearest")
 end
 
+function Screen:to_world(x, y)
+    return to_world(self, x, y)
+end
+
 function Screen:load()
     return self.load_action and self.load_action(self.load_args)
 end

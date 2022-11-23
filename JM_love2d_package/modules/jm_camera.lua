@@ -56,7 +56,7 @@ function Camera:__constructor__(x, y, w, h)
     self.x = x or 0
     self.y = y or 0
 
-    self.scale = 0.9
+    self.scale = 0.7
     self.angle = 0
 
     self.type = CAMERA_TYPES.top_view
@@ -75,8 +75,8 @@ function Camera:__constructor__(x, y, w, h)
 
     self.bounds_left = 0 ---32 * 6
     self.bounds_top = -0
-    self.bounds_right = self.viewport_w + 32 * 60
-    self.bounds_bottom = self.viewport_h
+    self.bounds_right = self.viewport_w / self.scale + 32 * 0
+    self.bounds_bottom = self.viewport_h / self.scale
     self:set_bounds()
 
     self.follow_speed_x = (32 * 9)
@@ -111,8 +111,8 @@ end
 function Camera:set_viewport(x, y, w, h)
     self.viewport_x = x and x or self.viewport_x
     self.viewport_y = y and y or self.viewport_y
-    self.viewport_w = w and w or self.viewport_w
-    self.viewport_h = h and h or self.viewport_h
+    self.viewport_w = w and w/self.scale or self.viewport_w
+    self.viewport_h = h and h/self.scale or self.viewport_h
 end
 
 function Camera:to_camera(x, y)
@@ -229,10 +229,10 @@ function Camera:move(dx, dy)
 end
 
 function Camera:set_bounds(left, right, top, bottom)
-    self.bounds_left = (left and left) or self.bounds_left
-    self.bounds_right = (right and right) or self.bounds_right
-    self.bounds_top = (top and top) or self.bounds_top
-    self.bounds_bottom = (bottom and bottom) or self.bounds_bottom
+    self.bounds_left = left or self.bounds_left
+    self.bounds_right = right or self.bounds_right
+    self.bounds_top = top or self.bounds_top
+    self.bounds_bottom = bottom or self.bounds_bottom
 
     if self.bounds_right - self.bounds_left < self.viewport_w then
         self.bounds_right = self.bounds_left + self.viewport_w
@@ -477,8 +477,8 @@ local function platformer_update(self, dt)
     dynamic_x_offset(self, dt)
     -- chase_target_x(self, dt)
     -- chase_target_y(self, dt)
-    -- dynamic_y_offset(self, dt)
-    chase_y_when_not_moving(self, dt)
+    dynamic_y_offset(self, dt)
+    -- chase_y_when_not_moving(self, dt)
 end
 
 function Camera:update(dt)

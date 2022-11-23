@@ -33,11 +33,9 @@ local function round(value)
     end
 end
 
-local Game = Screen:new(0, 0, 1366 / 2, 768 / 2)
-Game.scale_x = 1.7
-Game.scale_y = Game.scale_x
--- local camera = Game.camera
--- camera:set_bounds(nil, nil, 200, 32 * 15)
+local Game = Screen:new(100, 100)
+local camera = Game.camera
+-- camera:set_bounds(nil, nil, -100, 32 * 60)
 
 
 local monica_idle_normal = Anima:new({
@@ -435,6 +433,12 @@ Game:set_draw_action(
             graph_set_color(0, 0, 0, 0)
             graph_rect("fill", rects[i].x, rects[i].y, rects[i].w, rects[i].h)
         end
+
+        graph_set_color(1, 0, 0, 0.7)
+        local mx, my = love.mouse.getPosition()
+        mx, my = Game:to_world(mx, my)
+        mx, my = Game.camera:to_camera(mx, my)
+        love.graphics.rectangle("fill", mx, my, 32, 32)
     end
 )
 
