@@ -33,7 +33,7 @@ local function round(value)
     end
 end
 
-local Game = Screen:new(32, 32)
+local Game = Screen:new(0, 0)
 local camera = Game.camera
 -- camera:set_bounds(nil, nil, -100, 32 * 60)
 
@@ -235,8 +235,8 @@ Game:set_update_action(
             rec.speed_y = math.sqrt(2 * rec.gravity * 1)
         end
 
-        if rec.y + rec.h > Game.world_bounds.bottom then
-            rec.y = Game.camera.bounds_bottom - rec.h
+        if rec.y + rec.h > Game.world_bottom then
+            rec.y = Game.world_bottom - rec.h
             rec.jump = nil
         end
 
@@ -275,8 +275,8 @@ Game:set_update_action(
             rec.speed_x = 0
         end
 
-        if rec.x <= Game.world_bounds.left then
-            rec.x = Game.world_bounds.left
+        if rec.x <= Game.world_left then
+            rec.x = Game.world_left
             rec.speed_x = 0
         end
 
@@ -284,8 +284,8 @@ Game:set_update_action(
         mx, my = Game:to_world(mx, my)
         mx, my = Game.camera:to_camera(mx, my)
 
-        Game.camera:follow(rec:get_cx() + 64, rec:get_cy())
-        Game.camera2:follow(rec:get_cx() - 64, rec:get_cy())
+        Game.camera:follow(rec:get_cx(), rec:get_cy())
+        Game.camera2:follow(rec:get_cx(), rec:get_cy())
     end
 )
 
@@ -392,10 +392,10 @@ Game:set_draw_action(
         do
 
             graph_set_color(245 / 255, 160 / 255, 151 / 255, 1)
-            graph_rect("fill", 0, Game.h - 64 * 3, 64 * 4, 64 * 3)
+            graph_rect("fill", 0, Game.world_bottom - 64 * 3, 64 * 4, 64 * 3)
 
             graph_set_color(142 / 255, 82 / 255, 82 / 255, 1)
-            graph_rect("fill", 0, Game.h - 64 * 3, 64 * 1, 64 * 3)
+            graph_rect("fill", 0, Game.world_bottom - 64 * 3, 64 * 1, 64 * 3)
 
             -- graph_set_color(20 / 255, 160 / 255, 46 / 255, 1)
             -- graph_rect("fill", 0, SCREEN_HEIGHT - 64, SCREEN_WIDTH, 64)
@@ -414,9 +414,9 @@ Game:set_draw_action(
         for i = 1, 2 do
             for j = 0, 35 do
                 if i == 1 and j == 0 then
-                    tile:draw(1, 1, 0, Game.h - 32 * 2)
+                    tile:draw(1, 1, 0, Game.world_bottom - 32 * 2)
                 elseif i == 2 and j == 0 then
-                    tile:draw(1, 2, 0, Game.h - 32 * 1)
+                    tile:draw(1, 2, 0, Game.world_bottom - 32 * 1)
                 elseif i == 1 then
                     local left = j * 32
                     local right = left + 32
@@ -425,15 +425,15 @@ Game:set_draw_action(
                     local result = Game.camera:rect_is_on_screen(left, right, top, bottom) or true
 
                     if j % 2 == 0 and result then
-                        tile:draw(2, 1, j * 32, Game.h - 64 + 32 * (i - 1))
+                        tile:draw(2, 1, j * 32, Game.world_bottom - 64 + 32 * (i - 1))
                     elseif result then
-                        tile:draw(3, 1, j * 32, Game.h - 64 + 32 * (i - 1))
+                        tile:draw(3, 1, j * 32, Game.world_bottom - 64 + 32 * (i - 1))
                     end
                 elseif i == 2 then
                     if j % 2 == 0 then
-                        tile:draw(2, 2, j * 32, Game.h - 64 + 32 * (i - 1))
+                        tile:draw(2, 2, j * 32, Game.world_bottom - 64 + 32 * (i - 1))
                     else
-                        tile:draw(3, 2, j * 32, Game.h - 64 + 32 * (i - 1))
+                        tile:draw(3, 2, j * 32, Game.world_bottom - 64 + 32 * (i - 1))
                     end
                 end
             end
@@ -446,7 +446,7 @@ Game:set_draw_action(
         graph_set_color(0, 0, 0, 0.1)
         for i = 1, 300 do
             local x = -32 * 45 + 32 * (i - 1)
-            love.graphics.line(x, 0, x, Game.h * 50)
+            love.graphics.line(x, 0, x, Game.world_bottom * 50)
         end
 
         for i = 1, 100 do

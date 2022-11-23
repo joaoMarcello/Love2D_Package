@@ -273,7 +273,8 @@ function Camera:set_bounds(left, right, top, bottom)
     end
 
     if self.bounds_bottom - self.bounds_top < self.viewport_h / self.scale then
-        self.bounds_bottom = self.bounds_top + self.viewport_h / self.scale
+        -- self.bounds_bottom = self.bounds_top + self.viewport_h / self.scale
+        self.bounds_top = self.bounds_bottom - self.viewport_h / self.scale
     end
 end
 
@@ -508,11 +509,11 @@ local function platformer_update(self, dt)
     self.delay_x = 1
     self.delay_y = 1
 
-    -- dynamic_x_offset(self, dt)
-    chase_target_x(self, dt)
-    chase_target_y(self, dt)
+    dynamic_x_offset(self, dt)
+    -- chase_target_x(self, dt)
+    -- chase_target_y(self, dt)
     -- dynamic_y_offset(self, dt)
-    -- chase_y_when_not_moving(self, dt)
+    chase_y_when_not_moving(self, dt)
 end
 
 function Camera:update(dt)

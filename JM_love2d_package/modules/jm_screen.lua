@@ -44,21 +44,21 @@ function Screen:__constructor__(x, y, w, h)
     self.x = x or 0
     self.y = y or 0
     self.w = w or (1366 / 2) --love.graphics.getWidth()
-    self.h = h or (768 / 2) --love.graphics.getHeight()
+    self.h = h or 768 --love.graphics.getHeight()
 
-    self.scale_x = 1.55
-    self.scale_y = self.scale_x
+    self.scale_x = 1 --1366 / self.w
+    self.scale_y = self.scale_x --768 / self.h --self.scale_x
 
-    self.world_bounds = {
-        left = -64,
-        right = 32 * 35,
-        top = -64 * 4,
-        bottom = self.h
-    }
+    -- self.world_bounds = {
+    --     left = -64,
+    --     right = 32 * 35,
+    --     top = -64 * 4,
+    --     bottom = self.h
+    -- }
 
-    self.world_left = -63
+    self.world_left = -0
     self.world_right = 32 * 35
-    self.world_top = -64 * 4
+    self.world_top = -0
     self.world_bottom = self.h
 
     self.camera = Camera:new({
@@ -84,18 +84,23 @@ function Screen:__constructor__(x, y, w, h)
 
         scale = 0.5,
 
-        color = false, --{ 1, 1, 1, 1 },
+        color = { 0.9, 0.8, 1, 1 },
     })
 
     self.camera2 = Camera:new({
         -- camera's viewport
         x = 0,
-        y = 32 * 4,
+        y = 0,
         w = self.w / 2,
         h = self.h,
 
         -- world bounds
-        bounds = self.world_bounds,
+        bounds = {
+            left = self.world_left,
+            right = self.world_right,
+            top = self.world_top,
+            bottom = self.world_bottom
+        },
 
         --canvas size
         canvas_width = self.w,
@@ -104,7 +109,7 @@ function Screen:__constructor__(x, y, w, h)
         tile_size = 32,
 
         color = { 0, 0, 1, 1 },
-        scale = 0.8
+        scale = 1.2
     })
 
     self.canvas = love.graphics.newCanvas(self.w, self.h)
