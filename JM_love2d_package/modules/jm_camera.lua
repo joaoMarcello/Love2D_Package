@@ -590,17 +590,25 @@ local function debbug(self)
 
     love.graphics.setColor(0, 0, 0, 0.6)
     love.graphics.rectangle("fill", self.viewport_x + self.offset_x, self.viewport_y, 2, self.viewport_h)
-    love.graphics.rectangle("fill", self.viewport_x, self.viewport_y + self.offset_y, self.viewport_w - self.viewport_x,
+    love.graphics.rectangle("fill", self.viewport_x, self.viewport_y + self.offset_y, self.viewport_w,
         2)
+
+
     love.graphics.setColor(1, 1, 1, 0.5)
     love.graphics.rectangle("fill", self.viewport_x + self.offset_x + self.deadzone_w / 2, self.viewport_y, 2,
         self.viewport_h)
     love.graphics.rectangle("fill", self.viewport_x + self.offset_x - self.deadzone_w / 2, self.viewport_y, 2,
         self.viewport_h)
-    love.graphics.rectangle("fill", self.viewport_x, self.viewport_y + self.offset_y - self.deadzone_h / 2,
-        self.viewport_w - self.viewport_x, 2)
+    love.graphics.rectangle("fill",
+        self.viewport_x,
+        self.viewport_y + self.offset_y - self.deadzone_h / 2,
+        self.viewport_w, 2
+    )
+
+
+
     love.graphics.rectangle("fill", self.viewport_x, self.viewport_y + self.offset_y + self.deadzone_h / 2,
-        self.viewport_w - self.viewport_x, 2)
+        self.viewport_w, 2)
 
     love.graphics.setColor(1, 0, 0, 1)
     love.graphics.rectangle("fill", self.viewport_x, self.viewport_y, 2, self.viewport_h)
@@ -608,13 +616,40 @@ local function debbug(self)
     love.graphics.rectangle("fill", self.viewport_x, self.viewport_y, self.viewport_w, 2)
     love.graphics.rectangle("fill", self.viewport_x, self.viewport_y + self.viewport_h - 2,
         self.viewport_w, 2)
+
+    -- Drawing the world boundary
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.rectangle("fill",
+        self.viewport_x + self:__x_to_screen(self.bounds_left + self.tile_size),
+        self.viewport_y,
+        2,
+        self.viewport_h
+    )
+    love.graphics.rectangle("fill",
+        self.viewport_x + self:__x_to_screen(self.bounds_right - self.tile_size),
+        self.viewport_y,
+        2,
+        self.viewport_h
+    )
+    love.graphics.rectangle("fill",
+        self.viewport_x,
+        self:__y_to_screen(self.bounds_top + self.tile_size),
+        self.viewport_w,
+        2
+    )
+    love.graphics.rectangle("fill",
+        self.viewport_x,
+        self:__y_to_screen(self.bounds_bottom - self.tile_size),
+        self.viewport_w,
+        2
+    )
 end
 
 function Camera:detach()
     love_pop()
+    debbug(self)
     love_set_scissor()
 
-    debbug(self)
 end
 
 function Camera:__y_to_camera(y)

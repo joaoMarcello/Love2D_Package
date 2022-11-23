@@ -44,22 +44,15 @@ function Screen:__constructor__(x, y, w, h)
     self.x = x or 0
     self.y = y or 0
     self.w = w or (1366 / 2) --love.graphics.getWidth()
-    self.h = h or 768 --love.graphics.getHeight()
+    self.h = h or 600 --love.graphics.getHeight()
 
     self.scale_x = 1 --1366 / self.w
     self.scale_y = self.scale_x --768 / self.h --self.scale_x
 
-    -- self.world_bounds = {
-    --     left = -64,
-    --     right = 32 * 35,
-    --     top = -64 * 4,
-    --     bottom = self.h
-    -- }
-
     self.world_left = -0
     self.world_right = 32 * 35
-    self.world_top = -0
-    self.world_bottom = self.h
+    self.world_top = -32 * 5
+    self.world_bottom = 32 * 14
 
     self.camera = Camera:new({
         -- camera's viewport
@@ -92,7 +85,7 @@ function Screen:__constructor__(x, y, w, h)
         x = 0,
         y = 0,
         w = self.w / 2,
-        h = self.h,
+        h = self.h * 0.9,
 
         -- world bounds
         bounds = {
@@ -119,6 +112,17 @@ function Screen:__constructor__(x, y, w, h)
     self.color_g = 0.2
     self.color_b = 0.2
     self.color_a = 1
+
+    self.cameras_list = {}
+    self.amount_cameras = 0
+
+    self:add_camera(self.camera)
+    self:add_camera(self.camera2)
+end
+
+function Screen:add_camera(camera)
+    self.amount_cameras = self.amount_cameras + 1
+    self.cameras_list[self.amount_cameras] = camera
 end
 
 function Screen:get_color()
@@ -193,8 +197,12 @@ function Screen:update(dt)
     local r = self.update_action
         and self.update_action(dt, self.update_args)
 
-    self.camera:update(dt)
-    self.camera2:update(dt)
+    for i = 1, self.amount_cameras do
+        ---@type JM.Camera.Camera
+        local camera = self.cameras_list[i]
+        camera:update(dt)
+    end
+
     return r
 end
 
@@ -211,17 +219,14 @@ function Screen:draw()
         self.background_draw(self.background_draw_args)
     end
 
-    self.camera:attach()
+    for i = 1, self.amount_cameras do
+        ---@type JM.Camera.Camera
+        local camera = self.cameras_list[i]
 
-    local r = self.draw_action and self.draw_action(self.draw_args)
-
-    self.camera:detach()
-
-    self.camera2:attach()
-
-    local r = self.draw_action and self.draw_action(self.draw_args)
-
-    self.camera2:detach()
+        camera:attach()
+        local r = self.draw_action and self.draw_action(self.draw_args)
+        camera:detach()
+    end
 
     if self.foreground_draw then
         self.foreground_draw(self.background_draw_args)
@@ -241,8 +246,6 @@ function Screen:draw()
     pop()
 
     set_shader()
-
-    return r
 end
 
 return Screen
