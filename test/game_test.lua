@@ -284,7 +284,12 @@ Game:set_update_action(
         mx, my = Game:to_world(mx, my)
         mx, my = Game.camera:to_camera(mx, my)
 
-        Game.camera:follow(rec:get_cx(), rec:get_cy())
+        if love.keyboard.isDown("up") then
+            Game.camera:follow(rec:get_cx(), rec:get_cy() - 64)
+        else
+            Game.camera:follow(rec:get_cx(), rec:get_cy())
+        end
+
         Game.camera2:follow(rec:get_cx(), rec:get_cy())
     end
 )
@@ -411,6 +416,13 @@ Game:set_draw_action(
 
         -- love.graphics.setShader(pink_to_none)
 
+        for i = 1, #rects do
+            graph_set_color(1, 0.1, 0.1, 1)
+            graph_rect("line", rects[i].x, rects[i].y, rects[i].w, rects[i].h)
+            graph_set_color(0.5, 0.1, 0.9, 1)
+            graph_rect("fill", rects[i].x, rects[i].y, rects[i].w, rects[i].h)
+        end
+
         for i = 1, 2 do
             for j = 0, 35 do
                 if i == 1 and j == 0 then
@@ -443,7 +455,7 @@ Game:set_draw_action(
         graph_rect("fill", 32 * 34, 32 * 4, 32, 32)
         graph_rect("fill", 32 * 10, 32 * 4, 32, 32)
 
-        graph_set_color(0, 0, 0, 0.1)
+        graph_set_color(0, 0, 0, 0)
         for i = 1, 300 do
             local x = -32 * 45 + 32 * (i - 1)
             love.graphics.line(x, 0, x, Game.world_bottom * 50)
@@ -459,12 +471,7 @@ Game:set_draw_action(
         -- love.graphics.circle("fill", rec:get_cx(), rec:get_cy(), 128)
         -- current_animation:draw_rec(math.floor(rec.x), math.floor(rec.y), rec.w, rec.h)
 
-        for i = 1, #rects do
-            graph_set_color(1, 0.1, 0.1, 1)
-            graph_rect("line", rects[i].x, rects[i].y, rects[i].w, rects[i].h)
-            graph_set_color(0, 0, 0, 0)
-            graph_rect("fill", rects[i].x, rects[i].y, rects[i].w, rects[i].h)
-        end
+
 
         graph_set_color(1, 0, 0, 0.7)
         local mx, my = love.mouse.getPosition()

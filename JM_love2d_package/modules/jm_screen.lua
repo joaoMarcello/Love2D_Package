@@ -51,13 +51,13 @@ function Screen:__constructor__(x, y, w, h)
 
     self.world_left = -0
     self.world_right = 32 * 35
-    self.world_top = -32 * 5
+    self.world_top = -32 * 10
     self.world_bottom = 32 * 14
 
     self.camera = Camera:new({
         -- camera's viewport
         x = self.w / 2,
-        y = 0,
+        y = 32,
         w = self.w,
         h = 32 * 7,
 
@@ -75,7 +75,7 @@ function Screen:__constructor__(x, y, w, h)
 
         tile_size = 32,
 
-        scale = 0.5,
+        scale = 0.4,
 
         color = { 0.9, 0.8, 1, 1 },
     })
@@ -102,7 +102,7 @@ function Screen:__constructor__(x, y, w, h)
         tile_size = 32,
 
         color = { 0, 0, 1, 1 },
-        scale = 1.2
+        scale = 1
     })
 
     self.canvas = love.graphics.newCanvas(self.w, self.h)
