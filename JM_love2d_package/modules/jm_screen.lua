@@ -13,11 +13,11 @@ local set_shader = love.graphics.setShader
 
 ---@param self JM.Screen
 local function to_world(self, x, y, camera)
-    x, y = x - self.x,
-        y - self.y
+    x = x / self.scale_x
+    y = y / self.scale_y
 
-    x, y = x / self.scale_x,
-        y / self.scale_y
+    x = x - self.x
+    y = y - self.y
 
     return x - camera.viewport_x, y - camera.viewport_y
 end
@@ -49,19 +49,31 @@ function Screen:__constructor__(x, y, w, h)
     self.scale_x = 1.55
     self.scale_y = self.scale_x
 
+    self.world_bounds = {
+        left = -64,
+        right = 32 * 35,
+        top = -64 * 4,
+        bottom = self.h
+    }
+
+    self.world_left = -63
+    self.world_right = 32 * 35
+    self.world_top = -64 * 4
+    self.world_bottom = self.h
+
     self.camera = Camera:new({
         -- camera's viewport
-        x = 32,
-        y = 32,
-        w = self.w - 64,
+        x = self.w / 2,
+        y = 0,
+        w = self.w,
         h = 32 * 7,
 
         -- world bounds
         bounds = {
-            left = 0,
-            right = 32 * 35,
-            top = -64,
-            bottom = 1000
+            left = self.world_left,
+            right = self.world_right,
+            top = self.world_top,
+            bottom = self.world_bottom
         },
 
         --canvas size
@@ -70,7 +82,29 @@ function Screen:__constructor__(x, y, w, h)
 
         tile_size = 32,
 
-        color = {}
+        scale = 0.5,
+
+        color = false, --{ 1, 1, 1, 1 },
+    })
+
+    self.camera2 = Camera:new({
+        -- camera's viewport
+        x = 0,
+        y = 32 * 4,
+        w = self.w / 2,
+        h = self.h,
+
+        -- world bounds
+        bounds = self.world_bounds,
+
+        --canvas size
+        canvas_width = self.w,
+        canvas_height = self.h,
+
+        tile_size = 32,
+
+        color = { 0, 0, 1, 1 },
+        scale = 0.8
     })
 
     self.canvas = love.graphics.newCanvas(self.w, self.h)
@@ -155,6 +189,7 @@ function Screen:update(dt)
         and self.update_action(dt, self.update_args)
 
     self.camera:update(dt)
+    self.camera2:update(dt)
     return r
 end
 
@@ -177,20 +212,26 @@ function Screen:draw()
 
     self.camera:detach()
 
+    self.camera2:attach()
+
+    local r = self.draw_action and self.draw_action(self.draw_args)
+
+    self.camera2:detach()
+
     if self.foreground_draw then
         self.foreground_draw(self.background_draw_args)
     end
 
     set_canvas()
     --============================================================
-    love.graphics.setShader(self.shader)
+    -- love.graphics.setShader(self.shader)
 
     set_color_draw(1, 1, 1, 1)
     set_blend_mode("alpha", "premultiplied")
 
     push()
-    translate(self.x, self.y)
     scale(self.scale_x, self.scale_y)
+    translate(self.x, self.y)
     love_draw(self.canvas)
     pop()
 

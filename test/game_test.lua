@@ -173,6 +173,9 @@ Game:set_load_action(
         Game.camera:jump_to(rec.x, rec.y)
         Game.camera:set_offset_x(32 * 8)
         Game.camera:set_offset_y(Game.camera.viewport_h * 0.4)
+
+        -- Game.camera:set_offset_x(32 * 8)
+        Game.camera2:set_offset_y(Game.camera.viewport_h * 0.6)
     end
 )
 
@@ -232,7 +235,7 @@ Game:set_update_action(
             rec.speed_y = math.sqrt(2 * rec.gravity * 1)
         end
 
-        if rec.y + rec.h > Game.camera.bounds_bottom then
+        if rec.y + rec.h > Game.world_bounds.bottom then
             rec.y = Game.camera.bounds_bottom - rec.h
             rec.jump = nil
         end
@@ -267,17 +270,22 @@ Game:set_update_action(
         my_effect:apply(current_animation, false)
         Consolas:update(dt)
 
-        Game.camera:follow(rec:get_cx(), rec:get_cy())
-
         if rec.x + rec.w > Game.camera.bounds_right then
             rec.x = Game.camera.bounds_right - rec.w
             rec.speed_x = 0
         end
 
-        if rec.x < Game.camera.bounds_left then
-            rec.x = Game.camera.bounds_left
+        if rec.x <= Game.world_bounds.left then
+            rec.x = Game.world_bounds.left
             rec.speed_x = 0
         end
+
+        local mx, my = love.mouse.getPosition()
+        mx, my = Game:to_world(mx, my)
+        mx, my = Game.camera:to_camera(mx, my)
+
+        Game.camera:follow(rec:get_cx() + 64, rec:get_cy())
+        Game.camera2:follow(rec:get_cx() - 64, rec:get_cy())
     end
 )
 
@@ -414,7 +422,7 @@ Game:set_draw_action(
                     local right = left + 32
                     local top = Game.h - 64 + 32 * (i - 1)
                     local bottom = top + 32
-                    local result = Game.camera:rect_is_on_screen(left, right, top, bottom)
+                    local result = Game.camera:rect_is_on_screen(left, right, top, bottom) or true
 
                     if j % 2 == 0 and result then
                         tile:draw(2, 1, j * 32, Game.h - 64 + 32 * (i - 1))

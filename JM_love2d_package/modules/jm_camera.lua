@@ -46,15 +46,15 @@ function Camera:new(args)
 
     Camera.__constructor__(obj, args.x, args.y, args.w, args.h,
         args.bounds, args.canvas_width, args.canvas_height,
-        args.tile_size, args.color
+        args.tile_size, args.color, args.scale
     )
 
     return obj
 end
 
-function Camera:__constructor__(x, y, w, h, bounds, canvas_width, canvas_height, tile_size, color)
+function Camera:__constructor__(x, y, w, h, bounds, canvas_width, canvas_height, tile_size, color, scale)
 
-    self.scale = 1
+    self.scale = scale or 1
 
     self.viewport_x = x or 0
     self.viewport_y = y or 0
@@ -83,15 +83,15 @@ function Camera:__constructor__(x, y, w, h, bounds, canvas_width, canvas_height,
     self.target = nil
 
     self.offset_x = 0
-    self.offset_y = self.viewport_h * 0.5
+    self.offset_y = 0 --self.viewport_h * 0.5
 
     self.deadzone_w = self.tile_size * 1.5
     self.deadzone_h = self.tile_size * 1.5
 
-    self.bounds_left = bounds and bounds.left or -32 * 6
-    self.bounds_top = bounds and bounds.top or -32 * 10
-    self.bounds_right = bounds and bounds.right or self.viewport_w / self.scale + 32 * 60
-    self.bounds_bottom = bounds and bounds.bottom or self.viewport_h / self.scale + 32 * 0
+    self.bounds_left = bounds and bounds.left or 0
+    self.bounds_top = bounds and bounds.top or 0
+    self.bounds_right = bounds and bounds.right or self.viewport_w / self.scale
+    self.bounds_bottom = bounds and bounds.bottom or self.viewport_h / self.scale
     self:set_bounds()
 
     self.follow_speed_x = (32 * 9)
@@ -268,12 +268,12 @@ function Camera:set_bounds(left, right, top, bottom)
     self.bounds_top = top or self.bounds_top
     self.bounds_bottom = bottom or self.bounds_bottom
 
-    if self.bounds_right - self.bounds_left < self.viewport_w then
-        self.bounds_right = self.bounds_left + self.viewport_w
+    if self.bounds_right - self.bounds_left < self.viewport_w / self.scale then
+        self.bounds_right = self.bounds_left + self.viewport_w / self.scale
     end
 
-    if self.bounds_bottom - self.bounds_top < self.viewport_h then
-        self.bounds_bottom = self.bounds_top + self.viewport_h
+    if self.bounds_bottom - self.bounds_top < self.viewport_h / self.scale then
+        self.bounds_bottom = self.bounds_top + self.viewport_h / self.scale
     end
 end
 
@@ -508,11 +508,11 @@ local function platformer_update(self, dt)
     self.delay_x = 1
     self.delay_y = 1
 
-    dynamic_x_offset(self, dt)
-    -- chase_target_x(self, dt)
-    -- chase_target_y(self, dt)
+    -- dynamic_x_offset(self, dt)
+    chase_target_x(self, dt)
+    chase_target_y(self, dt)
     -- dynamic_y_offset(self, dt)
-    chase_y_when_not_moving(self, dt)
+    -- chase_y_when_not_moving(self, dt)
 end
 
 function Camera:update(dt)
