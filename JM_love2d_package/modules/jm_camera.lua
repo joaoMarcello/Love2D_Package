@@ -9,10 +9,19 @@ local function round(value)
     end
 end
 
+local function rad2degr(value)
+    return value * 180 / math.pi
+end
+
+local function deg2rad(value)
+    return value * math.pi / 180
+end
+
 local love_translate = love.graphics.translate
 local love_pop = love.graphics.pop
 local love_push = love.graphics.push
 local love_scale = love.graphics.scale
+local love_set_scissor = love.graphics.setScissor
 local sin, cos, atan2, sqrt, abs = math.sin, math.cos, math.atan2, math.sqrt, math.abs
 
 ---@enum JM.Camera.Type
@@ -22,15 +31,10 @@ local CAMERA_TYPES = {
     top_view = 3
 }
 
----@enum JM.Camera.TypeMovements
-local MOVEMENTS_TYPES = {
-    dynamic = 1, -- offset can change
-    fixed = 2 -- fixed offset
-}
-
 ---@class JM.Camera.Camera
 local Camera = {}
 
+---@param self JM.Camera.Camera
 ---@return JM.Camera.Camera
 function Camera:new(x, y, w, h)
     local obj = {}
@@ -52,12 +56,12 @@ function Camera:__constructor__(x, y, w, h)
     self.x = x or 0
     self.y = y or 0
 
-    self.scale = 1
+    self.scale = 0.9
     self.angle = 0
 
     self.type = CAMERA_TYPES.top_view
-    self.type_vertical_move = MOVEMENTS_TYPES.dynamic
-    self.type_horizontal_move = MOVEMENTS_TYPES.fixed
+    self.type_vertical_move = nil
+    self.type_horizontal_move = nil
     self:set_type("top view")
 
     ---@type {x:number, y:number, angle_x:number, angle_y:number, distance:number, range_x:number, range_y:number, last_x:number, last_y:number, direction_x:number, direction_y:number, last_direction_x:number, last_direction_y:number}|nil
@@ -95,87 +99,40 @@ end
 function Camera:set_type(s)
     if s == "platform" then
         self.type = CAMERA_TYPES.platform
-        self.type_horizontal_move = MOVEMENTS_TYPES.dynamic
-        self.type_vertical_move = MOVEMENTS_TYPES.fixed
+        -- self.type_horizontal_move = MOVEMENTS_TYPES.dynamic
+        -- self.type_vertical_move = MOVEMENTS_TYPES.fixed
     elseif s == "top view" then
         self.type = CAMERA_TYPES.top_view
-        self.type_horizontal_move = MOVEMENTS_TYPES.dynamic
-        self.type_vertical_move = MOVEMENTS_TYPES.dynamic
+        -- self.type_horizontal_move = MOVEMENTS_TYPES.dynamic
+        -- self.type_vertical_move = MOVEMENTS_TYPES.dynamic
     end
 end
 
 function Camera:set_viewport(x, y, w, h)
-    self.viewport_x = x
-    self.viewport_y = y
-    self.viewport_w = w
-    self.viewport_h = h
+    self.viewport_x = x and x or self.viewport_x
+    self.viewport_y = y and y or self.viewport_y
+    self.viewport_w = w and w or self.viewport_w
+    self.viewport_h = h and h or self.viewport_h
 end
 
 function Camera:to_camera(x, y)
     y = y or 0
     x = x or 0
+
     x = x / self.scale
     y = y / self.scale
+
     return x + self.x, y + self.y
 end
 
 function Camera:to_screen(x, y)
     y = y or 0
     x = x or 0
+
     x = x - self.x
     y = y - self.y
 
     return x * self.scale, y * self.scale
-end
-
-function Camera:__y_to_camera(y)
-    local x
-    x, y = self:to_camera(x, y)
-    return y
-end
-
-function Camera:__x_to_camera(x)
-    local y
-    x, y = self:to_camera(x, y)
-    return x
-end
-
-function Camera:__y_to_screen(y)
-    local x
-    x, y = self:to_screen(x, y)
-    return y
-end
-
-function Camera:__x_to_screen(x)
-    local y
-    x, y = self:to_screen(x, y)
-    return x
-end
-
-function Camera:lock_x_axis(value)
-    self.lock_x = (value and true) or false
-end
-
-function Camera:lock_y_axis(value)
-    self.lock_y = (value and true) or false
-end
-
-function Camera:lock_movements()
-    self:lock_x_axis(true)
-    self:lock_y_axis(true)
-end
-
-function Camera:unlock_movements()
-    self:lock_x_axis(false)
-    self:lock_y_axis(false)
-end
-
-function Camera:type_vertical()
-    return self.type_vertical_move
-end
-
-function Camera:type_horizontal()
-    return self.type_horizontal_move
 end
 
 function Camera:follow(x, y)
@@ -192,8 +149,8 @@ function Camera:follow(x, y)
     target.x = x
     target.y = y
 
-    target.range_x = (x - target.last_x)
-    target.range_y = (y - target.last_y)
+    target.range_x = x - target.last_x
+    target.range_y = y - target.last_y
 
     target.last_direction_x = target.direction_x ~= 0 and target.direction_x
         or target.last_direction_x or 1
@@ -206,12 +163,6 @@ function Camera:follow(x, y)
     target.direction_y = (target.range_y > 0 and 1)
         or (target.range_y < 0 and -1)
         or 0
-
-    -- local cx = self:to_camera(self.x)
-    -- local bl = self:to_camera(self.bounds_left)
-    -- local br = self:to_camera(self.bounds_right - self.viewport_w / self.scale)
-    -- local can_move_left = (cx > bl and target.direction_x > 0)
-    -- local can_move_right = not can_move_left and (cx < br and target.direction_x <= 0)
 
     local target_distance_x = target.x - self.x
     local target_distance_y = target.y - self.y
@@ -255,11 +206,19 @@ function Camera:set_position(x, y)
     self.y = round(self.y)
 end
 
-function Camera:look_at(x, y)
+function Camera:jump_to(x, y)
     self:set_position(
         x - self.offset_x / self.scale,
         y - self.offset_y / self.scale
     )
+end
+
+--- TODO
+function Camera:look_at(x, y)
+    if self.target then
+        self.target = nil
+    end
+    self:follow(x, y)
 end
 
 function Camera:move(dx, dy)
@@ -314,10 +273,10 @@ end
 ---@param camera JM.Camera.Camera
 local function chase_target(camera, dt, chase_x_axis, chase_y_axis)
     local self = camera
-    local obj_x, obj_y = not chase_x_axis, not chase_y_axis
+    local reach_objective_x, reach_objective_y = not chase_x_axis, not chase_y_axis
 
     if self.target then
-        local target = self.target or {}
+        local target = self.target or 1
 
         if chase_x_axis and self.x ~= target.x then
             local cos_r = cos(target.angle_x)
@@ -339,7 +298,7 @@ local function chase_target(camera, dt, chase_x_axis, chase_y_axis)
                 self:set_position(target.x)
             end
 
-            obj_x = self.x == target.x
+            reach_objective_x = self.x == target.x
         end
 
         if chase_y_axis and self.y ~= target.y then
@@ -362,12 +321,12 @@ local function chase_target(camera, dt, chase_x_axis, chase_y_axis)
                 self:set_position(nil, target.y)
             end
 
-            obj_y = self.y == target.y
+            reach_objective_y = self.y == target.y
         end
 
     end
 
-    return obj_x and obj_y
+    return reach_objective_x and reach_objective_y
     -- local px = self:to_camera(32 * 20)
     -- if self:to_camera(self.x + self.offset_x) > px then
     --     self:set_position(self:to_screen(px - self.offset_x))
@@ -389,7 +348,7 @@ end
 local function dynamic_x_offset(self, dt)
     if not self.target then return end
 
-    local target = self.target or {}
+    local target = self.target or 1
     local deadzone_w = self.deadzone_w / self.scale
     local left_focus = self.viewport_w * 0.7
     local right_focus = self.viewport_w * 0.3
@@ -432,7 +391,7 @@ end
 local function dynamic_y_offset(self, dt)
     if not self.target then return end
 
-    local target = self.target or {}
+    local target = self.target or 1
     local deadzone_h = self.deadzone_h / self.scale
     local top_focus = self.viewport_h * 0.3
     local bottom_focus = self.viewport_h * 0.6
@@ -561,25 +520,18 @@ end
 
 function Camera:attach()
 
-    love.graphics.setScissor(0, 0, self.viewport_w, self.viewport_h)
+    love_set_scissor(
+        self.viewport_x, self.viewport_y,
+        self.viewport_w, self.viewport_h
+    )
 
     love_push()
     love_scale(self.scale, self.scale)
     love_translate(-self.x, -self.y)
 end
 
-local function rad2degr(value)
-    return value * 180 / math.pi
-end
-
-local function deg2rad(value)
-    return value * math.pi / 180
-end
-
-function Camera:detach()
-    love_pop()
-    love.graphics.setScissor()
-
+---@param self JM.Camera.Camera
+local function debbug(self)
     if not self.debug then return end
 
     love.graphics.setColor(0, 0, 0, 1)
@@ -611,7 +563,63 @@ function Camera:detach()
     love.graphics.rectangle("fill", self.viewport_w - 2, 0, 2, self.viewport_h)
     love.graphics.rectangle("fill", 0, 0, self.viewport_w, 2)
     love.graphics.rectangle("fill", 0, self.viewport_h - 2, self.viewport_w, 2)
+end
 
+function Camera:detach()
+    love_pop()
+    love_set_scissor()
+
+    debbug(self)
+end
+
+function Camera:__y_to_camera(y)
+    local x
+    x, y = self:to_camera(x, y)
+    return y
+end
+
+function Camera:__x_to_camera(x)
+    local y
+    x, y = self:to_camera(x, y)
+    return x
+end
+
+function Camera:__y_to_screen(y)
+    local x
+    x, y = self:to_screen(x, y)
+    return y
+end
+
+function Camera:__x_to_screen(x)
+    local y
+    x, y = self:to_screen(x, y)
+    return x
+end
+
+function Camera:lock_x_axis(value)
+    self.lock_x = (value and true) or false
+end
+
+function Camera:lock_y_axis(value)
+    self.lock_y = (value and true) or false
+end
+
+function Camera:lock_movements()
+    self:lock_x_axis(true)
+    self:lock_y_axis(true)
+end
+
+function Camera:unlock_movements()
+    self:lock_x_axis(false)
+    self:lock_y_axis(false)
+end
+
+function Camera:type_vertical()
+    return self.type_vertical_move
+end
+
+function Camera:type_horizontal()
+    return self.type_horizontal_move
 end
 
 return Camera

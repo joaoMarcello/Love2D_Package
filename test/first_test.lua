@@ -333,6 +333,11 @@ local myShader = love.graphics.newShader(shadercode)
 local graph_set_color = love.graphics.setColor
 local graph_rect = love.graphics.rectangle
 
+local function index_to_string(i, j, axis)
+    i, j = round(i), round(j)
+    return tostring(i) .. " " .. tostring(j) .. " " .. axis
+end
+
 local tile = {}
 tile.img = love.graphics.newImage("/data/groundTile.png")
 tile.size = 50
@@ -340,27 +345,21 @@ tile.scale = 32 / 50
 tile.global_q = love.graphics.newQuad(0, 0, 50, 50, tile.img:getWidth(), tile.img:getHeight())
 tile.quads = {}
 for i = 1, 4 do
-    tile.quads[i] = {}
     for j = 1, 4 do
-        tile.quads[i][j] = {}
-        tile.quads[i][j].x = (i - 1) * tile.size
-        tile.quads[i][j].y = (j - 1) * tile.size
+        local index_x = index_to_string(i, j, "x")
+        local index_y = index_to_string(i, j, "y")
 
-        -- tile.quads[i][j] = love.graphics.newQuad(
-        --     (i - 1) * tile.size,
-        --     (j - 1) * tile.size,
-        --     50, 50,
-        --     tile.img:getWidth(),
-        --     tile.img:getHeight()
-        -- )
+        tile.quads[index_x] = (i - 1) * tile.size
+        tile.quads[index_y] = (j - 1) * tile.size
     end
 end
 
 tile.draw = function(self, i, j, x, y)
     local quad = tile.global_q
-    -- local quad = tile.quads[i][j]
+    local index_x = index_to_string(i, j, "x")
+    local index_y = index_to_string(i, j, "y")
 
-    quad:setViewport(tile.quads[i][j].x, tile.quads[i][j].y, 50, 50, tile.img:getWidth(), tile.img:getHeight())
+    quad:setViewport(tile.quads[index_x], tile.quads[index_y], 50, 50, tile.img:getWidth(), tile.img:getHeight())
 
     love.graphics.setColor(1, 1, 1, 1)
     love.graphics.draw(self.img, quad, x, y, 0, self.scale, self.scale, 0, 0)
@@ -423,13 +422,6 @@ function t:draw()
         end
     end
 
-    love.graphics.setColor(1, 0, 0, 1)
-    love.graphics.circle("fill", rec:get_cx(), rec:get_cy(), 130)
-    love.graphics.setColor(1, 0, 1, 1)
-    love.graphics.circle("fill", rec:get_cx(), rec:get_cy(), 128)
-    current_animation:draw_rec(math.floor(rec.x), math.floor(rec.y), rec.w, rec.h)
-
-
     -- graph_set_color(0, 0, 0, 0)
     -- love.graphics.setShader(my_shader2)
     -- graph_rect("fill", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
@@ -449,6 +441,12 @@ function t:draw()
     for i = 1, 100 do
         love.graphics.line(-32 * 1, 32 * (i - 1), SCREEN_WIDTH * 50, 32 * (i - 1))
     end
+
+    love.graphics.setColor(1, 0, 0, 1)
+    love.graphics.circle("fill", rec:get_cx(), rec:get_cy(), 130)
+    love.graphics.setColor(1, 0, 1, 1)
+    love.graphics.circle("fill", rec:get_cx(), rec:get_cy(), 128)
+    current_animation:draw_rec(math.floor(rec.x), math.floor(rec.y), rec.w, rec.h)
 
     for i = 1, #rects do
         graph_set_color(1, 0.1, 0.1, 1)
