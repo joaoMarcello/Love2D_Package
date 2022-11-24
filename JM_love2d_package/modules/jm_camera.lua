@@ -116,6 +116,7 @@ function Camera:__constructor__(x, y, w, h, bounds, canvas_width, canvas_height,
     self.color_a = color and color[4] or 1
 
     self.debug = true
+    self.debug_rad = 0
 end
 
 function Camera:get_color()
@@ -587,12 +588,12 @@ function Camera:update(dt)
 
     lock = self.lock_y
     if py < top then
-        local y = self:__y_to_screen(top)
+        local y = self:y_to_screen(top)
         self:lock_y_axis(false)
         self:set_position(nil, y)
         self:lock_y_axis(lock)
     elseif py > bottom then
-        local y = self:__y_to_screen(bottom)
+        local y = self:y_to_screen(bottom)
         self:lock_y_axis(false)
         self:set_position(nil, y)
         self:lock_y_axis(lock)
@@ -619,6 +620,8 @@ end
 local function debbug(self)
     if not self.debug then return end
 
+    local state = self:get_state()
+
     love.graphics.setColor(0, 0, 0, 1)
     love.graphics.print("Scale: " .. tostring(self.scale), self.viewport_w - 100)
     love.graphics.print("Cam_X: " .. tostring(self.x), self.viewport_w - 100, 25)
@@ -644,14 +647,18 @@ local function debbug(self)
         if self.target then
             love.graphics.setColor(0, 0.8, 0, 1)
             love.graphics.circle("fill",
-                self.viewport_x + self.offset_x + self:__x_to_screen((self.target.x or self.target.last_x)),
-                self.viewport_y + self.offset_y + self:__y_to_screen((self.target.y or self.target.last_y)),
+                self.viewport_x + self.offset_x + self:x_to_screen((self.target.x or self.target.last_x)),
+                self.viewport_y + self.offset_y + self:y_to_screen((self.target.y or self.target.last_y)),
                 5
             )
         end
 
         -- Camera's focus
-        love.graphics.setColor(1, 0, 0, 1)
+        if not self:target_on_focus() then
+            love.graphics.setColor(0.7, 0, 0, 1)
+        else
+            love.graphics.setColor(1, 0, 0, 1)
+        end
         love.graphics.circle("fill",
             self.viewport_x + self.offset_x,
             self.viewport_y + self.offset_y,
@@ -686,7 +693,17 @@ local function debbug(self)
             2,
             16)
 
-        love.graphics.setColor(1, 1, 1, 1)
+        if self:target_on_focus() then
+            love.graphics.setColor(1, 1, 1, 1)
+        elseif state:find("left")
+            or state:find("right")
+            or state:find("top")
+            or state:find("bottom")
+        then
+            love.graphics.setColor(1, 0, 0, 1)
+        else
+            love.graphics.setColor(1, 1, 1, 0.6)
+        end
         -- Left-Top Corner
         love.graphics.rectangle("fill",
             self.viewport_x + self.offset_x - self.deadzone_w / 2,
@@ -780,7 +797,11 @@ local function debbug(self)
     --==========================================================
 
     --Drawing a yellow rectangle
-    love.graphics.setColor(1, 1, 0, 1)
+    if not self:hit_border() then
+        love.graphics.setColor(1, 1, 0, 1)
+    else
+        love.graphics.setColor(1, 1, 0, 0.5)
+    end
     local border_len = self.tile_size * self.scale
     do
         love.graphics.rectangle("line",
@@ -824,44 +845,65 @@ local function debbug(self)
     --===========================================================
 
     -- Drawing the world boundary
-    love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.rectangle("fill",
-        self.viewport_x + self:__x_to_screen(self.bounds_left + self.tile_size),
-        self.viewport_y,
-        2,
-        self.viewport_h
-    )
-    love.graphics.rectangle("fill",
-        self.viewport_x + self:__x_to_screen(self.bounds_right - self.tile_size),
-        self.viewport_y,
-        2,
-        self.viewport_h
-    )
-    love.graphics.rectangle("fill",
-        self.viewport_x,
-        self.viewport_y + self:__y_to_screen(self.bounds_top + self.tile_size * 1),
-        self.viewport_w,
-        2
-    )
-    love.graphics.rectangle("fill",
-        self.viewport_x,
-        self.viewport_y + self:__y_to_screen(self.bounds_bottom - self.tile_size),
-        self.viewport_w,
-        2
-    )
+    love.graphics.setColor(0, 0, 0, 1)
+    local world_width = (self.viewport_w - self.viewport_x) / self.tile_size
+    for i = 1, 10 do
+        -- Top line
+        love.graphics.line(
+            (self.viewport_x + 32 * (i - 1)),
+            self.viewport_y + self:y_to_screen(self.bounds_top + self.tile_size * 1),
+            self.viewport_x + (32 * (i - 1) - 16),
+            self.viewport_y + self:y_to_screen(self.bounds_top + self.tile_size * 1)
+        )
 
+        -- Bottom line
+        love.graphics.line(
+            self.viewport_x + 32 * (i - 1),
+            self.viewport_y + self:y_to_screen(self.bounds_bottom - self.tile_size),
+            self.viewport_x + 32 * (i - 1) - 16,
+            self.viewport_y + self:y_to_screen(self.bounds_bottom - self.tile_size)
+        )
+
+        -- Left
+        love.graphics.line(
+            self.viewport_x + self:x_to_screen(self.bounds_left + self.tile_size),
+            self.viewport_y + 32 * (i - 1),
+            self.viewport_x + self:x_to_screen(self.bounds_left + self.tile_size),
+            self.viewport_y + 32 * (i - 1) - 16
+        )
+
+        -- Right
+        love.graphics.line(
+            self.viewport_x + self:x_to_screen(self.bounds_right + self.tile_size),
+            self.viewport_y + 32 * (i - 1),
+            self.viewport_x + self:x_to_screen(self.bounds_right + self.tile_size),
+            self.viewport_y + 32 * (i - 1) - 16
+        )
+    end
+
+    -- Showing the current state
     local r, g, b, a = 1, 0, 0, 1
     love.graphics.setColor(1, 1, 1, 1)
     love.graphics.rectangle("fill",
-        self.viewport_x + self.viewport_w - border_len - 85,
+        self.viewport_x + self.viewport_w - border_len - 120,
         self.viewport_y + self.viewport_h - border_len - 25,
-        75,
+        120,
         16
     )
     love.graphics.setColor(r, g, b, a)
     love.graphics.print(self:get_state(),
-        self.viewport_x + self.viewport_w - border_len - 75,
+        self.viewport_x + self.viewport_w - border_len - 100,
         self.viewport_y + self.viewport_h - border_len - 25
+    )
+
+    -- Showing the message DEBUG MODE
+    self.debug_rad = self.debug_rad
+        + (math.pi * 2) / 0.5
+        * love.timer.getDelta()
+    love.graphics.setColor(1, 0, 0, 0.7 + 0.5 * cos(self.debug_rad))
+    love.graphics.print("DEBUG MODE",
+        self.viewport_x + self.viewport_w - border_len - 90,
+        self.viewport_y + border_len
     )
 end
 
@@ -875,9 +917,11 @@ function Camera:get_state()
 
     local text = self:target_on_focus() and "on focus" or "chasing"
 
-    text = (self.lock_x) and "x locked" or text
-    text = (text == "x locked" and self.lock_y) and "xy locked" or text
-    text = self.lock_y and "x locked" or text
+    if not self:target_on_focus() then
+        text = self.lock_x and "x locked" or text
+        text = self.lock_y and "y locked" or text
+        text = (self.lock_x and self.lock_y) and "xy locked" or text
+    end
 
     if px <= left or px >= right or py <= top or py >= bottom then
         text = ""
@@ -914,6 +958,15 @@ function Camera:get_state()
     return text
 end
 
+function Camera:hit_border()
+    local state = self:get_state()
+    return state:find("left")
+        or state:find("right")
+        or state:find("top")
+        or state:find("bottom")
+        or state == "out of bounds"
+end
+
 function Camera:detach()
     love_pop()
     debbug(self)
@@ -927,19 +980,19 @@ function Camera:__y_to_world(y)
     return y
 end
 
-function Camera:__x_to_world(x)
+function Camera:x_to_world(x)
     local y
     x, y = self:screen_to_world(x, y)
     return x
 end
 
-function Camera:__y_to_screen(y)
+function Camera:y_to_screen(y)
     local x
     x, y = self:world_to_screen(x, y)
     return y
 end
 
-function Camera:__x_to_screen(x)
+function Camera:x_to_screen(x)
     local y
     x, y = self:world_to_screen(x, y)
     return x
