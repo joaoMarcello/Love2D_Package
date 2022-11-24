@@ -73,6 +73,8 @@ function Screen:__constructor__(x, y, w, h)
         },
 
         --canvas size
+        canvas_x = self.x,
+        canvas_y = self.y,
         canvas_width = self.w,
         canvas_height = self.h,
 

@@ -273,20 +273,23 @@ function Camera:new(args)
     self.__index = self
 
     Camera.__constructor__(obj, args.x, args.y, args.w, args.h,
-        args.bounds, args.canvas_width, args.canvas_height,
+        args.bounds, args.canvas_x, args.canvas_y, args.canvas_width, args.canvas_height,
         args.tile_size, args.color, args.scale, args.type
     )
 
     return obj
 end
 
-function Camera:__constructor__(x, y, w, h, bounds, canvas_width, canvas_height, tile_size, color, scale, type_)
+function Camera:__constructor__(x, y, w, h, bounds, canvas_width, canvas_x, canvas_y, canvas_height, tile_size, color,
+                                scale, type_)
 
     self.scale = scale or 1
 
     self.viewport_x = x or 0
     self.viewport_y = y or 0
 
+    self.canvas_x = canvas_x or 0
+    self.canvas_y = canvas_y or 0
     self.canvas_width = canvas_width or love.graphics.getWidth()
     self.canvas_height = canvas_height or love.graphics.getHeight()
 
@@ -649,7 +652,7 @@ local function draw_grid(self)
         if self:point_is_on_screen(self.bounds_left + self.tile_size * (i - 2), self.y) then
             love.graphics.line(
                 self.bounds_left + self.tile_size * i,
-                self:y_screen_to_world((self.viewport_y) * self.scale + 32 * self.scale),
+                self:y_screen_to_world((self.canvas_height - self.canvas_y)),
                 -- (self.bounds_top + 64),
                 self.bounds_left + self.tile_size * i,
                 -- (self.bounds_bottom - 64)
@@ -1030,7 +1033,7 @@ function Camera:hit_border()
 end
 
 function Camera:detach()
-    draw_grid(self)
+    -- draw_grid(self)
 
     love_pop()
     debbug(self)
