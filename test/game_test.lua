@@ -172,10 +172,12 @@ Game:set_load_action(
 
         Game.camera:jump_to(rec.x, rec.y)
         Game.camera:set_offset_x(32 * 8)
-        Game.camera:set_offset_y(Game.camera.viewport_h * 0.4)
+        Game.camera:set_offset_y(Game.camera.viewport_h * 0.5)
 
         -- Game.camera:set_offset_x(32 * 8)
-        Game.camera2:set_offset_y(Game.camera.viewport_h * 0.6)
+        Game.camera2:set_offset_y(Game.camera2.viewport_h * 0.7)
+        Game.camera2:set_offset_x(Game.camera2.viewport_w * 0.5)
+        Game.camera2:set_position(rec:get_cx(), rec:get_cy())
     end
 )
 
@@ -284,13 +286,23 @@ Game:set_update_action(
         mx, my = Game:to_world(mx, my)
         mx, my = Game.camera:to_camera(mx, my)
 
-        if love.keyboard.isDown("up") and not rec.jump and rec.speed_x == 0
+        if love.keyboard.isDown("up")
+        -- and Game.camera.target.y == rec.y
         then
             Game.camera:follow(rec:get_cx(), rec:get_cy() - 32 * 3)
+        elseif love.keyboard.isDown("down")
+        then
+            Game.camera:follow(rec:get_cx(), rec:get_cy() + 32 * 3)
         else
             Game.camera:follow(rec:get_cx(), rec:get_cy())
         end
 
+        -- if not love.keyboard.isDown("down") and not love.keyboard.isDown("up") then
+        --     Game.camera:follow(rec:get_cx(), rec:get_cy())
+        -- elseif not love.keyboard.isDown("up") then
+        --     Game.camera:follow(rec:get_cx(), rec:get_cy() + 32 * 3)
+        -- end
+        -- Game.camera:follow(rec:get_cx(), rec:get_cy())
         Game.camera2:follow(rec:get_cx(), rec:get_cy())
     end
 )

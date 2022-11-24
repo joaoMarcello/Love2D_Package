@@ -205,17 +205,17 @@ function Camera:follow(x, y)
         target_distance_x ^ 2 + target_distance_y ^ 2
     )
 
-    if self:target_on_focus()
-        and abs(target.distance) > self.tile_size * 2
-    then
-        target.range_x = 0
-        target.range_y = 0
-        target_distance_y = 0
-        target_distance_x = 0
-        target.last_y = nil
-        target.last_x = nil
-        -- target.distance = 0
-    end
+    -- if (self:target_on_focus())
+    --     and abs(target.distance) > self.tile_size * 2
+    -- then
+    --     -- target.range_x = 0
+    --     -- target.range_y = 0
+    --     -- target_distance_y = 0
+    --     -- target_distance_x = 0
+    --     -- target.last_y = nil
+    --     -- target.last_x = nil
+    --     -- target.distance = 0
+    -- end
 
     target.angle_x = atan2(
         target_distance_y,
@@ -238,7 +238,7 @@ function Camera:set_offset_x(value)
     if self.offset_x ~= value then
         if self.target then
             self.target.x = nil
-            self.follow_speed_x = 0
+            self.follow_speed_x = sqrt(2 * self.acc_x * 2)
         end
         self.offset_x = value
     end
@@ -249,7 +249,7 @@ function Camera:set_offset_y(value)
     if self.offset_y ~= value then
         if self.target then
             self.target.y = nil
-            self.follow_speed_y = 0
+            self.follow_speed_y = sqrt(2 * self.acc_y * 2)
         end
         self.offset_y = value
     end
@@ -355,7 +355,7 @@ local function chase_target(camera, dt, chase_x_axis, chase_y_axis)
                 or (cos_r < 0 and self.x < target.x)
             then
                 self:set_position(target.x)
-                self.follow_speed_x = math.sqrt(2 * self.acc_x * 2)
+                self.follow_speed_x = sqrt(2 * self.acc_x * 2)
             end
 
             reach_objective_x = self.x == target.x
@@ -377,13 +377,13 @@ local function chase_target(camera, dt, chase_x_axis, chase_y_axis)
                 (self.follow_speed_y * dt + (self.acc_y * dt * dt) / 2)
                 * sin_r)
 
-            self:move(nil, abs(target.range_y) * self.delay_y)
+            self:move(nil, abs(target.range_y) * target.direction_y * self.delay_y)
 
             if (sin_r > 0 and self.y > target.y)
                 or (sin_r < 0 and self.y < target.y)
             then
                 self:set_position(nil, target.y)
-                self.follow_speed_y = math.sqrt(2 * self.acc_y * 2)
+                self.follow_speed_y = sqrt(2 * self.acc_y * 2)
             end
 
             reach_objective_y = self.y == target.y
@@ -429,7 +429,7 @@ local function dynamic_x_offset(self, dt)
             and target.direction_x ~= target.last_direction_x
         )
     else
-        self.follow_speed_x = 0
+        self.follow_speed_x = sqrt(2 * self.acc_x * 2)
 
         if self.target.direction_x > 0 then
             local right = self.x + deadzone_w / 2
@@ -475,7 +475,7 @@ local function dynamic_y_offset(self, dt)
             and target.direction_y ~= target.last_direction_y
         )
     else
-        self.follow_speed_y = 0
+        self.follow_speed_y = sqrt(2 * self.acc_y * 2)
 
         -- target is going down
         if self.target.direction_y > 0 then
@@ -547,13 +547,13 @@ local function platformer_update(self, dt)
     -- self.follow_speed_x = 32 * 6
     -- self.follow_speed_y = 32 * 4
     self.delay_x = 1
-    self.delay_y = 0.2
+    self.delay_y = 1
 
     dynamic_x_offset(self, dt)
     -- chase_target_x(self, dt)
     -- chase_target_y(self, dt)
-    -- dynamic_y_offset(self, dt)
-    chase_y_when_not_moving(self, dt)
+    dynamic_y_offset(self, dt)
+    -- chase_y_when_not_moving(self, dt)
 end
 
 function Camera:update(dt)
