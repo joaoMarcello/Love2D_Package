@@ -175,6 +175,26 @@ Game:set_load_action(
                 if self.spy ~= 0 then
                     self.y = self.y + self.spy * dt + self.acc * dt * dt / 2
                 end
+
+                if self.x <= Game.world_left then
+                    self.spx = 0
+                    self.x = Game.world_left
+                end
+
+                if self.x + self.w >= Game.world_right then
+                    self.spx = 0
+                    self.x = Game.world_right - self.w
+                end
+
+                if self.y <= Game.world_top then
+                    self.spy = 0
+                    self.y = Game.world_top
+                end
+
+                if self.y + self.h >= Game.world_bottom then
+                    self.spy = 0
+                    self.y = Game.world_bottom - self.h
+                end
             end,
             update = function(self, dt)
                 self:move(dt)
@@ -355,15 +375,15 @@ Game:set_update_action(
         if love.keyboard.isDown("up")
         -- and Game.camera.target.y == rec.y
         then
-            cam1:follow(rec:get_cx(), rec:get_cy() - 32 * 3)
+            cam2:follow(rec:get_cx(), rec:get_cy() - 32 * 3)
         elseif love.keyboard.isDown("down")
         then
-            cam1:follow(rec:get_cx(), rec:get_cy() + 32 * 3)
+            cam2:follow(rec:get_cx(), rec:get_cy() + 32 * 3)
         else
-            cam1:follow(rec:get_cx(), rec:get_cy())
+            cam2:follow(rec:get_cx(), rec:get_cy())
         end
 
-        cam2:follow(ship:get_cx(), ship:get_cy())
+        cam1:follow(ship:get_cx(), ship:get_cy())
     end
 )
 
@@ -528,15 +548,15 @@ Game:set_draw_action(
         graph_rect("fill", 32 * 34, 32 * 4, 32, 32)
         graph_rect("fill", 32 * 10, 32 * 4, 32, 32)
 
-        graph_set_color(0, 0, 0, 0.1)
-        for i = 1, 300 do
-            local x = -32 * 45 + 32 * (i - 1)
-            love.graphics.line(x, 0, x, Game.world_bottom * 50)
-        end
+        -- graph_set_color(0, 0, 0, 0.1)
+        -- for i = 1, 300 do
+        --     local x = -32 * 45 + 32 * (i - 1)
+        --     love.graphics.line(x, 0, x, Game.world_bottom * 50)
+        -- end
 
-        for i = 1, 100 do
-            love.graphics.line(-32 * 1, 32 * (i - 1), Game.w * 50, 32 * (i - 1))
-        end
+        -- for i = 1, 100 do
+        --     love.graphics.line(-32 * 1, 32 * (i - 1), Game.w * 50, 32 * (i - 1))
+        -- end
 
         -- love.graphics.setColor(1, 0, 0, 1)
         -- love.graphics.circle("fill", rec:get_cx(), rec:get_cy(), 130)

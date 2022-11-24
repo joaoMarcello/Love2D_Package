@@ -43,21 +43,24 @@ function Screen:__constructor__(x, y, w, h)
 
     self.x = x or 0
     self.y = y or 0
-    self.w = w or (1366 / 2) --love.graphics.getWidth()
+    self.w = w or (64 * 15) --love.graphics.getWidth()
     self.h = h or 600 --love.graphics.getHeight()
 
     self.scale_x = 1 --1366 / self.w
     self.scale_y = self.scale_x --768 / self.h --self.scale_x
 
+    self.tile_size_x = 32
+    self.tile_size_y = 32
+
     self.world_left = -32 * 50
     self.world_right = 32 * 60
-    self.world_top = -32 * 15
+    self.world_top = -32 * 1
     self.world_bottom = 32 * 50
 
     self.camera = Camera:new({
         -- camera's viewport
         x = self.w / 2,
-        y = 32,
+        y = 64,
         w = self.w,
         h = 32 * 7,
 
@@ -86,7 +89,7 @@ function Screen:__constructor__(x, y, w, h)
         -- camera's viewport
         x = 0,
         y = 0,
-        w = self.w / 2,
+        w = self.w,
         h = self.h * 1,
 
         -- world bounds
@@ -112,16 +115,16 @@ function Screen:__constructor__(x, y, w, h)
     self.canvas = love.graphics.newCanvas(self.w, self.h)
     self.canvas:setFilter("linear", "nearest")
 
-    self.color_r = 0.2
-    self.color_g = 0.2
-    self.color_b = 0.2
-    self.color_a = 1
+    -- self.color_r = 0.35
+    -- self.color_g = 0.35
+    -- self.color_b = 0.35
+    -- self.color_a = 1
 
     self.cameras_list = {}
     self.amount_cameras = 0
 
-    self:add_camera(self.camera)
     self:add_camera(self.camera2)
+    self:add_camera(self.camera)
 end
 
 function Screen:add_camera(camera)
@@ -214,10 +217,38 @@ function Screen:set_shader(shader)
     self.shader = shader
 end
 
+---@param self  JM.Screen
+local function draw_tile(self)
+    local tile = self.tile_size_x * 4
+    local qx = (self.w - self.x) / tile
+    local qy = (self.h - self.y) / tile
+
+    clear_screen(0.35, 0.35, 0.35, 1)
+    set_color_draw(0.9, 0.9, 0.9, 0.3)
+    for i = 0, qx, 2 do
+        local x = tile * i
+
+        for j = 0, qy, 2 do
+            love.graphics.rectangle("fill", x, tile * j, tile, tile)
+            love.graphics.rectangle("fill", x + tile,
+                tile * j + tile,
+                tile, tile)
+        end
+    end
+
+    love.graphics.print(tostring(qx) .. " -- " .. tostring(qy), 10, 10)
+
+end
+
 function Screen:draw()
     set_canvas(self.canvas)
     set_blend_mode("alpha")
-    clear_screen(self:get_color())
+
+    if self:get_color() then
+        clear_screen(self:get_color())
+    else
+        draw_tile(self)
+    end
 
     if self.background_draw then
         self.background_draw(self.background_draw_args)
