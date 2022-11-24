@@ -49,10 +49,10 @@ function Screen:__constructor__(x, y, w, h)
     self.scale_x = 1 --1366 / self.w
     self.scale_y = self.scale_x --768 / self.h --self.scale_x
 
-    self.world_left = 32 * 10
+    self.world_left = -32 * 50
     self.world_right = 32 * 60
-    self.world_top = -32 * 10
-    self.world_bottom = 32 * 40
+    self.world_top = -32 * 15
+    self.world_bottom = 32 * 50
 
     self.camera = Camera:new({
         -- camera's viewport
@@ -77,6 +77,8 @@ function Screen:__constructor__(x, y, w, h)
 
         scale = 0.4,
 
+        type = "super mario world",
+
         color = { 0.9, 0.8, 1, 1 },
     })
 
@@ -85,7 +87,7 @@ function Screen:__constructor__(x, y, w, h)
         x = 0,
         y = 0,
         w = self.w / 2,
-        h = self.h * 0.9,
+        h = self.h * 1,
 
         -- world bounds
         bounds = {
@@ -102,7 +104,9 @@ function Screen:__constructor__(x, y, w, h)
         tile_size = 32,
 
         color = { 0.3, 0.3, 1, 1 },
-        scale = 1
+        scale = 1,
+
+        type = ""
     })
 
     self.canvas = love.graphics.newCanvas(self.w, self.h)
@@ -144,8 +148,8 @@ function Screen:load()
     return self.load_action and self.load_action(self.load_args)
 end
 
-function Screen:get_camera()
-    return self.camera
+function Screen:get_camera(index)
+    return self.cameras_list[index]
 end
 
 function Screen:keypressed(key)

@@ -125,9 +125,71 @@ local function check_collision(x, y, w, h)
     end
 end
 
+local ship
 Game:set_load_action(
     function()
         -- love.graphics.setDefaultFilter("nearest", "nearest")
+        ship = {
+            x = 0,
+            y = 0,
+            w = 64,
+            h = 32,
+            spx = 0,
+            spy = 0,
+            acc = 32 * 20,
+            max_speed = function(self)
+                return math.sqrt(2 * self.acc * 32 * 6)
+            end,
+            move = function(self, dt)
+                if love.keyboard.isDown("a") then
+                    self.spx = self.spx - self.acc * dt
+                elseif love.keyboard.isDown("d") then
+                    self.spx = self.spx + self.acc * dt
+                else
+                    local direction = self.spx / math.abs(self.spx)
+                    self.spx = self.spx + self.acc * dt * -direction
+                    if direction ~= self.spx / math.abs(self.spx) then
+                        self.spx = 0
+                    end
+                end
+
+                if love.keyboard.isDown("w") then
+                    self.spy = self.spy - self.acc * dt
+                elseif love.keyboard.isDown("s") then
+                    self.spy = self.spy + self.acc * dt
+                else
+                    local direction = self.spy / math.abs(self.spy)
+                    self.spy = self.spy + self.acc * dt * -direction
+                    if direction ~= self.spy / math.abs(self.spy) then
+                        self.spy = 0
+                    end
+                end
+
+                if math.abs(self.spx) >= self:max_speed() then
+                    self.spx = self:max_speed() * ((self.spx / math.abs(self.spx)) < 0 and -1 or 1)
+                end
+
+                if self.spx ~= 0 then
+                    self.x = self.x + self.spx * dt + self.acc * dt * dt / 2
+                end
+                if self.spy ~= 0 then
+                    self.y = self.y + self.spy * dt + self.acc * dt * dt / 2
+                end
+            end,
+            update = function(self, dt)
+                self:move(dt)
+            end,
+            draw = function(self)
+                love.graphics.setColor(1, 0, 0, 0.8)
+                love.graphics.rectangle("fill", self.x, self.y, self.w, self.h)
+            end,
+            get_cx = function(self)
+                return self.x + self.w * 0.5
+            end,
+            get_cy = function(self)
+                return self.y + self.h / 2
+            end
+        }
 
         rec = {
             x = 450,
@@ -171,12 +233,12 @@ Game:set_load_action(
         rec.y = 0
 
         Game.camera:jump_to(rec.x, rec.y)
-        Game.camera:set_offset_x(32 * 8)
-        Game.camera:set_offset_y(Game.camera.viewport_h * 0.5)
+        -- Game.camera:set_offset_x(32 * 8)
+        -- Game.camera:set_offset_y(Game.camera.viewport_h * 0.5)
 
         -- Game.camera:set_offset_x(32 * 8)
-        Game.camera2:set_offset_y(Game.camera2.viewport_h * 0.7)
-        Game.camera2:set_offset_x(Game.camera2.viewport_w * 0.5)
+        -- Game.camera2:set_offset_y(Game.camera2.viewport_h * 0.7)
+        -- Game.camera2:set_offset_x(Game.camera2.viewport_w * 0.5)
         Game.camera2:set_position(rec:get_cx(), rec:get_cy())
     end
 )
@@ -194,6 +256,10 @@ Game:set_keypressed_action(
 
 Game:set_update_action(
     function(dt)
+        local cam1, cam2 = Game:get_camera(1), Game:get_camera(2)
+
+        ship:update(dt)
+
         if love.keyboard.isDown("left")
             -- and rec.x > 0
             and rec.speed_x <= 0
@@ -272,8 +338,8 @@ Game:set_update_action(
         my_effect:apply(current_animation, false)
         Consolas:update(dt)
 
-        if rec.x + rec.w > Game.camera.bounds_right then
-            rec.x = Game.camera.bounds_right - rec.w
+        if rec.x + rec.w > Game.world_right then
+            rec.x = Game.world_right - rec.w
             rec.speed_x = 0
         end
 
@@ -284,26 +350,20 @@ Game:set_update_action(
 
         local mx, my = love.mouse.getPosition()
         mx, my = Game:to_world(mx, my)
-        mx, my = Game.camera:screen_to_world(mx, my)
+        mx, my = cam1:screen_to_world(mx, my)
 
         if love.keyboard.isDown("up")
         -- and Game.camera.target.y == rec.y
         then
-            Game.camera:follow(rec:get_cx(), rec:get_cy() - 32 * 3)
+            cam1:follow(rec:get_cx(), rec:get_cy() - 32 * 3)
         elseif love.keyboard.isDown("down")
         then
-            Game.camera:follow(rec:get_cx(), rec:get_cy() + 32 * 3)
+            cam1:follow(rec:get_cx(), rec:get_cy() + 32 * 3)
         else
-            Game.camera:follow(rec:get_cx(), rec:get_cy())
+            cam1:follow(rec:get_cx(), rec:get_cy())
         end
 
-        -- if not love.keyboard.isDown("down") and not love.keyboard.isDown("up") then
-        --     Game.camera:follow(rec:get_cx(), rec:get_cy())
-        -- elseif not love.keyboard.isDown("up") then
-        --     Game.camera:follow(rec:get_cx(), rec:get_cy() + 32 * 3)
-        -- end
-        -- Game.camera:follow(rec:get_cx(), rec:get_cy())
-        Game.camera2:follow(rec:get_cx(), rec:get_cy())
+        cam2:follow(ship:get_cx(), ship:get_cy())
     end
 )
 
@@ -484,7 +544,7 @@ Game:set_draw_action(
         -- love.graphics.circle("fill", rec:get_cx(), rec:get_cy(), 128)
         -- current_animation:draw_rec(math.floor(rec.x), math.floor(rec.y), rec.w, rec.h)
 
-
+        ship:draw()
 
         graph_set_color(1, 0, 0, 0.7)
         local mx, my = love.mouse.getPosition()
