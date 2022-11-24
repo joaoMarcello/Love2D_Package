@@ -116,7 +116,8 @@ function Camera:__constructor__(x, y, w, h, bounds, canvas_width, canvas_height,
     self.color_a = color and color[4] or 1
 
     self.debug = true
-    self.debug_rad = 0
+    self.debug_msg_rad = 0
+    self.debug_trgt_rad = 0
 end
 
 function Camera:get_color()
@@ -622,9 +623,10 @@ local function debbug(self)
 
     local state = self:get_state()
 
-    love.graphics.setColor(0, 0, 0, 1)
-    love.graphics.print("Scale: " .. tostring(self.scale), self.viewport_w - 100)
-    love.graphics.print("Cam_X: " .. tostring(self.x), self.viewport_w - 100, 25)
+    -- love.graphics.setColor(0, 0, 0, 1)
+    -- love.graphics.print("Scale: " .. tostring(self.scale), self.viewport_w - 100)
+    -- love.graphics.print("Cam_X: " .. tostring(self.x), self.viewport_w - 100, 25)
+
     do
         if self.target and false then
             love.graphics.print(tostring(math.cos(self.target.angle_y)), 100, 200)
@@ -645,7 +647,16 @@ local function debbug(self)
     -- Drawing the focus and deadzone
     do
         if self.target then
-            love.graphics.setColor(0, 0.8, 0, 1)
+            self.debug_trgt_rad = self.debug_trgt_rad + (math.pi * 2) / 0.3 * love.timer.getDelta()
+
+            if self:target_on_focus() then
+                love.graphics.setColor(0, 0.8, 0, 1)
+            else
+                love.graphics.setColor(0, 0.8, 0,
+                    0.7 + 0.5 * cos(self.debug_trgt_rad)
+                )
+            end
+
             love.graphics.circle("fill",
                 self.viewport_x + self.offset_x + self:x_to_screen((self.target.x or self.target.last_x)),
                 self.viewport_y + self.offset_y + self:y_to_screen((self.target.y or self.target.last_y)),
@@ -897,10 +908,10 @@ local function debbug(self)
     )
 
     -- Showing the message DEBUG MODE
-    self.debug_rad = self.debug_rad
+    self.debug_msg_rad = self.debug_msg_rad
         + (math.pi * 2) / 0.5
         * love.timer.getDelta()
-    love.graphics.setColor(1, 0, 0, 0.7 + 0.5 * cos(self.debug_rad))
+    love.graphics.setColor(1, 0, 0, 0.7 + 0.5 * cos(self.debug_msg_rad))
     love.graphics.print("DEBUG MODE",
         self.viewport_x + self.viewport_w - border_len - 90,
         self.viewport_y + border_len

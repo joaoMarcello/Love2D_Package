@@ -51,8 +51,8 @@ function Screen:__constructor__(x, y, w, h)
 
     self.world_left = 32 * 10
     self.world_right = 32 * 60
-    self.world_top = -32 * 4
-    self.world_bottom = 32 * 14
+    self.world_top = -32 * 10
+    self.world_bottom = 32 * 40
 
     self.camera = Camera:new({
         -- camera's viewport
