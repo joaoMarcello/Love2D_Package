@@ -284,7 +284,7 @@ Game:set_update_action(
 
         local mx, my = love.mouse.getPosition()
         mx, my = Game:to_world(mx, my)
-        mx, my = Game.camera:to_camera(mx, my)
+        mx, my = Game.camera:screen_to_world(mx, my)
 
         if love.keyboard.isDown("up")
         -- and Game.camera.target.y == rec.y
@@ -489,7 +489,7 @@ Game:set_draw_action(
         graph_set_color(1, 0, 0, 0.7)
         local mx, my = love.mouse.getPosition()
         mx, my = Game:to_world(mx, my)
-        mx, my = Game.camera:to_camera(mx, my)
+        mx, my = Game.camera:screen_to_world(mx, my)
         love.graphics.rectangle("fill", mx, my, 32, 32)
 
         love.graphics.setShader()

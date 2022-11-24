@@ -149,7 +149,7 @@ function Camera:set_viewport(x, y, w, h)
     self.viewport_h = h and h / self.scale or self.viewport_h
 end
 
-function Camera:to_camera(x, y)
+function Camera:screen_to_world(x, y)
     y = y or 0
     x = x or 0
 
@@ -159,7 +159,7 @@ function Camera:to_camera(x, y)
     return x + self.x, y + self.y
 end
 
-function Camera:to_screen(x, y)
+function Camera:world_to_screen(x, y)
     y = y or 0
     x = x or 0
 
@@ -176,6 +176,9 @@ function Camera:follow(x, y)
 
     x = x - (self.offset_x) / self.scale
     y = y - self.offset_y / self.scale
+
+    x = round(x)
+    y = round(y)
 
     target.last_x = target.x or x
     target.last_y = target.y or y
@@ -230,7 +233,8 @@ end
 
 function Camera:target_on_focus()
     if not self.target then return false end
-    return self.x == self.target.x and self.y == self.target.y
+    if not self.target.y or not self.target.x then return false end
+    return self.x == round(self.target.x) and self.y == round(self.target.y)
 end
 
 function Camera:set_offset_x(value)
@@ -301,11 +305,11 @@ function Camera:set_bounds(left, right, top, bottom)
 end
 
 function Camera:rect_is_on_screen(left, right, top, bottom)
-    local left, top = self:to_camera(left, top)
-    local right, bottom = self:to_camera(right, bottom)
+    local left, top = self:screen_to_world(left, top)
+    local right, bottom = self:screen_to_world(right, bottom)
 
-    local cLeft, ctop = self:to_camera(self.x, self.y)
-    local cright, cbottom = self:to_camera(
+    local cLeft, ctop = self:screen_to_world(self.x, self.y)
+    local cright, cbottom = self:screen_to_world(
         self.x + (self.viewport_w / self.scale),
         self.y + self.viewport_h / self.scale
     )
@@ -336,6 +340,8 @@ local function chase_target(camera, dt, chase_x_axis, chase_y_axis)
         local target = self.target or 1
 
         if chase_x_axis and self.x ~= target.x then
+            self.follow_speed_x = self.follow_speed_x + self.acc_x * dt
+
             local cos_r = cos(target.angle_x)
 
             if self.y <= self.bounds_top
@@ -422,7 +428,7 @@ local function dynamic_x_offset(self, dt)
     local move_right_offset = move_left_offset == right_focus and left_focus or right_focus
 
     if not self:is_locked_in_x() then
-        self.follow_speed_x = self.follow_speed_x + self.acc_x * dt
+        -- self.follow_speed_x = self.follow_speed_x + self.acc_x * dt
         local objective = chase_target_x(self, dt)
 
         self:lock_x_axis(objective
@@ -433,16 +439,16 @@ local function dynamic_x_offset(self, dt)
 
         if self.target.direction_x > 0 then
             local right = self.x + deadzone_w / 2
-            right = self:to_camera(right)
+            right = self:screen_to_world(right)
 
-            if self:to_camera(self.target.x) > right then
+            if self:screen_to_world(self.target.x) > right then
                 self:lock_x_axis(false)
             end
         elseif self.target.direction_x <= 0 then
             local left = self.x - deadzone_w / 2
-            left = self:to_camera(left)
+            left = self:screen_to_world(left)
 
-            if self:to_camera(self.target.x) < left then
+            if self:screen_to_world(self.target.x) < left then
                 self:lock_x_axis(false)
             end
         end
@@ -480,18 +486,18 @@ local function dynamic_y_offset(self, dt)
         -- target is going down
         if self.target.direction_y > 0 then
             local bottom = self.y + deadzone_h / 2
-            bottom = self:__y_to_camera(bottom)
+            bottom = self:__y_to_world(bottom)
 
-            local cy = self:__y_to_camera(self.target.y)
+            local cy = self:__y_to_world(self.target.y)
             if cy > bottom then
                 self:lock_y_axis(false)
             end
 
         elseif self.target.direction_y < 0 then
             local top = self.y - deadzone_h / 2
-            top = self:__y_to_camera(top)
+            top = self:__y_to_world(top)
 
-            if self:__y_to_camera(self.target.y) < top then
+            if self:__y_to_world(self.target.y) < top then
                 self:lock_y_axis(false)
             end
         end
@@ -512,12 +518,12 @@ local function chase_y_when_not_moving(self, dt)
     local target = self.target or {}
     self.deadzone_h = self.tile_size * 3
     local deadzone_height = self.deadzone_h / 2
-    local top_limit = self:__y_to_camera(self.viewport_h * 0.2)
+    local top_limit = self:__y_to_world(self.viewport_h * 0.2)
     local delay = 1
     self.delay_y = delay
 
-    local bottom = self:__y_to_camera(self.y + deadzone_height)
-    local cy = self:__y_to_camera(target.y)
+    local bottom = self:__y_to_world(self.y + deadzone_height)
+    local cy = self:__y_to_world(target.y)
 
     if target.direction_y == 0
     -- or target.y + self.offset_y / self.scale < top_limit
@@ -559,21 +565,21 @@ end
 function Camera:update(dt)
     platformer_update(self, dt)
 
-    local left, top = self:to_camera(self.bounds_left, self.bounds_top)
-    local right, bottom = self:to_camera(
+    local left, top = self:screen_to_world(self.bounds_left, self.bounds_top)
+    local right, bottom = self:screen_to_world(
         self.bounds_right - self.viewport_w / self.scale,
         self.bounds_bottom - self.viewport_h / self.scale
     )
-    local px, py = self:to_camera(self.x, self.y)
+    local px, py = self:screen_to_world(self.x, self.y)
 
     local lock = self.lock_x
     if px < left then
-        local x = self:to_screen(left)
+        local x = self:world_to_screen(left)
         self:lock_x_axis(false)
         self:set_position(x)
         self:lock_x_axis(lock)
     elseif px > right then
-        local x = self:to_screen(right)
+        local x = self:world_to_screen(right)
         self:lock_x_axis(false)
         self:set_position(x)
         self:lock_x_axis(lock)
@@ -771,6 +777,51 @@ local function debbug(self)
     love.graphics.rectangle("fill", self.viewport_x, self.viewport_y, self.viewport_w, 2)
     love.graphics.rectangle("fill", self.viewport_x, self.viewport_y + self.viewport_h - 2,
         self.viewport_w, 2)
+    --==========================================================
+
+    --Drawing a yellow rectangle
+    love.graphics.setColor(1, 1, 0, 1)
+    local border_len = self.tile_size * self.scale
+    do
+        love.graphics.rectangle("line",
+            self.viewport_x + border_len,
+            self.viewport_y + border_len,
+            self.viewport_w - border_len * 2,
+            self.viewport_h - border_len * 2
+        )
+
+        -- Top-Middle
+        love.graphics.line(
+            self.viewport_x + self.viewport_w / 2,
+            self.viewport_y,
+            self.viewport_x + self.viewport_w / 2,
+            self.viewport_y + border_len
+        )
+
+        --Bottom-Middle
+        love.graphics.line(
+            self.viewport_x + self.viewport_w / 2,
+            self.viewport_y + self.viewport_h - border_len,
+            self.viewport_x + self.viewport_w / 2,
+            self.viewport_y + self.viewport_h
+        )
+
+        --Left-Middle
+        love.graphics.line(
+            self.viewport_x,
+            self.viewport_y + self.viewport_h / 2,
+            self.viewport_x + border_len,
+            self.viewport_y + self.viewport_h / 2
+        )
+
+        love.graphics.line(
+            self.viewport_x + self.viewport_w - border_len,
+            self.viewport_y + self.viewport_h / 2,
+            self.viewport_x + self.viewport_w,
+            self.viewport_y + self.viewport_h / 2
+        )
+    end
+    --===========================================================
 
     -- Drawing the world boundary
     love.graphics.setColor(1, 1, 1, 1)
@@ -798,6 +849,36 @@ local function debbug(self)
         self.viewport_w,
         2
     )
+
+    local r, g, b, a = 1, 0, 0, 1
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.rectangle("fill",
+        self.viewport_x + self.viewport_w - border_len - 85,
+        self.viewport_y + self.viewport_h - border_len - 25,
+        75,
+        16
+    )
+    love.graphics.setColor(r, g, b, a)
+    love.graphics.print(self:get_state(),
+        self.viewport_x + self.viewport_w - border_len - 75,
+        self.viewport_y + self.viewport_h - border_len - 25
+    )
+end
+
+function Camera:get_state()
+    local left, top = self:screen_to_world(self.bounds_left, self.bounds_right)
+    local right, bottom = self:screen_to_world(
+        self.bounds_right - self.viewport_w / self.scale,
+        self.bounds_bottom - self.viewport_h / self.scale
+    )
+    local px, py = self:screen_to_world(self.x, self.y)
+
+    local text = self:target_on_focus() and "on focus" or "chasing"
+    text = (self.lock_x and self.lock_y) and "locked" or text
+    text = self.x <= self.bounds_left and "on limit" or text
+    text = self.x >= self.bounds_right and "on limit" or text
+    text = not self.target and "no target" or text
+    return text
 end
 
 function Camera:detach()
@@ -807,27 +888,27 @@ function Camera:detach()
 
 end
 
-function Camera:__y_to_camera(y)
+function Camera:__y_to_world(y)
     local x
-    x, y = self:to_camera(x, y)
+    x, y = self:screen_to_world(x, y)
     return y
 end
 
-function Camera:__x_to_camera(x)
+function Camera:__x_to_world(x)
     local y
-    x, y = self:to_camera(x, y)
+    x, y = self:screen_to_world(x, y)
     return x
 end
 
 function Camera:__y_to_screen(y)
     local x
-    x, y = self:to_screen(x, y)
+    x, y = self:world_to_screen(x, y)
     return y
 end
 
 function Camera:__x_to_screen(x)
     local y
-    x, y = self:to_screen(x, y)
+    x, y = self:world_to_screen(x, y)
     return x
 end
 

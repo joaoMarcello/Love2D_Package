@@ -458,12 +458,12 @@ function t:draw()
     graph_set_color(1, 0, 0, 0.7)
     local mx, my = love.mouse.getPosition()
     mx, my = to_world(mx, my)
-    mx, my = t.camera:to_camera(mx, my)
+    mx, my = t.camera:screen_to_world(mx, my)
     love.graphics.rectangle("fill", mx, my, 32, 32)
 
     local mx2, my2 = love.mouse.getPosition()
     mx2, my2 = to_world(mx2, my2)
-    mx2, my2 = t.camera:to_camera(mx2, my2)
+    mx2, my2 = t.camera:screen_to_world(mx2, my2)
     local point_on_screen = t.camera:rect_is_on_screen(mx2,
         mx2 + 32,
         my2,
