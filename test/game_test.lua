@@ -284,8 +284,9 @@ Game:set_update_action(
         mx, my = Game:to_world(mx, my)
         mx, my = Game.camera:to_camera(mx, my)
 
-        if love.keyboard.isDown("up") then
-            Game.camera:follow(rec:get_cx(), rec:get_cy() - 64)
+        if love.keyboard.isDown("up") and not rec.jump and rec.speed_x == 0
+        then
+            Game.camera:follow(rec:get_cx(), rec:get_cy() - 32 * 3)
         else
             Game.camera:follow(rec:get_cx(), rec:get_cy())
         end
@@ -455,7 +456,7 @@ Game:set_draw_action(
         graph_rect("fill", 32 * 34, 32 * 4, 32, 32)
         graph_rect("fill", 32 * 10, 32 * 4, 32, 32)
 
-        graph_set_color(0, 0, 0, 0)
+        graph_set_color(0, 0, 0, 0.1)
         for i = 1, 300 do
             local x = -32 * 45 + 32 * (i - 1)
             love.graphics.line(x, 0, x, Game.world_bottom * 50)

@@ -97,8 +97,8 @@ function Camera:__constructor__(x, y, w, h, bounds, canvas_width, canvas_height,
     self.follow_speed_x = (32 * 9)
     self.follow_speed_y = (32 * 8)
 
-    self.acc_x = self.tile_size * 5
-    self.acc_y = self.tile_size * 5
+    self.acc_x = self.tile_size * 20
+    self.acc_y = self.acc_x
 
     self.follow_acc = self.tile_size * 3
 
@@ -201,14 +201,21 @@ function Camera:follow(x, y)
     local target_distance_x = target.x - self.x
     local target_distance_y = target.y - self.y
 
-    if abs(target.range_y) > self.tile_size * 2 then
-        -- target_distance_y = 0
-    end
-
     target.distance = sqrt(
         target_distance_x ^ 2 + target_distance_y ^ 2
     )
 
+    if self:target_on_focus()
+        and abs(target.distance) > self.tile_size * 2
+    then
+        target.range_x = 0
+        target.range_y = 0
+        target_distance_y = 0
+        target_distance_x = 0
+        target.last_y = nil
+        target.last_x = nil
+        -- target.distance = 0
+    end
 
     target.angle_x = atan2(
         target_distance_y,
@@ -221,14 +228,18 @@ function Camera:follow(x, y)
     )
 end
 
-function Camera:target_on_focus(x, y)
-    return self.x == x and self.y == y
+function Camera:target_on_focus()
+    if not self.target then return false end
+    return self.x == self.target.x and self.y == self.target.y
 end
 
 function Camera:set_offset_x(value)
     value = round(value)
     if self.offset_x ~= value then
-        if self.target then self.target.x = nil end
+        if self.target then
+            self.target.x = nil
+            self.follow_speed_x = 0
+        end
         self.offset_x = value
     end
 end
@@ -236,7 +247,10 @@ end
 function Camera:set_offset_y(value)
     value = round(value)
     if self.offset_y ~= value then
-        if self.target then self.target.y = nil end
+        if self.target then
+            self.target.y = nil
+            self.follow_speed_y = 0
+        end
         self.offset_y = value
     end
 end
@@ -331,7 +345,9 @@ local function chase_target(camera, dt, chase_x_axis, chase_y_axis)
                 cos_r = cos_r / abs(cos_r)
             end
 
-            self:move(self.follow_speed_x * dt * cos_r)
+            self:move(
+                (self.follow_speed_x * dt + (self.acc_x * dt * dt) / 2)
+                * cos_r)
 
             self:move(abs(target.range_x) * cos_r * self.delay_x)
 
@@ -339,12 +355,15 @@ local function chase_target(camera, dt, chase_x_axis, chase_y_axis)
                 or (cos_r < 0 and self.x < target.x)
             then
                 self:set_position(target.x)
+                self.follow_speed_x = math.sqrt(2 * self.acc_x * 2)
             end
 
             reach_objective_x = self.x == target.x
         end
 
         if chase_y_axis and self.y ~= target.y then
+            self.follow_speed_y = self.follow_speed_y + self.acc_y * dt
+
             local sin_r = sin(target.angle_y)
 
             if self.x <= self.bounds_left
@@ -354,14 +373,17 @@ local function chase_target(camera, dt, chase_x_axis, chase_y_axis)
                 sin_r = sin_r / abs(sin_r)
             end
 
-            self:move(nil, self.follow_speed_y * dt * sin_r)
+            self:move(nil,
+                (self.follow_speed_y * dt + (self.acc_y * dt * dt) / 2)
+                * sin_r)
 
-            self:move(nil, abs(target.range_y) * sin_r * self.delay_y)
+            self:move(nil, abs(target.range_y) * self.delay_y)
 
             if (sin_r > 0 and self.y > target.y)
                 or (sin_r < 0 and self.y < target.y)
             then
                 self:set_position(nil, target.y)
+                self.follow_speed_y = math.sqrt(2 * self.acc_y * 2)
             end
 
             reach_objective_y = self.y == target.y
@@ -400,12 +422,15 @@ local function dynamic_x_offset(self, dt)
     local move_right_offset = move_left_offset == right_focus and left_focus or right_focus
 
     if not self:is_locked_in_x() then
+        self.follow_speed_x = self.follow_speed_x + self.acc_x * dt
         local objective = chase_target_x(self, dt)
 
         self:lock_x_axis(objective
             and target.direction_x ~= target.last_direction_x
         )
     else
+        self.follow_speed_x = 0
+
         if self.target.direction_x > 0 then
             local right = self.x + deadzone_w / 2
             right = self:to_camera(right)
@@ -413,7 +438,7 @@ local function dynamic_x_offset(self, dt)
             if self:to_camera(self.target.x) > right then
                 self:lock_x_axis(false)
             end
-        elseif self.target.direction_x < 0 then
+        elseif self.target.direction_x <= 0 then
             local left = self.x - deadzone_w / 2
             left = self:to_camera(left)
 
@@ -443,12 +468,15 @@ local function dynamic_y_offset(self, dt)
     local bottom_offset = top_offset == top_focus and bottom_focus or top_focus
 
     if not self:is_locked_in_y() then
+        -- self.follow_speed_y = self.follow_speed_y + self.acc_y * dt
         local objective = chase_target_y(self, dt)
 
         self:lock_y_axis(objective
             and target.direction_y ~= target.last_direction_y
         )
     else
+        self.follow_speed_y = 0
+
         -- target is going down
         if self.target.direction_y > 0 then
             local bottom = self.y + deadzone_h / 2
@@ -482,7 +510,6 @@ local function chase_y_when_not_moving(self, dt)
 
     --- parameters
     local target = self.target or {}
-    local acc = 32 * 15
     self.deadzone_h = self.tile_size * 3
     local deadzone_height = self.deadzone_h / 2
     local top_limit = self:__y_to_camera(self.viewport_h * 0.2)
@@ -493,16 +520,21 @@ local function chase_y_when_not_moving(self, dt)
     local cy = self:__y_to_camera(target.y)
 
     if target.direction_y == 0
-        or target.y + self.offset_y / self.scale < top_limit
+    -- or target.y + self.offset_y / self.scale < top_limit
     then
-        self.follow_speed_y = self.follow_speed_y + acc * dt
+        -- self.follow_speed_y = self.follow_speed_y + acc * dt
         chase_target_y(self, dt)
     else
         self.follow_speed_y = 0
     end
 
-    if cy > bottom and target.direction_y == 1 then
-        self:set_position(nil, target.y - deadzone_height)
+    if target.y + self.offset_y / self.scale < top_limit then
+        self:move(nil, -abs(target.range_y))
+    end
+
+    if cy > bottom and target.last_direction_y == 1 then
+        -- self:set_position(nil, target.y - deadzone_height)
+        self:move(nil, abs(target.range_y))
     end
 end
 
@@ -515,13 +547,13 @@ local function platformer_update(self, dt)
     -- self.follow_speed_x = 32 * 6
     -- self.follow_speed_y = 32 * 4
     self.delay_x = 1
-    self.delay_y = 1
+    self.delay_y = 0.2
 
     dynamic_x_offset(self, dt)
     -- chase_target_x(self, dt)
     -- chase_target_y(self, dt)
-    dynamic_y_offset(self, dt)
-    -- chase_y_when_not_moving(self, dt)
+    -- dynamic_y_offset(self, dt)
+    chase_y_when_not_moving(self, dt)
 end
 
 function Camera:update(dt)
@@ -762,7 +794,7 @@ local function debbug(self)
     )
     love.graphics.rectangle("fill",
         self.viewport_x,
-        self:__y_to_screen(self.bounds_bottom - self.tile_size),
+        self.viewport_y + self:__y_to_screen(self.bounds_bottom - self.tile_size),
         self.viewport_w,
         2
     )
