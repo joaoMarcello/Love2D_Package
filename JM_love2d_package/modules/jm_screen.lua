@@ -49,10 +49,10 @@ function Screen:__constructor__(x, y, w, h)
     self.scale_x = 1 --1366 / self.w
     self.scale_y = self.scale_x --768 / self.h --self.scale_x
 
-    self.world_left = -32 * 10
-    self.world_right = 32 * 55
-    self.world_top = -32 * 15
-    self.world_bottom = 32 * 60
+    self.world_left = 32 * 10
+    self.world_right = 32 * 35
+    self.world_top = -32 * 4
+    self.world_bottom = 32 * 12
 
     self.camera = Camera:new({
         -- camera's viewport

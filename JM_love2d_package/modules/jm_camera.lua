@@ -866,17 +866,50 @@ local function debbug(self)
 end
 
 function Camera:get_state()
-    local left, top = self:screen_to_world(self.bounds_left, self.bounds_right)
+    local left, top = self:screen_to_world(self.bounds_left, self.bounds_top)
     local right, bottom = self:screen_to_world(
-        self.bounds_right - self.viewport_w / self.scale,
-        self.bounds_bottom - self.viewport_h / self.scale
+        self.bounds_right - (self.viewport_w + 1) / self.scale,
+        self.bounds_bottom - (self.viewport_h + 1) / self.scale
     )
     local px, py = self:screen_to_world(self.x, self.y)
 
     local text = self:target_on_focus() and "on focus" or "chasing"
-    text = (self.lock_x and self.lock_y) and "locked" or text
-    text = self.x <= self.bounds_left and "on limit" or text
-    text = self.x >= self.bounds_right and "on limit" or text
+
+    text = (self.lock_x) and "x locked" or text
+    text = (text == "x locked" and self.lock_y) and "xy locked" or text
+    text = self.lock_y and "x locked" or text
+
+    if px <= left or px >= right or py <= top or py >= bottom then
+        text = ""
+    end
+
+    if px <= left then text = text .. "left" end
+
+    if px >= right then
+        text = text .. (text:find("left") and "-" or "")
+        text = text .. "right"
+    end
+
+    -- text = text .. (text ~= "" and "-" or "")
+    if py <= top then
+        text = text .. ((text:find("left") or text:find("right")) and "-" or "")
+        text = text .. "top"
+    end
+
+    -- text = text .. (text ~= "" and "-" or "")
+    if py >= bottom then
+        text = text .. ((text:find("left") or text:find("right") or text:find("top")) and "-" or "")
+        text = text .. "bottom"
+    end
+
+    if py <= top and py >= bottom and px <= left and px >= right then
+        text = "out of bounds"
+    end
+    -- text = px <= left and "on limit" or text
+    -- text = px + 1 >= right and "on limit" or text
+    -- text = py <= top and "on limit" or text
+    -- text = py >= bottom and "on limit" or text
+
     text = not self.target and "no target" or text
     return text
 end
