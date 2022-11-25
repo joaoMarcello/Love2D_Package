@@ -2,8 +2,7 @@
 
     Copyright (c) 2022, Joao Moreira.
 ]]
-
-local EffectManager = require("/JM_love2d_package/modules/classes/EffectManager")
+local path = (...)
 
 local Affectable = require("/JM_love2d_package/modules/templates/Affectable")
 
@@ -50,16 +49,15 @@ end
 --- @param args {img: love.Image|string, frames: number, frames_list: table,  speed: number, rotation: number, color: JM.Color, scale: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, stop_at_the_end: boolean, amount_cycle: number, state: JM.AnimaStates, bottom: number, kx: number, ky: number, width: number, height: number, ref_width: number, ref_height: number, duration: number, n: number}  # A table containing the follow fields:
 ---
 function Anima:__constructor__(args)
+    local EffectManager = require("/JM_love2d_package/modules/classes/EffectManager")
 
     self:set_img(args.img)
 
-    self.__args = args
-
     self.__amount_frames = (args.frames_list and #args.frames_list) or (args.frames) or 1
 
-    self.__frame_time = 0.
-    self.__update_time = 0.
-    self.__stopped_time = 0.
+    self.__frame_time = 0
+    self.__update_time = 0
+    self.__stopped_time = 0
     self.__cycle_count = 0
     self.__is_visible = true
     self.__is_enabled = true
@@ -86,7 +84,7 @@ function Anima:__constructor__(args)
 
     self:set_scale(args.scale)
 
-    self.__effect_manager = EffectManager:new()
+    self.__effect_manager = EffectManager and EffectManager:new() or nil
 
     self.__frames_list = {}
 
@@ -127,11 +125,6 @@ function Anima:__constructor__(args)
     self.__stop_action_args = nil
 
     Affectable.__checks_implementation__(self)
-end
-
-function Anima:copy()
-    local obj = Anima.new(Anima, self.__args)
-    return obj
 end
 
 --- Sets the size in pixels to draw the frame.
@@ -395,7 +388,7 @@ function Anima:update(dt)
     end
 
     -- updating the Effects
-    self.__effect_manager:update(dt)
+    if self.__effect_manager then self.__effect_manager:update(dt) end
 
     if self.__custom_action then
         self.__custom_action(self, self.__custom_action_args)
@@ -523,7 +516,7 @@ function Anima:draw(x, y)
     self:__draw_with_no_effects__(x, y)
 
     -- Drawing the effects, if some exists.
-    self.__effect_manager:draw(x, y)
+    if self.__effect_manager then self.__effect_manager:draw(x, y) end
 end
 
 ---@return JM.Anima.Frame
@@ -627,8 +620,9 @@ end
 --- Aplica efeito na animacao.
 ---@param effect_type JM.Effect.id_string|JM.Effect.id_number
 ---@param effect_args any
----@return JM.Effect effect
+---@return JM.Effect|nil effect
 function Anima:apply_effect(effect_type, effect_args)
+    if not self.__effect_manager then return end
     return self.__effect_manager:apply_effect(self, effect_type, effect_args)
 end
 
@@ -636,6 +630,7 @@ end
 ---@param effect_id JM.Effect|number
 ---@return boolean
 function Anima:stop_effect(effect_id)
+    if not self.__effect_manager then return false end
     if type(effect_id) == "number" then
         return self.__effect_manager:stop_effect(effect_id)
     end

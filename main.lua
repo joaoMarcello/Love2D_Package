@@ -21,8 +21,10 @@ function love.keyreleased(key)
     r = nil
 end
 
+local km = collectgarbage("count")
 function love.update(dt)
     local r
+    km = collectgarbage("count")
 
     if love.keyboard.isDown("q") or love.keyboard.isDown("escape") then
         love.event.quit()
@@ -32,14 +34,19 @@ function love.update(dt)
     r = nil
 
     t = t + dt
-    if t >= 10 then
-        t = t - 10
+    if t >= 2 then
+        t = t - 2
         collectgarbage()
     end
 end
 
 function love.draw()
+
+
     local r
     r = scene.draw and scene:draw()
     r = nil
+
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.print(km, 100, 300)
 end

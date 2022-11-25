@@ -7,16 +7,19 @@ local love_set_blend_mode = love.graphics.setBlendMode
 local love_get_blend_mode = love.graphics.getBlendMode
 local love_set_color = love.graphics.setColor
 local love_draw = love.graphics.draw
+local love_rect = love.graphics.rectangle
+local love_line = love.graphics.line
 local sin, cos, atan2, sqrt, abs = math.sin, math.cos, math.atan2, math.sqrt, math.abs
+local mfloor, mceil = math.floor, math.ceil
 
 local function round(value)
-    local absolute = math.abs(value)
-    local decimal = absolute - math.floor(absolute)
+    local absolute = abs(value)
+    local decimal = absolute - mfloor(absolute)
 
     if decimal >= 0.5 then
-        return value > 0 and math.ceil(value) or math.floor(value)
+        return value > 0 and mceil(value) or mfloor(value)
     else
-        return value > 0 and math.floor(value) or math.ceil(value)
+        return value > 0 and mfloor(value) or mceil(value)
     end
 end
 
@@ -29,27 +32,24 @@ local function deg2rad(value)
 end
 
 --- Moves the camera's position until reaches the target's position.
----@param camera JM.Camera.Camera
-local function chase_target(camera, dt, chase_x_axis, chase_y_axis)
-    local self
-    self = camera
+---@param self JM.Camera.Camera
+local function chase_target(self, dt, chase_x_axis, chase_y_axis)
     local reach_objective_x, reach_objective_y = not chase_x_axis, not chase_y_axis
 
     if self.target then
-        local target = self.target or 1
 
-        if chase_x_axis and self.x ~= target.x then
+        if chase_x_axis and self.x ~= self.target.x then
             if self.constant_speed_x then
                 self.follow_speed_x = self.constant_speed_x
             else
                 self.follow_speed_x = self.follow_speed_x + self.acc_x * dt
             end
 
-            local cos_r = cos(target.angle_x)
+            local cos_r = cos(self.target.angle_x)
 
             if self.y <= self.bounds_top
                 or self.y >= self.bounds_bottom - self.viewport_h / self.scale
-                or not self:point_is_on_screen(target.x, target.y)
+                or not self:point_is_on_screen(self.target.x, self.target.y)
             then
                 cos_r = cos_r / abs(cos_r)
             end
@@ -58,30 +58,30 @@ local function chase_target(camera, dt, chase_x_axis, chase_y_axis)
                 (self.follow_speed_x * dt + (self.acc_x * dt * dt) / 2)
                 * cos_r)
 
-            self:move(abs(target.range_x) * cos_r * self.delay_x)
+            self:move(abs(self.target.range_x) * cos_r * self.delay_x)
 
-            if (cos_r > 0 and self.x > target.x)
-                or (cos_r < 0 and self.x < target.x)
+            if (cos_r > 0 and self.x > self.target.x)
+                or (cos_r < 0 and self.x < self.target.x)
             then
-                self:set_position(target.x)
+                self:set_position(self.target.x)
                 self.follow_speed_x = sqrt(2 * self.acc_x * 2)
             end
 
-            reach_objective_x = self.x == target.x
+            reach_objective_x = self.x == self.target.x
         end
 
-        if chase_y_axis and self.y ~= target.y then
+        if chase_y_axis and self.y ~= self.target.y then
             if self.constant_speed_y then
                 self.follow_speed_y = self.constant_speed_y
             else
                 self.follow_speed_y = self.follow_speed_y + self.acc_y * dt
             end
 
-            local sin_r = sin(target.angle_y)
+            local sin_r = sin(self.target.angle_y)
 
             if self.x <= self.bounds_left
                 or self.x >= self.bounds_right - self.viewport_w / self.scale
-                or not self:point_is_on_screen(target.x, target.y)
+                or not self:point_is_on_screen(self.target.x, self.target.y)
             then
                 sin_r = sin_r / abs(sin_r)
             end
@@ -90,21 +90,20 @@ local function chase_target(camera, dt, chase_x_axis, chase_y_axis)
                 (self.follow_speed_y * dt + (self.acc_y * dt * dt) / 2)
                 * sin_r)
 
-            self:move(nil, abs(target.range_y) * target.direction_y * self.delay_y)
+            self:move(nil, abs(self.target.range_y) * self.target.direction_y * self.delay_y)
 
-            if (sin_r > 0 and self.y > target.y)
-                or (sin_r < 0 and self.y < target.y)
+            if (sin_r > 0 and self.y > self.target.y)
+                or (sin_r < 0 and self.y < self.target.y)
             then
-                self:set_position(nil, target.y)
+                self:set_position(nil, self.target.y)
                 self.follow_speed_y = sqrt(2 * self.acc_y * 2)
             end
 
-            reach_objective_y = self.y == target.y
+            reach_objective_y = self.y == self.target.y
         end
 
     end
 
-    self = nil
     return reach_objective_x and reach_objective_y
 end
 
@@ -120,9 +119,7 @@ end
 
 ---@param self JM.Camera.Camera
 local function dynamic_x_offset(self, dt)
-    local target
-    target = self.target
-    if not target then return end
+    if not self.target then return end
 
     local deadzone_w = self.desired_deadzone_width
         or self.deadzone_w
@@ -145,7 +142,7 @@ local function dynamic_x_offset(self, dt)
         local objective = chase_target_x(self, dt)
 
         self:lock_x_axis(objective
-            and target.direction_x ~= target.last_direction_x
+            and self.target.direction_x ~= self.target.last_direction_x
         )
     else
         self.follow_speed_x = sqrt(2 * self.acc_x * 2)
@@ -174,16 +171,11 @@ local function dynamic_x_offset(self, dt)
     elseif self.target.direction_x > 0 and not self.lock_x then
         self:set_offset_x(move_right_offset)
     end
-
-    target = nil
 end
 
 ---@param self JM.Camera.Camera
 local function dynamic_y_offset(self, dt)
-    local target
-    target = self.target
-
-    if not target then return end
+    if not self.target then return end
     --=========================================================================
     local deadzone_h = self.desired_deadzone_width
         or self.deadzone_h
@@ -207,7 +199,7 @@ local function dynamic_y_offset(self, dt)
         local objective = chase_target_y(self, dt)
 
         self:lock_y_axis(objective
-            and target.direction_y ~= target.last_direction_y
+            and self.target.direction_y ~= self.target.last_direction_y
         )
     else
         self.follow_speed_y = sqrt(2 * self.acc_y * 2)
@@ -237,15 +229,11 @@ local function dynamic_y_offset(self, dt)
     elseif self.target.direction_y > 0 and not self.lock_y then
         self:set_offset_y(bottom_offset)
     end
-
-    target = nil
 end
 
 ---@param self JM.Camera.Camera
 local function chase_y_when_not_moving(self, dt)
-    local target
-    target = self.target
-    if not target then return end
+    if not self.target then return end
 
     local deadzone_height = self.desired_deadzone_height
         or self.deadzone_h
@@ -253,33 +241,33 @@ local function chase_y_when_not_moving(self, dt)
 
     local top_limit = self:y_screen_to_world(self.viewport_h * 0.2)
     local bottom = self:y_screen_to_world(self.y + deadzone_height)
-    local cy = self:y_screen_to_world(target.y)
+    local cy = self:y_screen_to_world(self.target.y)
 
-    if target.direction_y == 0 then
+    if self.target.direction_y == 0 then
         chase_target_y(self, dt)
     else
         self.follow_speed_y = 0 --sqrt(2 * self.acc_y)
     end
 
-    if target.y + self.offset_y / self.scale < top_limit then
-        self:move(nil, -abs(target.range_y))
+    if self.target.y + self.offset_y / self.scale < top_limit then
+        self:move(nil, -abs(self.target.range_y))
     end
 
-    if cy > bottom and target.last_direction_y == 1 then
-        self:move(nil, abs(target.range_y))
+    if cy > bottom and self.target.last_direction_y == 1 then
+        self:move(nil, abs(self.target.range_y))
     end
 end
 
 ---@param self JM.Camera.Camera
 local function draw_grid(self)
     local tile = self.grid_desired_tile
-    local jump = math.floor(self.grid_desired_tile / self.tile_size)
+    local jump = mfloor(self.grid_desired_tile / self.tile_size)
     local qx = (self.bounds_right - self.bounds_left) / tile * jump
     local qy = (self.bounds_bottom - self.bounds_top) / tile * jump
 
     love_set_color(1, 1, 1, 0.6)
     for i = 0, qx - 1, jump do
-        love.graphics.line(
+        love_line(
             self.tile_size * (i),
             0,
             self.tile_size * (i),
@@ -287,7 +275,7 @@ local function draw_grid(self)
         )
     end
     for i = 0, qy - 1, jump do
-        love.graphics.line(
+        love_line(
             0,
             self.tile_size * (i),
             self.bounds_right - self.bounds_left,
@@ -305,20 +293,24 @@ local function capture_grid(self, tile)
         self.bounds_bottom - self.bounds_top
     )
 
-    local mode = love.graphics.getBlendMode()
+    local mode
+    mode = love.graphics.getBlendMode()
     love.graphics.setCanvas(self.grid_canvas)
     love.graphics.setBlendMode("alpha")
     draw_grid(self)
     love.graphics.setCanvas()
     love.graphics.setBlendMode(mode)
+    mode = nil
 end
 
 local function show_grid(self)
-    local mode = love_get_blend_mode()
+    local mode
+    mode = love_get_blend_mode()
     love_set_color(1, 1, 1, 1)
     love_set_blend_mode("alpha", "premultiplied")
     love_draw(self.grid_canvas, self.bounds_left, self.bounds_top)
     love_set_blend_mode(mode)
+    mode = nil
 end
 
 ---@param self JM.Camera.Camera
@@ -330,7 +322,7 @@ local function draw_world_boundary(self)
     love_set_color(0, 0, 0, 1)
     for i = 1, qx - 2 do
         -- Top
-        love.graphics.line(
+        love_line(
             self.bounds_left + tile * i + tile * 0.25,
             self.bounds_top + tile,
             self.bounds_left + tile * i + tile * 0.75,
@@ -338,7 +330,7 @@ local function draw_world_boundary(self)
         )
 
         -- Bottom
-        love.graphics.line(
+        love_line(
             self.bounds_left + tile * i + tile * 0.25,
             self.bounds_bottom - tile,
             self.bounds_left + tile * i + tile * 0.75,
@@ -348,7 +340,7 @@ local function draw_world_boundary(self)
 
     for i = 1, qy - 2 do
         -- Left
-        love.graphics.line(
+        love_line(
             self.bounds_left + tile,
             self.bounds_top + tile * i,
             self.bounds_left + tile,
@@ -356,7 +348,7 @@ local function draw_world_boundary(self)
         )
 
         -- Right
-        love.graphics.line(
+        love_line(
             self.bounds_right - tile,
             self.bounds_top + tile * i,
             self.bounds_right - tile,
@@ -367,150 +359,144 @@ end
 
 ---@param self JM.Camera.Camera
 local function show_focus(self)
-    -- Drawing the focus and deadzone
-    do
-        -- Focus guide line
-        love.graphics.setColor(0, 0, 0, 0.2)
-        love.graphics.rectangle("fill",
-            self.viewport_x + self.offset_x,
-            self.viewport_y, 2, self.viewport_h
-        )
-        love.graphics.rectangle("fill", self.viewport_x,
-            self.viewport_y + self.offset_y,
-            self.viewport_w,
-            2
-        )
-        --=============================================================
+    love_set_color(0, 0, 0, 0.2)
+    love_rect("fill",
+        self.viewport_x + self.offset_x,
+        self.viewport_y, 2, self.viewport_h
+    )
+    love_rect("fill", self.viewport_x,
+        self.viewport_y + self.offset_y,
+        self.viewport_w,
+        2
+    )
+    --=============================================================
 
-        if self.target then
-            self.debug_trgt_rad = self.debug_trgt_rad + (math.pi * 2) / 0.3 * love.timer.getDelta()
+    if self.target then
+        self.debug_trgt_rad = self.debug_trgt_rad + (math.pi * 2) / 0.3 * love.timer.getDelta()
 
-            if self:target_on_focus() then
-                love.graphics.setColor(0, 0.8, 0, 1)
-            else
-                love.graphics.setColor(0, 0.8, 0,
-                    0.7 + 0.5 * cos(self.debug_trgt_rad)
-                )
-            end
-
-            love.graphics.circle("fill",
-                self.viewport_x + self.offset_x + self:x_world_to_screen((self.target.x or self.target.last_x)),
-                self.viewport_y + self.offset_y + self:y_world_to_screen((self.target.y or self.target.last_y)),
-                5
+        if self:target_on_focus() then
+            love_set_color(0, 0.8, 0, 1)
+        else
+            love_set_color(0, 0.8, 0,
+                0.7 + 0.5 * cos(self.debug_trgt_rad)
             )
         end
 
-        -- Camera's focus
-        if not self:target_on_focus() then
-            love.graphics.setColor(0.7, 0, 0, 1)
-        else
-            love.graphics.setColor(1, 0, 0, 1)
-        end
         love.graphics.circle("fill",
-            self.viewport_x + self.offset_x,
-            self.viewport_y + self.offset_y,
-            4
+            self.viewport_x + self.offset_x + self:x_world_to_screen((self.target.x or self.target.last_x)),
+            self.viewport_y + self.offset_y + self:y_world_to_screen((self.target.y or self.target.last_y)),
+            5
         )
-
-        local scl = self.scale
-
-        if self:target_on_focus() then
-            love.graphics.setColor(1, 1, 1, 1)
-        elseif self:hit_border()
-        then
-            love.graphics.setColor(1, 0, 0, 1)
-        else
-            love.graphics.setColor(1, 1, 1, 0.6)
-        end
-        -- Left-Top Corner
-        love.graphics.rectangle("fill",
-            self.viewport_x + self.offset_x - self.deadzone_w / 2,
-            self.viewport_y + self.offset_y - self.deadzone_h / 2,
-            16 * scl,
-            2)
-        love.graphics.rectangle("fill",
-            self.viewport_x + self.offset_x - self.deadzone_w / 2,
-            self.viewport_y + self.offset_y - self.deadzone_h / 2,
-            2,
-            16 * scl)
-
-        -- Top-Right Corner
-        love.graphics.rectangle("fill",
-            self.viewport_x + self.offset_x + self.deadzone_w / 2 - 16 * scl,
-            self.viewport_y + self.offset_y - self.deadzone_h / 2,
-            16 * scl,
-            2)
-        love.graphics.rectangle("fill",
-            self.viewport_x + self.offset_x + self.deadzone_w / 2,
-            self.viewport_y + self.offset_y - self.deadzone_h / 2,
-            2,
-            16 * scl)
-
-        --- Bottom-Right Corner
-        love.graphics.rectangle("fill",
-            self.viewport_x + self.offset_x + self.deadzone_w / 2 - 16 * scl + 2,
-            self.viewport_y + self.offset_y + self.deadzone_h / 2,
-            16 * scl,
-            2)
-        love.graphics.rectangle("fill",
-            self.viewport_x + self.offset_x + self.deadzone_w / 2,
-            self.viewport_y + self.offset_y + self.deadzone_h / 2 - 16 * scl,
-            2,
-            16 * scl)
-
-        --- Bottom-Left Corner
-        love.graphics.rectangle("fill",
-            self.viewport_x + self.offset_x - self.deadzone_w / 2,
-            self.viewport_y + self.offset_y + self.deadzone_h / 2 - 16 * scl,
-            2,
-            16 * scl)
-        love.graphics.rectangle("fill",
-            self.viewport_x + self.offset_x - self.deadzone_w / 2,
-            self.viewport_y + self.offset_y + self.deadzone_h / 2,
-            16 * scl,
-            2)
-
-
-        love.graphics.setColor(0.1, 0.1, 0.1, 1)
-        -- Deadzone Right-Middle
-        love.graphics.rectangle("fill",
-            self.viewport_x + self.offset_x + self.deadzone_w / 2 - 8 * scl,
-            self.viewport_y + self.offset_y,
-            16 * self.scale,
-            2)
-
-        -- Deadzone Left-Middle
-        love.graphics.rectangle("fill",
-            self.viewport_x + self.offset_x - self.deadzone_w / 2 - 8 * scl,
-            self.viewport_y + self.offset_y,
-            16 * scl,
-            2)
-
-        -- Deadzone Top-Middle
-        love.graphics.rectangle("fill",
-            self.viewport_x + self.offset_x,
-            self.viewport_y + self.offset_y - self.deadzone_h / 2 - 8 * scl,
-            2,
-            16 * scl)
-        -- Deadzone Bottom-Middle
-        love.graphics.rectangle("fill",
-            self.viewport_x + self.offset_x,
-            self.viewport_y + self.offset_y + self.deadzone_h / 2 - 8 * scl,
-            2,
-            16 * scl)
     end
+
+    -- Camera's focus
+    if not self:target_on_focus() then
+        love_set_color(0.7, 0, 0, 1)
+    else
+        love_set_color(1, 0, 0, 1)
+    end
+    love.graphics.circle("fill",
+        self.viewport_x + self.offset_x,
+        self.viewport_y + self.offset_y,
+        4
+    )
+
+    local scl = self.scale
+
+    if self:target_on_focus() then
+        love_set_color(1, 1, 1, 1)
+    elseif self:hit_border()
+    then
+        love_set_color(1, 0, 0, 1)
+    else
+        love_set_color(1, 1, 1, 0.6)
+    end
+    -- Left-Top Corner
+    love_rect("fill",
+        self.viewport_x + self.offset_x - self.deadzone_w / 2,
+        self.viewport_y + self.offset_y - self.deadzone_h / 2,
+        16 * scl,
+        2)
+    love_rect("fill",
+        self.viewport_x + self.offset_x - self.deadzone_w / 2,
+        self.viewport_y + self.offset_y - self.deadzone_h / 2,
+        2,
+        16 * scl)
+
+    -- Top-Right Corner
+    love_rect("fill",
+        self.viewport_x + self.offset_x + self.deadzone_w / 2 - 16 * scl,
+        self.viewport_y + self.offset_y - self.deadzone_h / 2,
+        16 * scl,
+        2)
+    love_rect("fill",
+        self.viewport_x + self.offset_x + self.deadzone_w / 2,
+        self.viewport_y + self.offset_y - self.deadzone_h / 2,
+        2,
+        16 * scl)
+
+    --- Bottom-Right Corner
+    love_rect("fill",
+        self.viewport_x + self.offset_x + self.deadzone_w / 2 - 16 * scl + 2,
+        self.viewport_y + self.offset_y + self.deadzone_h / 2,
+        16 * scl,
+        2)
+    love_rect("fill",
+        self.viewport_x + self.offset_x + self.deadzone_w / 2,
+        self.viewport_y + self.offset_y + self.deadzone_h / 2 - 16 * scl,
+        2,
+        16 * scl)
+
+    --- Bottom-Left Corner
+    love_rect("fill",
+        self.viewport_x + self.offset_x - self.deadzone_w / 2,
+        self.viewport_y + self.offset_y + self.deadzone_h / 2 - 16 * scl,
+        2,
+        16 * scl)
+    love_rect("fill",
+        self.viewport_x + self.offset_x - self.deadzone_w / 2,
+        self.viewport_y + self.offset_y + self.deadzone_h / 2,
+        16 * scl,
+        2)
+
+
+    love_set_color(0.1, 0.1, 0.1, 1)
+    -- Deadzone Right-Middle
+    love_rect("fill",
+        self.viewport_x + self.offset_x + self.deadzone_w / 2 - 8 * scl,
+        self.viewport_y + self.offset_y,
+        16 * self.scale,
+        2)
+
+    -- Deadzone Left-Middle
+    love_rect("fill",
+        self.viewport_x + self.offset_x - self.deadzone_w / 2 - 8 * scl,
+        self.viewport_y + self.offset_y,
+        16 * scl,
+        2)
+
+    -- Deadzone Top-Middle
+    love_rect("fill",
+        self.viewport_x + self.offset_x,
+        self.viewport_y + self.offset_y - self.deadzone_h / 2 - 8 * scl,
+        2,
+        16 * scl)
+    -- Deadzone Bottom-Middle
+    love_rect("fill",
+        self.viewport_x + self.offset_x,
+        self.viewport_y + self.offset_y + self.deadzone_h / 2 - 8 * scl,
+        2,
+        16 * scl)
 end
 
 local function show_border(self)
     -- Drawind a border in the camera's viewport
-    do
-        love_set_color(1, 0, 0, 1)
-        love.graphics.rectangle("fill", self.viewport_x, self.viewport_y, 2, self.viewport_h)
-        love.graphics.rectangle("fill", self.viewport_x + self.viewport_w - 2, self.viewport_y, 2, self.viewport_h)
-        love.graphics.rectangle("fill", self.viewport_x, self.viewport_y, self.viewport_w, 2)
-        love.graphics.rectangle("fill", self.viewport_x, self.viewport_y + self.viewport_h - 2,
-            self.viewport_w, 2)
-    end
+    love_set_color(1, 0, 0, 1)
+    love_rect("fill", self.viewport_x, self.viewport_y, 2, self.viewport_h)
+    love_rect("fill", self.viewport_x + self.viewport_w - 2, self.viewport_y, 2, self.viewport_h)
+    love_rect("fill", self.viewport_x, self.viewport_y, self.viewport_w, 2)
+    love_rect("fill", self.viewport_x, self.viewport_y + self.viewport_h - 2,
+        self.viewport_w, 2)
 end
 
 ---@enum JM.Camera.Type
@@ -638,7 +624,7 @@ function Camera:__constructor__(
     self.is_showing_grid = nil
     if allow_grid then capture_grid(self, grid_tile_size or self.tile_size) end
 
-    self.show_world_boundary = show_world_bounds
+    self.show_world_boundary = show_world_bounds or self.debug
     self.show_focus = false or self.debug
     self.show_border = false or self.debug
 end
@@ -689,8 +675,8 @@ function Camera:set_type(s)
 
         self.movement_y = chase_target_y
     else
-        self.movement_x = chase_target_x
-        self.movement_y = chase_target_y
+        self.movement_x = dynamic_x_offset
+        self.movement_y = dynamic_y_offset
         self.desired_deadzone_height = 32 * 3
         self.deadzone_h = self.desired_deadzone_height
 
@@ -731,41 +717,39 @@ end
 function Camera:follow(x, y)
     if not self.target then self.target = {} end
 
-    local target
-    target = self.target
-    if not target then return end
-
-    x = x - (self.offset_x) / self.scale
+    x = x - self.offset_x / self.scale
     y = y - self.offset_y / self.scale
 
     x = round(x)
     y = round(y)
 
-    target.last_x = target.x or x
-    target.last_y = target.y or y
+    self.target.last_x = self.target.x or x
+    self.target.last_y = self.target.y or y
 
-    target.x = x
-    target.y = y
+    self.target.x = x
+    self.target.y = y
 
-    target.range_x = x - target.last_x
-    target.range_y = y - target.last_y
+    self.target.range_x = x - self.target.last_x
+    self.target.range_y = y - self.target.last_y
 
-    target.last_direction_x = target.direction_x ~= 0 and target.direction_x
-        or target.last_direction_x or 1
-    target.last_direction_y = target.direction_y ~= 0 and target.direction_y
-        or target.last_direction_y or 1
+    self.target.last_direction_x = self.target.direction_x ~= 0
+        and self.target.direction_x
+        or self.target.last_direction_x or 1
+    self.target.last_direction_y = self.target.direction_y ~= 0
+        and self.target.direction_y
+        or self.target.last_direction_y or 1
 
-    target.direction_x = (target.range_x > 0 and 1)
-        or (target.range_x < 0 and -1)
+    self.target.direction_x = (self.target.range_x > 0 and 1)
+        or (self.target.range_x < 0 and -1)
         or 0
-    target.direction_y = (target.range_y > 0 and 1)
-        or (target.range_y < 0 and -1)
+    self.target.direction_y = (self.target.range_y > 0 and 1)
+        or (self.target.range_y < 0 and -1)
         or 0
 
-    local target_distance_x = target.x - self.x
-    local target_distance_y = target.y - self.y
+    local target_distance_x = self.target.x - self.x
+    local target_distance_y = self.target.y - self.y
 
-    target.distance = sqrt(
+    self.target.distance = sqrt(
         target_distance_x ^ 2 + target_distance_y ^ 2
     )
 
@@ -781,17 +765,15 @@ function Camera:follow(x, y)
     --     -- target.distance = 0
     -- end
 
-    target.angle_x = atan2(
+    self.target.angle_x = atan2(
         target_distance_y,
         target_distance_x
     )
 
-    target.angle_y = atan2(
+    self.target.angle_y = atan2(
         target_distance_y,
         target_distance_x
     )
-
-    target = nil
 end
 
 function Camera:target_on_focus()
@@ -965,11 +947,29 @@ end
 local function debbug(self)
     if not self.debug then return end
 
+    love_set_color(0, 0, 0, 1)
+    local x, y = mfloor((self.x + self.offset_x) / self.tile_size),
+        mfloor((self.y + self.offset_y) / self.tile_size)
+
+    love.graphics.print("View: (" .. tostring(x) .. ", " .. tostring(y) .. ")",
+        self.viewport_x + self.viewport_w * 0.1,
+        self.viewport_y + self.viewport_h * 0.1
+    )
+
+    if self.target and self.target.x and self.target.y then
+        local x, y = mfloor((self.target.x + self.offset_x) / self.tile_size * self.scale),
+            mfloor((self.target.y + self.offset_y) / self.tile_size)
+
+        love.graphics.print("Target: (" .. tostring(x) .. ", " .. tostring(y) .. ")",
+            self.viewport_x + self.viewport_w * 0.1,
+            self.viewport_y + self.viewport_h * 0.13)
+    end
+
     --Drawing a yellow rectangle
     if not self:hit_border() then
-        love.graphics.setColor(1, 1, 0, 1)
+        love_set_color(1, 1, 0, 1)
     else
-        love.graphics.setColor(1, 1, 0, 0.3)
+        love_set_color(1, 1, 0, 0.3)
     end
     local border_len = self.tile_size * self.scale
     do
@@ -1017,14 +1017,14 @@ local function debbug(self)
     local r, g, b, a
     r, g, b, a = 1, 0, 0, 1
 
-    love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.rectangle("fill",
+    love_set_color(1, 1, 1, 1)
+    love_rect("fill",
         self.viewport_x + self.viewport_w - border_len - 120,
         self.viewport_y + self.viewport_h - border_len - 25,
         120,
         16
     )
-    love.graphics.setColor(r, g, b, a)
+    love_set_color(r, g, b, a)
     love.graphics.print(self:get_state(),
         self.viewport_x + self.viewport_w - border_len - 100,
         self.viewport_y + self.viewport_h - border_len - 25
@@ -1034,7 +1034,7 @@ local function debbug(self)
     self.debug_msg_rad = self.debug_msg_rad
         + (math.pi * 2) / 0.5
         * love.timer.getDelta()
-    love.graphics.setColor(1, 0, 0, 0.7 + 0.5 * cos(self.debug_msg_rad))
+    love_set_color(1, 0, 0, 0.7 + 0.5 * cos(self.debug_msg_rad))
     love.graphics.print("DEBUG MODE",
         self.viewport_x + border_len + 5 * self.scale,
         self.viewport_y + border_len + 5 * self.scale
@@ -1124,7 +1124,7 @@ function Camera:y_screen_to_world(y)
     return y
 end
 
-function Camera:x_to_world(x)
+function Camera:x_screen_to_world(x)
     local y
     x, y = self:screen_to_world(x, y)
     return x

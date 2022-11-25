@@ -38,8 +38,9 @@ function Screen:new(x, y, w, h)
 end
 
 function Screen:__constructor__(x, y, w, h)
+    local Camera
     ---@type JM.Camera.Camera
-    local Camera = require(string.gsub(path, "jm_screen", "jm_camera"))
+    Camera = require(string.gsub(path, "jm_screen", "jm_camera"))
 
     self.x = x or 0
     self.y = y or 0
@@ -52,9 +53,9 @@ function Screen:__constructor__(x, y, w, h)
     self.tile_size_x = 32
     self.tile_size_y = 32
 
-    self.world_left = -32 * 50
+    self.world_left = 0
     self.world_right = 32 * 60
-    self.world_top = -32 * 1
+    self.world_top = -32
     self.world_bottom = 32 * 50
 
     self.camera = Camera:new({
@@ -111,20 +112,15 @@ function Screen:__constructor__(x, y, w, h)
         tile_size = 32,
 
         color = nil, --{ 0.3, 0.3, 1, 1 },
-        scale = 1,
+        scale = 0.5,
 
         type = "",
-        show_grid = true, grid_tile_size = 64,
+        show_grid = true, --grid_tile_size = 64,
         show_world_bounds = true
     })
 
     self.canvas = love.graphics.newCanvas(self.w, self.h)
     self.canvas:setFilter("linear", "nearest")
-
-    -- self.color_r = 0.35
-    -- self.color_g = 0.35
-    -- self.color_b = 0.35
-    -- self.color_a = 1
 
     self.cameras_list = {}
     self.amount_cameras = 0
@@ -161,6 +157,8 @@ function Screen:__constructor__(x, y, w, h)
             show_world_bounds = true
         })
     )
+
+    Camera = nil
 end
 
 function Screen:add_camera(camera)
@@ -279,7 +277,6 @@ local function draw_tile(self)
         x = nil
     end
     tile, qx, qy = nil, nil, nil
-    collectgarbage()
 end
 
 function Screen:draw()
@@ -325,7 +322,8 @@ function Screen:draw()
     love_draw(self.canvas)
     pop()
 
-    set_shader()
+    -- set_shader()
+    set_blend_mode("alpha")
 end
 
 return Screen
