@@ -948,22 +948,33 @@ local function debbug(self)
     if not self.debug then return end
 
     love_set_color(0, 0, 0, 1)
-    local x, y = mfloor((self.x + self.offset_x) / self.tile_size),
-        mfloor((self.y + self.offset_y) / self.tile_size)
+    local x, y = mfloor((self.x + self.offset_x / self.scale) / self.tile_size),
+        mfloor((self.y + self.offset_y / self.scale) / self.tile_size)
 
-    love.graphics.print("View: (" .. tostring(x) .. ", " .. tostring(y) .. ")",
-        self.viewport_x + self.viewport_w * 0.1,
-        self.viewport_y + self.viewport_h * 0.1
+    love.graphics.print("Focus: (" .. tostring(x) .. ", " .. tostring(y) .. ")",
+        self.viewport_x + self.tile_size * self.scale * 2,
+        self.viewport_y + self.tile_size * self.scale * 3
     )
 
     if self.target and self.target.x and self.target.y then
-        local x, y = mfloor((self.target.x + self.offset_x) / self.tile_size * self.scale),
-            mfloor((self.target.y + self.offset_y) / self.tile_size)
+        local x, y
+        x, y = mfloor((self.target.x + self.offset_x / self.scale) / self.tile_size),
+            mfloor((self.target.y + self.offset_y / self.scale) / self.tile_size)
 
         love.graphics.print("Target: (" .. tostring(x) .. ", " .. tostring(y) .. ")",
-            self.viewport_x + self.viewport_w * 0.1,
-            self.viewport_y + self.viewport_h * 0.13)
+            self.viewport_x + self.tile_size * self.scale * 2,
+            self.viewport_y + self.tile_size * self.scale * 4)
+
+        local camx = (self.x)
+        local t = self.target.x
+        love.graphics.print("Cam (x = " ..
+            tostring(self.x) ..
+            ", y = " .. tostring(self.y) .. ")",
+            self.viewport_x + self.tile_size * self.scale * 2,
+            self.viewport_y + self.tile_size * self.scale * 5
+        )
     end
+
 
     --Drawing a yellow rectangle
     if not self:hit_border() then

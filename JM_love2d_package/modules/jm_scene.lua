@@ -11,7 +11,7 @@ local set_color_draw = love.graphics.setColor
 local love_draw = love.graphics.draw
 local set_shader = love.graphics.setShader
 
----@param self JM.Screen
+---@param self JM.Scene
 local function to_world(self, x, y, camera)
     x = x / self.scale_x
     y = y / self.scale_y
@@ -22,25 +22,25 @@ local function to_world(self, x, y, camera)
     return x - camera.viewport_x, y - camera.viewport_y
 end
 
----@class JM.Screen
-local Screen = {}
+---@class JM.Scene
+local Scene = {}
 
----@param self JM.Screen
----@return JM.Screen
-function Screen:new(x, y, w, h)
+---@param self JM.Scene
+---@return JM.Scene
+function Scene:new(x, y, w, h)
     local obj = {}
     setmetatable(obj, self)
     self.__index = self
 
-    Screen.__constructor__(obj, x, y, w, h)
+    Scene.__constructor__(obj, x, y, w, h)
 
     return obj
 end
 
-function Screen:__constructor__(x, y, w, h)
+function Scene:__constructor__(x, y, w, h)
     local Camera
     ---@type JM.Camera.Camera
-    Camera = require(string.gsub(path, "jm_screen", "jm_camera"))
+    Camera = require(string.gsub(path, "jm_scene", "jm_camera"))
 
     self.x = x or 0
     self.y = y or 0
@@ -112,7 +112,7 @@ function Screen:__constructor__(x, y, w, h)
         tile_size = 32,
 
         color = nil, --{ 0.3, 0.3, 1, 1 },
-        scale = 0.5,
+        scale = 1.2,
 
         type = "",
         show_grid = true, --grid_tile_size = 64,
@@ -161,80 +161,81 @@ function Screen:__constructor__(x, y, w, h)
     Camera = nil
 end
 
-function Screen:add_camera(camera)
+function Scene:add_camera(camera)
     self.amount_cameras = self.amount_cameras + 1
     self.cameras_list[self.amount_cameras] = camera
 end
 
-function Screen:get_color()
+function Scene:get_color()
     return self.color_r, self.color_g, self.color_b, self.color_a
 end
 
-function Screen:set_color(r, g, b, a)
+function Scene:set_color(r, g, b, a)
     self.color_r = r or self.color_r
     self.color_g = g or self.color_g
     self.color_b = b or self.color_b
     self.color_a = a or self.color_a
 end
 
-function Screen:to_world(x, y)
-    return to_world(self, x, y, self.camera)
+function Scene:to_world(x, y, camera)
+    return to_world(self, x, y, camera)
 end
 
-function Screen:load()
+function Scene:load()
     return self.load_action and self.load_action(self.load_args)
 end
 
-function Screen:get_camera(index)
+---@return JM.Camera.Camera
+function Scene:get_camera(index)
     return self.cameras_list[index]
 end
 
-function Screen:keypressed(key)
+function Scene:keypressed(key)
     return self.keypressed_action
         and self.keypressed_action(key, self.keypressed_args)
 end
 
-function Screen:keyreleased(key)
+function Scene:keyreleased(key)
     return self.keyreleased_action
         and self.keyreleased_action(key, self.keyreleased_args)
 end
 
-function Screen:set_background_draw(action, args)
+function Scene:set_background_draw(action, args)
     self.background_draw = action
     self.background_draw_args = args
 end
 
-function Screen:set_load_action(action, args)
+function Scene:set_load_action(action, args)
     self.load_action = action
     self.load_args = args
 end
 
-function Screen:set_foreground_draw(action, args)
+function Scene:set_foreground_draw(action, args)
     self.foreground_draw = action
     self.foreground_draw_args = args
 end
 
-function Screen:set_update_action(action, args)
+function Scene:set_update_action(action, args)
     self.update_action = action
     self.update_args = args
 end
 
-function Screen:set_draw_action(action, args)
+function Scene:set_draw_action(action, args)
     self.draw_action = action
     self.draw_args = args
 end
 
-function Screen:set_keypressed_action(action, args)
+function Scene:set_keypressed_action(action, args)
     self.keypressed_action = action
     self.keypressed_args = args
 end
 
-function Screen:set_keyreleased_action(action, args)
+function Scene:set_keyreleased_action(action, args)
     self.keyreleased_action = action
     self.keyreleased_args = args
 end
 
-function Screen:update(dt)
+function Scene:update(dt)
     local r
     r = self.update_action
         and self.update_action(dt, self.update_args)
@@ -250,11 +251,11 @@ function Screen:update(dt)
     r = nil
 end
 
-function Screen:set_shader(shader)
+function Scene:set_shader(shader)
     self.shader = shader
 end
 
----@param self  JM.Screen
+---@param self  JM.Scene
 local function draw_tile(self)
     local tile, qx, qy
 
@@ -279,7 +280,7 @@ local function draw_tile(self)
     tile, qx, qy = nil, nil, nil
 end
 
-function Screen:draw()
+function Scene:draw()
     set_canvas(self.canvas)
     set_blend_mode("alpha")
 
@@ -326,4 +327,4 @@ function Screen:draw()
     set_blend_mode("alpha")
 end
 
-return Screen
+return Scene

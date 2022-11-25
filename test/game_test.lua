@@ -1,4 +1,4 @@
-local Screen = require("/JM_love2d_package/modules/jm_screen")
+local Screen = require("/JM_love2d_package/modules/jm_scene")
 local JM_package = require("/JM_love2d_package/JM_package")
 local Anima = JM_package.Anima
 local FontGenerator = JM_package.Font
@@ -260,12 +260,6 @@ Game:set_load_action(
         rec.y = 0
 
         Game.camera:jump_to(rec.x, rec.y)
-        -- Game.camera:set_offset_x(32 * 8)
-        -- Game.camera:set_offset_y(Game.camera.viewport_h * 0.5)
-
-        -- Game.camera:set_offset_x(32 * 8)
-        -- Game.camera2:set_offset_y(Game.camera2.viewport_h * 0.7)
-        -- Game.camera2:set_offset_x(Game.camera2.viewport_w * 0.5)
         Game.camera2:set_position(rec:get_cx(), rec:get_cy())
     end
 )
@@ -299,10 +293,7 @@ Game:set_update_action(
             change_animation(monica_run, current_animation)
             current_animation:set_flip_x(true)
 
-            -- t.camera:set_offset_x(SCREEN_WIDTH - 32 * 8)
-
         elseif love.keyboard.isDown("right")
-            -- and rec.x + rec.w < t.camera.bounds_right
             and rec.speed_x >= 0
         then
             rec.direction = 1
@@ -311,8 +302,6 @@ Game:set_update_action(
 
             change_animation(monica_run, current_animation)
             current_animation:set_flip_x(false)
-
-            -- t.camera:set_offset_x(32 * 8)
 
         elseif math.abs(rec.speed_x) ~= 0 then
             local dacc = rec.dacc
@@ -376,9 +365,9 @@ Game:set_update_action(
             rec.speed_x = 0
         end
 
-        local mx, my = love.mouse.getPosition()
-        mx, my = Game:to_world(mx, my)
-        mx, my = cam1:screen_to_world(mx, my)
+        -- local mx, my = love.mouse.getPosition()
+        -- mx, my = Game:to_world(mx, my, cam1)
+        -- mx, my = cam1:screen_to_world(mx, my)
 
         if love.keyboard.isDown("up")
         -- and Game.camera.target.y == rec.y
@@ -581,8 +570,8 @@ Game:set_draw_action(
 
         graph_set_color(1, 0, 0, 0.7)
         local mx, my = love.mouse.getPosition()
-        mx, my = Game:to_world(mx, my)
-        mx, my = Game.camera:screen_to_world(mx, my)
+        mx, my = Game:to_world(mx, my, Game:get_camera(3))
+        mx, my = Game:get_camera(3):screen_to_world(mx, my)
         love.graphics.rectangle("fill", mx, my, 32, 32)
 
         love.graphics.setShader()
