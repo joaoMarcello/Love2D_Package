@@ -3,6 +3,10 @@ local love_pop = love.graphics.pop
 local love_push = love.graphics.push
 local love_scale = love.graphics.scale
 local love_set_scissor = love.graphics.setScissor
+local love_set_blend_mode = love.graphics.setBlendMode
+local love_get_blend_mode = love.graphics.getBlendMode
+local love_set_color = love.graphics.setColor
+local love_draw = love.graphics.draw
 local sin, cos, atan2, sqrt, abs = math.sin, math.cos, math.atan2, math.sqrt, math.abs
 
 local function round(value)
@@ -251,6 +255,40 @@ local function chase_y_when_not_moving(self, dt)
     end
 end
 
+---@param self JM.Camera.Camera
+local function draw_grid(self)
+    local tile = self.grid_desired_tile
+    local jump = math.floor(self.grid_desired_tile / self.tile_size)
+    local qx = (self.bounds_right - self.bounds_left) / tile * jump
+    local qy = (self.bounds_bottom - self.bounds_top) / tile * jump
+
+    love_set_color(1, 1, 1, 0.6)
+    for i = 0, qx - 1, jump do
+        love.graphics.line(
+            self.tile_size * (i),
+            0,
+            self.tile_size * (i),
+            self.bounds_bottom - self.bounds_top
+        )
+    end
+    for i = 0, qy - 1, jump do
+        love.graphics.line(
+            0,
+            self.tile_size * (i),
+            self.bounds_right - self.bounds_left,
+            self.tile_size * (i)
+        )
+    end
+end
+
+local function show_grid(self)
+    local mode = love_get_blend_mode()
+    love_set_color(1, 1, 1, 1)
+    love_set_blend_mode("alpha", "premultiplied")
+    love_draw(self.grid_canvas, self.bounds_left, self.bounds_top)
+    love_set_blend_mode(mode)
+end
+
 ---@enum JM.Camera.Type
 local CAMERA_TYPES = {
     Free = 0,
@@ -274,14 +312,18 @@ function Camera:new(args)
 
     Camera.__constructor__(obj, args.x, args.y, args.w, args.h,
         args.bounds, args.canvas_x, args.canvas_y, args.canvas_width, args.canvas_height,
-        args.tile_size, args.color, args.scale, args.type
+        args.tile_size, args.color, args.scale, args.type, args.show_grid, args.grid_tile_size
     )
 
     return obj
 end
 
-function Camera:__constructor__(x, y, w, h, bounds, canvas_width, canvas_x, canvas_y, canvas_height, tile_size, color,
-                                scale, type_)
+function Camera:__constructor__(
+    x, y, w, h, bounds,
+    canvas_width, canvas_x, canvas_y, canvas_height,
+    tile_size, color, scale, type_,
+    allow_grid, grid_tile_size
+)
 
     self.scale = scale or 1
 
@@ -361,10 +403,29 @@ function Camera:__constructor__(x, y, w, h, bounds, canvas_width, canvas_x, canv
     self.debug = true
     self.debug_msg_rad = 0
     self.debug_trgt_rad = 0
+
+    if allow_grid then self:show_grid(grid_tile_size or self.tile_size) end
 end
 
 function Camera:get_color()
     return self.color_r, self.color_g, self.color_b, self.color_a
+end
+
+function Camera:show_grid(tile)
+    self.is_showing_grid = true
+    self.grid_desired_tile = tile or self.tile_size
+
+    self.grid_canvas = love.graphics.newCanvas(
+        self.bounds_right - self.bounds_left,
+        self.bounds_bottom - self.bounds_top
+    )
+
+    local mode = love.graphics.getBlendMode()
+    love.graphics.setCanvas(self.grid_canvas)
+    love.graphics.setBlendMode("alpha")
+    draw_grid(self)
+    love.graphics.setCanvas()
+    love.graphics.setBlendMode(mode)
 end
 
 function Camera:set_background_color(r, g, b, a)
@@ -641,45 +702,6 @@ function Camera:update(dt)
     end
 end
 
----@param self JM.Camera.Camera
-local function draw_grid(self)
-    local qx = (self.bounds_right - self.bounds_left) / self.tile_size
-    local qy = (self.bounds_bottom - self.bounds_top) / self.tile_size
-
-    love.graphics.setColor(0, 0, 0, 0.6)
-    local init = math.floor((self.x - 64) / self.tile_size)
-    for i = 0, qx - 1 do
-        if self:point_is_on_screen(self.bounds_left + self.tile_size * (i - 2), self.y) then
-            love.graphics.line(
-                self.bounds_left + self.tile_size * i,
-                self:y_screen_to_world((self.canvas_height - self.canvas_y)),
-                -- (self.bounds_top + 64),
-                self.bounds_left + self.tile_size * i,
-                -- (self.bounds_bottom - 64)
-                self:y_screen_to_world((self.viewport_h - self.viewport_y) / self.scale - 32 / self.scale)
-            )
-
-        end
-
-        -- for j = 0, qy - 1 do
-        --     love.graphics.line(
-        --         self.bounds_left + self.tile_size * i,
-        --         self.bounds_top,
-        --         self.bounds_left + self.tile_size * i,
-        --         self.bounds_bottom
-        --     )
-        -- end
-        if self:x_world_to_screen(self.bounds_left + self.tile_size * (i + 3))
-            > self:x_world_to_screen(self.x + self.viewport_w / self.scale)
-        then
-            break
-        end
-    end
-
-    love.graphics.print(tostring(init), 32, 32)
-
-end
-
 function Camera:attach()
 
     love_set_scissor(
@@ -909,43 +931,6 @@ local function debbug(self)
     end
     --===========================================================
 
-    -- Drawing the world boundary
-    love.graphics.setColor(0, 0, 0, 1)
-    local world_width = (self.viewport_w - self.viewport_x) / self.tile_size
-    for i = 1, 20 do
-        -- Top line
-        love.graphics.line(
-            (self.viewport_x + 32 * (i - 1)),
-            self.viewport_y + self:y_world_to_screen(self.bounds_top + self.tile_size * 1),
-            self.viewport_x + (32 * (i - 1) - 16),
-            self.viewport_y + self:y_world_to_screen(self.bounds_top + self.tile_size * 1)
-        )
-
-        -- Bottom line
-        love.graphics.line(
-            self.viewport_x + 32 * (i - 1),
-            self.viewport_y + self:y_world_to_screen(self.bounds_bottom - self.tile_size),
-            self.viewport_x + 32 * (i - 1) - 16,
-            self.viewport_y + self:y_world_to_screen(self.bounds_bottom - self.tile_size)
-        )
-
-        -- Left
-        love.graphics.line(
-            self.viewport_x + self:x_world_to_screen(self.bounds_left + self.tile_size),
-            self.viewport_y + 32 * (i - 1),
-            self.viewport_x + self:x_world_to_screen(self.bounds_left + self.tile_size),
-            self.viewport_y + 32 * (i - 1) - 16
-        )
-
-        -- Right
-        love.graphics.line(
-            self.viewport_x + self:x_world_to_screen(self.bounds_right - self.tile_size),
-            self.viewport_y + 32 * (i - 1),
-            self.viewport_x + self:x_world_to_screen(self.bounds_right - self.tile_size),
-            self.viewport_y + 32 * (i - 1) - 16
-        )
-    end
-
     -- Showing the current state
     local r, g, b, a = 1, 0, 0, 1
     love.graphics.setColor(1, 1, 1, 1)
@@ -980,7 +965,7 @@ function Camera:get_state()
     )
     local px, py = self:screen_to_world(self.x, self.y)
 
-    local text = self:target_on_focus() and "on focus" or "chasing"
+    local text = self:target_on_focus() and "on target" or "chasing"
 
     if not self:target_on_focus() then
         text = self.lock_x and "x locked" or text
@@ -1032,8 +1017,56 @@ function Camera:hit_border()
         or state == "out of bounds"
 end
 
+---@param self JM.Camera.Camera
+local function draw_world_boundary(self)
+    local tile = self.tile_size
+    local qx = (self.bounds_right - self.bounds_left) / self.tile_size
+    local qy = (self.bounds_bottom - self.bounds_top) / self.tile_size
+
+    love_set_color(0, 0, 0, 1)
+    for i = 1, qx - 2 do
+        -- Top
+        love.graphics.line(
+            self.bounds_left + tile * i + tile * 0.25,
+            self.bounds_top + tile,
+            self.bounds_left + tile * i + tile * 0.75,
+            self.bounds_top + tile
+        )
+
+        -- Bottom
+        love.graphics.line(
+            self.bounds_left + tile * i + tile * 0.25,
+            self.bounds_bottom - tile,
+            self.bounds_left + tile * i + tile * 0.75,
+            self.bounds_bottom - tile
+        )
+    end
+
+    for i = 1, qy - 2 do
+        -- Left
+        love.graphics.line(
+            self.bounds_left + tile,
+            self.bounds_top + tile * i,
+            self.bounds_left + tile,
+            self.bounds_top + tile * i + tile * 0.5
+        )
+
+        -- Right
+        love.graphics.line(
+            self.bounds_right - tile,
+            self.bounds_top + tile * i,
+            self.bounds_right - tile,
+            self.bounds_top + tile * i + tile * 0.5
+        )
+    end
+end
+
 function Camera:detach()
-    -- draw_grid(self)
+    if self.is_showing_grid then
+        show_grid(self)
+    end
+
+    draw_world_boundary(self)
 
     love_pop()
     debbug(self)

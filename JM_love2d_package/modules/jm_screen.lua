@@ -59,9 +59,9 @@ function Screen:__constructor__(x, y, w, h)
 
     self.camera = Camera:new({
         -- camera's viewport
-        x = self.w / 2,
+        x = self.w * 0.6,
         y = 64,
-        w = self.w,
+        w = self.w * 0.9,
         h = 32 * 7,
 
         -- world bounds
@@ -85,6 +85,8 @@ function Screen:__constructor__(x, y, w, h)
         type = "super mario world",
 
         color = { 0.9, 0.8, 1, 1 },
+
+        show_grid = true,
     })
 
     self.camera2 = Camera:new({
@@ -111,7 +113,8 @@ function Screen:__constructor__(x, y, w, h)
         color = { 0.3, 0.3, 1, 1 },
         scale = 1,
 
-        type = ""
+        type = "",
+        show_grid = true, grid_tile_size = 64
     })
 
     self.canvas = love.graphics.newCanvas(self.w, self.h)
