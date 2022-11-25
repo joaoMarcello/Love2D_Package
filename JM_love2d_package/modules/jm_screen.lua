@@ -59,10 +59,10 @@ function Screen:__constructor__(x, y, w, h)
 
     self.camera = Camera:new({
         -- camera's viewport
-        x = self.w * 0.6,
+        x = self.w * 0.5,
         y = 64,
-        w = self.w * 0.9,
-        h = 32 * 7,
+        w = self.w,
+        h = self.h * 0.5,
 
         -- world bounds
         bounds = {
@@ -93,7 +93,7 @@ function Screen:__constructor__(x, y, w, h)
         -- camera's viewport
         x = 0,
         y = 0,
-        w = self.w,
+        w = self.w / 2,
         h = self.h * 1,
 
         -- world bounds
@@ -131,6 +131,36 @@ function Screen:__constructor__(x, y, w, h)
 
     self:add_camera(self.camera2)
     self:add_camera(self.camera)
+    self:add_camera(
+        Camera:new({
+            -- camera's viewport
+            x = self.w * 0.5,
+            y = self.h * 0.5,
+            w = self.w,
+            h = self.h,
+
+            -- world bounds
+            bounds = {
+                left = self.world_left,
+                right = self.world_right,
+                top = self.world_top,
+                bottom = self.world_bottom
+            },
+
+            --canvas size
+            canvas_width = self.w,
+            canvas_height = self.h,
+
+            tile_size = 32,
+
+            color = { 153 / 255, 217 / 255, 234 / 255, 1 },
+            scale = 0.4,
+
+            type = "follow boss",
+            show_grid = true,
+            show_world_bounds = true
+        })
+    )
 end
 
 function Screen:add_camera(camera)
@@ -207,16 +237,19 @@ function Screen:set_keyreleased_action(action, args)
 end
 
 function Screen:update(dt)
-    local r = self.update_action
+    local r
+    r = self.update_action
         and self.update_action(dt, self.update_args)
 
     for i = 1, self.amount_cameras do
+        local camera
         ---@type JM.Camera.Camera
-        local camera = self.cameras_list[i]
+        camera = self.cameras_list[i]
         camera:update(dt)
+        camera = nil
     end
 
-    return r
+    r = nil
 end
 
 function Screen:set_shader(shader)
@@ -225,14 +258,17 @@ end
 
 ---@param self  JM.Screen
 local function draw_tile(self)
-    local tile = self.tile_size_x * 4
-    local qx = (self.w - self.x) / tile
-    local qy = (self.h - self.y) / tile
+    local tile, qx, qy
+
+    tile = self.tile_size_x * 4
+    qx = (self.w - self.x) / tile
+    qy = (self.h - self.y) / tile
 
     clear_screen(0.35, 0.35, 0.35, 1)
     set_color_draw(0.9, 0.9, 0.9, 0.3)
     for i = 0, qx, 2 do
-        local x = tile * i
+        local x
+        x = tile * i
 
         for j = 0, qy, 2 do
             love.graphics.rectangle("fill", x, tile * j, tile, tile)
@@ -240,10 +276,10 @@ local function draw_tile(self)
                 tile * j + tile,
                 tile, tile)
         end
+        x = nil
     end
-
-    love.graphics.print(tostring(qx) .. " -- " .. tostring(qy), 10, 10)
-
+    tile, qx, qy = nil, nil, nil
+    collectgarbage()
 end
 
 function Screen:draw()
@@ -261,12 +297,15 @@ function Screen:draw()
     end
 
     for i = 1, self.amount_cameras do
+        local camera, r
+
         ---@type JM.Camera.Camera
-        local camera = self.cameras_list[i]
+        camera = self.cameras_list[i]
 
         camera:attach()
-        local r = self.draw_action and self.draw_action(self.draw_args)
+        r = self.draw_action and self.draw_action(self.draw_args)
         camera:detach()
+        camera, r = nil, nil
     end
 
     if self.foreground_draw then

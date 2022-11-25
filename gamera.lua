@@ -56,17 +56,17 @@ local function adjustPosition(self)
   local w, h = getVisibleArea(self)
   local w2, h2 = w * 0.5, h * 0.5
 
-  local left, right  = wl + w2, wl + ww - w2
-  local top, bottom  = wt + h2, wt + wh - h2
+  local left, right = wl + w2, wl + ww - w2
+  local top, bottom = wt + h2, wt + wh - h2
 
   self.x, self.y = clamp(self.x, left, right), clamp(self.y, top, bottom)
 end
 
 local function adjustScale(self)
-  local w, h, ww, wh= self.w, self.h, self.ww, self.wh
-  local rw, rh    = getVisibleArea(self, 1) -- rotated frame: area around the window, rotated without scaling
-  local sx, sy    = rw / ww, rh / wh -- vert/horiz scale: minimun scales that the window needs to occupy the world
-  local rscale    = max(sx, sy)
+  local w, h, ww, wh = self.w, self.h, self.ww, self.wh
+  local rw, rh       = getVisibleArea(self, 1) -- rotated frame: area around the window, rotated without scaling
+  local sx, sy       = rw / ww, rh / wh -- vert/horiz scale: minimun scales that the window needs to occupy the world
+  local rscale       = max(sx, sy)
 
   self.scale = max(self.scale, rscale)
 end

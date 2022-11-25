@@ -283,7 +283,8 @@ Game:set_keypressed_action(
 
 Game:set_update_action(
     function(dt)
-        local cam1, cam2 = Game:get_camera(1), Game:get_camera(2)
+        local cam1, cam2
+        cam1, cam2 = Game:get_camera(1), Game:get_camera(2)
 
         ship:update(dt)
 
@@ -363,7 +364,7 @@ Game:set_update_action(
         rec.y = round(rec.y)
         current_animation:update(dt)
         my_effect:apply(current_animation, false)
-        Consolas:update(dt)
+        -- Consolas:update(dt)
 
         if rec.x + rec.w > Game.world_right then
             rec.x = Game.world_right - rec.w
@@ -391,6 +392,9 @@ Game:set_update_action(
         end
 
         cam1:follow(ship:get_cx(), ship:get_cy())
+        Game:get_camera(3):follow(ship:get_cx(), ship:get_cy())
+
+        cam1, cam2 = nil, nil
     end
 )
 
@@ -458,7 +462,8 @@ for i = 1, 4 do
 end
 
 tile.draw = function(self, i, j, x, y)
-    local quad = tile.global_q
+    local quad
+    quad = tile.global_q
     local index_x = index_to_string(i, j, "x")
     local index_y = index_to_string(i, j, "y")
 
@@ -466,6 +471,7 @@ tile.draw = function(self, i, j, x, y)
 
     love.graphics.setColor(1, 1, 1, 1)
     love.graphics.draw(self.img, quad, x, y, 0, self.scale, self.scale, 0, 0)
+    quad = nil
 end
 
 

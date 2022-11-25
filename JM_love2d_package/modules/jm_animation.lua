@@ -538,9 +538,10 @@ end
 ---@param w number # Rectangle width in pixels.
 ---@param h number # Rectangle height in pixels.
 function Anima:draw_rec(x, y, w, h)
-    local current_frame = self:__get_current_frame()
+    local current_frame, effect_transform
+    current_frame = self:__get_current_frame()
 
-    local effect_transform = self:__get_effect_transform()
+    effect_transform = self:__get_effect_transform()
 
     x = x + w / 2.0
     y = y + h
@@ -552,6 +553,8 @@ function Anima:draw_rec(x, y, w, h)
     end
 
     self:draw(x, y)
+
+    current_frame, effect_transform = nil, nil
 end
 
 function Anima:__draw__(x, y)
@@ -580,7 +583,8 @@ function Anima:__draw_with_no_effects__(x, y)
     local effect_transform = self:__get_effect_transform()
 
     if effect_transform then
-        local transform = love_math_new_transform()
+        local transform
+        transform = love_math_new_transform()
 
         transform:setTransformation(
             x + effect_transform.ox,
@@ -595,9 +599,11 @@ function Anima:__draw_with_no_effects__(x, y)
         )
 
         love_graphics_apply_transform(transform)
+        transform = nil
     end -- END if exists a effect transform.
 
-    local current_frame = self:__get_current_frame()
+    local current_frame
+    current_frame = self:__get_current_frame()
 
     current_frame:setViewport(self.__img, self.__quad)
 
@@ -615,7 +621,7 @@ function Anima:__draw_with_no_effects__(x, y)
     end
 
     love_graphics_pop()
-
+    current_frame = nil
 end
 
 --- Aplica efeito na animacao.
