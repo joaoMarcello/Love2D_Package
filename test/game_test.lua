@@ -58,7 +58,7 @@ Game:add_camera(
         tile_size = 32,
 
         color = { 153 / 255, 217 / 255, 234 / 255, 1 },
-        scale = 1.15,
+        scale = 1,
 
         type = "modern metroidvania",
         show_grid = true,
@@ -89,10 +89,11 @@ Game:add_camera(
         tile_size = 32,
 
         color = { 255 / 255, 174 / 255, 201 / 255, 1 },
-        scale = 0.7,
+        scale = 1.15,
 
         type = "metroid",
         show_grid = true,
+        grid_tile_size = 32 * 4,
         show_world_bounds = true
     }), "pink"
 )
