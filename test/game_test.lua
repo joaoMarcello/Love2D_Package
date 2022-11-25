@@ -137,6 +137,8 @@ Game:set_load_action(
             spx = 0,
             spy = 0,
             acc = 32 * 20,
+            rad = 0,
+            fspeed = 1,
             max_speed = function(self)
                 return math.sqrt(2 * self.acc * 32 * 6)
             end,
@@ -198,10 +200,15 @@ Game:set_load_action(
             end,
             update = function(self, dt)
                 self:move(dt)
+
+                self.rad = self.rad + (math.pi * 2) / self.fspeed * dt
             end,
             draw = function(self)
                 love.graphics.setColor(1, 0, 0, 0.8)
-                love.graphics.rectangle("fill", self.x, self.y, self.w, self.h)
+                love.graphics.rectangle("fill", self.x,
+                    self.y + 10 * math.cos(self.rad),
+                    self.w, self.h
+                )
             end,
             get_cx = function(self)
                 return self.x + self.w * 0.5

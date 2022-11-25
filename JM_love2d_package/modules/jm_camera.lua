@@ -281,12 +281,221 @@ local function draw_grid(self)
     end
 end
 
+local function capture_grid(self, tile)
+    self.is_showing_grid = true
+    self.grid_desired_tile = tile or self.tile_size
+
+    self.grid_canvas = love.graphics.newCanvas(
+        self.bounds_right - self.bounds_left,
+        self.bounds_bottom - self.bounds_top
+    )
+
+    local mode = love.graphics.getBlendMode()
+    love.graphics.setCanvas(self.grid_canvas)
+    love.graphics.setBlendMode("alpha")
+    draw_grid(self)
+    love.graphics.setCanvas()
+    love.graphics.setBlendMode(mode)
+end
+
 local function show_grid(self)
     local mode = love_get_blend_mode()
     love_set_color(1, 1, 1, 1)
     love_set_blend_mode("alpha", "premultiplied")
     love_draw(self.grid_canvas, self.bounds_left, self.bounds_top)
     love_set_blend_mode(mode)
+end
+
+---@param self JM.Camera.Camera
+local function draw_world_boundary(self)
+    local tile = self.tile_size
+    local qx = (self.bounds_right - self.bounds_left) / self.tile_size
+    local qy = (self.bounds_bottom - self.bounds_top) / self.tile_size
+
+    love_set_color(0, 0, 0, 1)
+    for i = 1, qx - 2 do
+        -- Top
+        love.graphics.line(
+            self.bounds_left + tile * i + tile * 0.25,
+            self.bounds_top + tile,
+            self.bounds_left + tile * i + tile * 0.75,
+            self.bounds_top + tile
+        )
+
+        -- Bottom
+        love.graphics.line(
+            self.bounds_left + tile * i + tile * 0.25,
+            self.bounds_bottom - tile,
+            self.bounds_left + tile * i + tile * 0.75,
+            self.bounds_bottom - tile
+        )
+    end
+
+    for i = 1, qy - 2 do
+        -- Left
+        love.graphics.line(
+            self.bounds_left + tile,
+            self.bounds_top + tile * i,
+            self.bounds_left + tile,
+            self.bounds_top + tile * i + tile * 0.5
+        )
+
+        -- Right
+        love.graphics.line(
+            self.bounds_right - tile,
+            self.bounds_top + tile * i,
+            self.bounds_right - tile,
+            self.bounds_top + tile * i + tile * 0.5
+        )
+    end
+end
+
+---@param self JM.Camera.Camera
+local function show_focus(self)
+    -- Drawing the focus and deadzone
+    do
+        -- Focus guide line
+        love.graphics.setColor(0, 0, 0, 0.2)
+        love.graphics.rectangle("fill",
+            self.viewport_x + self.offset_x,
+            self.viewport_y, 2, self.viewport_h
+        )
+        love.graphics.rectangle("fill", self.viewport_x,
+            self.viewport_y + self.offset_y,
+            self.viewport_w,
+            2
+        )
+        --=============================================================
+
+        if self.target then
+            self.debug_trgt_rad = self.debug_trgt_rad + (math.pi * 2) / 0.3 * love.timer.getDelta()
+
+            if self:target_on_focus() then
+                love.graphics.setColor(0, 0.8, 0, 1)
+            else
+                love.graphics.setColor(0, 0.8, 0,
+                    0.7 + 0.5 * cos(self.debug_trgt_rad)
+                )
+            end
+
+            love.graphics.circle("fill",
+                self.viewport_x + self.offset_x + self:x_world_to_screen((self.target.x or self.target.last_x)),
+                self.viewport_y + self.offset_y + self:y_world_to_screen((self.target.y or self.target.last_y)),
+                5
+            )
+        end
+
+        -- Camera's focus
+        if not self:target_on_focus() then
+            love.graphics.setColor(0.7, 0, 0, 1)
+        else
+            love.graphics.setColor(1, 0, 0, 1)
+        end
+        love.graphics.circle("fill",
+            self.viewport_x + self.offset_x,
+            self.viewport_y + self.offset_y,
+            4
+        )
+
+        local scl = self.scale
+
+        if self:target_on_focus() then
+            love.graphics.setColor(1, 1, 1, 1)
+        elseif self:hit_border()
+        then
+            love.graphics.setColor(1, 0, 0, 1)
+        else
+            love.graphics.setColor(1, 1, 1, 0.6)
+        end
+        -- Left-Top Corner
+        love.graphics.rectangle("fill",
+            self.viewport_x + self.offset_x - self.deadzone_w / 2,
+            self.viewport_y + self.offset_y - self.deadzone_h / 2,
+            16 * scl,
+            2)
+        love.graphics.rectangle("fill",
+            self.viewport_x + self.offset_x - self.deadzone_w / 2,
+            self.viewport_y + self.offset_y - self.deadzone_h / 2,
+            2,
+            16 * scl)
+
+        -- Top-Right Corner
+        love.graphics.rectangle("fill",
+            self.viewport_x + self.offset_x + self.deadzone_w / 2 - 16 * scl,
+            self.viewport_y + self.offset_y - self.deadzone_h / 2,
+            16 * scl,
+            2)
+        love.graphics.rectangle("fill",
+            self.viewport_x + self.offset_x + self.deadzone_w / 2,
+            self.viewport_y + self.offset_y - self.deadzone_h / 2,
+            2,
+            16 * scl)
+
+        --- Bottom-Right Corner
+        love.graphics.rectangle("fill",
+            self.viewport_x + self.offset_x + self.deadzone_w / 2 - 16 * scl + 2,
+            self.viewport_y + self.offset_y + self.deadzone_h / 2,
+            16 * scl,
+            2)
+        love.graphics.rectangle("fill",
+            self.viewport_x + self.offset_x + self.deadzone_w / 2,
+            self.viewport_y + self.offset_y + self.deadzone_h / 2 - 16 * scl,
+            2,
+            16 * scl)
+
+        --- Bottom-Left Corner
+        love.graphics.rectangle("fill",
+            self.viewport_x + self.offset_x - self.deadzone_w / 2,
+            self.viewport_y + self.offset_y + self.deadzone_h / 2 - 16 * scl,
+            2,
+            16 * scl)
+        love.graphics.rectangle("fill",
+            self.viewport_x + self.offset_x - self.deadzone_w / 2,
+            self.viewport_y + self.offset_y + self.deadzone_h / 2,
+            16 * scl,
+            2)
+
+
+        love.graphics.setColor(0.1, 0.1, 0.1, 1)
+        -- Deadzone Right-Middle
+        love.graphics.rectangle("fill",
+            self.viewport_x + self.offset_x + self.deadzone_w / 2 - 8 * scl,
+            self.viewport_y + self.offset_y,
+            16 * self.scale,
+            2)
+
+        -- Deadzone Left-Middle
+        love.graphics.rectangle("fill",
+            self.viewport_x + self.offset_x - self.deadzone_w / 2 - 8 * scl,
+            self.viewport_y + self.offset_y,
+            16 * scl,
+            2)
+
+        -- Deadzone Top-Middle
+        love.graphics.rectangle("fill",
+            self.viewport_x + self.offset_x,
+            self.viewport_y + self.offset_y - self.deadzone_h / 2 - 8 * scl,
+            2,
+            16 * scl)
+        -- Deadzone Bottom-Middle
+        love.graphics.rectangle("fill",
+            self.viewport_x + self.offset_x,
+            self.viewport_y + self.offset_y + self.deadzone_h / 2 - 8 * scl,
+            2,
+            16 * scl)
+    end
+end
+
+local function show_border(self)
+    -- Drawind a border in the camera's viewport
+    do
+        love_set_color(1, 0, 0, 1)
+        love.graphics.rectangle("fill", self.viewport_x, self.viewport_y, 2, self.viewport_h)
+        love.graphics.rectangle("fill", self.viewport_x + self.viewport_w - 2, self.viewport_y, 2, self.viewport_h)
+        love.graphics.rectangle("fill", self.viewport_x, self.viewport_y, self.viewport_w, 2)
+        love.graphics.rectangle("fill", self.viewport_x, self.viewport_y + self.viewport_h - 2,
+            self.viewport_w, 2)
+    end
 end
 
 ---@enum JM.Camera.Type
@@ -310,9 +519,11 @@ function Camera:new(args)
     setmetatable(obj, self)
     self.__index = self
 
-    Camera.__constructor__(obj, args.x, args.y, args.w, args.h,
-        args.bounds, args.canvas_x, args.canvas_y, args.canvas_width, args.canvas_height,
-        args.tile_size, args.color, args.scale, args.type, args.show_grid, args.grid_tile_size
+    Camera.__constructor__(obj,
+        args.x, args.y, args.w, args.h, args.bounds,
+        args.canvas_x, args.canvas_y, args.canvas_width, args.canvas_height,
+        args.tile_size, args.color, args.scale, args.type,
+        args.show_grid, args.grid_tile_size, args.show_world_bounds
     )
 
     return obj
@@ -322,7 +533,7 @@ function Camera:__constructor__(
     x, y, w, h, bounds,
     canvas_width, canvas_x, canvas_y, canvas_height,
     tile_size, color, scale, type_,
-    allow_grid, grid_tile_size
+    allow_grid, grid_tile_size, show_world_bounds
 )
 
     self.scale = scale or 1
@@ -404,28 +615,17 @@ function Camera:__constructor__(
     self.debug_msg_rad = 0
     self.debug_trgt_rad = 0
 
-    if allow_grid then self:show_grid(grid_tile_size or self.tile_size) end
+    self.grid_desired_tile = nil
+    self.is_showing_grid = nil
+    if allow_grid then capture_grid(self, grid_tile_size or self.tile_size) end
+
+    self.show_world_boundary = show_world_bounds
+    self.show_focus = false or self.debug
+    self.show_border = false or self.debug
 end
 
 function Camera:get_color()
     return self.color_r, self.color_g, self.color_b, self.color_a
-end
-
-function Camera:show_grid(tile)
-    self.is_showing_grid = true
-    self.grid_desired_tile = tile or self.tile_size
-
-    self.grid_canvas = love.graphics.newCanvas(
-        self.bounds_right - self.bounds_left,
-        self.bounds_bottom - self.bounds_top
-    )
-
-    local mode = love.graphics.getBlendMode()
-    love.graphics.setCanvas(self.grid_canvas)
-    love.graphics.setBlendMode("alpha")
-    draw_grid(self)
-    love.graphics.setCanvas()
-    love.graphics.setBlendMode(mode)
 end
 
 function Camera:set_background_color(r, g, b, a)
@@ -469,6 +669,7 @@ function Camera:set_type(s)
         self.movement_y = dynamic_y_offset
         self.desired_deadzone_height = 32 * 3
         self.deadzone_h = self.desired_deadzone_height
+        self:set_offset_y(self.viewport_h * 0.5)
     end
 end
 
@@ -725,169 +926,172 @@ end
 local function debbug(self)
     if not self.debug then return end
 
-    local state = self:get_state()
-
-    -- love.graphics.setColor(0, 0, 0, 1)
-    -- love.graphics.print("Scale: " .. tostring(self.scale), self.viewport_w - 100)
-    -- love.graphics.print("Cam_X: " .. tostring(self.x), self.viewport_w - 100, 25)
-
-    do
-        if self.target and false then
-            love.graphics.print(tostring(math.cos(self.target.angle_y)), 100, 200)
-            love.graphics.print("distance: " .. tostring(self.target.distance), 10, 75)
-            love.graphics.print("angle: " .. tostring(self.target.angle_y), 10, 95)
-            love.graphics.print("angle deg: " .. tostring(rad2degr(self.target.angle_y)), 10, 110)
-            love.graphics.print("t_speed_x: " .. tostring(self.target.range_x), 10, 125)
-            love.graphics.print("target_dir: " .. tostring(self.target.direction_y), self.viewport_w - 100, 50)
-            love.graphics.print("last_dir: " .. tostring(self.target.last_direction_y), self.viewport_w - 100, 75)
-        end
-    end
-
-    love.graphics.setColor(0, 0, 0, 0.2)
-    love.graphics.rectangle("fill", self.viewport_x + self.offset_x, self.viewport_y, 2, self.viewport_h)
-    love.graphics.rectangle("fill", self.viewport_x, self.viewport_y + self.offset_y, self.viewport_w,
-        2)
-
-    -- Drawing the focus and deadzone
-    do
-        if self.target then
-            self.debug_trgt_rad = self.debug_trgt_rad + (math.pi * 2) / 0.3 * love.timer.getDelta()
-
-            if self:target_on_focus() then
-                love.graphics.setColor(0, 0.8, 0, 1)
-            else
-                love.graphics.setColor(0, 0.8, 0,
-                    0.7 + 0.5 * cos(self.debug_trgt_rad)
-                )
-            end
-
-            love.graphics.circle("fill",
-                self.viewport_x + self.offset_x + self:x_world_to_screen((self.target.x or self.target.last_x)),
-                self.viewport_y + self.offset_y + self:y_world_to_screen((self.target.y or self.target.last_y)),
-                5
-            )
-        end
-
-        -- Camera's focus
-        if not self:target_on_focus() then
-            love.graphics.setColor(0.7, 0, 0, 1)
-        else
-            love.graphics.setColor(1, 0, 0, 1)
-        end
-        love.graphics.circle("fill",
-            self.viewport_x + self.offset_x,
-            self.viewport_y + self.offset_y,
-            4
-        )
-
-        local scl = self.scale
-
-        if self:target_on_focus() then
-            love.graphics.setColor(1, 1, 1, 1)
-        elseif state:find("left")
-            or state:find("right")
-            or state:find("top")
-            or state:find("bottom")
-        then
-            love.graphics.setColor(1, 0, 0, 1)
-        else
-            love.graphics.setColor(1, 1, 1, 0.6)
-        end
-        -- Left-Top Corner
-        love.graphics.rectangle("fill",
-            self.viewport_x + self.offset_x - self.deadzone_w / 2,
-            self.viewport_y + self.offset_y - self.deadzone_h / 2,
-            16 * scl,
-            2)
-        love.graphics.rectangle("fill",
-            self.viewport_x + self.offset_x - self.deadzone_w / 2,
-            self.viewport_y + self.offset_y - self.deadzone_h / 2,
-            2,
-            16 * scl)
-
-        -- Top-Right Corner
-        love.graphics.rectangle("fill",
-            self.viewport_x + self.offset_x + self.deadzone_w / 2 - 16 * scl,
-            self.viewport_y + self.offset_y - self.deadzone_h / 2,
-            16 * scl,
-            2)
-        love.graphics.rectangle("fill",
-            self.viewport_x + self.offset_x + self.deadzone_w / 2,
-            self.viewport_y + self.offset_y - self.deadzone_h / 2,
-            2,
-            16 * scl)
-
-        --- Bottom-Right Corner
-        love.graphics.rectangle("fill",
-            self.viewport_x + self.offset_x + self.deadzone_w / 2 - 16 * scl + 2,
-            self.viewport_y + self.offset_y + self.deadzone_h / 2,
-            16 * scl,
-            2)
-        love.graphics.rectangle("fill",
-            self.viewport_x + self.offset_x + self.deadzone_w / 2,
-            self.viewport_y + self.offset_y + self.deadzone_h / 2 - 16 * scl,
-            2,
-            16 * scl)
-
-        --- Bottom-Left Corner
-        love.graphics.rectangle("fill",
-            self.viewport_x + self.offset_x - self.deadzone_w / 2,
-            self.viewport_y + self.offset_y + self.deadzone_h / 2 - 16 * scl,
-            2,
-            16 * scl)
-        love.graphics.rectangle("fill",
-            self.viewport_x + self.offset_x - self.deadzone_w / 2,
-            self.viewport_y + self.offset_y + self.deadzone_h / 2,
-            16 * scl,
-            2)
+    -- do
+    --     if self.target and false then
+    --         love.graphics.print(tostring(math.cos(self.target.angle_y)), 100, 200)
+    --         love.graphics.print("distance: " .. tostring(self.target.distance), 10, 75)
+    --         love.graphics.print("angle: " .. tostring(self.target.angle_y), 10, 95)
+    --         love.graphics.print("angle deg: " .. tostring(rad2degr(self.target.angle_y)), 10, 110)
+    --         love.graphics.print("t_speed_x: " .. tostring(self.target.range_x), 10, 125)
+    --         love.graphics.print("target_dir: " .. tostring(self.target.direction_y), self.viewport_w - 100, 50)
+    --         love.graphics.print("last_dir: " .. tostring(self.target.last_direction_y), self.viewport_w - 100, 75)
+    --     end
+    -- end
 
 
-        love.graphics.setColor(0.1, 0.1, 0.1, 1)
-        -- Deadzone Right-Middle
-        love.graphics.rectangle("fill",
-            self.viewport_x + self.offset_x + self.deadzone_w / 2 - 8 * scl,
-            self.viewport_y + self.offset_y,
-            16 * self.scale,
-            2)
+    -- -- Drawing the focus and deadzone
+    -- do
+    --     -- Focus guide line
+    --     love.graphics.setColor(0, 0, 0, 0.2)
+    --     love.graphics.rectangle("fill",
+    --         self.viewport_x + self.offset_x,
+    --         self.viewport_y, 2, self.viewport_h
+    --     )
+    --     love.graphics.rectangle("fill", self.viewport_x,
+    --         self.viewport_y + self.offset_y,
+    --         self.viewport_w,
+    --         2
+    --     )
+    --     --=============================================================
 
-        -- Deadzone Left-Middle
-        love.graphics.rectangle("fill",
-            self.viewport_x + self.offset_x - self.deadzone_w / 2 - 8 * scl,
-            self.viewport_y + self.offset_y,
-            16 * scl,
-            2)
+    --     if self.target then
+    --         self.debug_trgt_rad = self.debug_trgt_rad + (math.pi * 2) / 0.3 * love.timer.getDelta()
 
-        -- Deadzone Top-Middle
-        love.graphics.rectangle("fill",
-            self.viewport_x + self.offset_x,
-            self.viewport_y + self.offset_y - self.deadzone_h / 2 - 8 * scl,
-            2,
-            16 * scl)
-        -- Deadzone Bottom-Middle
-        love.graphics.rectangle("fill",
-            self.viewport_x + self.offset_x,
-            self.viewport_y + self.offset_y + self.deadzone_h / 2 - 8 * scl,
-            2,
-            16 * scl)
-    end
+    --         if self:target_on_focus() then
+    --             love.graphics.setColor(0, 0.8, 0, 1)
+    --         else
+    --             love.graphics.setColor(0, 0.8, 0,
+    --                 0.7 + 0.5 * cos(self.debug_trgt_rad)
+    --             )
+    --         end
+
+    --         love.graphics.circle("fill",
+    --             self.viewport_x + self.offset_x + self:x_world_to_screen((self.target.x or self.target.last_x)),
+    --             self.viewport_y + self.offset_y + self:y_world_to_screen((self.target.y or self.target.last_y)),
+    --             5
+    --         )
+    --     end
+
+    --     -- Camera's focus
+    --     if not self:target_on_focus() then
+    --         love.graphics.setColor(0.7, 0, 0, 1)
+    --     else
+    --         love.graphics.setColor(1, 0, 0, 1)
+    --     end
+    --     love.graphics.circle("fill",
+    --         self.viewport_x + self.offset_x,
+    --         self.viewport_y + self.offset_y,
+    --         4
+    --     )
+
+    --     local scl = self.scale
+
+    --     if self:target_on_focus() then
+    --         love.graphics.setColor(1, 1, 1, 1)
+    --     elseif state:find("left")
+    --         or state:find("right")
+    --         or state:find("top")
+    --         or state:find("bottom")
+    --     then
+    --         love.graphics.setColor(1, 0, 0, 1)
+    --     else
+    --         love.graphics.setColor(1, 1, 1, 0.6)
+    --     end
+    --     -- Left-Top Corner
+    --     love.graphics.rectangle("fill",
+    --         self.viewport_x + self.offset_x - self.deadzone_w / 2,
+    --         self.viewport_y + self.offset_y - self.deadzone_h / 2,
+    --         16 * scl,
+    --         2)
+    --     love.graphics.rectangle("fill",
+    --         self.viewport_x + self.offset_x - self.deadzone_w / 2,
+    --         self.viewport_y + self.offset_y - self.deadzone_h / 2,
+    --         2,
+    --         16 * scl)
+
+    --     -- Top-Right Corner
+    --     love.graphics.rectangle("fill",
+    --         self.viewport_x + self.offset_x + self.deadzone_w / 2 - 16 * scl,
+    --         self.viewport_y + self.offset_y - self.deadzone_h / 2,
+    --         16 * scl,
+    --         2)
+    --     love.graphics.rectangle("fill",
+    --         self.viewport_x + self.offset_x + self.deadzone_w / 2,
+    --         self.viewport_y + self.offset_y - self.deadzone_h / 2,
+    --         2,
+    --         16 * scl)
+
+    --     --- Bottom-Right Corner
+    --     love.graphics.rectangle("fill",
+    --         self.viewport_x + self.offset_x + self.deadzone_w / 2 - 16 * scl + 2,
+    --         self.viewport_y + self.offset_y + self.deadzone_h / 2,
+    --         16 * scl,
+    --         2)
+    --     love.graphics.rectangle("fill",
+    --         self.viewport_x + self.offset_x + self.deadzone_w / 2,
+    --         self.viewport_y + self.offset_y + self.deadzone_h / 2 - 16 * scl,
+    --         2,
+    --         16 * scl)
+
+    --     --- Bottom-Left Corner
+    --     love.graphics.rectangle("fill",
+    --         self.viewport_x + self.offset_x - self.deadzone_w / 2,
+    --         self.viewport_y + self.offset_y + self.deadzone_h / 2 - 16 * scl,
+    --         2,
+    --         16 * scl)
+    --     love.graphics.rectangle("fill",
+    --         self.viewport_x + self.offset_x - self.deadzone_w / 2,
+    --         self.viewport_y + self.offset_y + self.deadzone_h / 2,
+    --         16 * scl,
+    --         2)
+
+
+    --     love.graphics.setColor(0.1, 0.1, 0.1, 1)
+    --     -- Deadzone Right-Middle
+    --     love.graphics.rectangle("fill",
+    --         self.viewport_x + self.offset_x + self.deadzone_w / 2 - 8 * scl,
+    --         self.viewport_y + self.offset_y,
+    --         16 * self.scale,
+    --         2)
+
+    --     -- Deadzone Left-Middle
+    --     love.graphics.rectangle("fill",
+    --         self.viewport_x + self.offset_x - self.deadzone_w / 2 - 8 * scl,
+    --         self.viewport_y + self.offset_y,
+    --         16 * scl,
+    --         2)
+
+    --     -- Deadzone Top-Middle
+    --     love.graphics.rectangle("fill",
+    --         self.viewport_x + self.offset_x,
+    --         self.viewport_y + self.offset_y - self.deadzone_h / 2 - 8 * scl,
+    --         2,
+    --         16 * scl)
+    --     -- Deadzone Bottom-Middle
+    --     love.graphics.rectangle("fill",
+    --         self.viewport_x + self.offset_x,
+    --         self.viewport_y + self.offset_y + self.deadzone_h / 2 - 8 * scl,
+    --         2,
+    --         16 * scl)
+    -- end
     --===================================================================
 
-    -- Drawind a Red border in the camera's viewport
-    do
-        love.graphics.setColor(1, 0, 0, 1)
-        love.graphics.rectangle("fill", self.viewport_x, self.viewport_y, 2, self.viewport_h)
-        love.graphics.rectangle("fill", self.viewport_x + self.viewport_w - 2, self.viewport_y, 2, self.viewport_h)
-        love.graphics.rectangle("fill", self.viewport_x, self.viewport_y, self.viewport_w, 2)
-        love.graphics.rectangle("fill", self.viewport_x, self.viewport_y + self.viewport_h - 2,
-            self.viewport_w, 2)
-    end
+    -- -- Drawind a Red border in the camera's viewport
+    -- do
+    --     love.graphics.setColor(1, 0, 0, 1)
+    --     love.graphics.rectangle("fill", self.viewport_x, self.viewport_y, 2, self.viewport_h)
+    --     love.graphics.rectangle("fill", self.viewport_x + self.viewport_w - 2, self.viewport_y, 2, self.viewport_h)
+    --     love.graphics.rectangle("fill", self.viewport_x, self.viewport_y, self.viewport_w, 2)
+    --     love.graphics.rectangle("fill", self.viewport_x, self.viewport_y + self.viewport_h - 2,
+    --         self.viewport_w, 2)
+    -- end
     --==========================================================
 
     --Drawing a yellow rectangle
     if not self:hit_border() then
         love.graphics.setColor(1, 1, 0, 1)
     else
-        love.graphics.setColor(1, 1, 0, 0.5)
+        love.graphics.setColor(1, 1, 0, 0.3)
     end
     local border_len = self.tile_size * self.scale
     do
@@ -1017,59 +1221,16 @@ function Camera:hit_border()
         or state == "out of bounds"
 end
 
----@param self JM.Camera.Camera
-local function draw_world_boundary(self)
-    local tile = self.tile_size
-    local qx = (self.bounds_right - self.bounds_left) / self.tile_size
-    local qy = (self.bounds_bottom - self.bounds_top) / self.tile_size
-
-    love_set_color(0, 0, 0, 1)
-    for i = 1, qx - 2 do
-        -- Top
-        love.graphics.line(
-            self.bounds_left + tile * i + tile * 0.25,
-            self.bounds_top + tile,
-            self.bounds_left + tile * i + tile * 0.75,
-            self.bounds_top + tile
-        )
-
-        -- Bottom
-        love.graphics.line(
-            self.bounds_left + tile * i + tile * 0.25,
-            self.bounds_bottom - tile,
-            self.bounds_left + tile * i + tile * 0.75,
-            self.bounds_bottom - tile
-        )
-    end
-
-    for i = 1, qy - 2 do
-        -- Left
-        love.graphics.line(
-            self.bounds_left + tile,
-            self.bounds_top + tile * i,
-            self.bounds_left + tile,
-            self.bounds_top + tile * i + tile * 0.5
-        )
-
-        -- Right
-        love.graphics.line(
-            self.bounds_right - tile,
-            self.bounds_top + tile * i,
-            self.bounds_right - tile,
-            self.bounds_top + tile * i + tile * 0.5
-        )
-    end
-end
-
 function Camera:detach()
-    if self.is_showing_grid then
-        show_grid(self)
-    end
-
-    draw_world_boundary(self)
+    local r = self.is_showing_grid and show_grid(self)
+    r = self.show_world_boundary and draw_world_boundary(self)
 
     love_pop()
     debbug(self)
+
+    r = self.show_focus and show_focus(self)
+    r = self.show_border and show_border(self)
+
     love_set_scissor()
 
 end

@@ -110,11 +110,12 @@ function Screen:__constructor__(x, y, w, h)
 
         tile_size = 32,
 
-        color = { 0.3, 0.3, 1, 1 },
+        color = nil, --{ 0.3, 0.3, 1, 1 },
         scale = 1,
 
         type = "",
-        show_grid = true, grid_tile_size = 64
+        show_grid = true, grid_tile_size = 64,
+        show_world_bounds = true
     })
 
     self.canvas = love.graphics.newCanvas(self.w, self.h)
