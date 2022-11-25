@@ -3,6 +3,7 @@ local JM_package = require("/JM_love2d_package/JM_package")
 local Anima = JM_package.Anima
 local FontGenerator = JM_package.Font
 local EffectManager = JM_package.EffectGenerator
+local Camera = require("/JM_love2d_package/modules/jm_camera")
 
 local Consolas = FontGenerator:new({ name = "consolas", font_size = 14 })
 Consolas:add_nickname_animated("--goomba--", {
@@ -33,9 +34,69 @@ local function round(value)
     end
 end
 
-local Game = Screen:new(32, 32)
-local camera = Game.camera
--- camera:set_bounds(nil, nil, -100, 32 * 60)
+local Game = Screen:new()
+Game:add_camera(
+    Camera:new({
+        -- camera's viewport
+        x = Game.w * 0.5,
+        y = Game.h * 0.5,
+        w = Game.w,
+        h = Game.h,
+
+        -- world bounds
+        bounds = {
+            left = Game.world_left,
+            right = Game.world_right,
+            top = Game.world_top,
+            bottom = Game.world_bottom
+        },
+
+        --canvas size
+        canvas_width = Game.w,
+        canvas_height = Game.h,
+
+        tile_size = 32,
+
+        color = { 153 / 255, 217 / 255, 234 / 255, 1 },
+        scale = 1.15,
+
+        type = "modern metroidvania",
+        show_grid = true,
+        show_world_bounds = true
+    }), "blue"
+)
+
+Game:add_camera(
+    Camera:new({
+        -- camera's viewport
+        x = Game.w * 0.5,
+        y = 0,
+        w = Game.w,
+        h = Game.h * 0.5,
+
+        -- world bounds
+        bounds = {
+            left = Game.world_left,
+            right = Game.world_right,
+            top = Game.world_top,
+            bottom = Game.world_bottom
+        },
+
+        --canvas size
+        canvas_width = Game.w,
+        canvas_height = Game.h,
+
+        tile_size = 32,
+
+        color = { 255 / 255, 174 / 255, 201 / 255, 1 },
+        scale = 0.7,
+
+        type = "metroid",
+        show_grid = true,
+        show_world_bounds = true
+    }), "pink"
+)
+
 
 
 local monica_idle_normal = Anima:new({
@@ -260,7 +321,7 @@ Game:set_load_action(
         rec.y = 0
 
         Game.camera:jump_to(rec.x, rec.y)
-        Game.camera2:set_position(rec:get_cx(), rec:get_cy())
+        -- Game.camera2:set_position(rec:get_cx(), rec:get_cy())
     end
 )
 
@@ -277,8 +338,9 @@ Game:set_keypressed_action(
 
 Game:set_update_action(
     function(dt)
-        local cam1, cam2
+        local cam1, cam2, cam3
         cam1, cam2 = Game:get_camera(1), Game:get_camera(2)
+        cam3 = Game:get_camera("pink")
 
         ship:update(dt)
 
@@ -370,7 +432,6 @@ Game:set_update_action(
         -- mx, my = cam1:screen_to_world(mx, my)
 
         if love.keyboard.isDown("up")
-        -- and Game.camera.target.y == rec.y
         then
             cam2:follow(rec:get_cx(), rec:get_cy() - 32 * 3)
         elseif love.keyboard.isDown("down")
@@ -381,9 +442,9 @@ Game:set_update_action(
         end
 
         cam1:follow(ship:get_cx(), ship:get_cy())
-        Game:get_camera(3):follow(ship:get_cx(), ship:get_cy())
+        cam3:follow(ship:get_cx(), ship:get_cy())
 
-        cam1, cam2 = nil, nil
+        cam1, cam2, cam3 = nil, nil, nil
     end
 )
 
@@ -568,11 +629,11 @@ Game:set_draw_action(
 
         ship:draw()
 
-        graph_set_color(1, 0, 0, 0.7)
-        local mx, my = love.mouse.getPosition()
-        mx, my = Game:to_world(mx, my, Game:get_camera(3))
-        mx, my = Game:get_camera(3):screen_to_world(mx, my)
-        love.graphics.rectangle("fill", mx, my, 32, 32)
+        -- graph_set_color(1, 0, 0, 0.7)
+        -- local mx, my = love.mouse.getPosition()
+        -- mx, my = Game:to_world(mx, my, Game:get_camera(3))
+        -- mx, my = Game:get_camera(3):screen_to_world(mx, my)
+        -- love.graphics.rectangle("fill", mx, my, 32, 32)
 
         love.graphics.setShader()
     end

@@ -44,11 +44,11 @@ function Scene:__constructor__(x, y, w, h)
 
     self.x = x or 0
     self.y = y or 0
-    self.w = w or (64 * 15) --love.graphics.getWidth()
-    self.h = h or 600 --love.graphics.getHeight()
+    self.w = w or (1366 / 2) --(64 * 15) --love.graphics.getWidth()
+    self.h = h or (768 / 2) --love.graphics.getHeight()
 
-    self.scale_x = 1 --1366 / self.w
-    self.scale_y = self.scale_x --768 / self.h --self.scale_x
+    self.scale_x = 2 --1366 / self.w
+    self.scale_y = self.scale_x
 
     self.tile_size_x = 32
     self.tile_size_y = 32
@@ -60,42 +60,10 @@ function Scene:__constructor__(x, y, w, h)
 
     self.camera = Camera:new({
         -- camera's viewport
-        x = self.w * 0.5,
-        y = 64,
-        w = self.w,
-        h = self.h * 0.5,
-
-        -- world bounds
-        bounds = {
-            left = self.world_left,
-            right = self.world_right,
-            top = self.world_top,
-            bottom = self.world_bottom
-        },
-
-        --canvas size
-        canvas_x = self.x,
-        canvas_y = self.y,
-        canvas_width = self.w,
-        canvas_height = self.h,
-
-        tile_size = 32,
-
-        scale = 0.4,
-
-        type = "super mario world",
-
-        color = { 0.9, 0.8, 1, 1 },
-
-        show_grid = true,
-    })
-
-    self.camera2 = Camera:new({
-        -- camera's viewport
         x = 0,
         y = 0,
         w = self.w / 2,
-        h = self.h * 1,
+        h = self.h,
 
         -- world bounds
         bounds = {
@@ -109,13 +77,14 @@ function Scene:__constructor__(x, y, w, h)
         canvas_width = self.w,
         canvas_height = self.h,
 
-        tile_size = 32,
+        tile_size = self.tile_size_x,
 
         color = nil, --{ 0.3, 0.3, 1, 1 },
-        scale = 1.2,
+        scale = 1,
 
         type = "",
-        show_grid = true, --grid_tile_size = 64,
+        show_grid = true,
+        grid_tile_size = self.tile_size_x * 4,
         show_world_bounds = true
     })
 
@@ -125,45 +94,19 @@ function Scene:__constructor__(x, y, w, h)
     self.cameras_list = {}
     self.amount_cameras = 0
 
-    self:add_camera(self.camera2)
-    self:add_camera(self.camera)
-    self:add_camera(
-        Camera:new({
-            -- camera's viewport
-            x = self.w * 0.5,
-            y = self.h * 0.5,
-            w = self.w,
-            h = self.h,
-
-            -- world bounds
-            bounds = {
-                left = self.world_left,
-                right = self.world_right,
-                top = self.world_top,
-                bottom = self.world_bottom
-            },
-
-            --canvas size
-            canvas_width = self.w,
-            canvas_height = self.h,
-
-            tile_size = 32,
-
-            color = { 153 / 255, 217 / 255, 234 / 255, 1 },
-            scale = 0.4,
-
-            type = "follow boss",
-            show_grid = true,
-            show_world_bounds = true
-        })
-    )
+    self:add_camera(self.camera, "main")
 
     Camera = nil
 end
 
-function Scene:add_camera(camera)
+---@param camera JM.Camera.Camera
+---@param name string
+function Scene:add_camera(camera, name)
     self.amount_cameras = self.amount_cameras + 1
     self.cameras_list[self.amount_cameras] = camera
+    if name and name ~= "main" then
+        self.cameras_list[name] = camera
+    end
 end
 
 function Scene:get_color()
@@ -188,6 +131,11 @@ end
 ---@return JM.Camera.Camera
 function Scene:get_camera(index)
     return self.cameras_list[index]
+end
+
+---@return JM.Camera.Camera
+function Scene:main_camera()
+    return self.camera
 end
 
 function Scene:keypressed(key)

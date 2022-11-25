@@ -245,7 +245,7 @@ local function chase_y_when_not_moving(self, dt)
 
     if self.target.direction_y == 0 then
         chase_target_y(self, dt)
-    else
+    elseif self.target.direction_y <= 0 then
         self.follow_speed_y = 0 --sqrt(2 * self.acc_y)
     end
 
@@ -522,7 +522,7 @@ function Camera:new(args)
 
     Camera.__constructor__(obj,
         args.x, args.y, args.w, args.h, args.bounds,
-        args.canvas_x, args.canvas_y, args.canvas_width, args.canvas_height,
+        args.canvas_width, args.canvas_height,
         args.tile_size, args.color, args.scale, args.type,
         args.show_grid, args.grid_tile_size, args.show_world_bounds
     )
@@ -534,7 +534,7 @@ end
 
 function Camera:__constructor__(
     x, y, w, h, bounds,
-    canvas_width, canvas_x, canvas_y, canvas_height,
+    canvas_width, canvas_height,
     tile_size, color, scale, type_,
     allow_grid, grid_tile_size, show_world_bounds
 )
@@ -544,8 +544,6 @@ function Camera:__constructor__(
     self.viewport_x = x or 0
     self.viewport_y = y or 0
 
-    self.canvas_x = canvas_x or 0
-    self.canvas_y = canvas_y or 0
     self.canvas_width = canvas_width or love.graphics.getWidth()
     self.canvas_height = canvas_height or love.graphics.getHeight()
 
@@ -564,8 +562,8 @@ function Camera:__constructor__(
     ---@type {x:number, y:number, angle_x:number, angle_y:number, distance:number, range_x:number, range_y:number, last_x:number, last_y:number, direction_x:number, direction_y:number, last_direction_x:number, last_direction_y:number}|nil
     self.target = nil
 
-    self.offset_x = 0 --self.viewport_x + self.viewport_w * 0.5
-    self.offset_y = 0 --self.viewport_h * 0.5
+    self.offset_x = 0
+    self.offset_y = 0
     self:set_offset_x(self.viewport_w * 0.5)
     self:set_offset_y(self.viewport_h * 0.5)
 
@@ -650,11 +648,13 @@ function Camera:set_type(s)
         self.movement_x = dynamic_x_offset
         self.movement_y = chase_y_when_not_moving
 
-        self:set_offset_y(self.viewport_h * 0.3)
-        self.desired_deadzone_height = self.tile_size * 4.5 * self.scale
+        self:set_offset_y(self.viewport_h * 0.7)
+        self.desired_deadzone_height = self.tile_size * 4.5 / self.scale
         self.deadzone_h = self.desired_deadzone_height
-        self.desired_deadzone_width = self.tile_size * 1.5 * self.scale
+
+        self.desired_deadzone_width = self.tile_size * 1.5 / self.scale
         self.deadzone_w = self.desired_deadzone_width
+
     elseif s == "metroid" or s == CAMERA_TYPES.Metroid then
         self.type = CAMERA_TYPES.Metroid
         self.movement_x = chase_target_x
@@ -662,18 +662,24 @@ function Camera:set_type(s)
 
         self:set_offset_y(self.viewport_h * 0.5)
         self:set_offset_x(self.viewport_w * 0.5)
+
     elseif s == "metroidvania" or s == CAMERA_TYPES.Metroidvania then
         self.type = CAMERA_TYPES.Metroidvania
         self.movement_x = chase_target_x
         self.movement_y = dynamic_y_offset
 
         self:set_offset_y(self.viewport_h * 0.5)
+
+    elseif s == "modern metroidvania" then
+        self:set_type("metroidvania")
         self.delay_y = 0.1
+
     elseif s == "follow boss" then
         self.movement_x = dynamic_x_offset
         self.invert_dynamic_focus_x = true
 
         self.movement_y = chase_target_y
+
     else
         self.movement_x = dynamic_x_offset
         self.movement_y = dynamic_y_offset
@@ -947,33 +953,37 @@ end
 local function debbug(self)
     if not self.debug then return end
 
-    love_set_color(0, 0, 0, 1)
-    local x, y = mfloor((self.x + self.offset_x / self.scale) / self.tile_size),
-        mfloor((self.y + self.offset_y / self.scale) / self.tile_size)
 
-    love.graphics.print("Focus: (" .. tostring(x) .. ", " .. tostring(y) .. ")",
-        self.viewport_x + self.tile_size * self.scale * 2,
-        self.viewport_y + self.tile_size * self.scale * 3
-    )
+    -- printing some useful information
+    -- do
+    --     love_set_color(0, 0, 0, 1)
+    --     local x, y = mfloor((self.x + self.offset_x / self.scale) / self.tile_size),
+    --         mfloor((self.y + self.offset_y / self.scale) / self.tile_size)
 
-    if self.target and self.target.x and self.target.y then
-        local x, y
-        x, y = mfloor((self.target.x + self.offset_x / self.scale) / self.tile_size),
-            mfloor((self.target.y + self.offset_y / self.scale) / self.tile_size)
+    --     love.graphics.print("Focus: (" .. tostring(x) .. ", " .. tostring(y) .. ")",
+    --         self.viewport_x + (self.tile_size + 5) * self.scale,
+    --         self.viewport_y + (self.tile_size + 20) * self.scale
+    --     )
 
-        love.graphics.print("Target: (" .. tostring(x) .. ", " .. tostring(y) .. ")",
-            self.viewport_x + self.tile_size * self.scale * 2,
-            self.viewport_y + self.tile_size * self.scale * 4)
+    --     if self.target and self.target.x and self.target.y then
+    --         local x, y
+    --         x, y = mfloor((self.target.x + self.offset_x / self.scale) / self.tile_size),
+    --             mfloor((self.target.y + self.offset_y / self.scale) / self.tile_size)
 
-        local camx = (self.x)
-        local t = self.target.x
-        love.graphics.print("Cam (x = " ..
-            tostring(self.x) ..
-            ", y = " .. tostring(self.y) .. ")",
-            self.viewport_x + self.tile_size * self.scale * 2,
-            self.viewport_y + self.tile_size * self.scale * 5
-        )
-    end
+    --         love.graphics.print("Target: (" .. tostring(x) .. ", " .. tostring(y) .. ")",
+    --             self.viewport_x + (self.tile_size + 5) * self.scale,
+    --             self.viewport_y + (self.tile_size + 40) * self.scale)
+
+    --         local camx = (self.x)
+    --         local t = self.target.x
+    --         love.graphics.print("Cam (x = " ..
+    --             tostring(self.x) ..
+    --             ", y = " .. tostring(self.y) .. ")",
+    --             self.viewport_x + (self.tile_size + 5) * self.scale,
+    --             self.viewport_y + (self.tile_size + 60) * self.scale
+    --         )
+    --     end
+    -- end
 
 
     --Drawing a yellow rectangle
