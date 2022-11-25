@@ -499,6 +499,44 @@ local function show_border(self)
         self.viewport_w, 2)
 end
 
+---@param self JM.Camera.Camera
+local function shake_update(self, dt)
+    if self.is_shaking_in_x then
+
+        self.shake_rad_x = self.shake_rad_x
+            + (math.pi * 2)
+            / self.shake_speed_x * dt
+
+        self.shake_offset_x = round(self.shake_amplitude_x * self.scale
+            * cos(self.shake_rad_x - math.pi * self.shake_x_factor))
+
+        if self.shake_duration_x then
+            self.shake_time_x = self.shake_time_x + dt
+            if self.shake_time_x >= self.shake_duration_x then
+                self.is_shaking_in_x = false
+            end
+        end
+    end
+
+    if self.is_shaking_in_y then
+
+        self.shake_rad_y = self.shake_rad_y
+            + (math.pi * 2)
+            / self.shake_speed_y * dt
+
+        self.shake_offset_y = round(self.shake_amplitude_y * self.scale
+            * cos(self.shake_rad_y - math.pi * self.shake_y_factor))
+
+        if self.shake_duration_y then
+            self.shake_time_y = self.shake_time_y + dt
+            if self.shake_time_y >= self.shake_duration_y then
+                self.is_shaking_in_y = false
+            end
+        end
+    end
+
+end
+
 ---@enum JM.Camera.Type
 local CAMERA_TYPES = {
     Free = 0,
@@ -625,6 +663,12 @@ function Camera:__constructor__(
     self.show_world_boundary = show_world_bounds or self.debug
     self.show_focus = false or self.debug
     self.show_border = false or self.debug
+
+    -- self:shake_in_x(nil, 5, 0.5, 0.1654)
+    -- self:shake_in_y(nil, 7, nil, 0.6)
+
+    self:shake_in_x(nil, 15, 0.5, 6.24)
+    self:shake_in_y(nil, 12, nil, 15.46)
 end
 
 function Camera:get_color()
@@ -890,6 +934,12 @@ function Camera:update(dt)
         r = nil
     end
 
+
+    if self.is_shaking then
+        shake_update(self, dt)
+    end
+
+
     local left, top, right, bottom, lock, px, py
 
     left, top = self:screen_to_world(self.bounds_left, self.bounds_top)
@@ -928,6 +978,46 @@ function Camera:update(dt)
     left, top, right, bottom, lock, px, py = nil, nil, nil, nil, nil, nil, nil
 end
 
+---@param duration any
+---@param amplitude any
+---@param factor any
+---@param speed any
+function Camera:shake_in_x(duration, amplitude, factor, speed)
+    self.is_shaking = true
+    self.shake_duration_x = duration
+    self.shake_time_x = 0
+    self.shake_amplitude_x = amplitude or self.tile_size * 0.3
+    self.shake_amplitude_x = self.shake_amplitude_x / self.scale
+    self.shake_x_factor = factor or 1
+    self.shake_speed_x = speed or (0.7 * math.random())
+    self.shake_rad_x = 0
+    self.is_shaking_in_x = true
+    self.shake_offset_x = 0
+end
+
+---
+---@param duration any
+---@param amplitude any
+---@param factor any
+---@param speed any
+function Camera:shake_in_y(duration, amplitude, factor, speed)
+    self.is_shaking = true
+    self.shake_duration_y = duration
+    self.shake_time_y = 0
+    self.shake_amplitude_y = amplitude or self.tile_size * 0.3
+    self.shake_amplitude_y = self.shake_amplitude_y / self.scale
+    self.shake_y_factor = factor or 1
+    self.shake_speed_y = speed or (0.7 * math.random())
+    self.shake_rad_y = 0
+    self.is_shaking_in_y = true
+    self.shake_offset_y = 0
+end
+
+function Camera:stop_shaking()
+    self.is_shaking_in_x = false
+    self.is_shaking_in_y = false
+end
+
 function Camera:attach()
     local r
     love_set_scissor(
@@ -942,8 +1032,10 @@ function Camera:attach()
     love_push()
     love_scale(self.scale, self.scale)
     love_translate(
-        -self.x + self.viewport_x / self.scale,
+        -self.x + self.viewport_x / self.scale
+        + (self.is_shaking_in_x and self.shake_offset_x or 0),
         -self.y + self.viewport_y / self.scale
+        + (self.is_shaking_in_y and self.shake_offset_y or 0)
     )
 
     r = nil
@@ -1129,10 +1221,10 @@ function Camera:detach()
     r = self.show_world_boundary and draw_world_boundary(self)
 
     love_pop()
-    debbug(self)
 
     r = self.show_focus and show_focus(self)
     r = self.show_border and show_border(self)
+    debbug(self)
 
     love_set_scissor()
 

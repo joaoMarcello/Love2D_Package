@@ -1,3 +1,5 @@
+math.randomseed(os.time())
+
 local scene = require("/test/game_test")
 
 local t = 0
