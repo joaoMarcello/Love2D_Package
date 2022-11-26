@@ -528,11 +528,20 @@ end
 local function show_border(self)
     -- Drawind a border in the camera's viewport
     love_set_color(1, 0, 0, 1)
-    love_rect("fill", self.viewport_x, self.viewport_y, 2, self.viewport_h)
-    love_rect("fill", self.viewport_x + self.viewport_w - 2, self.viewport_y, 2, self.viewport_h)
+    love_rect("fill",
+        self.viewport_x,
+        self.viewport_y,
+        2,
+        self.viewport_h / self.desired_scale)
+
+    love_rect("fill", self.viewport_x + self.viewport_w / self.desired_scale - 2, self.viewport_y, 2, self.viewport_h)
+
     love_rect("fill", self.viewport_x, self.viewport_y, self.viewport_w, 2)
-    love_rect("fill", self.viewport_x, self.viewport_y + self.viewport_h - 2,
-        self.viewport_w, 2)
+
+    love_rect("fill", self.viewport_x,
+        self.viewport_y + self.viewport_h / self.desired_scale - 2,
+        self.viewport_w,
+        2)
 end
 
 ---@param self JM.Camera.Camera
@@ -729,7 +738,7 @@ function Camera:__constructor__(
         self.viewport_w * self.max_zoom,
         self.viewport_h * self.max_zoom
     )
-    self.canvas:setFilter("linear", "nearest")
+    self.canvas:setFilter("nearest", "nearest")
 
     self.zoom_rad = 0
 end
@@ -1121,11 +1130,11 @@ function Camera:attach()
     r = self.color and love.graphics.clear(self:get_color())
 
     love_push()
-    love_scale(self.scale, self.scale)
+    love_scale(1, 1)
     love_translate(
-        -self.x + self.viewport_x / self.scale
+        -self.x + self.viewport_x --/ self.scale
         + (self.shaking_in_x and self.shake_offset_x or 0),
-        -self.y + self.viewport_y / self.scale
+        -self.y + self.viewport_y --/ self.scale
         + (self.shaking_in_y and self.shake_offset_y or 0)
     )
     r = nil
@@ -1182,39 +1191,39 @@ local function debbug(self)
         love.graphics.rectangle("line",
             self.viewport_x + border_len,
             self.viewport_y + border_len,
-            self.viewport_w - border_len * 2,
-            self.viewport_h - border_len * 2
+            self.viewport_w / self.desired_scale - border_len * 2,
+            self.viewport_h / self.desired_scale - border_len * 2
         )
 
         -- Top-Middle
         love.graphics.line(
-            self.viewport_x + self.viewport_w / 2,
+            self.viewport_x + self.viewport_w / 2 / self.desired_scale,
             self.viewport_y,
-            self.viewport_x + self.viewport_w / 2,
+            self.viewport_x + self.viewport_w / 2 / self.desired_scale,
             self.viewport_y + border_len
         )
 
         --Bottom-Middle
         love.graphics.line(
-            self.viewport_x + self.viewport_w / 2,
-            self.viewport_y + self.viewport_h - border_len,
-            self.viewport_x + self.viewport_w / 2,
-            self.viewport_y + self.viewport_h
+            self.viewport_x + self.viewport_w / 2 / self.desired_scale,
+            self.viewport_y + self.viewport_h / self.desired_scale - border_len,
+            self.viewport_x + self.viewport_w / 2 / self.desired_scale,
+            self.viewport_y + self.viewport_h / self.desired_scale
         )
 
         --Left-Middle
         love.graphics.line(
             self.viewport_x,
-            self.viewport_y + self.viewport_h / 2,
+            self.viewport_y + self.viewport_h / 2 / self.desired_scale,
             self.viewport_x + border_len,
-            self.viewport_y + self.viewport_h / 2
+            self.viewport_y + self.viewport_h / 2 / self.desired_scale
         )
 
         love.graphics.line(
-            self.viewport_x + self.viewport_w - border_len,
-            self.viewport_y + self.viewport_h / 2,
-            self.viewport_x + self.viewport_w,
-            self.viewport_y + self.viewport_h / 2
+            self.viewport_x + self.viewport_w / self.desired_scale - border_len,
+            self.viewport_y + self.viewport_h / 2 / self.desired_scale,
+            self.viewport_x + self.viewport_w / self.desired_scale,
+            self.viewport_y + self.viewport_h / 2 / self.desired_scale
         )
     end
     --===========================================================
@@ -1225,15 +1234,15 @@ local function debbug(self)
 
     love_set_color(1, 1, 1, 1)
     love_rect("fill",
-        self.viewport_x + self.viewport_w - border_len - 120,
-        self.viewport_y + self.viewport_h - border_len - 25,
-        120,
-        16
+        self.viewport_x + self.viewport_w / self.desired_scale - border_len - 120 * self.scale / self.desired_scale,
+        self.viewport_y + self.viewport_h / self.desired_scale - border_len - 25 * self.scale / self.desired_scale,
+        120 * self.scale / self.desired_scale,
+        16 * self.scale / self.desired_scale
     )
     love_set_color(r, g, b, a)
     love.graphics.print(self:get_state(),
-        self.viewport_x + self.viewport_w - border_len - 100,
-        self.viewport_y + self.viewport_h - border_len - 25
+        self.viewport_x + self.viewport_w / self.desired_scale - border_len - 100 * self.scale / self.desired_scale,
+        self.viewport_y + self.viewport_h / self.desired_scale - border_len - 25 * self.scale / self.desired_scale
     )
 
     -- Showing the message DEBUG MODE
@@ -1242,8 +1251,8 @@ local function debbug(self)
         * love.timer.getDelta()
     love_set_color(1, 0, 0, 0.7 + 0.5 * cos(self.debug_msg_rad))
     love.graphics.print("DEBUG MODE",
-        self.viewport_x + border_len + 5 * self.scale,
-        self.viewport_y + border_len + 5 * self.scale
+        self.viewport_x + border_len + 5 * self.scale / self.desired_scale,
+        self.viewport_y + border_len + 5 * self.scale / self.desired_scale
     )
 
     r, g, b, a = nil, nil, nil, nil
@@ -1266,18 +1275,25 @@ function Camera:detach()
 
     -- love.graphics.push()
     love.graphics.setCanvas(self.last_canvas)
-
+    love_set_scissor(
+        self.viewport_x,
+        self.viewport_y,
+        self.viewport_w,
+        self.viewport_h
+    )
     love.graphics.setColor(1, 1, 1, 1)
     love.graphics.setBlendMode("alpha", "premultiplied")
     love.graphics.draw(self.canvas,
         0,
         0,
-        0, self.desired_scale, self.desired_scale
+        0, 1 / self.scale * self.desired_scale, 1 / self.scale * self.desired_scale
     )
     -- love.graphics.pop()
     love.graphics.setBlendMode(self.last_blend_mode)
     love.graphics.setCanvas(self.last_canvas)
     self.last_blend_mode, self.last_canvas = nil, nil
+    love_set_scissor()
+
 
     r = nil
 end
