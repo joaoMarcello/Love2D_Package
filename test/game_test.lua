@@ -163,6 +163,91 @@ monica_idle_blink:set_custom_action(
     { idle_normal = monica_idle_normal }
 )
 
+local shadercode, shadercode2, pink_to_none, myShader, graph_set_color, graph_rect, index_to_string, tile, my_shader
+
+do
+    shadercode = [[
+    vec4 effect( vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords )
+{
+    vec4 pix = Texel(texture, texture_coords);
+    if (pix.a != 0){
+        return vec4(0, 0, 1, 1);
+    }
+    else{
+        return pix;
+    }
+}
+  ]]
+
+    shadercode2 = [[
+    vec4 effect( vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords )
+{
+    vec4 pix = Texel(texture, texture_coords);
+    if (pix.r == 1 && pix.g == 0 && pix.b == 1){
+        return vec4(0, 0, 0, 0);
+    }
+    else{
+        return pix;
+    }
+}
+  ]]
+    pink_to_none = love.graphics.newShader(shadercode2)
+
+    myShader = love.graphics.newShader(shadercode)
+    graph_set_color = love.graphics.setColor
+    graph_rect = love.graphics.rectangle
+
+    function index_to_string(i, j, axis)
+        i, j = round(i), round(j)
+        return tostring(i) .. " " .. tostring(j) .. " " .. axis
+    end
+
+    tile = {}
+    tile.img = love.graphics.newImage("/data/groundTile.png")
+    tile.size = 50
+    tile.scale = 32 / 50
+    tile.global_q = love.graphics.newQuad(0, 0, 50, 50, tile.img:getWidth(), tile.img:getHeight())
+    tile.quads = {}
+    for i = 1, 4 do
+        for j = 1, 4 do
+            local index_x = index_to_string(i, j, "x")
+            local index_y = index_to_string(i, j, "y")
+
+            tile.quads[index_x] = (i - 1) * tile.size
+            tile.quads[index_y] = (j - 1) * tile.size
+        end
+    end
+
+    tile.draw = function(self, i, j, x, y)
+        local quad
+        quad = tile.global_q
+        local index_x = index_to_string(i, j, "x")
+        local index_y = index_to_string(i, j, "y")
+
+        quad:setViewport(tile.quads[index_x], tile.quads[index_y], 50, 50, tile.img:getWidth(), tile.img:getHeight())
+
+        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.draw(self.img, quad, x, y, 0, self.scale, self.scale, 0, 0)
+        quad = nil
+    end
+
+
+    shadercode = [[
+    vec4 effect( vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords )
+{
+    vec4 pix = Texel(texture, texture_coords);
+    if ( (pix.r == 1 && pix.g == 0 && pix.b == 1) || (pix.r == 1 && pix.g == 1 && pix.b == 0)){
+        return vec4(0, 0, 0, 0);
+    }
+    else{
+        return pix;//return vec4(pix[0]*0.3, pix[1]*0.3, pix[2]*0.3, 1);
+    }
+}
+  ]]
+    my_shader = love.graphics.newShader(shadercode)
+end
+--=========================================================================
+
 local rec
 
 local function collision(x1, y1, w1, h1, x2, y2, w2, h2)
@@ -435,19 +520,126 @@ Game:implements({
         cam3:follow(ship:get_cx(), ship:get_cy())
 
         cam1, cam2, cam3 = nil, nil, nil
-    end
-})
+    end,
 
-Game:custom_keypressed(
-    function(key)
+    keypressed = function(key)
         if key == "space" then
             if not rec.jump then
                 rec.jump = true
                 rec.speed_y = -math.sqrt(2 * rec.gravity * 32 * 3.5)
             end
         end
+    end,
+
+    keyreleased = function(key)
+        if key == "left" or key == "right" then
+            if current_animation == monica_run then
+                monica_idle_normal:set_flip_x(rec.direction < 0 and true)
+                change_animation(monica_idle_normal, current_animation)
+            end
+        end
+    end,
+
+    draw = function()
+        do
+
+            graph_set_color(245 / 255, 160 / 255, 151 / 255, 1)
+            graph_rect("fill", 0, 32 * 12 - 64 * 3, 64 * 4, 64 * 3)
+
+            graph_set_color(142 / 255, 82 / 255, 82 / 255, 1)
+            graph_rect("fill", 0, 32 * 12 - 64 * 3, 64 * 1, 64 * 3)
+
+            -- graph_set_color(20 / 255, 160 / 255, 46 / 255, 1)
+            -- graph_rect("fill", 0, SCREEN_HEIGHT - 64, SCREEN_WIDTH, 64)
+
+            -- graph_set_color(89 / 255, 193 / 255, 56 / 255, 1)
+            -- graph_rect("fill", 0, SCREEN_HEIGHT - 64, SCREEN_WIDTH, 8)
+        end
+
+        graph_set_color(1, 0, 1, 0.9)
+        graph_rect("line", rec.x, rec.y, rec.w, rec.h)
+
+        current_animation:draw_rec(math.floor(rec.x), math.floor(rec.y), rec.w, rec.h)
+
+        -- love.graphics.setShader(pink_to_none)
+
+        for i = 1, #rects do
+            graph_set_color(1, 0.1, 0.1, 1)
+            graph_rect("line", rects[i].x, rects[i].y, rects[i].w, rects[i].h)
+            graph_set_color(0.5, 0.1, 0.9, 1)
+            graph_rect("fill", rects[i].x, rects[i].y, rects[i].w, rects[i].h)
+        end
+
+        for i = 1, 2 do
+            for j = 0, 35 do
+                if i == 1 and j == 0 then
+                    tile:draw(1, 1, 0, 32 * 12 - 32 * 2)
+                elseif i == 2 and j == 0 then
+                    tile:draw(1, 2, 0, 32 * 12 - 32 * 1)
+                elseif i == 1 then
+                    local left = j * 32
+                    local right = left + 32
+                    local top = Game.h - 64 + 32 * (i - 1)
+                    local bottom = top + 32
+                    local result = Game.camera:rect_is_on_screen(left, right, top, bottom) or true
+
+                    if j % 2 == 0 and result then
+                        tile:draw(2, 1, j * 32, 32 * 12 - 64 + 32 * (i - 1))
+                    elseif result then
+                        tile:draw(3, 1, j * 32, 32 * 12 - 64 + 32 * (i - 1))
+                    end
+                elseif i == 2 then
+                    if j % 2 == 0 then
+                        tile:draw(2, 2, j * 32, 32 * 12 - 64 + 32 * (i - 1))
+                    else
+                        tile:draw(3, 2, j * 32, 32 * 12 - 64 + 32 * (i - 1))
+                    end
+                end
+            end
+        end
+
+        graph_set_color(0, 0, 0, 0.5)
+        graph_rect("fill", 32 * 34, 32 * 4, 32, 32)
+        graph_rect("fill", 32 * 10, 32 * 4, 32, 32)
+
+        -- graph_set_color(0, 0, 0, 0.1)
+        -- for i = 1, 300 do
+        --     local x = -32 * 45 + 32 * (i - 1)
+        --     love.graphics.line(x, 0, x, Game.world_bottom * 50)
+        -- end
+
+        -- for i = 1, 100 do
+        --     love.graphics.line(-32 * 1, 32 * (i - 1), Game.w * 50, 32 * (i - 1))
+        -- end
+
+        -- love.graphics.setColor(1, 0, 0, 1)
+        -- love.graphics.circle("fill", rec:get_cx(), rec:get_cy(), 130)
+        -- love.graphics.setColor(1, 0, 1, 1)
+        -- love.graphics.circle("fill", rec:get_cx(), rec:get_cy(), 128)
+        -- current_animation:draw_rec(math.floor(rec.x), math.floor(rec.y), rec.w, rec.h)
+
+        ship:draw()
+
+        -- graph_set_color(1, 0, 0, 0.7)
+        -- local mx, my = love.mouse.getPosition()
+        -- mx, my = Game:to_world(mx, my, Game:get_camera(3))
+        -- mx, my = Game:get_camera(3):screen_to_world(mx, my)
+        -- love.graphics.rectangle("fill", mx, my, 32, 32)
+
+        love.graphics.setShader()
     end
-)
+})
+
+-- Game:custom_keypressed(
+--     function(key)
+--         if key == "space" then
+--             if not rec.jump then
+--                 rec.jump = true
+--                 rec.speed_y = -math.sqrt(2 * rec.gravity * 32 * 3.5)
+--             end
+--         end
+--     end
+-- )
 
 -- Game:custom_update(
 --     function(dt)
@@ -561,96 +753,18 @@ Game:custom_keypressed(
 --     end
 -- )
 
-Game:custom_keyreleased(
-    function(key)
-        if key == "left" or key == "right" then
-            if current_animation == monica_run then
-                monica_idle_normal:set_flip_x(rec.direction < 0 and true)
-                change_animation(monica_idle_normal, current_animation)
-            end
-        end
-    end
-)
-
-local shadercode = [[
-    vec4 effect( vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords )
-{
-    vec4 pix = Texel(texture, texture_coords);
-    if (pix.a != 0){
-        return vec4(0, 0, 1, 1);
-    }
-    else{
-        return pix;
-    }
-}
-  ]]
-
-local shadercode2 = [[
-    vec4 effect( vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords )
-{
-    vec4 pix = Texel(texture, texture_coords);
-    if (pix.r == 1 && pix.g == 0 && pix.b == 1){
-        return vec4(0, 0, 0, 0);
-    }
-    else{
-        return pix;
-    }
-}
-  ]]
-local pink_to_none = love.graphics.newShader(shadercode2)
-
-local myShader = love.graphics.newShader(shadercode)
-local graph_set_color = love.graphics.setColor
-local graph_rect = love.graphics.rectangle
-
-local function index_to_string(i, j, axis)
-    i, j = round(i), round(j)
-    return tostring(i) .. " " .. tostring(j) .. " " .. axis
-end
-
-local tile = {}
-tile.img = love.graphics.newImage("/data/groundTile.png")
-tile.size = 50
-tile.scale = 32 / 50
-tile.global_q = love.graphics.newQuad(0, 0, 50, 50, tile.img:getWidth(), tile.img:getHeight())
-tile.quads = {}
-for i = 1, 4 do
-    for j = 1, 4 do
-        local index_x = index_to_string(i, j, "x")
-        local index_y = index_to_string(i, j, "y")
-
-        tile.quads[index_x] = (i - 1) * tile.size
-        tile.quads[index_y] = (j - 1) * tile.size
-    end
-end
-
-tile.draw = function(self, i, j, x, y)
-    local quad
-    quad = tile.global_q
-    local index_x = index_to_string(i, j, "x")
-    local index_y = index_to_string(i, j, "y")
-
-    quad:setViewport(tile.quads[index_x], tile.quads[index_y], 50, 50, tile.img:getWidth(), tile.img:getHeight())
-
-    love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.draw(self.img, quad, x, y, 0, self.scale, self.scale, 0, 0)
-    quad = nil
-end
+-- Game:custom_keyreleased(
+--     function(key)
+--         if key == "left" or key == "right" then
+--             if current_animation == monica_run then
+--                 monica_idle_normal:set_flip_x(rec.direction < 0 and true)
+--                 change_animation(monica_idle_normal, current_animation)
+--             end
+--         end
+--     end
+-- )
 
 
-local shadercode = [[
-    vec4 effect( vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords )
-{
-    vec4 pix = Texel(texture, texture_coords);
-    if ( (pix.r == 1 && pix.g == 0 && pix.b == 1) || (pix.r == 1 && pix.g == 1 && pix.b == 0)){
-        return vec4(0, 0, 0, 0);
-    }
-    else{
-        return pix;//return vec4(pix[0]*0.3, pix[1]*0.3, pix[2]*0.3, 1);
-    }
-}
-  ]]
-local my_shader = love.graphics.newShader(shadercode)
 
 Game:set_shader(my_shader)
 
@@ -661,95 +775,95 @@ Game:set_background_draw(
     end
 )
 
-Game:custom_draw(
-    function()
-        do
+-- Game:custom_draw(
+--     function()
+--         do
 
-            graph_set_color(245 / 255, 160 / 255, 151 / 255, 1)
-            graph_rect("fill", 0, 32 * 12 - 64 * 3, 64 * 4, 64 * 3)
+--             graph_set_color(245 / 255, 160 / 255, 151 / 255, 1)
+--             graph_rect("fill", 0, 32 * 12 - 64 * 3, 64 * 4, 64 * 3)
 
-            graph_set_color(142 / 255, 82 / 255, 82 / 255, 1)
-            graph_rect("fill", 0, 32 * 12 - 64 * 3, 64 * 1, 64 * 3)
+--             graph_set_color(142 / 255, 82 / 255, 82 / 255, 1)
+--             graph_rect("fill", 0, 32 * 12 - 64 * 3, 64 * 1, 64 * 3)
 
-            -- graph_set_color(20 / 255, 160 / 255, 46 / 255, 1)
-            -- graph_rect("fill", 0, SCREEN_HEIGHT - 64, SCREEN_WIDTH, 64)
+--             -- graph_set_color(20 / 255, 160 / 255, 46 / 255, 1)
+--             -- graph_rect("fill", 0, SCREEN_HEIGHT - 64, SCREEN_WIDTH, 64)
 
-            -- graph_set_color(89 / 255, 193 / 255, 56 / 255, 1)
-            -- graph_rect("fill", 0, SCREEN_HEIGHT - 64, SCREEN_WIDTH, 8)
-        end
+--             -- graph_set_color(89 / 255, 193 / 255, 56 / 255, 1)
+--             -- graph_rect("fill", 0, SCREEN_HEIGHT - 64, SCREEN_WIDTH, 8)
+--         end
 
-        graph_set_color(1, 0, 1, 0.9)
-        graph_rect("line", rec.x, rec.y, rec.w, rec.h)
+--         graph_set_color(1, 0, 1, 0.9)
+--         graph_rect("line", rec.x, rec.y, rec.w, rec.h)
 
-        current_animation:draw_rec(math.floor(rec.x), math.floor(rec.y), rec.w, rec.h)
+--         current_animation:draw_rec(math.floor(rec.x), math.floor(rec.y), rec.w, rec.h)
 
-        -- love.graphics.setShader(pink_to_none)
+--         -- love.graphics.setShader(pink_to_none)
 
-        for i = 1, #rects do
-            graph_set_color(1, 0.1, 0.1, 1)
-            graph_rect("line", rects[i].x, rects[i].y, rects[i].w, rects[i].h)
-            graph_set_color(0.5, 0.1, 0.9, 1)
-            graph_rect("fill", rects[i].x, rects[i].y, rects[i].w, rects[i].h)
-        end
+--         for i = 1, #rects do
+--             graph_set_color(1, 0.1, 0.1, 1)
+--             graph_rect("line", rects[i].x, rects[i].y, rects[i].w, rects[i].h)
+--             graph_set_color(0.5, 0.1, 0.9, 1)
+--             graph_rect("fill", rects[i].x, rects[i].y, rects[i].w, rects[i].h)
+--         end
 
-        for i = 1, 2 do
-            for j = 0, 35 do
-                if i == 1 and j == 0 then
-                    tile:draw(1, 1, 0, 32 * 12 - 32 * 2)
-                elseif i == 2 and j == 0 then
-                    tile:draw(1, 2, 0, 32 * 12 - 32 * 1)
-                elseif i == 1 then
-                    local left = j * 32
-                    local right = left + 32
-                    local top = Game.h - 64 + 32 * (i - 1)
-                    local bottom = top + 32
-                    local result = Game.camera:rect_is_on_screen(left, right, top, bottom) or true
+--         for i = 1, 2 do
+--             for j = 0, 35 do
+--                 if i == 1 and j == 0 then
+--                     tile:draw(1, 1, 0, 32 * 12 - 32 * 2)
+--                 elseif i == 2 and j == 0 then
+--                     tile:draw(1, 2, 0, 32 * 12 - 32 * 1)
+--                 elseif i == 1 then
+--                     local left = j * 32
+--                     local right = left + 32
+--                     local top = Game.h - 64 + 32 * (i - 1)
+--                     local bottom = top + 32
+--                     local result = Game.camera:rect_is_on_screen(left, right, top, bottom) or true
 
-                    if j % 2 == 0 and result then
-                        tile:draw(2, 1, j * 32, 32 * 12 - 64 + 32 * (i - 1))
-                    elseif result then
-                        tile:draw(3, 1, j * 32, 32 * 12 - 64 + 32 * (i - 1))
-                    end
-                elseif i == 2 then
-                    if j % 2 == 0 then
-                        tile:draw(2, 2, j * 32, 32 * 12 - 64 + 32 * (i - 1))
-                    else
-                        tile:draw(3, 2, j * 32, 32 * 12 - 64 + 32 * (i - 1))
-                    end
-                end
-            end
-        end
+--                     if j % 2 == 0 and result then
+--                         tile:draw(2, 1, j * 32, 32 * 12 - 64 + 32 * (i - 1))
+--                     elseif result then
+--                         tile:draw(3, 1, j * 32, 32 * 12 - 64 + 32 * (i - 1))
+--                     end
+--                 elseif i == 2 then
+--                     if j % 2 == 0 then
+--                         tile:draw(2, 2, j * 32, 32 * 12 - 64 + 32 * (i - 1))
+--                     else
+--                         tile:draw(3, 2, j * 32, 32 * 12 - 64 + 32 * (i - 1))
+--                     end
+--                 end
+--             end
+--         end
 
-        graph_set_color(0, 0, 0, 0.5)
-        graph_rect("fill", 32 * 34, 32 * 4, 32, 32)
-        graph_rect("fill", 32 * 10, 32 * 4, 32, 32)
+--         graph_set_color(0, 0, 0, 0.5)
+--         graph_rect("fill", 32 * 34, 32 * 4, 32, 32)
+--         graph_rect("fill", 32 * 10, 32 * 4, 32, 32)
 
-        -- graph_set_color(0, 0, 0, 0.1)
-        -- for i = 1, 300 do
-        --     local x = -32 * 45 + 32 * (i - 1)
-        --     love.graphics.line(x, 0, x, Game.world_bottom * 50)
-        -- end
+--         -- graph_set_color(0, 0, 0, 0.1)
+--         -- for i = 1, 300 do
+--         --     local x = -32 * 45 + 32 * (i - 1)
+--         --     love.graphics.line(x, 0, x, Game.world_bottom * 50)
+--         -- end
 
-        -- for i = 1, 100 do
-        --     love.graphics.line(-32 * 1, 32 * (i - 1), Game.w * 50, 32 * (i - 1))
-        -- end
+--         -- for i = 1, 100 do
+--         --     love.graphics.line(-32 * 1, 32 * (i - 1), Game.w * 50, 32 * (i - 1))
+--         -- end
 
-        -- love.graphics.setColor(1, 0, 0, 1)
-        -- love.graphics.circle("fill", rec:get_cx(), rec:get_cy(), 130)
-        -- love.graphics.setColor(1, 0, 1, 1)
-        -- love.graphics.circle("fill", rec:get_cx(), rec:get_cy(), 128)
-        -- current_animation:draw_rec(math.floor(rec.x), math.floor(rec.y), rec.w, rec.h)
+--         -- love.graphics.setColor(1, 0, 0, 1)
+--         -- love.graphics.circle("fill", rec:get_cx(), rec:get_cy(), 130)
+--         -- love.graphics.setColor(1, 0, 1, 1)
+--         -- love.graphics.circle("fill", rec:get_cx(), rec:get_cy(), 128)
+--         -- current_animation:draw_rec(math.floor(rec.x), math.floor(rec.y), rec.w, rec.h)
 
-        ship:draw()
+--         ship:draw()
 
-        -- graph_set_color(1, 0, 0, 0.7)
-        -- local mx, my = love.mouse.getPosition()
-        -- mx, my = Game:to_world(mx, my, Game:get_camera(3))
-        -- mx, my = Game:get_camera(3):screen_to_world(mx, my)
-        -- love.graphics.rectangle("fill", mx, my, 32, 32)
+--         -- graph_set_color(1, 0, 0, 0.7)
+--         -- local mx, my = love.mouse.getPosition()
+--         -- mx, my = Game:to_world(mx, my, Game:get_camera(3))
+--         -- mx, my = Game:get_camera(3):screen_to_world(mx, my)
+--         -- love.graphics.rectangle("fill", mx, my, 32, 32)
 
-        love.graphics.setShader()
-    end
-)
+--         love.graphics.setShader()
+--     end
+-- )
 
 return Game
