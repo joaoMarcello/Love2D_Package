@@ -171,9 +171,9 @@ local function dynamic_x_offset(self, dt)
     end
 
     if self.target.direction_x < 0 and not self.lock_x then
-        self:set_offset_x(move_left_offset)
+        self:set_focus_x(move_left_offset)
     elseif self.target.direction_x > 0 and not self.lock_x then
-        self:set_offset_x(move_right_offset)
+        self:set_focus_x(move_right_offset)
     end
 end
 
@@ -233,9 +233,9 @@ local function dynamic_y_offset(self, dt)
     end
 
     if self.target.direction_y < 0 and not self.lock_y then
-        self:set_offset_y(top_offset)
+        self:set_focus_y(top_offset)
     elseif self.target.direction_y > 0 and not self.lock_y then
-        self:set_offset_y(bottom_offset)
+        self:set_focus_y(bottom_offset)
     end
 end
 
@@ -257,7 +257,7 @@ local function chase_y_when_not_moving(self, dt)
         self.follow_speed_y = 0 --sqrt(2 * self.acc_y)
     end
 
-    if self.target.y + self.offset_y / self.scale < top_limit then
+    if self.target.y + self.focus_y / self.scale < top_limit then
         self:move(nil, -abs(self.target.range_y))
     end
 
@@ -383,11 +383,11 @@ end
 local function show_focus(self)
     love_set_color(0, 0, 0, 0.2)
     love_rect("fill",
-        self.viewport_x + self.offset_x,
+        self.viewport_x + self.focus_x,
         self.viewport_y, 2, self.viewport_h
     )
     love_rect("fill", self.viewport_x,
-        self.viewport_y + self.offset_y,
+        self.viewport_y + self.focus_y,
         self.viewport_w,
         2
     )
@@ -405,8 +405,8 @@ local function show_focus(self)
         end
 
         love.graphics.circle("fill",
-            self.viewport_x + self.offset_x + self:x_world_to_screen((self.target.x or self.target.last_x)),
-            self.viewport_y + self.offset_y + self:y_world_to_screen((self.target.y or self.target.last_y)),
+            self.viewport_x + self.focus_x + self:x_world_to_screen((self.target.x or self.target.last_x)),
+            self.viewport_y + self.focus_y + self:y_world_to_screen((self.target.y or self.target.last_y)),
             5
         )
     end
@@ -418,8 +418,8 @@ local function show_focus(self)
         love_set_color(1, 0, 0, 1)
     end
     love.graphics.circle("fill",
-        self.viewport_x + self.offset_x,
-        self.viewport_y + self.offset_y,
+        self.viewport_x + self.focus_x,
+        self.viewport_y + self.focus_y,
         4
     )
 
@@ -433,80 +433,84 @@ local function show_focus(self)
     else
         love_set_color(1, 1, 1, 0.6)
     end
-    -- Left-Top Corner
-    love_rect("fill",
-        self.viewport_x + self.offset_x - self.deadzone_w / 2,
-        self.viewport_y + self.offset_y - self.deadzone_h / 2,
-        16 * scl,
-        2)
-    love_rect("fill",
-        self.viewport_x + self.offset_x - self.deadzone_w / 2,
-        self.viewport_y + self.offset_y - self.deadzone_h / 2,
-        2,
-        16 * scl)
 
-    -- Top-Right Corner
-    love_rect("fill",
-        self.viewport_x + self.offset_x + self.deadzone_w / 2 - 16 * scl,
-        self.viewport_y + self.offset_y - self.deadzone_h / 2,
-        16 * scl,
-        2)
-    love_rect("fill",
-        self.viewport_x + self.offset_x + self.deadzone_w / 2,
-        self.viewport_y + self.offset_y - self.deadzone_h / 2,
-        2,
-        16 * scl)
+    if not self.dont_use_deadzone then
+        -- Left-Top Corner
+        love_rect("fill",
+            self.viewport_x + self.focus_x - self.deadzone_w / 2,
+            self.viewport_y + self.focus_y - self.deadzone_h / 2,
+            16 * scl,
+            2)
+        love_rect("fill",
+            self.viewport_x + self.focus_x - self.deadzone_w / 2,
+            self.viewport_y + self.focus_y - self.deadzone_h / 2,
+            2,
+            16 * scl)
 
-    --- Bottom-Right Corner
-    love_rect("fill",
-        self.viewport_x + self.offset_x + self.deadzone_w / 2 - 16 * scl + 2,
-        self.viewport_y + self.offset_y + self.deadzone_h / 2,
-        16 * scl,
-        2)
-    love_rect("fill",
-        self.viewport_x + self.offset_x + self.deadzone_w / 2,
-        self.viewport_y + self.offset_y + self.deadzone_h / 2 - 16 * scl,
-        2,
-        16 * scl)
+        -- Top-Right Corner
+        love_rect("fill",
+            self.viewport_x + self.focus_x + self.deadzone_w / 2 - 16 * scl,
+            self.viewport_y + self.focus_y - self.deadzone_h / 2,
+            16 * scl,
+            2)
+        love_rect("fill",
+            self.viewport_x + self.focus_x + self.deadzone_w / 2,
+            self.viewport_y + self.focus_y - self.deadzone_h / 2,
+            2,
+            16 * scl)
 
-    --- Bottom-Left Corner
-    love_rect("fill",
-        self.viewport_x + self.offset_x - self.deadzone_w / 2,
-        self.viewport_y + self.offset_y + self.deadzone_h / 2 - 16 * scl,
-        2,
-        16 * scl)
-    love_rect("fill",
-        self.viewport_x + self.offset_x - self.deadzone_w / 2,
-        self.viewport_y + self.offset_y + self.deadzone_h / 2,
-        16 * scl,
-        2)
+        --- Bottom-Right Corner
+        love_rect("fill",
+            self.viewport_x + self.focus_x + self.deadzone_w / 2 - 16 * scl + 2,
+            self.viewport_y + self.focus_y + self.deadzone_h / 2,
+            16 * scl,
+            2)
+        love_rect("fill",
+            self.viewport_x + self.focus_x + self.deadzone_w / 2,
+            self.viewport_y + self.focus_y + self.deadzone_h / 2 - 16 * scl,
+            2,
+            16 * scl)
+
+        --- Bottom-Left Corner
+        love_rect("fill",
+            self.viewport_x + self.focus_x - self.deadzone_w / 2,
+            self.viewport_y + self.focus_y + self.deadzone_h / 2 - 16 * scl,
+            2,
+            16 * scl)
+        love_rect("fill",
+            self.viewport_x + self.focus_x - self.deadzone_w / 2,
+            self.viewport_y + self.focus_y + self.deadzone_h / 2,
+            16 * scl,
+            2)
+
+    end
 
 
     love_set_color(0.1, 0.1, 0.1, 1)
     -- Deadzone Right-Middle
     love_rect("fill",
-        self.viewport_x + self.offset_x + self.deadzone_w / 2 - 8 * scl,
-        self.viewport_y + self.offset_y,
+        self.viewport_x + self.focus_x + self.deadzone_w / 2 - 8 * scl,
+        self.viewport_y + self.focus_y,
         16 * self.scale,
         2)
 
     -- Deadzone Left-Middle
     love_rect("fill",
-        self.viewport_x + self.offset_x - self.deadzone_w / 2 - 8 * scl,
-        self.viewport_y + self.offset_y,
+        self.viewport_x + self.focus_x - self.deadzone_w / 2 - 8 * scl,
+        self.viewport_y + self.focus_y,
         16 * scl,
         2)
 
     -- Deadzone Top-Middle
     love_rect("fill",
-        self.viewport_x + self.offset_x,
-        self.viewport_y + self.offset_y - self.deadzone_h / 2 - 8 * scl,
+        self.viewport_x + self.focus_x,
+        self.viewport_y + self.focus_y - self.deadzone_h / 2 - 8 * scl,
         2,
         16 * scl)
     -- Deadzone Bottom-Middle
     love_rect("fill",
-        self.viewport_x + self.offset_x,
-        self.viewport_y + self.offset_y + self.deadzone_h / 2 - 8 * scl,
+        self.viewport_x + self.focus_x,
+        self.viewport_y + self.focus_y + self.deadzone_h / 2 - 8 * scl,
         2,
         16 * scl)
 end
@@ -636,10 +640,10 @@ function Camera:__constructor__(
     ---@type {x:number, y:number, angle_x:number, angle_y:number, distance:number, range_x:number, range_y:number, last_x:number, last_y:number, direction_x:number, direction_y:number, last_direction_x:number, last_direction_y:number}|nil
     self.target = nil
 
-    self.offset_x = 0
-    self.offset_y = 0
-    self:set_offset_x(self.viewport_w * 0.5)
-    self:set_offset_y(self.viewport_h * 0.5)
+    self.focus_x = 0
+    self.focus_y = 0
+    self:set_focus_x(self.viewport_w * 0.5)
+    self:set_focus_y(self.viewport_h * 0.5)
 
     self.deadzone_w = self.tile_size * 1.5
     self.deadzone_h = self.tile_size * 1.5
@@ -701,18 +705,18 @@ function Camera:__constructor__(
     self.show_focus = false or self.debug
     self.show_border = false or self.debug
 
-    -- self:shake_in_x(nil, 5, 0.5, 0.1654)
-    -- self:shake_in_y(nil, 7, nil, 0.6)
 
-    self:shake_in_x(nil, 64 / 4, nil, 7.587)
-    self:shake_in_y(nil, 76 / 4, nil, 10.7564)
+    self:shake_in_x(nil, self.tile_size * 2 / 4, nil, 7.587)
+    self:shake_in_y(nil, self.tile_size * 2.34 / 4, nil, 10.7564)
 
     self.max_zoom = 3
     self.canvas = love.graphics.newCanvas(
         self.viewport_w * self.max_zoom,
         self.viewport_h * self.max_zoom
     )
-    self.canvas:setFilter("nearest", "nearest")
+    self.canvas:setFilter("linear", "nearest")
+
+    self.zoom_rad = 0
 end
 
 function Camera:get_color()
@@ -736,27 +740,32 @@ function Camera:set_type(s)
         self.movement_x = dynamic_x_offset
         self.movement_y = chase_y_when_not_moving
 
-        self:set_offset_y(self.viewport_h * 0.7)
-        self.desired_deadzone_height = self.tile_size * 4.5 / self.scale
+        self:set_focus_y(self.viewport_h * 0.7)
+        self.desired_deadzone_height = self.tile_size * 2 * self.scale
         self.deadzone_h = self.desired_deadzone_height
 
-        self.desired_deadzone_width = self.tile_size * 1.5 / self.scale
+        self.desired_deadzone_width = self.tile_size * 1.5 * self.scale
         self.deadzone_w = self.desired_deadzone_width
+
+        self.dont_use_deadzone = false
 
     elseif s == "metroid" or s == CAMERA_TYPES.Metroid then
         self.type = CAMERA_TYPES.Metroid
         self.movement_x = chase_target_x
         self.movement_y = chase_target_y
 
-        self:set_offset_y(self.viewport_h * 0.5)
-        self:set_offset_x(self.viewport_w * 0.5)
+        self:set_focus_y(self.viewport_h * 0.5)
+        self:set_focus_x(self.viewport_w * 0.5)
 
     elseif s == "metroidvania" or s == CAMERA_TYPES.Metroidvania then
         self.type = CAMERA_TYPES.Metroidvania
         self.movement_x = chase_target_x
         self.movement_y = dynamic_y_offset
 
-        self:set_offset_y(self.viewport_h * 0.5)
+        self.desired_top_focus = self.viewport_h * 0.5
+        self:set_focus_y(self.viewport_h * 0.5)
+
+        -- self.desired_bottom_focus = self.viewport_h * 0.8
 
     elseif s == "modern metroidvania" then
         self:set_type("metroidvania")
@@ -777,7 +786,7 @@ function Camera:set_type(s)
         self.desired_top_focus = self.viewport_h * 0.25
         self.desired_bottom_focus = self.viewport_h * 0.75
         -- self.constant_speed_x = sqrt(2 * self.acc_y * 32 * 1)
-        self:set_offset_y(self.viewport_h * 0.3)
+        self:set_focus_y(self.viewport_h * 0.3)
     end
 end
 
@@ -811,8 +820,8 @@ end
 function Camera:follow(x, y)
     if not self.target then self.target = {} end
 
-    x = x - self.offset_x / self.scale
-    y = y - self.offset_y / self.scale
+    x = x - self.focus_x / self.scale
+    y = y - self.focus_y / self.scale
 
     x = round(x)
     y = round(y)
@@ -876,25 +885,25 @@ function Camera:target_on_focus()
     return self.x == round(self.target.x) and self.y == round(self.target.y)
 end
 
-function Camera:set_offset_x(value)
+function Camera:set_focus_x(value)
     value = round(value)
-    if self.offset_x ~= value then
+    if self.focus_x ~= value then
         if self.target then
             self.target.x = nil
             self.follow_speed_x = sqrt(2 * self.acc_x * 2)
         end
-        self.offset_x = value
+        self.focus_x = value
     end
 end
 
-function Camera:set_offset_y(value)
+function Camera:set_focus_y(value)
     value = round(value)
-    if self.offset_y ~= value then
+    if self.focus_y ~= value then
         if self.target then
             self.target.y = nil
             self.follow_speed_y = sqrt(2 * self.acc_y * 2)
         end
-        self.offset_y = value
+        self.focus_y = value
     end
 end
 
@@ -907,8 +916,8 @@ end
 
 function Camera:jump_to(x, y)
     self:set_position(
-        x - self.offset_x / self.scale,
-        y - self.offset_y / self.scale
+        x - self.focus_x / self.scale,
+        y - self.focus_y / self.scale
     )
 end
 
@@ -983,6 +992,18 @@ function Camera:update(dt)
     shake_update(self, dt)
     -- end
 
+    local temp = self:target_on_focus()
+    self.zoom_rad = self.zoom_rad + (math.pi * 2) / 4 * dt
+    self.scale = 0.8 + 0.2 / 2.0 / 5.0 * cos(self.zoom_rad)
+    if true then
+        local lx = self.lock_x
+        self:lock_x_axis(false)
+        self:set_position(self.target.x, self.target.y)
+        self.target.last_x = self.x
+        self.target.last_y = self.y
+        self.deadzone_w = self.tile_size * 2 * self.scale
+        self:lock_x_axis(lx)
+    end
 
     local left, top, right, bottom, lock, px, py
 

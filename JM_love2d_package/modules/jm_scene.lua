@@ -1,3 +1,7 @@
+--[[
+    This modules need the 'jm_camera.lua' to work.
+]]
+
 local path = (...)
 
 local set_canvas = love.graphics.setCanvas
@@ -48,6 +52,12 @@ local function draw_tile(self)
 end
 
 ---@class JM.Scene
+---@field load function
+---@field keypressed function
+---@field keyreleased function
+---@field mousepressed function
+---@field mousereleased function
+---@field mousefocus function
 local Scene = {}
 
 ---@param self JM.Scene
@@ -67,13 +77,19 @@ function Scene:__constructor__(x, y, w, h)
     ---@type JM.Camera.Camera
     Camera = require(string.gsub(path, "jm_scene", "jm_camera"))
 
+    assert(Camera, [[
+        >> Error: Camera module not found. Make sure the file 'jm_camera.lua' is in same directory.
+        ]])
+
     self.x = x or 0
     self.y = y or 0
-    self.w = w or (1366 / 2.5) --(64 * 15) --love.graphics.getWidth()
-    self.h = h or (768 / 2.5) --love.graphics.getHeight()
+    self.w = w or (32 * 18) --love.graphics.getWidth()
+    self.h = h or (768 / 2) --love.graphics.getHeight()
 
-    self.scale_x = 2 --1366 / self.w
+    self.scale_x = 768 / self.h --1366 / self.w
     self.scale_y = self.scale_x
+
+    self.x = (1366 - self.w * self.scale_x) / 2 / 2
 
     self.tile_size_x = 32
     self.tile_size_y = 32
@@ -107,9 +123,9 @@ function Scene:__constructor__(x, y, w, h)
         tile_size = self.tile_size_x,
 
         color = nil, --{ 0.3, 0.3, 1, 1 },
-        scale = 0.9,
+        scale = 1,
 
-        type = "",
+        type = "metroid",
         show_grid = true,
         grid_tile_size = self.tile_size_x * 4,
         show_world_bounds = true
@@ -118,14 +134,12 @@ function Scene:__constructor__(x, y, w, h)
     self.canvas = love.graphics.newCanvas(self.w, self.h)
     self.canvas:setFilter("linear", "nearest")
 
-    self.cam_canvas_list = {}
-    self.n_cam_canvas = 0
-
     self.cameras_list = {}
     self.amount_cameras = 0
 
     self:add_camera(self.camera, "main")
 
+    self:implements({})
     Camera = nil
 end
 
@@ -137,7 +151,6 @@ function Scene:add_camera(camera, name)
     assert(not self.cameras_list[self.amount_cameras + 1])
 
     self.amount_cameras = self.amount_cameras + 1
-    self.n_cam_canvas = self.n_cam_canvas + 1
 
     self.cameras_list[self.amount_cameras] = camera
 
@@ -156,22 +169,12 @@ function Scene:set_color(r, g, b, a)
 end
 
 function Scene:to_world(x, y, camera)
-    return to_world(self, x, y, camera)
+    return to_world(self, x, y, camera or self.camera)
 end
-
--- function Scene:keypressed(key)
---     return self.keypressed_action
---         and self.keypressed_action(key)
--- end
-
--- function Scene:keyreleased(key)
---     return self.keyreleased_action
---         and self.keyreleased_action(key)
--- end
 
 ---@return JM.Camera.Camera
 function Scene:get_camera(index)
-    return self.cameras_list[index]
+    return self.cameras_list[index] or self.camera
 end
 
 ---@return JM.Camera.Camera
@@ -179,118 +182,34 @@ function Scene:main_camera()
     return self.camera
 end
 
-function Scene:set_background_draw(action)
-    self.background_draw = action
-end
-
-function Scene:set_foreground_draw(action)
-    self.foreground_draw = action
-end
-
--- function Scene:custom_update(action)
---     self.update_action = action
--- end
-
-function Scene:custom_draw(action)
-    self.draw_action = action
-end
-
--- function Scene:custom_keypressed(action)
---     self.keypressed_action = action
--- end
-
--- function Scene:custom_keyreleased(action)
---     self.keyreleased_action = action
--- end
-
--- function Scene:update(dt)
---     local r
---     r = self.update_action
---         and self.update_action(dt)
-
---     for i = 1, self.amount_cameras do
---         local camera
---         ---@type JM.Camera.Camera
---         camera = self.cameras_list[i]
---         camera:update(dt)
---         camera = nil
---     end
-
---     r = nil
--- end
-
-function Scene:set_shader(shader)
-    self.shader = shader
-end
-
--- function Scene:draw()
-
---     set_canvas(self.canvas)
-
---     if self:get_color() then
---         clear_screen(self:get_color())
---     else
---         draw_tile(self)
---     end
-
---     -- if self.background_draw then
---     --     self.background_draw(self.background_draw_args)
---     -- end
-
---     for i = 1, self.amount_cameras do
-
---         local camera, r
---         ---@type JM.Camera.Camera
---         camera = self.cameras_list[i]
-
---         camera:attach()
---         r = self.draw_action and self.draw_action()
---         camera:detach()
-
---         camera, r = nil, nil
---     end
---     set_canvas()
-
---     -- if self.foreground_draw then
---     --     self.foreground_draw(self.background_draw_args)
---     -- end
-
---     --============================================================
---     -- love.graphics.setShader(self.shader)
-
---     set_color_draw(1, 1, 1, 1)
---     set_blend_mode("alpha", "premultiplied")
-
---     push()
---     scale(self.scale_x, self.scale_y)
---     translate(self.x, self.y)
---     love_draw(self.canvas)
---     pop()
-
---     set_blend_mode("alpha")
---     set_canvas()
-
--- end
-
 ---@param param {load:function, init:function, update:function, draw:function, unload:function, keypressed:function, keyreleased:function}
 function Scene:implements(param)
     assert(param, "\n>> Error: No parameter passed to method.")
     assert(type(param) == "table", "\n>> Error: The method expected a table. Was given " .. type(param) .. ".")
 
-    self.load = function(self) param.load() end
-    self.init = function(self) param.init() end
-
-    self.keypressed = function(self, key)
-        param.keypressed(key)
+    local function generic(callback)
+        return function(self, args)
+            local r = callback and callback(args)
+        end
     end
 
-    self.keyreleased = function(self, key)
-        param.keyreleased(key)
+    local love_callbacks = {
+        "load", "init", "keypressed", "keyreleased", "update", "draw",
+        "unload", "wheelmoved", "mousefocus", "mousemoved", "mousepressed",
+        "mousereleased", "gamepadaxis", "gamepadpressed", "gamepadreleased",
+        "joystickadded", "joystickaxis", "joystickhat", "joystickpressed",
+        "joystickreleased", "joystickremoved", "filedropped", "errorhandler",
+        "quit", "visible", "textinput", "textedited", "threaderror",
+        "displayrotated", "displayrotated"
+    }
+
+    for _, callback in ipairs(love_callbacks) do
+        self[callback] = generic(param[callback])
     end
 
     self.update = function(self, dt)
 
-        param.update(dt)
+        local r = param.update and param.update(dt)
 
         for i = 1, self.amount_cameras do
             local camera
@@ -333,8 +252,6 @@ function Scene:implements(param)
         -- end
 
         --============================================================
-        -- love.graphics.setShader(self.shader)
-
         set_color_draw(1, 1, 1, 1)
         set_blend_mode("alpha", "premultiplied")
 
@@ -347,6 +264,18 @@ function Scene:implements(param)
         set_blend_mode("alpha")
         set_canvas()
     end
+end
+
+function Scene:set_background_draw(action)
+    self.background_draw = action
+end
+
+function Scene:set_foreground_draw(action)
+    self.foreground_draw = action
+end
+
+function Scene:set_shader(shader)
+    self.shader = shader
 end
 
 return Scene

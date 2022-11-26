@@ -1,54 +1,43 @@
 math.randomseed(os.time())
+love.graphics.setBackgroundColor(0, 0, 0, 1)
 
 local scene = require("/test/game_test")
 
 local t = 0
 
 function love.load()
-    local r
-    love.graphics.setBackgroundColor(0, 0, 0, 1)
-    r = scene.load and scene:load()
-    r = nil
+    scene:load()
 end
 
 function love.keypressed(key)
-    local r
-    r = scene.keypressed and scene:keypressed(key)
-    r = nil
+    scene:keypressed(key)
 end
 
 function love.keyreleased(key)
-    local r
-    r = scene.keyreleased and scene:keyreleased(key)
-    r = nil
+    scene:keyreleased(key)
 end
 
-local km = collectgarbage("count")
+local km
 function love.update(dt)
-    local r
-    km = collectgarbage("count")
+    km = collectgarbage("count") / 1024.0
 
     if love.keyboard.isDown("q") or love.keyboard.isDown("escape") then
         love.event.quit()
     end
 
-    r = scene.update and scene:update(dt)
-    r = nil
+    scene:update(dt)
 
     t = t + dt
-    if t >= 2 then
-        t = t - 2
+    if t >= 10.0 then
+        t = t - 10.0
         collectgarbage()
     end
 end
 
 function love.draw()
-
-
-    local r
-    r = scene.draw and scene:draw()
-    r = nil
+    scene:draw()
 
     love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.print(km, 100, 300)
+    love.graphics.print(string.format("Memory:\n\t%.2f Mb", km), 10, 10)
+    love.graphics.print("FPS: " .. tostring(love.timer.getFPS()), 10, 50)
 end

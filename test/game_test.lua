@@ -34,7 +34,7 @@ local function round(value)
     end
 end
 
-local Game = Screen:new(0, 0)
+local Game = Screen:new(32, 0)
 Game:add_camera(
     Camera:new({
         -- camera's viewport
@@ -58,9 +58,9 @@ Game:add_camera(
         tile_size = 32,
 
         color = { 153 / 255, 217 / 255, 234 / 255, 1 },
-        scale = 1,
+        scale = 0.67,
 
-        type = "modern metroidvania",
+        type = "super mario world",
         show_grid = true,
         show_world_bounds = true
     }), "blue"
@@ -273,7 +273,7 @@ local function check_collision(x, y, w, h)
 end
 
 local ship
-
+--==========================================================================
 Game:implements({
     load = function()
         -- love.graphics.setDefaultFilter("nearest", "nearest")
@@ -630,142 +630,6 @@ Game:implements({
     end
 })
 
--- Game:custom_keypressed(
---     function(key)
---         if key == "space" then
---             if not rec.jump then
---                 rec.jump = true
---                 rec.speed_y = -math.sqrt(2 * rec.gravity * 32 * 3.5)
---             end
---         end
---     end
--- )
-
--- Game:custom_update(
---     function(dt)
---         local cam1, cam2, cam3
---         cam1, cam2 = Game:get_camera(1), Game:get_camera(2)
---         cam3 = Game:get_camera("pink")
-
---         ship:update(dt)
-
---         if love.keyboard.isDown("left")
---             -- and rec.x > 0
---             and rec.speed_x <= 0
---         then
---             rec.direction = -1
---             rec:accelerate(dt, rec.acc, -1)
---             rec:run(dt, rec.acc)
-
---             change_animation(monica_run, current_animation)
---             current_animation:set_flip_x(true)
-
---         elseif love.keyboard.isDown("right")
---             and rec.speed_x >= 0
---         then
---             rec.direction = 1
---             rec:accelerate(dt, rec.acc, 1)
---             rec:run(dt, rec.acc)
-
---             change_animation(monica_run, current_animation)
---             current_animation:set_flip_x(false)
-
---         elseif math.abs(rec.speed_x) ~= 0 then
---             local dacc = rec.dacc
---                 * ((love.keyboard.isDown("left") or love.keyboard.isDown("right"))
---                     and 1.5 or 1)
---             rec:accelerate(dt, dacc, rec.speed_x > 0 and -1 or 1)
---             rec:run(dt, dacc)
---             if rec.direction > 0 and rec.speed_x < 0 then rec.speed_x = 0 end
---             if rec.direction < 0 and rec.speed_x > 0 then rec.speed_x = 0 end
---         end
-
---         rec.y = rec.y + rec.speed_y * dt + (rec.gravity * dt * dt) / 2
---         rec.speed_y = rec.speed_y + rec.gravity * dt
-
---         if rec.jump and rec.speed_y < 0 and not love.keyboard.isDown("space") then
---             rec.speed_y = math.sqrt(2 * rec.gravity * 1)
---         end
-
---         if rec.y + rec.h > Game.world_bottom then
---             rec.y = Game.world_bottom - rec.h
---             rec.jump = nil
---         end
-
---         local obj
---         local rx, ry, rw, rh = rec:rect()
---         obj = rec.speed_y >= 0 and check_collision(rx, ry, rw, rh + 15)
---         if obj then
---             rec.y = obj.y - rec.h - 1
---             rec.speed_y = 0
---             rec.jump = false
---             obj = nil
---         end
-
---         obj = rec.speed_x >= 0 and check_collision(rx, ry, rw + 3, rh)
---         if obj then
---             rec.x = obj.x - rec.w
---             rec.speed_x = 0
---             obj = nil
---         end
-
---         obj = rec.speed_x <= 0 and check_collision(rx - 3, ry, rw, rh)
---         if obj then
---             rec.speed_x = 0
---             rec.x = obj.x + obj.w
---             obj = nil
---         end
-
---         rec.x = round(rec.x)
---         rec.y = round(rec.y)
---         current_animation:update(dt)
---         my_effect:apply(current_animation, false)
---         -- Consolas:update(dt)
-
---         if rec.x + rec.w > Game.world_right then
---             rec.x = Game.world_right - rec.w
---             rec.speed_x = 0
---         end
-
---         if rec.x <= Game.world_left then
---             rec.x = Game.world_left
---             rec.speed_x = 0
---         end
-
---         -- local mx, my = love.mouse.getPosition()
---         -- mx, my = Game:to_world(mx, my, cam1)
---         -- mx, my = cam1:screen_to_world(mx, my)
-
---         if love.keyboard.isDown("up")
---         then
---             cam2:follow(rec:get_cx(), rec:get_cy() - 32 * 3)
---         elseif love.keyboard.isDown("down")
---         then
---             cam2:follow(rec:get_cx(), rec:get_cy() + 32 * 3)
---         else
---             cam2:follow(rec:get_cx(), rec:get_cy())
---         end
-
---         cam1:follow(ship:get_cx(), ship:get_cy())
---         cam3:follow(ship:get_cx(), ship:get_cy())
-
---         cam1, cam2, cam3 = nil, nil, nil
---     end
--- )
-
--- Game:custom_keyreleased(
---     function(key)
---         if key == "left" or key == "right" then
---             if current_animation == monica_run then
---                 monica_idle_normal:set_flip_x(rec.direction < 0 and true)
---                 change_animation(monica_idle_normal, current_animation)
---             end
---         end
---     end
--- )
-
-
-
 Game:set_shader(my_shader)
 
 Game:set_background_draw(
@@ -774,96 +638,5 @@ Game:set_background_draw(
         -- love.graphics.rectangle("fill", 0, 0, Game.w, Game.h)
     end
 )
-
--- Game:custom_draw(
---     function()
---         do
-
---             graph_set_color(245 / 255, 160 / 255, 151 / 255, 1)
---             graph_rect("fill", 0, 32 * 12 - 64 * 3, 64 * 4, 64 * 3)
-
---             graph_set_color(142 / 255, 82 / 255, 82 / 255, 1)
---             graph_rect("fill", 0, 32 * 12 - 64 * 3, 64 * 1, 64 * 3)
-
---             -- graph_set_color(20 / 255, 160 / 255, 46 / 255, 1)
---             -- graph_rect("fill", 0, SCREEN_HEIGHT - 64, SCREEN_WIDTH, 64)
-
---             -- graph_set_color(89 / 255, 193 / 255, 56 / 255, 1)
---             -- graph_rect("fill", 0, SCREEN_HEIGHT - 64, SCREEN_WIDTH, 8)
---         end
-
---         graph_set_color(1, 0, 1, 0.9)
---         graph_rect("line", rec.x, rec.y, rec.w, rec.h)
-
---         current_animation:draw_rec(math.floor(rec.x), math.floor(rec.y), rec.w, rec.h)
-
---         -- love.graphics.setShader(pink_to_none)
-
---         for i = 1, #rects do
---             graph_set_color(1, 0.1, 0.1, 1)
---             graph_rect("line", rects[i].x, rects[i].y, rects[i].w, rects[i].h)
---             graph_set_color(0.5, 0.1, 0.9, 1)
---             graph_rect("fill", rects[i].x, rects[i].y, rects[i].w, rects[i].h)
---         end
-
---         for i = 1, 2 do
---             for j = 0, 35 do
---                 if i == 1 and j == 0 then
---                     tile:draw(1, 1, 0, 32 * 12 - 32 * 2)
---                 elseif i == 2 and j == 0 then
---                     tile:draw(1, 2, 0, 32 * 12 - 32 * 1)
---                 elseif i == 1 then
---                     local left = j * 32
---                     local right = left + 32
---                     local top = Game.h - 64 + 32 * (i - 1)
---                     local bottom = top + 32
---                     local result = Game.camera:rect_is_on_screen(left, right, top, bottom) or true
-
---                     if j % 2 == 0 and result then
---                         tile:draw(2, 1, j * 32, 32 * 12 - 64 + 32 * (i - 1))
---                     elseif result then
---                         tile:draw(3, 1, j * 32, 32 * 12 - 64 + 32 * (i - 1))
---                     end
---                 elseif i == 2 then
---                     if j % 2 == 0 then
---                         tile:draw(2, 2, j * 32, 32 * 12 - 64 + 32 * (i - 1))
---                     else
---                         tile:draw(3, 2, j * 32, 32 * 12 - 64 + 32 * (i - 1))
---                     end
---                 end
---             end
---         end
-
---         graph_set_color(0, 0, 0, 0.5)
---         graph_rect("fill", 32 * 34, 32 * 4, 32, 32)
---         graph_rect("fill", 32 * 10, 32 * 4, 32, 32)
-
---         -- graph_set_color(0, 0, 0, 0.1)
---         -- for i = 1, 300 do
---         --     local x = -32 * 45 + 32 * (i - 1)
---         --     love.graphics.line(x, 0, x, Game.world_bottom * 50)
---         -- end
-
---         -- for i = 1, 100 do
---         --     love.graphics.line(-32 * 1, 32 * (i - 1), Game.w * 50, 32 * (i - 1))
---         -- end
-
---         -- love.graphics.setColor(1, 0, 0, 1)
---         -- love.graphics.circle("fill", rec:get_cx(), rec:get_cy(), 130)
---         -- love.graphics.setColor(1, 0, 1, 1)
---         -- love.graphics.circle("fill", rec:get_cx(), rec:get_cy(), 128)
---         -- current_animation:draw_rec(math.floor(rec.x), math.floor(rec.y), rec.w, rec.h)
-
---         ship:draw()
-
---         -- graph_set_color(1, 0, 0, 0.7)
---         -- local mx, my = love.mouse.getPosition()
---         -- mx, my = Game:to_world(mx, my, Game:get_camera(3))
---         -- mx, my = Game:get_camera(3):screen_to_world(mx, my)
---         -- love.graphics.rectangle("fill", mx, my, 32, 32)
-
---         love.graphics.setShader()
---     end
--- )
 
 return Game

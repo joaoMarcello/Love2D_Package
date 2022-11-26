@@ -163,8 +163,8 @@ function t:load()
     rec.y = 0
 
     t.camera = Camera:new(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
-    t.camera:set_offset_x(32 * 8)
-    t.camera:set_offset_y(t.camera.viewport_h * 0.3)
+    t.camera:set_focus_x(32 * 8)
+    t.camera:set_focus_y(t.camera.viewport_h * 0.3)
 end
 
 function t:keypressed(key)
