@@ -83,7 +83,7 @@ function Scene:__constructor__(x, y, w, h)
 
     self.x = x or 0
     self.y = y or 0
-    self.w = w or (32 * 18) --love.graphics.getWidth()
+    self.w = w or 576 --(32 * 18) --love.graphics.getWidth()
     self.h = h or (768 / 2) --love.graphics.getHeight()
 
     self.scale_x = 768 / self.h --1366 / self.w
@@ -229,10 +229,6 @@ function Scene:implements(param)
             draw_tile(self)
         end
 
-        -- if self.background_draw then
-        --     self.background_draw(self.background_draw_args)
-        -- end
-
         for i = 1, self.amount_cameras do
 
             local camera, r
@@ -246,10 +242,6 @@ function Scene:implements(param)
             camera, r = nil, nil
         end
         set_canvas()
-
-        -- if self.foreground_draw then
-        --     self.foreground_draw(self.background_draw_args)
-        -- end
 
         --============================================================
         set_color_draw(1, 1, 1, 1)

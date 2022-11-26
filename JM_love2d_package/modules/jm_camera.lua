@@ -992,18 +992,18 @@ function Camera:update(dt)
     shake_update(self, dt)
     -- end
 
-    local temp = self:target_on_focus()
-    self.zoom_rad = self.zoom_rad + (math.pi * 2) / 4 * dt
-    self.scale = 0.8 + 0.2 / 2.0 / 5.0 * cos(self.zoom_rad)
-    if true then
-        local lx = self.lock_x
-        self:lock_x_axis(false)
-        self:set_position(self.target.x, self.target.y)
-        self.target.last_x = self.x
-        self.target.last_y = self.y
-        self.deadzone_w = self.tile_size * 2 * self.scale
-        self:lock_x_axis(lx)
-    end
+    -- local temp = self:target_on_focus()
+    -- self.zoom_rad = self.zoom_rad + (math.pi * 2) / 4 * dt
+    -- self.scale = 0.8 + 0.2 / 2.0 / 5.0 * cos(self.zoom_rad)
+    -- if true then
+    --     local lx = self.lock_x
+    --     self:lock_x_axis(false)
+    --     self:set_position(self.target.x, self.target.y)
+    --     self.target.last_x = self.x
+    --     self.target.last_y = self.y
+    --     self.deadzone_w = self.tile_size * 2 * self.scale
+    --     self:lock_x_axis(lx)
+    -- end
 
     local left, top, right, bottom, lock, px, py
 
@@ -1084,12 +1084,12 @@ function Camera:stop_shaking()
 end
 
 function Camera:attach()
-    self.last_canvas = love.graphics.getCanvas()
-    self.last_blend_mode = love.graphics.getBlendMode()
-    love.graphics.setBlendMode("alpha")
-    love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.setCanvas(self.canvas)
-    love.graphics.clear(0, 0, 0, 0)
+    -- self.last_canvas = love.graphics.getCanvas()
+    -- self.last_blend_mode = love.graphics.getBlendMode()
+    -- love.graphics.setBlendMode("alpha")
+    -- love.graphics.setColor(1, 1, 1, 1)
+    -- love.graphics.setCanvas(self.canvas)
+    -- love.graphics.clear(0, 0, 0, 0)
 
     local r
     love_set_scissor(
@@ -1111,8 +1111,8 @@ function Camera:attach()
     )
     r = nil
 
-    love.graphics.push()
-    -- love.graphics.scale(2, 2);;;;;;;;
+    -- love.graphics.push()
+    -- love.graphics.scale(1, 1)
 end
 
 ---@param self JM.Camera.Camera
@@ -1235,7 +1235,7 @@ function Camera:detach()
     r = self.is_showing_grid and show_grid(self)
     r = self.show_world_boundary and draw_world_boundary(self)
 
-    love.graphics.pop()
+    -- love.graphics.pop()
 
     love_pop()
 
@@ -1245,14 +1245,18 @@ function Camera:detach()
 
     love_set_scissor()
 
-    love.graphics.push()
-    love.graphics.setCanvas(self.last_canvas)
-    love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.setBlendMode("alpha", "premultiplied")
-    love.graphics.draw(self.canvas, 0, 0, 0, 1, 1)
-    love.graphics.setBlendMode(self.last_blend_mode)
-    love.graphics.setCanvas(self.last_canvas)
-    love.graphics.pop()
+    -- love.graphics.push()
+    -- love.graphics.setCanvas(self.last_canvas)
+    -- love.graphics.setColor(1, 1, 1, 1)
+    -- love.graphics.setBlendMode("alpha", "premultiplied")
+    -- love.graphics.draw(self.canvas,
+    --     0,
+    --     0,
+    --     0, self.scale, self.scale
+    -- )
+    -- love.graphics.pop()
+    -- love.graphics.setBlendMode(self.last_blend_mode)
+    -- love.graphics.setCanvas(self.last_canvas)
 
     r = nil
 end

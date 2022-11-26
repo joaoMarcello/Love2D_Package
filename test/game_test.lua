@@ -34,7 +34,8 @@ local function round(value)
     end
 end
 
-local Game = Screen:new(32, 0)
+local Game = Screen:new(0, 0)
+
 Game:add_camera(
     Camera:new({
         -- camera's viewport
