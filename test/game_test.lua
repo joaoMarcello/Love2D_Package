@@ -36,68 +36,68 @@ end
 
 local Game = Screen:new(0, 0)
 
-Game:add_camera(
-    Camera:new({
-        -- camera's viewport
-        x = Game.w * 0.5,
-        y = Game.h * 0.5,
-        w = Game.w,
-        h = Game.h,
+-- Game:add_camera(
+--     Camera:new({
+--         -- camera's viewport
+--         x = Game.w * 0.5,
+--         y = Game.h * 0.5,
+--         w = Game.w,
+--         h = Game.h,
 
-        -- world bounds
-        bounds = {
-            left = Game.world_left,
-            right = Game.world_right,
-            top = Game.world_top,
-            bottom = Game.world_bottom
-        },
+--         -- world bounds
+--         bounds = {
+--             left = Game.world_left,
+--             right = Game.world_right,
+--             top = Game.world_top,
+--             bottom = Game.world_bottom
+--         },
 
-        --canvas size
-        canvas_width = Game.w,
-        canvas_height = Game.h,
+--         --canvas size
+--         canvas_width = Game.w,
+--         canvas_height = Game.h,
 
-        tile_size = 32,
+--         tile_size = 32,
 
-        color = { 153 / 255, 217 / 255, 234 / 255, 1 },
-        scale = 0.67,
+--         color = { 153 / 255, 217 / 255, 234 / 255, 1 },
+--         scale = 0.67,
 
-        type = "super mario world",
-        show_grid = true,
-        show_world_bounds = true
-    }), "blue"
-)
+--         type = "super mario world",
+--         show_grid = true,
+--         show_world_bounds = true
+--     }), "blue"
+-- )
 
-Game:add_camera(
-    Camera:new({
-        -- camera's viewport
-        x = Game.w * 0.5,
-        y = math.floor(Game.h * 0),
-        w = Game.w,
-        h = Game.h * 0.5,
+-- Game:add_camera(
+--     Camera:new({
+--         -- camera's viewport
+--         x = Game.w * 0.5,
+--         y = math.floor(Game.h * 0),
+--         w = Game.w,
+--         h = Game.h * 0.5,
 
-        -- world bounds
-        bounds = {
-            left = Game.world_left,
-            right = Game.world_right,
-            top = Game.world_top,
-            bottom = Game.world_bottom
-        },
+--         -- world bounds
+--         bounds = {
+--             left = Game.world_left,
+--             right = Game.world_right,
+--             top = Game.world_top,
+--             bottom = Game.world_bottom
+--         },
 
-        --canvas size
-        canvas_width = Game.w,
-        canvas_height = Game.h,
+--         --canvas size
+--         canvas_width = Game.w,
+--         canvas_height = Game.h,
 
-        tile_size = 32,
+--         tile_size = 32,
 
-        color = { 255 / 255, 174 / 255, 201 / 255, 1 },
-        scale = 1.1,
+--         color = { 255 / 255, 174 / 255, 201 / 255, 1 },
+--         scale = 1.1,
 
-        type = "metroid",
-        show_grid = true,
-        grid_tile_size = 32 * 4,
-        show_world_bounds = true
-    }), "pink"
-)
+--         type = "metroid",
+--         show_grid = true,
+--         grid_tile_size = 32 * 4,
+--         show_world_bounds = true
+--     }), "pink"
+-- )
 
 
 
@@ -503,22 +503,19 @@ Game:implements({
             rec.speed_x = 0
         end
 
-        -- local mx, my = love.mouse.getPosition()
-        -- mx, my = Game:to_world(mx, my, cam1)
-        -- mx, my = cam1:screen_to_world(mx, my)
 
-        if love.keyboard.isDown("up")
-        then
-            cam2:follow(rec:get_cx(), rec:get_cy() - 32 * 3)
-        elseif love.keyboard.isDown("down")
-        then
-            cam2:follow(rec:get_cx(), rec:get_cy() + 32 * 3)
-        else
-            cam2:follow(rec:get_cx(), rec:get_cy())
-        end
+        -- if love.keyboard.isDown("up")
+        -- then
+        --     cam2:follow(rec:get_cx(), rec:get_cy() - 32 * 3)
+        -- elseif love.keyboard.isDown("down")
+        -- then
+        --     cam2:follow(rec:get_cx(), rec:get_cy() + 32 * 3)
+        -- else
+        --     cam2:follow(rec:get_cx(), rec:get_cy())
+        -- end
 
         cam1:follow(ship:get_cx(), ship:get_cy())
-        cam3:follow(ship:get_cx(), ship:get_cy())
+        -- cam3:follow(ship:get_cx(), ship:get_cy())
 
         cam1, cam2, cam3 = nil, nil, nil
     end,

@@ -81,15 +81,16 @@ function Scene:__constructor__(x, y, w, h)
         >> Error: Camera module not found. Make sure the file 'jm_camera.lua' is in same directory.
         ]])
 
+
     self.x = x or 0
     self.y = y or 0
-    self.w = w or 576 --(32 * 18) --love.graphics.getWidth()
-    self.h = h or (768 / 2) --love.graphics.getHeight()
+    self.w = w or love.graphics.getWidth() --576 --(32 * 18) --love.graphics.getWidth()
+    self.h = h or love.graphics.getHeight() --(768 / 2) --
 
-    self.scale_x = 768 / self.h --1366 / self.w
+    self.scale_x = 1 --1366 / self.w
     self.scale_y = self.scale_x
 
-    self.x = (1366 - self.w * self.scale_x) / 2 / 2
+    -- self.x = (1366 - self.w * self.scale_x) / 2 / 2
 
     self.tile_size_x = 32
     self.tile_size_y = 32
@@ -103,9 +104,9 @@ function Scene:__constructor__(x, y, w, h)
 
     self.camera = Camera:new({
         -- camera's viewport
-        x = 0,
-        y = 0,
-        w = self.w / 2,
+        x = 32,
+        y = -64 * 0,
+        w = self.w,
         h = self.h,
 
         -- world bounds
@@ -221,7 +222,7 @@ function Scene:implements(param)
     end
 
     self.draw = function(self)
-        set_canvas(self.canvas)
+        -- set_canvas(self.canvas)
 
         if self:get_color() then
             clear_screen(self:get_color())
@@ -241,20 +242,20 @@ function Scene:implements(param)
 
             camera, r = nil, nil
         end
-        set_canvas()
+        -- set_canvas()
 
         --============================================================
-        set_color_draw(1, 1, 1, 1)
-        set_blend_mode("alpha", "premultiplied")
+        -- set_color_draw(1, 1, 1, 1)
+        -- set_blend_mode("alpha", "premultiplied")
 
-        push()
-        scale(self.scale_x, self.scale_y)
-        translate(self.x, self.y)
-        love_draw(self.canvas)
-        pop()
+        -- push()
+        -- scale(self.scale_x, self.scale_y)
+        -- translate(self.x, self.y)
+        -- love_draw(self.canvas)
+        -- pop()
 
-        set_blend_mode("alpha")
-        set_canvas()
+        -- set_blend_mode("alpha")
+        -- set_canvas()
     end
 end
 
