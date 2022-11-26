@@ -34,7 +34,7 @@ local function round(value)
     end
 end
 
-local Game = Screen:new()
+local Game = Screen:new(0, 0)
 Game:add_camera(
     Camera:new({
         -- camera's viewport
@@ -188,8 +188,9 @@ local function check_collision(x, y, w, h)
 end
 
 local ship
-Game:set_load_action(
-    function()
+
+Game:implements({
+    load = function()
         -- love.graphics.setDefaultFilter("nearest", "nearest")
         ship = {
             x = 0,
@@ -323,22 +324,10 @@ Game:set_load_action(
 
         Game.camera:jump_to(rec.x, rec.y)
         -- Game.camera2:set_position(rec:get_cx(), rec:get_cy())
-    end
-)
+    end,
 
-Game:set_keypressed_action(
-    function(key)
-        if key == "space" then
-            if not rec.jump then
-                rec.jump = true
-                rec.speed_y = -math.sqrt(2 * rec.gravity * 32 * 3.5)
-            end
-        end
-    end
-)
+    update = function(dt)
 
-Game:set_update_action(
-    function(dt)
         local cam1, cam2, cam3
         cam1, cam2 = Game:get_camera(1), Game:get_camera(2)
         cam3 = Game:get_camera("pink")
@@ -447,9 +436,132 @@ Game:set_update_action(
 
         cam1, cam2, cam3 = nil, nil, nil
     end
+})
+
+Game:custom_keypressed(
+    function(key)
+        if key == "space" then
+            if not rec.jump then
+                rec.jump = true
+                rec.speed_y = -math.sqrt(2 * rec.gravity * 32 * 3.5)
+            end
+        end
+    end
 )
 
-Game:set_keyreleased_action(
+-- Game:custom_update(
+--     function(dt)
+--         local cam1, cam2, cam3
+--         cam1, cam2 = Game:get_camera(1), Game:get_camera(2)
+--         cam3 = Game:get_camera("pink")
+
+--         ship:update(dt)
+
+--         if love.keyboard.isDown("left")
+--             -- and rec.x > 0
+--             and rec.speed_x <= 0
+--         then
+--             rec.direction = -1
+--             rec:accelerate(dt, rec.acc, -1)
+--             rec:run(dt, rec.acc)
+
+--             change_animation(monica_run, current_animation)
+--             current_animation:set_flip_x(true)
+
+--         elseif love.keyboard.isDown("right")
+--             and rec.speed_x >= 0
+--         then
+--             rec.direction = 1
+--             rec:accelerate(dt, rec.acc, 1)
+--             rec:run(dt, rec.acc)
+
+--             change_animation(monica_run, current_animation)
+--             current_animation:set_flip_x(false)
+
+--         elseif math.abs(rec.speed_x) ~= 0 then
+--             local dacc = rec.dacc
+--                 * ((love.keyboard.isDown("left") or love.keyboard.isDown("right"))
+--                     and 1.5 or 1)
+--             rec:accelerate(dt, dacc, rec.speed_x > 0 and -1 or 1)
+--             rec:run(dt, dacc)
+--             if rec.direction > 0 and rec.speed_x < 0 then rec.speed_x = 0 end
+--             if rec.direction < 0 and rec.speed_x > 0 then rec.speed_x = 0 end
+--         end
+
+--         rec.y = rec.y + rec.speed_y * dt + (rec.gravity * dt * dt) / 2
+--         rec.speed_y = rec.speed_y + rec.gravity * dt
+
+--         if rec.jump and rec.speed_y < 0 and not love.keyboard.isDown("space") then
+--             rec.speed_y = math.sqrt(2 * rec.gravity * 1)
+--         end
+
+--         if rec.y + rec.h > Game.world_bottom then
+--             rec.y = Game.world_bottom - rec.h
+--             rec.jump = nil
+--         end
+
+--         local obj
+--         local rx, ry, rw, rh = rec:rect()
+--         obj = rec.speed_y >= 0 and check_collision(rx, ry, rw, rh + 15)
+--         if obj then
+--             rec.y = obj.y - rec.h - 1
+--             rec.speed_y = 0
+--             rec.jump = false
+--             obj = nil
+--         end
+
+--         obj = rec.speed_x >= 0 and check_collision(rx, ry, rw + 3, rh)
+--         if obj then
+--             rec.x = obj.x - rec.w
+--             rec.speed_x = 0
+--             obj = nil
+--         end
+
+--         obj = rec.speed_x <= 0 and check_collision(rx - 3, ry, rw, rh)
+--         if obj then
+--             rec.speed_x = 0
+--             rec.x = obj.x + obj.w
+--             obj = nil
+--         end
+
+--         rec.x = round(rec.x)
+--         rec.y = round(rec.y)
+--         current_animation:update(dt)
+--         my_effect:apply(current_animation, false)
+--         -- Consolas:update(dt)
+
+--         if rec.x + rec.w > Game.world_right then
+--             rec.x = Game.world_right - rec.w
+--             rec.speed_x = 0
+--         end
+
+--         if rec.x <= Game.world_left then
+--             rec.x = Game.world_left
+--             rec.speed_x = 0
+--         end
+
+--         -- local mx, my = love.mouse.getPosition()
+--         -- mx, my = Game:to_world(mx, my, cam1)
+--         -- mx, my = cam1:screen_to_world(mx, my)
+
+--         if love.keyboard.isDown("up")
+--         then
+--             cam2:follow(rec:get_cx(), rec:get_cy() - 32 * 3)
+--         elseif love.keyboard.isDown("down")
+--         then
+--             cam2:follow(rec:get_cx(), rec:get_cy() + 32 * 3)
+--         else
+--             cam2:follow(rec:get_cx(), rec:get_cy())
+--         end
+
+--         cam1:follow(ship:get_cx(), ship:get_cy())
+--         cam3:follow(ship:get_cx(), ship:get_cy())
+
+--         cam1, cam2, cam3 = nil, nil, nil
+--     end
+-- )
+
+Game:custom_keyreleased(
     function(key)
         if key == "left" or key == "right" then
             if current_animation == monica_run then
@@ -549,7 +661,7 @@ Game:set_background_draw(
     end
 )
 
-Game:set_draw_action(
+Game:custom_draw(
     function()
         do
 

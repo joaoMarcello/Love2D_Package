@@ -153,14 +153,18 @@ local function dynamic_x_offset(self, dt)
             local right = self.x + deadzone_w / 2
             right = self:screen_to_world(right)
 
-            if self:screen_to_world(self.target.x) > right then
+            if self.dont_use_deadzone
+                or self:screen_to_world(self.target.x) > right
+            then
                 self:lock_x_axis(false)
             end
         elseif self.target.direction_x <= 0 then
             local left = self.x - deadzone_w / 2
             left = self:screen_to_world(left)
 
-            if self:screen_to_world(self.target.x) < left then
+            if self.dont_use_deadzone
+                or self:screen_to_world(self.target.x) < left
+            then
                 self:lock_x_axis(false)
             end
         end
@@ -210,7 +214,9 @@ local function dynamic_y_offset(self, dt)
             bottom = self:y_screen_to_world(bottom)
 
             local cy = self:y_screen_to_world(self.target.y)
-            if cy > bottom then
+            if self.dont_use_deadzone or
+                cy > bottom
+            then
                 self:lock_y_axis(false)
             end
 
@@ -218,7 +224,9 @@ local function dynamic_y_offset(self, dt)
             local top = self.y - deadzone_h / 2
             top = self:y_screen_to_world(top)
 
-            if self:y_screen_to_world(self.target.y) < top then
+            if self.dont_use_deadzone
+                or self:y_screen_to_world(self.target.y) < top
+            then
                 self:lock_y_axis(false)
             end
         end
@@ -676,11 +684,12 @@ function Camera:__constructor__(
     self.constant_speed_y = nil
     self.invert_dynamic_focus_x = nil
     self.invert_dynamic_focus_y = nil
+    self.dont_use_deadzone = true
 
     self.type = type_ or CAMERA_TYPES.SuperMarioWorld
     self:set_type(self.type)
 
-    self.debug = false
+    self.debug = true
     self.debug_msg_rad = 0
     self.debug_trgt_rad = 0
 
@@ -692,11 +701,11 @@ function Camera:__constructor__(
     self.show_focus = false or self.debug
     self.show_border = false or self.debug
 
-    self:shake_in_x(nil, 5, 0.5, 0.1654)
-    self:shake_in_y(nil, 7, nil, 0.6)
+    -- self:shake_in_x(nil, 5, 0.5, 0.1654)
+    -- self:shake_in_y(nil, 7, nil, 0.6)
 
-    -- self:shake_in_x(4, 23, nil, 1)
-    -- self:shake_in_y(4, 13, nil, 0.7)
+    self:shake_in_x(nil, 64 / 4, nil, 7.587)
+    self:shake_in_y(nil, 76 / 4, nil, 10.7564)
 
     self.max_zoom = 3
     self.canvas = love.graphics.newCanvas(
@@ -1054,12 +1063,12 @@ function Camera:stop_shaking()
 end
 
 function Camera:attach()
-    -- self.last_canvas = love.graphics.getCanvas()
-    -- self.last_blend_mode = love.graphics.getBlendMode()
-    -- love.graphics.setBlendMode("alpha")
-    -- love.graphics.setColor(1, 1, 1, 1)
-    -- love.graphics.setCanvas(self.canvas)
-    -- love.graphics.clear(0, 0, 0, 0)
+    self.last_canvas = love.graphics.getCanvas()
+    self.last_blend_mode = love.graphics.getBlendMode()
+    love.graphics.setBlendMode("alpha")
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.setCanvas(self.canvas)
+    love.graphics.clear(0, 0, 0, 0)
 
     local r
     love_set_scissor(
@@ -1079,10 +1088,10 @@ function Camera:attach()
         -self.y + self.viewport_y / self.scale
         + (self.is_shaking_in_y and self.shake_offset_y or 0)
     )
-
-    -- love.graphics.push()
-    -- love.graphics.scale(self.scale * 2, self.scale * 2) --the screen scale
     r = nil
+
+    love.graphics.push()
+    -- love.graphics.scale(2, 2);;;;;;;;
 end
 
 ---@param self JM.Camera.Camera
@@ -1200,6 +1209,33 @@ local function debbug(self)
     r, g, b, a = nil, nil, nil, nil
 end
 
+function Camera:detach()
+    local r
+    r = self.is_showing_grid and show_grid(self)
+    r = self.show_world_boundary and draw_world_boundary(self)
+
+    love.graphics.pop()
+
+    love_pop()
+
+    r = self.show_focus and show_focus(self)
+    r = self.show_border and show_border(self)
+    debbug(self)
+
+    love_set_scissor()
+
+    love.graphics.push()
+    love.graphics.setCanvas(self.last_canvas)
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.setBlendMode("alpha", "premultiplied")
+    love.graphics.draw(self.canvas, 0, 0, 0, 1, 1)
+    love.graphics.setBlendMode(self.last_blend_mode)
+    love.graphics.setCanvas(self.last_canvas)
+    love.graphics.pop()
+
+    r = nil
+end
+
 function Camera:get_state()
     local left, top, right, bottom, px, py, text
 
@@ -1257,31 +1293,6 @@ function Camera:hit_border()
         or state:find("top")
         or state:find("bottom")
         or state == "out of bounds"
-end
-
-function Camera:detach()
-    local r
-    r = self.is_showing_grid and show_grid(self)
-    r = self.show_world_boundary and draw_world_boundary(self)
-
-    -- love.graphics.pop()
-
-    love_pop()
-
-    r = self.show_focus and show_focus(self)
-    r = self.show_border and show_border(self)
-    debbug(self)
-
-    love_set_scissor()
-
-    -- love.graphics.setCanvas(self.last_canvas)
-    -- love.graphics.setColor(1, 1, 1, 1)
-    -- love.graphics.setBlendMode("alpha", "premultiplied")
-    -- love.graphics.draw(self.canvas, 0, 0, 0, 1, 1)
-    -- love.graphics.setBlendMode(self.last_blend_mode)
-    -- love.graphics.setCanvas(self.last_canvas)
-
-    r = nil
 end
 
 function Camera:y_screen_to_world(y)

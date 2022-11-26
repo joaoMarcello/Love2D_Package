@@ -22,6 +22,31 @@ local function to_world(self, x, y, camera)
     return x - camera.viewport_x, y - camera.viewport_y
 end
 
+---@param self  JM.Scene
+local function draw_tile(self)
+    local tile, qx, qy
+
+    tile = self.tile_size_x * 4
+    qx = (self.w - self.x) / tile
+    qy = (self.h - self.y) / tile
+
+    clear_screen(0.35, 0.35, 0.35, 1)
+    set_color_draw(0.9, 0.9, 0.9, 0.3)
+    for i = 0, qx, 2 do
+        local x
+        x = tile * i
+
+        for j = 0, qy, 2 do
+            love.graphics.rectangle("fill", x, tile * j, tile, tile)
+            love.graphics.rectangle("fill", x + tile,
+                tile * j + tile,
+                tile, tile)
+        end
+        x = nil
+    end
+    tile, qx, qy = nil, nil, nil
+end
+
 ---@class JM.Scene
 local Scene = {}
 
@@ -44,8 +69,8 @@ function Scene:__constructor__(x, y, w, h)
 
     self.x = x or 0
     self.y = y or 0
-    self.w = w or (1024 / 2) --(64 * 15) --love.graphics.getWidth()
-    self.h = h or (768 / 2) --love.graphics.getHeight()
+    self.w = w or (1366 / 2.5) --(64 * 15) --love.graphics.getWidth()
+    self.h = h or (768 / 2.5) --love.graphics.getHeight()
 
     self.scale_x = 2 --1366 / self.w
     self.scale_y = self.scale_x
@@ -107,20 +132,16 @@ end
 ---@param camera JM.Camera.Camera
 ---@param name string
 function Scene:add_camera(camera, name)
+    assert(name, "\n>> Error: You not inform the Camera's name.")
+    assert(not self.cameras_list[name], "\n>> Error: A camera with the name '" .. tostring(name) .. "' already exists!")
+    assert(not self.cameras_list[self.amount_cameras + 1])
+
     self.amount_cameras = self.amount_cameras + 1
     self.n_cam_canvas = self.n_cam_canvas + 1
 
     self.cameras_list[self.amount_cameras] = camera
-    self.cam_canvas_list[self.n_cam_canvas] = love.graphics.newCanvas(
-        self.w * self.max_zoom,
-        self.h * self.max_zoom
-    )
-    self.cam_canvas_list[self.n_cam_canvas]:setFilter("nearest", "nearest")
 
-    if name then
-        self.cameras_list[name] = camera
-        self.cam_canvas_list[name] = self.cam_canvas_list[self.n_cam_canvas]
-    end
+    self.cameras_list[name] = camera
 end
 
 function Scene:get_color()
@@ -138,8 +159,14 @@ function Scene:to_world(x, y, camera)
     return to_world(self, x, y, camera)
 end
 
-function Scene:load()
-    return self.load_action and self.load_action(self.load_args)
+function Scene:keypressed(key)
+    return self.keypressed_action
+        and self.keypressed_action(key)
+end
+
+function Scene:keyreleased(key)
+    return self.keyreleased_action
+        and self.keyreleased_action(key)
 end
 
 ---@return JM.Camera.Camera
@@ -152,94 +179,48 @@ function Scene:main_camera()
     return self.camera
 end
 
-function Scene:keypressed(key)
-    return self.keypressed_action
-        and self.keypressed_action(key, self.keypressed_args)
-end
-
-function Scene:keyreleased(key)
-    return self.keyreleased_action
-        and self.keyreleased_action(key, self.keyreleased_args)
-end
-
-function Scene:set_background_draw(action, args)
+function Scene:set_background_draw(action)
     self.background_draw = action
-    self.background_draw_args = args
 end
 
-function Scene:set_load_action(action, args)
-    self.load_action = action
-    self.load_args = args
-end
-
-function Scene:set_foreground_draw(action, args)
+function Scene:set_foreground_draw(action)
     self.foreground_draw = action
-    self.foreground_draw_args = args
 end
 
-function Scene:set_update_action(action, args)
-    self.update_action = action
-    self.update_args = args
-end
+-- function Scene:custom_update(action)
+--     self.update_action = action
+-- end
 
-function Scene:set_draw_action(action, args)
+function Scene:custom_draw(action)
     self.draw_action = action
-    self.draw_args = args
 end
 
-function Scene:set_keypressed_action(action, args)
+function Scene:custom_keypressed(action)
     self.keypressed_action = action
-    self.keypressed_args = args
 end
 
-function Scene:set_keyreleased_action(action, args)
+function Scene:custom_keyreleased(action)
     self.keyreleased_action = action
-    self.keyreleased_args = args
 end
 
-function Scene:update(dt)
-    local r
-    r = self.update_action
-        and self.update_action(dt, self.update_args)
+-- function Scene:update(dt)
+--     local r
+--     r = self.update_action
+--         and self.update_action(dt)
 
-    for i = 1, self.amount_cameras do
-        local camera
-        ---@type JM.Camera.Camera
-        camera = self.cameras_list[i]
-        camera:update(dt)
-        camera = nil
-    end
+--     for i = 1, self.amount_cameras do
+--         local camera
+--         ---@type JM.Camera.Camera
+--         camera = self.cameras_list[i]
+--         camera:update(dt)
+--         camera = nil
+--     end
 
-    r = nil
-end
+--     r = nil
+-- end
 
 function Scene:set_shader(shader)
     self.shader = shader
-end
-
----@param self  JM.Scene
-local function draw_tile(self)
-    local tile, qx, qy
-
-    tile = self.tile_size_x * 4
-    qx = (self.w - self.x) / tile
-    qy = (self.h - self.y) / tile
-
-    clear_screen(0.35, 0.35, 0.35, 1)
-    set_color_draw(0.9, 0.9, 0.9, 0.3)
-    for i = 0, qx, 2 do
-        local x
-        x = tile * i
-
-        for j = 0, qy, 2 do
-            love.graphics.rectangle("fill", x, tile * j, tile, tile)
-            love.graphics.rectangle("fill", x + tile,
-                tile * j + tile,
-                tile, tile)
-        end
-        x = nil
-    end
-    tile, qx, qy = nil, nil, nil
 end
 
 function Scene:draw()
@@ -258,33 +239,15 @@ function Scene:draw()
 
     for i = 1, self.amount_cameras do
 
-        local camera, r, cam_canvas
-
-        -- cam_canvas = self.cam_canvas_list[i]
-        -- set_canvas(self.cam_canvas_list[i])
-
+        local camera, r
         ---@type JM.Camera.Camera
         camera = self.cameras_list[i]
 
         camera:attach()
-        r = self.draw_action and self.draw_action(self.draw_args)
+        r = self.draw_action and self.draw_action()
         camera:detach()
 
-        -- set_canvas()
-
-        -- set_canvas(self.canvas)
-        -- set_color_draw(1, 1, 1, 1)
-        -- set_blend_mode("alpha", "premultiplied")
-        -- push()
-        -- scale(1.0 / camera.scale, 1.0 / camera.scale)
-        -- translate(0, 0)
-        -- love_draw(cam_canvas)
-        -- pop()
-        -- set_blend_mode("alpha")
-        -- set_canvas()
-
         camera, r = nil, nil
-
     end
     set_canvas()
 
@@ -307,6 +270,31 @@ function Scene:draw()
     set_blend_mode("alpha")
     set_canvas()
 
+end
+
+---@param param {load:function, init:function, update:function, draw:function, unload:function, keypressed:function, keyreleased:function}
+function Scene:implements(param)
+    assert(param, "\n>> Error: No parameter passed to method.")
+    assert(type(param) == "table", "\n>> Error: The method expected a table. Was given " .. type(param) .. ".")
+
+    self.load = function() param.load() end
+    self.init = function() param.init() end
+    self:custom_keypressed(param.keypressed)
+    self:custom_keyreleased(param.keyreleased)
+    self.update = function(self, dt)
+
+        param.update(dt)
+
+        for i = 1, self.amount_cameras do
+            local camera
+            ---@type JM.Camera.Camera
+            camera = self.cameras_list[i]
+            camera:update(dt)
+            camera = nil
+        end
+    end
+
+    self:custom_draw(param.draw)
 end
 
 return Scene
