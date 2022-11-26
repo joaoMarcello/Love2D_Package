@@ -44,7 +44,7 @@ function Scene:__constructor__(x, y, w, h)
 
     self.x = x or 0
     self.y = y or 0
-    self.w = w or (1366 / 2) --(64 * 15) --love.graphics.getWidth()
+    self.w = w or (1024 / 2) --(64 * 15) --love.graphics.getWidth()
     self.h = h or (768 / 2) --love.graphics.getHeight()
 
     self.scale_x = 2 --1366 / self.w
@@ -53,10 +53,12 @@ function Scene:__constructor__(x, y, w, h)
     self.tile_size_x = 32
     self.tile_size_y = 32
 
-    self.world_left = 0
+    self.world_left = -0
     self.world_right = 32 * 60
-    self.world_top = -32
+    self.world_top = -32 * 0
     self.world_bottom = 32 * 50
+
+    self.max_zoom = 3
 
     self.camera = Camera:new({
         -- camera's viewport
@@ -91,6 +93,9 @@ function Scene:__constructor__(x, y, w, h)
     self.canvas = love.graphics.newCanvas(self.w, self.h)
     self.canvas:setFilter("linear", "nearest")
 
+    self.cam_canvas_list = {}
+    self.n_cam_canvas = 0
+
     self.cameras_list = {}
     self.amount_cameras = 0
 
@@ -103,9 +108,18 @@ end
 ---@param name string
 function Scene:add_camera(camera, name)
     self.amount_cameras = self.amount_cameras + 1
+    self.n_cam_canvas = self.n_cam_canvas + 1
+
     self.cameras_list[self.amount_cameras] = camera
-    if name and name ~= "main" then
+    self.cam_canvas_list[self.n_cam_canvas] = love.graphics.newCanvas(
+        self.w * self.max_zoom,
+        self.h * self.max_zoom
+    )
+    self.cam_canvas_list[self.n_cam_canvas]:setFilter("nearest", "nearest")
+
+    if name then
         self.cameras_list[name] = camera
+        self.cam_canvas_list[name] = self.cam_canvas_list[self.n_cam_canvas]
     end
 end
 
@@ -229,8 +243,8 @@ local function draw_tile(self)
 end
 
 function Scene:draw()
+
     set_canvas(self.canvas)
-    set_blend_mode("alpha")
 
     if self:get_color() then
         clear_screen(self:get_color())
@@ -238,12 +252,16 @@ function Scene:draw()
         draw_tile(self)
     end
 
-    if self.background_draw then
-        self.background_draw(self.background_draw_args)
-    end
+    -- if self.background_draw then
+    --     self.background_draw(self.background_draw_args)
+    -- end
 
     for i = 1, self.amount_cameras do
-        local camera, r
+
+        local camera, r, cam_canvas
+
+        -- cam_canvas = self.cam_canvas_list[i]
+        -- set_canvas(self.cam_canvas_list[i])
 
         ---@type JM.Camera.Camera
         camera = self.cameras_list[i]
@@ -251,14 +269,29 @@ function Scene:draw()
         camera:attach()
         r = self.draw_action and self.draw_action(self.draw_args)
         camera:detach()
+
+        -- set_canvas()
+
+        -- set_canvas(self.canvas)
+        -- set_color_draw(1, 1, 1, 1)
+        -- set_blend_mode("alpha", "premultiplied")
+        -- push()
+        -- scale(1.0 / camera.scale, 1.0 / camera.scale)
+        -- translate(0, 0)
+        -- love_draw(cam_canvas)
+        -- pop()
+        -- set_blend_mode("alpha")
+        -- set_canvas()
+
         camera, r = nil, nil
-    end
 
-    if self.foreground_draw then
-        self.foreground_draw(self.background_draw_args)
     end
-
     set_canvas()
+
+    -- if self.foreground_draw then
+    --     self.foreground_draw(self.background_draw_args)
+    -- end
+
     --============================================================
     -- love.graphics.setShader(self.shader)
 
@@ -271,8 +304,9 @@ function Scene:draw()
     love_draw(self.canvas)
     pop()
 
-    -- set_shader()
     set_blend_mode("alpha")
+    set_canvas()
+
 end
 
 return Scene

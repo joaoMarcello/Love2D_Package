@@ -282,6 +282,20 @@ local function draw_grid(self)
             self.tile_size * (i)
         )
     end
+
+    love_set_color(0, 0, 0, 1)
+    -- Drawing x-axis
+    love_line(self.bounds_left,
+        -self.bounds_top,
+        self.bounds_right,
+        -self.bounds_top
+    )
+    -- Drawing y-axis
+    love_line(-self.bounds_left,
+        self.bounds_top,
+        -self.bounds_left,
+        self.bounds_bottom
+    )
 end
 
 local function capture_grid(self, tile)
@@ -501,27 +515,29 @@ end
 
 ---@param self JM.Camera.Camera
 local function shake_update(self, dt)
-    -- if self.is_shaking_in_x then
+    if self.is_shaking_in_x then
 
-    --     self.shake_rad_x = self.shake_rad_x
-    --         + (math.pi * 2)
-    --         / self.shake_speed_x * dt
+        self.shake_rad_x = self.shake_rad_x
+            + (math.pi * 2)
+            / self.shake_speed_x * dt
 
-    --     self.shake_offset_x = round(self.shake_amplitude_x * self.scale
-    --         * cos(self.shake_rad_x - math.pi * self.shake_x_factor))
+        self.shake_offset_x = round(self.shake_amplitude_x * self.scale
+            * cos(self.shake_rad_x - math.pi * self.shake_y_factor))
 
-    --     if self.shake_duration_x then
-    --         self.shake_time_x = self.shake_time_x + dt
+        if self.shake_duration_x then
+            self.shake_time_x = self.shake_time_x + dt
 
-    --         if self.shake_time_x >= self.shake_duration_x then
-    --             if self.shake_rad_x + (math.pi * 2)
-    --                 / self.shake_speed_x * dt >= math.pi * 2 then
-    --                 self.is_shaking_in_x = false
-    --             end
-    --         end
-    --     end
-    --     self.shake_rad_x = self.shake_rad_x % (math.pi * 2)
-    -- end
+            if self.shake_time_x >= self.shake_duration_x then
+                if abs(self.shake_offset_x) <= self.shake_amplitude_x * 0.05
+                    or self.shake_time_x >= self.shake_duration_x
+                    + self.shake_speed_x
+                then
+                    self.is_shaking_in_x = false
+                end
+            end
+        end
+        self.shake_rad_x = self.shake_rad_x % (math.pi * 2)
+    end
 
     if self.is_shaking_in_y then
 
@@ -535,38 +551,17 @@ local function shake_update(self, dt)
         if self.shake_duration_y then
             self.shake_time_y = self.shake_time_y + dt
 
-            self.shake_rad_y = self.shake_rad_y % (math.pi * 2)
-
             if self.shake_time_y >= self.shake_duration_y then
-                if (self.shake_rad_y + (math.pi * 2)
-                    / self.shake_speed_y * dt) >= (math.pi * 2) then
+                if abs(self.shake_offset_y) <= self.shake_amplitude_y * 0.05
+                    or self.shake_time_y >= self.shake_duration_y
+                    + self.shake_speed_y
+                then
                     self.is_shaking_in_y = false
                 end
             end
         end
+        self.shake_rad_y = self.shake_rad_y % (math.pi * 2)
     end
-
-    -- if self.is_shaking_in_y then
-
-    --     self.shake_rad_y = self.shake_rad_y
-    --         + (math.pi * 2)
-    --         / self.shake_speed_y * dt
-
-    --     self.shake_offset_y = round(self.shake_amplitude_y * self.scale
-    --         * cos(self.shake_rad_y - math.pi * self.shake_y_factor))
-
-    --     if self.shake_duration_y then
-    --         self.shake_time_y = self.shake_time_y + dt
-
-    --         if self.shake_time_y >= self.shake_duration_y then
-    --             if self.shake_rad_y + (math.pi * 2)
-    --                 / self.shake_speed_y * dt >= math.pi / 2 then
-    --                 self.is_shaking_in_y = false
-    --             end
-    --         end
-    --     end
-    --     self.shake_rad_y = self.shake_rad_y % (math.pi * 2)
-    -- end
 
 end
 
@@ -697,11 +692,18 @@ function Camera:__constructor__(
     self.show_focus = false or self.debug
     self.show_border = false or self.debug
 
-    -- self:shake_in_x(nil, 5, 0.5, 0.1654)
-    -- self:shake_in_y(nil, 7, nil, 0.6)
+    self:shake_in_x(nil, 5, 0.5, 0.1654)
+    self:shake_in_y(nil, 7, nil, 0.6)
 
-    -- self:shake_in_x(6, 64, nil, 2.5)
-    self:shake_in_y(6, 64, nil, 2.5)
+    -- self:shake_in_x(4, 23, nil, 1)
+    -- self:shake_in_y(4, 13, nil, 0.7)
+
+    self.max_zoom = 3
+    self.canvas = love.graphics.newCanvas(
+        self.viewport_w * self.max_zoom,
+        self.viewport_h * self.max_zoom
+    )
+    self.canvas:setFilter("nearest", "nearest")
 end
 
 function Camera:get_color()
@@ -1021,9 +1023,9 @@ function Camera:shake_in_x(duration, amplitude, factor, speed)
     self.shake_time_x = 0
     self.shake_amplitude_x = amplitude or self.tile_size * 0.3
     self.shake_amplitude_x = self.shake_amplitude_x / self.scale
-    self.shake_x_factor = factor or 0.5 --1.0
+    self.shake_x_factor = factor or math.random()
     self.shake_speed_x = speed or (0.7 * math.random())
-    self.shake_rad_x = 0 --(math.pi) * math.random()
+    self.shake_rad_x = (math.pi) * math.random()
     self.is_shaking_in_x = true
     self.shake_offset_x = 0
 end
@@ -1039,9 +1041,9 @@ function Camera:shake_in_y(duration, amplitude, factor, speed)
     self.shake_time_y = 0
     self.shake_amplitude_y = amplitude or self.tile_size * 0.3
     self.shake_amplitude_y = self.shake_amplitude_y / self.scale
-    self.shake_y_factor = factor or 1.0
+    self.shake_y_factor = factor or math.random()
     self.shake_speed_y = speed or (0.7 * math.random())
-    self.shake_rad_y = 0 --(math.pi) * math.random()
+    self.shake_rad_y = (math.pi) * math.random()
     self.is_shaking_in_y = true
     self.shake_offset_y = 0
 end
@@ -1052,6 +1054,13 @@ function Camera:stop_shaking()
 end
 
 function Camera:attach()
+    -- self.last_canvas = love.graphics.getCanvas()
+    -- self.last_blend_mode = love.graphics.getBlendMode()
+    -- love.graphics.setBlendMode("alpha")
+    -- love.graphics.setColor(1, 1, 1, 1)
+    -- love.graphics.setCanvas(self.canvas)
+    -- love.graphics.clear(0, 0, 0, 0)
+
     local r
     love_set_scissor(
         self.viewport_x,
@@ -1071,6 +1080,8 @@ function Camera:attach()
         + (self.is_shaking_in_y and self.shake_offset_y or 0)
     )
 
+    -- love.graphics.push()
+    -- love.graphics.scale(self.scale * 2, self.scale * 2) --the screen scale
     r = nil
 end
 
@@ -1253,6 +1264,8 @@ function Camera:detach()
     r = self.is_showing_grid and show_grid(self)
     r = self.show_world_boundary and draw_world_boundary(self)
 
+    -- love.graphics.pop()
+
     love_pop()
 
     r = self.show_focus and show_focus(self)
@@ -1260,6 +1273,13 @@ function Camera:detach()
     debbug(self)
 
     love_set_scissor()
+
+    -- love.graphics.setCanvas(self.last_canvas)
+    -- love.graphics.setColor(1, 1, 1, 1)
+    -- love.graphics.setBlendMode("alpha", "premultiplied")
+    -- love.graphics.draw(self.canvas, 0, 0, 0, 1, 1)
+    -- love.graphics.setBlendMode(self.last_blend_mode)
+    -- love.graphics.setCanvas(self.last_canvas)
 
     r = nil
 end

@@ -70,7 +70,7 @@ Game:add_camera(
     Camera:new({
         -- camera's viewport
         x = Game.w * 0.5,
-        y = 0,
+        y = math.floor(Game.h * 0),
         w = Game.w,
         h = Game.h * 0.5,
 
@@ -89,7 +89,7 @@ Game:add_camera(
         tile_size = 32,
 
         color = { 255 / 255, 174 / 255, 201 / 255, 1 },
-        scale = 1.15,
+        scale = 1.1,
 
         type = "metroid",
         show_grid = true,
