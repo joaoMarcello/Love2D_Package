@@ -34,70 +34,70 @@ local function round(value)
     end
 end
 
-local Game = Screen:new(0, 0)
+local Game = Screen:new(0, 0, nil, nil, 32 * 18, 768 / 2)
 
--- Game:add_camera(
---     Camera:new({
---         -- camera's viewport
---         x = Game.w * 0.5,
---         y = Game.h * 0.5,
---         w = Game.w,
---         h = Game.h,
+Game:add_camera(
+    Camera:new({
+        -- camera's viewport
+        x = Game.screen_w * 0.5,
+        y = Game.screen_h * 0.5,
+        w = Game.screen_w * 0.5,
+        h = Game.screen_h * 0.5,
 
---         -- world bounds
---         bounds = {
---             left = Game.world_left,
---             right = Game.world_right,
---             top = Game.world_top,
---             bottom = Game.world_bottom
---         },
+        -- world bounds
+        bounds = {
+            left = Game.world_left,
+            right = Game.world_right,
+            top = Game.world_top,
+            bottom = Game.world_bottom
+        },
 
---         --canvas size
---         canvas_width = Game.w,
---         canvas_height = Game.h,
+        --canvas size
+        canvas_width = Game.w,
+        canvas_height = Game.h,
 
---         tile_size = 32,
+        tile_size = 32,
 
---         color = { 153 / 255, 217 / 255, 234 / 255, 1 },
---         scale = 0.67,
+        color = { 153 / 255, 217 / 255, 234 / 255, 1 },
+        scale = 0.67,
 
---         type = "super mario world",
---         show_grid = true,
---         show_world_bounds = true
---     }), "blue"
--- )
+        type = "super mario world",
+        show_grid = true,
+        show_world_bounds = true
+    }), "blue"
+)
 
--- Game:add_camera(
---     Camera:new({
---         -- camera's viewport
---         x = Game.w * 0.5,
---         y = math.floor(Game.h * 0),
---         w = Game.w,
---         h = Game.h * 0.5,
+Game:add_camera(
+    Camera:new({
+        -- camera's viewport
+        x = Game.screen_w * 0.5,
+        y = 0,
+        w = Game.screen_w * 0.5,
+        h = Game.screen_h * 0.5,
 
---         -- world bounds
---         bounds = {
---             left = Game.world_left,
---             right = Game.world_right,
---             top = Game.world_top,
---             bottom = Game.world_bottom
---         },
+        -- world bounds
+        bounds = {
+            left = Game.world_left,
+            right = Game.world_right,
+            top = Game.world_top,
+            bottom = Game.world_bottom
+        },
 
---         --canvas size
---         canvas_width = Game.w,
---         canvas_height = Game.h,
+        --canvas size
+        canvas_width = Game.w,
+        canvas_height = Game.h,
 
---         tile_size = 32,
+        tile_size = 32,
 
---         color = { 255 / 255, 174 / 255, 201 / 255, 1 },
---         scale = 1.1,
+        color = { 255 / 255, 174 / 255, 201 / 255, 0.6 },
+        scale = 0.6,
 
---         type = "metroid",
---         show_grid = true,
---         grid_tile_size = 32 * 4,
---         show_world_bounds = true
---     }), "pink"
--- )
+        type = "metroid",
+        show_grid = true,
+        grid_tile_size = 32 * 4,
+        show_world_bounds = true
+    }), "pink"
+)
 
 
 
@@ -125,7 +125,7 @@ local monica_idle_blink = Anima:new({
     amount_cycle = 1
 })
 
-local my_effect = EffectManager:generate_effect("pulse", { color = { 0.9, 0.9, 0.9, 1 } })
+local my_effect = EffectManager:generate_effect("idle", { color = { 0.9, 0.9, 0.9, 1 } })
 local current_animation = monica_idle_normal
 my_effect:apply(current_animation)
 
@@ -417,9 +417,9 @@ Game:implements({
 
     update = function(dt)
 
-        local cam1, cam2, cam3
-        cam1, cam2 = Game:get_camera(1), Game:get_camera(2)
-        cam3 = Game:get_camera("pink")
+        local cam1, cam_blue, cam_pink
+        cam1, cam_blue = Game:get_camera(1), Game:get_camera("blue")
+        cam_pink = Game:get_camera("pink")
 
         ship:update(dt)
 
@@ -518,9 +518,10 @@ Game:implements({
         -- end
 
         cam1:follow(ship:get_cx(), ship:get_cy())
-        -- cam3:follow(ship:get_cx(), ship:get_cy())
+        cam_pink:follow(ship:get_cx(), ship:get_cy())
+        cam_blue:follow(rec:get_cx(), rec:get_cy())
 
-        cam1, cam2, cam3 = nil, nil, nil
+        cam1, cam_blue, cam_pink = nil, nil, nil
     end,
 
     keypressed = function(key)

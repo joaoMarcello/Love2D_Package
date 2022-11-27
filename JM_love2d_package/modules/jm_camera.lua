@@ -388,11 +388,11 @@ end
 local function show_focus(self)
     love_set_color(0, 0, 0, 0.2)
     love_rect("fill",
-        self.viewport_x + self.focus_x,
-        self.viewport_y, 2, self.viewport_h
+        self.viewport_x + self.focus_x / self.desired_scale,
+        self.viewport_y / self.desired_scale, 2, self.viewport_h
     )
-    love_rect("fill", self.viewport_x,
-        self.viewport_y + self.focus_y,
+    love_rect("fill", self.viewport_x / self.desired_scale,
+        self.viewport_y + self.focus_y / self.desired_scale,
         self.viewport_w,
         2
     )
@@ -627,6 +627,7 @@ function Camera:new(args)
     Camera.__constructor__(obj,
         args.x, args.y, args.w, args.h, args.bounds,
         args.canvas_width, args.canvas_height,
+        args.desired_canvas_w, args.desired_canvas_h,
         args.tile_size, args.color, args.scale, args.type,
         args.show_grid, args.grid_tile_size, args.show_world_bounds
     )
@@ -638,30 +639,31 @@ end
 
 function Camera:__constructor__(
     x, y, w, h, bounds,
-    canvas_width, canvas_height,
+    canvas_width, canvas_height, desired_canvas_w, desired_canvas_h,
     tile_size, color, scale, type_,
     allow_grid, grid_tile_size, show_world_bounds
 )
 
-    self.desired_canvas_w = 32 * 18
-    self.desired_canvas_h = 768 / 2
+    self.canvas_width = canvas_width or love.graphics.getWidth()
+    self.canvas_height = canvas_height or love.graphics.getHeight()
 
-    self.scale = 0.8 --scale or 1
+    self.desired_canvas_w = desired_canvas_w or self.canvas_width
+    self.desired_canvas_h = desired_canvas_h or self.canvas_height
+
+    self.scale = scale or 1
+    self.desired_scale = 2
 
     self.viewport_x = x or 0
     self.viewport_y = y or 0
 
-    self.canvas_width = canvas_width or love.graphics.getWidth()
-    self.canvas_height = canvas_height or love.graphics.getHeight()
-
     self.viewport_w = w or self.canvas_width
-    self.viewport_w = self.viewport_w - self.viewport_x
+    self.viewport_w = self.viewport_w * self.desired_scale
+
     self.viewport_h = h or self.canvas_height
-    self.viewport_h = self.viewport_h - self.viewport_y
+    self.viewport_h = self.viewport_h * self.desired_scale
 
     self.tile_size = tile_size or 32
 
-    self.desired_scale = 2
 
     self.x = 0
     self.y = 0
@@ -1254,23 +1256,11 @@ function Camera:attach()
     love_clear(0, 0, 0, 0)
 
     local r
-    -- love_set_scissor(
-    --     self.viewport_x,
-    --     self.viewport_y,
-    --     self.viewport_w,
-    --     self.viewport_h
-    -- )
 
     r = self.color and love_clear(self:get_color())
 
     love_push()
     love_scale(1, 1)
-    -- love_translate(
-    --     -self.x + self.viewport_x --/ self.scale
-    --     + (self.shaking_in_x and self.shake_offset_x or 0),
-    --     -self.y + self.viewport_y --/ self.scale
-    --     + (self.shaking_in_y and self.shake_offset_y or 0)
-    -- )
     love_translate(-self.x, -self.y)
     love_translate(self.viewport_x * 1 / self.scale, self.viewport_y * 1 / self.scale)
     r = nil
@@ -1347,7 +1337,7 @@ function Camera:get_state()
     end
 
     if px <= left or px >= right or py <= top or py >= bottom then
-        text = ""
+        text = text .. " - blocked by "
     end
 
     if px <= left then text = text .. "left" end

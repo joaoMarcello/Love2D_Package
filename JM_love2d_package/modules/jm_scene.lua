@@ -15,16 +15,16 @@ local set_color_draw = love.graphics.setColor
 local love_draw = love.graphics.draw
 local set_shader = love.graphics.setShader
 
----@param self JM.Scene
-local function to_world(self, x, y, camera)
-    x = x / self.scale_x
-    y = y / self.scale_y
+-- ---@param self JM.Scene
+-- local function to_world(self, x, y, camera)
+--     x = x / self.scale_x
+--     y = y / self.scale_y
 
-    x = x - self.x
-    y = y - self.y
+--     x = x - self.x
+--     y = y - self.y
 
-    return x - camera.viewport_x, y - camera.viewport_y
-end
+--     return x - camera.viewport_x, y - camera.viewport_y
+-- end
 
 ---@param self  JM.Scene
 local function draw_tile(self)
@@ -38,7 +38,7 @@ local function draw_tile(self)
     set_color_draw(0.9, 0.9, 0.9, 0.3)
     for i = 0, qx, 2 do
         local x
-        x = tile * i
+        x = self.x + tile * i
 
         for j = 0, qy, 2 do
             love.graphics.rectangle("fill", x, tile * j, tile, tile)
@@ -62,17 +62,17 @@ local Scene = {}
 
 ---@param self JM.Scene
 ---@return JM.Scene
-function Scene:new(x, y, w, h)
+function Scene:new(x, y, w, h, canvas_w, canvas_h)
     local obj = {}
     setmetatable(obj, self)
     self.__index = self
 
-    Scene.__constructor__(obj, x, y, w, h)
+    Scene.__constructor__(obj, x, y, w, h, canvas_w, canvas_h)
 
     return obj
 end
 
-function Scene:__constructor__(x, y, w, h)
+function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
     local Camera
     ---@type JM.Camera.Camera
     Camera = require(string.gsub(path, "jm_scene", "jm_camera"))
@@ -84,13 +84,13 @@ function Scene:__constructor__(x, y, w, h)
 
     self.x = x or 0
     self.y = y or 0
-    self.w = w or love.graphics.getWidth() --576 --(32 * 18) --love.graphics.getWidth()
-    self.h = h or love.graphics.getHeight() --(768 / 2) --
 
-    self.scale_x = 1 --1366 / self.w
-    self.scale_y = self.scale_x
+    -- the dispositive's screen size
+    self.w = w or love.graphics.getWidth()
+    self.h = h or love.graphics.getHeight()
 
-    -- self.x = (1366 - self.w * self.scale_x) / 2 / 2
+    self.screen_w = canvas_w or self.w
+    self.screen_h = canvas_h or self.h
 
     self.tile_size_x = 32
     self.tile_size_y = 32
@@ -103,11 +103,11 @@ function Scene:__constructor__(x, y, w, h)
     self.max_zoom = 3
 
     self.camera = Camera:new({
-        -- camera's viewport
-        x = 32,
-        y = 0,
-        w = self.w * 0.8,
-        h = self.h,
+        -- camera's viewport in desired game screen coordinates
+        x = self.screen_w * 0,
+        y = self.y,
+        w = self.screen_w * 0.5,
+        h = self.screen_h,
 
         -- world bounds
         bounds = {
@@ -121,10 +121,14 @@ function Scene:__constructor__(x, y, w, h)
         canvas_width = self.w,
         canvas_height = self.h,
 
+        desired_canvas_w = self.screen_w,
+        desired_canvas_h = self.screen_h,
+
         tile_size = self.tile_size_x,
 
         color = { 0.3, 0.3, 1, 0.5 },
-        scale = 1,
+
+        scale = 1.2,
 
         type = "",
         show_grid = true,
@@ -132,13 +136,13 @@ function Scene:__constructor__(x, y, w, h)
         show_world_bounds = true
     })
 
-    self.canvas = love.graphics.newCanvas(self.w, self.h)
-    self.canvas:setFilter("linear", "nearest")
-
     self.cameras_list = {}
     self.amount_cameras = 0
 
     self:add_camera(self.camera, "main")
+
+    self.canvas = love.graphics.newCanvas(self.w, self.h)
+    self.canvas:setFilter("nearest", "nearest")
 
     self:implements({})
     Camera = nil
@@ -152,6 +156,9 @@ function Scene:add_camera(camera, name)
     assert(not self.cameras_list[self.amount_cameras + 1])
 
     self.amount_cameras = self.amount_cameras + 1
+
+    camera.viewport_x = camera.viewport_x + self.x / camera.desired_scale
+    camera.viewport_y = camera.viewport_y + self.y / camera.desired_scale
 
     self.cameras_list[self.amount_cameras] = camera
 
@@ -169,9 +176,9 @@ function Scene:set_color(r, g, b, a)
     self.color_a = a or self.color_a
 end
 
-function Scene:to_world(x, y, camera)
-    return to_world(self, x, y, camera or self.camera)
-end
+-- function Scene:to_world(x, y, camera)
+--     return to_world(self, x, y, camera or self.camera)
+-- end
 
 ---@return JM.Camera.Camera
 function Scene:get_camera(index)
@@ -222,7 +229,9 @@ function Scene:implements(param)
     end
 
     self.draw = function(self)
-        -- set_canvas(self.canvas)
+        love.graphics.setCanvas(self.canvas)
+        love.graphics.setBlendMode("alpha")
+        love.graphics.setColor(1, 1, 1, 1)
 
         if self:get_color() then
             clear_screen(self:get_color())
@@ -242,20 +251,21 @@ function Scene:implements(param)
 
             camera, r = nil, nil
         end
-        -- set_canvas()
 
-        --============================================================
-        -- set_color_draw(1, 1, 1, 1)
-        -- set_blend_mode("alpha", "premultiplied")
+        love.graphics.setScissor(
+            self.x,
+            self.y,
+            self.w - self.x,
+            self.h - self.y
+        )
+        love.graphics.setCanvas()
+        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.setBlendMode("alpha", "premultiplied")
+        love.graphics.draw(self.canvas)
+        love.graphics.setCanvas()
+        love.graphics.setBlendMode("alpha")
+        love.graphics.setScissor()
 
-        -- push()
-        -- scale(self.scale_x, self.scale_y)
-        -- translate(self.x, self.y)
-        -- love_draw(self.canvas)
-        -- pop()
-
-        -- set_blend_mode("alpha")
-        -- set_canvas()
     end
 end
 
