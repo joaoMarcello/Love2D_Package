@@ -128,11 +128,15 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
 
         color = { 0.3, 0.3, 1, 0.5 },
 
+        border_color = { 0, 0, 0, 1 },
+
         scale = 1.2,
 
         type = "",
-        show_grid = true,
+        show_grid = false,
+
         grid_tile_size = self.tile_size_x * 4,
+
         show_world_bounds = true
     })
 

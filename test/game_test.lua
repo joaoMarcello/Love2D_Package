@@ -34,7 +34,7 @@ local function round(value)
     end
 end
 
-local Game = Screen:new(0, 0, nil, nil, 32 * 18, 768 / 2)
+local Game = Screen:new(0, 0, nil, nil, 32 * 20, 32 * 12)
 
 Game:add_camera(
     Camera:new({
@@ -58,8 +58,8 @@ Game:add_camera(
 
         tile_size = 32,
 
-        color = { 153 / 255, 217 / 255, 234 / 255, 1 },
-        scale = 0.67,
+        color = { 153 / 255, 217 / 255, 234 / 255, 0.3 },
+        scale = 1.33,
 
         type = "super mario world",
         show_grid = true,
@@ -125,7 +125,7 @@ local monica_idle_blink = Anima:new({
     amount_cycle = 1
 })
 
-local my_effect = EffectManager:generate_effect("idle", { color = { 0.9, 0.9, 0.9, 1 } })
+local my_effect = EffectManager:generate_effect("flash", { color = { 0.9, 0.9, 0.9, 1 } })
 local current_animation = monica_idle_normal
 my_effect:apply(current_animation)
 

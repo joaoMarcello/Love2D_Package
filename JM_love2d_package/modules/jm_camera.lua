@@ -296,19 +296,6 @@ local function draw_grid(self)
         )
     end
 
-    love_set_color(0, 0, 0, 1)
-    -- Drawing x-axis
-    love_line(self.bounds_left,
-        -self.bounds_top,
-        self.bounds_right,
-        -self.bounds_top
-    )
-    -- Drawing y-axis
-    love_line(-self.bounds_left,
-        self.bounds_top,
-        -self.bounds_left,
-        self.bounds_bottom
-    )
 end
 
 local function capture_grid(self, tile)
@@ -325,6 +312,21 @@ local function capture_grid(self, tile)
     love.graphics.setCanvas(self.grid_canvas)
     love.graphics.setBlendMode("alpha")
     draw_grid(self)
+    love_set_color(0, 0, 0, 1)
+
+    -- Drawing x-axis
+    love_line(self.bounds_left,
+        -self.bounds_top,
+        self.bounds_right - self.bounds_left,
+        -self.bounds_top
+    )
+    -- Drawing y-axis
+    love_line(-self.bounds_left,
+        self.bounds_top,
+        -self.bounds_left,
+        self.bounds_bottom - self.bounds_top
+    )
+
     love.graphics.setCanvas()
     love.graphics.setBlendMode(mode)
     mode = nil
@@ -382,6 +384,34 @@ local function draw_world_boundary(self)
             self.bounds_top + tile * i + tile * 0.5
         )
     end
+
+    -- Drawing bottom limit
+    love_line(self.bounds_left,
+        self.bounds_bottom,
+        self.bounds_right,
+        self.bounds_bottom
+    )
+
+    -- Draw top limit
+    love_line(self.bounds_left,
+        self.bounds_top,
+        self.bounds_right,
+        self.bounds_top
+    )
+
+    -- Draw left limit
+    love_line(self.bounds_left,
+        self.bounds_top,
+        self.bounds_left,
+        self.bounds_bottom
+    )
+
+    -- Draw right limit
+    love_line(self.bounds_right,
+        self.bounds_top,
+        self.bounds_right,
+        self.bounds_bottom
+    )
 end
 
 ---@param self JM.Camera.Camera
@@ -531,9 +561,10 @@ local function show_focus(self)
         16 * scl / des_scl)
 end
 
+---@param self JM.Camera.Camera
 local function show_border(self)
     -- Drawind a border in the camera's viewport
-    love_set_color(1, 0, 0, 1)
+    love_set_color(unpack(self.border_color))
     love_rect("fill",
         self.viewport_x,
         self.viewport_y,
@@ -629,7 +660,8 @@ function Camera:new(args)
         args.canvas_width, args.canvas_height,
         args.desired_canvas_w, args.desired_canvas_h,
         args.tile_size, args.color, args.scale, args.type,
-        args.show_grid, args.grid_tile_size, args.show_world_bounds
+        args.show_grid, args.grid_tile_size, args.show_world_bounds,
+        args.border_color
     )
 
     args = nil
@@ -641,7 +673,7 @@ function Camera:__constructor__(
     x, y, w, h, bounds,
     canvas_width, canvas_height, desired_canvas_w, desired_canvas_h,
     tile_size, color, scale, type_,
-    allow_grid, grid_tile_size, show_world_bounds
+    allow_grid, grid_tile_size, show_world_bounds, border_color
 )
 
     self.canvas_width = canvas_width or love.graphics.getWidth()
@@ -728,7 +760,7 @@ function Camera:__constructor__(
     self.type = type_ or CAMERA_TYPES.SuperMarioWorld
     self:set_type(self.type)
 
-    self.debug = true
+    self.debug = false
     self.debug_msg_rad = 0
     self.debug_trgt_rad = 0
 
@@ -738,7 +770,7 @@ function Camera:__constructor__(
 
     self.show_world_boundary = show_world_bounds or self.debug
     self.show_focus = false or self.debug
-    self.show_border = false or self.debug
+    self.border_color = border_color or { 1, 0, 0, 1 }
 
 
     self:shake_in_x(nil, self.tile_size * 2 / 4, nil, 7.587)
@@ -1218,14 +1250,14 @@ local function debbug(self)
     local r, g, b, a
     r, g, b, a = 1, 0, 0, 1
 
-    love_set_color(1, 1, 1, 1)
-    love_rect("fill",
-        self.viewport_x + self.viewport_w / self.desired_scale - border_len - (32 * 8) * self.scale / self.desired_scale
-        ,
-        self.viewport_y + self.viewport_h / self.desired_scale - border_len - 25 * self.scale / self.desired_scale,
-        (32 * 8) * self.scale / self.desired_scale,
-        16 * self.scale / self.desired_scale
-    )
+    -- love_set_color(1, 1, 1, 1)
+    -- love_rect("fill",
+    --     self.viewport_x + self.viewport_w / self.desired_scale - border_len - (32 * 8) * self.scale / self.desired_scale
+    --     ,
+    --     self.viewport_y + self.viewport_h / self.desired_scale - border_len - 25 * self.scale / self.desired_scale,
+    --     (32 * 8) * self.scale / self.desired_scale,
+    --     16 * self.scale / self.desired_scale
+    -- )
 
     love_set_color(r, g, b, a)
     love_push()
@@ -1304,7 +1336,7 @@ function Camera:detach()
     love_set_color(1, 1, 1, 1)
     r = self.show_focus and show_focus(self)
     debbug(self)
-    r = self.show_border and show_border(self)
+    r = self.border_color and show_border(self)
     love_pop()
 
     love_set_scissor()
