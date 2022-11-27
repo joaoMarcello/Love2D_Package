@@ -95,9 +95,9 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
     self.tile_size_x = 32
     self.tile_size_y = 32
 
-    self.world_left = -32 * 10
+    self.world_left = -32 * 0
     self.world_right = 32 * 60
-    self.world_top = -32 * 10
+    self.world_top = -32 * 0
     self.world_bottom = 32 * 50
 
     self.max_zoom = 3
@@ -106,7 +106,7 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
         -- camera's viewport in desired game screen coordinates
         x = self.screen_w * 0,
         y = self.y,
-        w = self.screen_w * 0.5,
+        w = self.screen_w,
         h = self.screen_h,
 
         -- world bounds
@@ -128,9 +128,9 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
 
         color = { 0.3, 0.3, 1, 0.5 },
 
-        border_color = { 0, 0, 0, 1 },
+        border_color = { 1, 1, 0, 1 },
 
-        scale = 1.2,
+        scale = 1,
 
         type = "",
 

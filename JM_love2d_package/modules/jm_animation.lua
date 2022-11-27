@@ -191,7 +191,7 @@ function Anima:set_img(file_name)
     else
         self.__img = file_name
     end
-    self.__img:setFilter("linear", "nearest")
+    self.__img:setFilter("nearest", "nearest")
     return self.__img
 end
 

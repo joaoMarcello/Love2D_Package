@@ -336,7 +336,6 @@ end
 ---@param self JM.Camera.Camera
 local function show_grid(self)
     local mode
-    local x, y, w, h
     mode = love_get_blend_mode()
 
     love_set_color(1, 1, 1, 1)
@@ -780,13 +779,13 @@ function Camera:__constructor__(
     self.border_color = border_color or { 1, 0, 0, 1 }
 
 
-    self:shake_in_x(nil, self.tile_size * 2 / 4, nil, 7.587)
-    self:shake_in_y(nil, self.tile_size * 2.34 / 4, nil, 10.7564)
+    -- self:shake_in_x(nil, self.tile_size * 2 / 4, nil, 7.587)
+    -- self:shake_in_y(nil, self.tile_size * 2.34 / 4, nil, 10.7564)
 
     self.max_zoom = 3
     self.canvas = love.graphics.newCanvas(
-        self.desired_canvas_w,
-        self.desired_canvas_h
+        self.desired_canvas_w * 2,
+        self.desired_canvas_h * 2
     -- self.viewport_w * self.max_zoom,
     -- self.viewport_h * self.max_zoom
     )
@@ -888,7 +887,7 @@ function Camera:screen_to_world(x, y)
     x = x / self.scale
     y = y / self.scale
 
-    return x + self.x, y + self.y
+    return round(x + self.x), round(y + self.y)
 end
 
 function Camera:world_to_screen(x, y)
@@ -898,7 +897,7 @@ function Camera:world_to_screen(x, y)
     x = x - self.x
     y = y - self.y
 
-    return x * self.scale, y * self.scale
+    return round(x * self.scale), round(y * self.scale)
 end
 
 function Camera:follow(x, y)
@@ -1081,7 +1080,7 @@ function Camera:update(dt)
 
     -- local temp = self:target_on_focus()
     -- self.zoom_rad = self.zoom_rad + (math.pi * 2) / 4 * dt
-    -- self.scale = 1 + 0.7 / 2.0 / 5.0 * cos(self.zoom_rad)
+    -- self.scale = 1.5 + 2.9 / 2.0 / 5.0 * cos(self.zoom_rad)
     -- if true then
     --     local lx = self.lock_x
     --     self:lock_x_axis(false)
@@ -1306,7 +1305,9 @@ function Camera:attach()
     r = self.color and love_clear(self:get_color())
 
     love_push()
-    love_scale(1, 1)
+    local s = 1 --(self.scale < 0 and 1) or 2
+
+    love_scale(s, s)
     love_translate(
         -self.x + ((self.shaking_in_x and self.shake_offset_x or 0)),
         -self.y + ((self.shaking_in_y and self.shake_offset_y or 0))
@@ -1331,6 +1332,7 @@ function Camera:detach()
         self.viewport_h
     )
 
+    local s = 1 --(self.scale < 0 and 1) or 2
     love_set_color(1, 1, 1, 1)
     love_set_blend_mode("alpha", "premultiplied")
     love_push()
@@ -1365,8 +1367,8 @@ function Camera:get_state()
 
     left, top = self:screen_to_world(self.bounds_left, self.bounds_top)
     right, bottom = self:screen_to_world(
-        self.bounds_right - (self.viewport_w + 1) / self.scale / self.desired_scale,
-        self.bounds_bottom - (self.viewport_h + 1) / self.scale / self.desired_scale
+        self.bounds_right - (self.viewport_w) / self.scale / self.desired_scale,
+        self.bounds_bottom - (self.viewport_h) / self.scale / self.desired_scale
     )
     px, py = self:screen_to_world(self.x, self.y)
 

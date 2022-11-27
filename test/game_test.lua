@@ -39,9 +39,9 @@ local Game = Screen:new(32 * 20, 32 * 12)
 Game:add_camera(
     Camera:new({
         -- camera's viewport
-        x = Game.screen_w * 0.5,
+        x = Game.screen_w * 0.75,
         y = Game.screen_h * 0.5,
-        w = Game.screen_w * 0.5,
+        w = Game.screen_w * 0.25,
         h = Game.screen_h * 0.5,
 
         -- world bounds
@@ -59,7 +59,7 @@ Game:add_camera(
         tile_size = 32,
 
         color = { 153 / 255, 217 / 255, 234 / 255, 1 },
-        scale = 1.33,
+        scale = 1.4,
 
         type = "super mario world",
         show_grid = true,
@@ -70,9 +70,9 @@ Game:add_camera(
 Game:add_camera(
     Camera:new({
         -- camera's viewport
-        x = Game.screen_w * 0.5,
+        x = Game.screen_w * 0.75,
         y = 0,
-        w = Game.screen_w * 0.5,
+        w = Game.screen_w * 0.25,
         h = Game.screen_h * 0.5,
 
         -- world bounds
@@ -99,6 +99,11 @@ Game:add_camera(
     }), "pink"
 )
 
+local temp
+temp = Game:get_camera("blue")
+temp:shake_in_x(nil, temp.tile_size * 2 / 4, nil, 7.587)
+temp:shake_in_y(nil, temp.tile_size * 2.34 / 4, nil, 10.7564)
+temp = nil
 
 
 local monica_idle_normal = Anima:new({
@@ -125,7 +130,7 @@ local monica_idle_blink = Anima:new({
     amount_cycle = 1
 })
 
-local my_effect = EffectManager:generate_effect("flash", { color = { 0.9, 0.9, 0.9, 1 } })
+local my_effect = EffectManager:generate_effect("idle", { color = { 0.9, 0.9, 0.9, 1 } })
 local current_animation = monica_idle_normal
 my_effect:apply(current_animation)
 
@@ -347,8 +352,6 @@ Game:implements({
                     self.y = Game.world_bottom - self.h
                 end
 
-                self.y = round(self.y)
-                self.x = round(self.x)
             end,
             update = function(self, dt)
                 self:move(dt)
@@ -357,8 +360,8 @@ Game:implements({
             end,
             draw = function(self)
                 love.graphics.setColor(1, 0, 0, 0.8)
-                love.graphics.rectangle("fill", self.x,
-                    self.y + 10 * math.cos(self.rad),
+                love.graphics.rectangle("fill", round(self.x),
+                    round(self.y) + 10 * math.cos(self.rad),
                     self.w, self.h
                 )
             end,
