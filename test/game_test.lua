@@ -125,7 +125,7 @@ local monica_idle_blink = Anima:new({
     amount_cycle = 1
 })
 
-local my_effect = EffectManager:generate_effect("idle", { color = { 0.9, 0.9, 0.9, 1 } })
+local my_effect = EffectManager:generate_effect("pulse", { color = { 0.9, 0.9, 0.9, 1 } })
 local current_animation = monica_idle_normal
 my_effect:apply(current_animation)
 
@@ -346,6 +346,9 @@ Game:implements({
                     self.spy = 0
                     self.y = Game.world_bottom - self.h
                 end
+
+                self.y = round(self.y)
+                self.x = round(self.x)
             end,
             update = function(self, dt)
                 self:move(dt)

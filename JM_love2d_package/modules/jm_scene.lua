@@ -95,18 +95,18 @@ function Scene:__constructor__(x, y, w, h)
     self.tile_size_x = 32
     self.tile_size_y = 32
 
-    self.world_left = -0
+    self.world_left = -32 * 10
     self.world_right = 32 * 60
-    self.world_top = -32 * 10
-    self.world_bottom = 32 * 12
+    self.world_top = -32 * 0
+    self.world_bottom = 32 * 50
 
     self.max_zoom = 3
 
     self.camera = Camera:new({
         -- camera's viewport
         x = 32,
-        y = 32,
-        w = self.w / 2,
+        y = 0,
+        w = self.w * 0.8,
         h = self.h,
 
         -- world bounds
@@ -124,9 +124,9 @@ function Scene:__constructor__(x, y, w, h)
         tile_size = self.tile_size_x,
 
         color = { 0.3, 0.3, 1, 0.5 },
-        scale = 1.2,
+        scale = 1,
 
-        type = "metroid",
+        type = "",
         show_grid = true,
         grid_tile_size = self.tile_size_x * 4,
         show_world_bounds = true
