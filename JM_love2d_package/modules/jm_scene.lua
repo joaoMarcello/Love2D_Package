@@ -98,13 +98,13 @@ function Scene:__constructor__(x, y, w, h)
     self.world_left = -0
     self.world_right = 32 * 60
     self.world_top = -32 * 0
-    self.world_bottom = 32 * 50
+    self.world_bottom = 32 * 16
 
     self.max_zoom = 3
 
     self.camera = Camera:new({
         -- camera's viewport
-        x = 0,
+        x = 32,
         y = -64 * 0,
         w = self.w / 2,
         h = self.h * 0.9,

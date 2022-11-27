@@ -641,7 +641,7 @@ function Camera:__constructor__(
     self.desired_canvas_w = 32 * 18
     self.desired_canvas_h = 768 / 2
 
-    self.scale = 0.5 --scale or 1
+    self.scale = 1 --scale or 1
 
     self.viewport_x = x or 0
     self.viewport_y = y or 0
@@ -1025,18 +1025,18 @@ function Camera:update(dt)
     shake_update(self, dt)
     -- end
 
-    -- local temp = self:target_on_focus()
-    -- self.zoom_rad = self.zoom_rad + (math.pi * 2) / 4 * dt
-    -- self.scale = 0.8 + 0.2 / 2.0 / 5.0 * cos(self.zoom_rad)
-    -- if true then
-    --     local lx = self.lock_x
-    --     self:lock_x_axis(false)
-    --     self:set_position(self.target.x, self.target.y)
-    --     self.target.last_x = self.x
-    --     self.target.last_y = self.y
-    --     self.deadzone_w = self.tile_size * 2 * self.scale
-    --     self:lock_x_axis(lx)
-    -- end
+    local temp = self:target_on_focus()
+    self.zoom_rad = self.zoom_rad + (math.pi * 2) / 4 * dt
+    self.scale = 0.8 + 0.2 / 2.0 / 5.0 * cos(self.zoom_rad)
+    if true then
+        local lx = self.lock_x
+        self:lock_x_axis(false)
+        self:set_position(self.target.x, self.target.y)
+        self.target.last_x = self.x
+        self.target.last_y = self.y
+        self.deadzone_w = self.tile_size * 2 * self.scale
+        self:lock_x_axis(lx)
+    end
 
     local left, top, right, bottom, lock, px, py
 
@@ -1142,6 +1142,7 @@ function Camera:attach()
     --     -self.y + self.viewport_y --/ self.scale
     --     + (self.shaking_in_y and self.shake_offset_y or 0)
     -- )
+    love_translate(self.viewport_x, self.viewport_y)
     r = nil
 
 end
@@ -1237,15 +1238,17 @@ local function debbug(self)
 
     love_set_color(1, 1, 1, 1)
     love_rect("fill",
-        self.viewport_x + self.viewport_w / self.desired_scale - border_len - 120 * self.scale / self.desired_scale,
+        self.viewport_x + self.viewport_w / self.desired_scale - border_len - (32 * 8) * self.scale / self.desired_scale
+        ,
         self.viewport_y + self.viewport_h / self.desired_scale - border_len - 25 * self.scale / self.desired_scale,
-        120 * self.scale / self.desired_scale,
+        (32 * 8) * self.scale / self.desired_scale,
         16 * self.scale / self.desired_scale
     )
     love_set_color(r, g, b, a)
     love.graphics.print(self:get_state(),
-        self.viewport_x + self.viewport_w / self.desired_scale - border_len - 100 * self.scale / self.desired_scale,
-        self.viewport_y + self.viewport_h / self.desired_scale - border_len - 25 * self.scale / self.desired_scale
+        self.viewport_x + self.viewport_w / self.desired_scale - border_len - (32 * 8) * self.scale /
+        self.desired_scale,
+        self.viewport_y + self.viewport_h / self.desired_scale - border_len - 47 * self.scale / self.desired_scale
     )
 
     -- Showing the message DEBUG MODE
@@ -1290,8 +1293,8 @@ function Camera:detach()
     love.graphics.push()
     love.graphics.scale(self.scale, self.scale)
     love.graphics.translate(
-        -self.x * self.desired_scale + self.viewport_x * self.desired_scale,
-        -self.y * self.desired_scale + self.viewport_y * self.desired_scale
+        -self.x * self.desired_scale,
+        -self.y * self.desired_scale
     )
     love.graphics.draw(self.canvas,
         0,
