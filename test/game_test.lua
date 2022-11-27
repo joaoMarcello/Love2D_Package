@@ -34,7 +34,7 @@ local function round(value)
     end
 end
 
-local Game = Screen:new(0, 0, nil, nil, 32 * 20, 32 * 12)
+local Game = Screen:new(32 * 20, 32 * 12)
 
 Game:add_camera(
     Camera:new({
@@ -58,7 +58,7 @@ Game:add_camera(
 
         tile_size = 32,
 
-        color = { 153 / 255, 217 / 255, 234 / 255, 0.3 },
+        color = { 153 / 255, 217 / 255, 234 / 255, 1 },
         scale = 1.33,
 
         type = "super mario world",
@@ -89,7 +89,7 @@ Game:add_camera(
 
         tile_size = 32,
 
-        color = { 255 / 255, 174 / 255, 201 / 255, 0.6 },
+        color = { 255 / 255, 174 / 255, 201 / 255, 1 },
         scale = 0.6,
 
         type = "metroid",

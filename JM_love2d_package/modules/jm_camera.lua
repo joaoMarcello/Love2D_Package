@@ -2,6 +2,7 @@ local love_translate = love.graphics.translate
 local love_pop = love.graphics.pop
 local love_push = love.graphics.push
 local love_scale = love.graphics.scale
+local love_get_scissor = love.graphics.getScissor
 local love_set_scissor = love.graphics.setScissor
 local love_set_blend_mode = love.graphics.setBlendMode
 local love_get_blend_mode = love.graphics.getBlendMode
@@ -332,13 +333,17 @@ local function capture_grid(self, tile)
     mode = nil
 end
 
+---@param self JM.Camera.Camera
 local function show_grid(self)
     local mode
+    local x, y, w, h
     mode = love_get_blend_mode()
+
     love_set_color(1, 1, 1, 1)
     love_set_blend_mode("alpha", "premultiplied")
     love_draw(self.grid_canvas, self.bounds_left, self.bounds_top)
     love_set_blend_mode(mode)
+
     mode = nil
 end
 
@@ -760,12 +765,14 @@ function Camera:__constructor__(
     self.type = type_ or CAMERA_TYPES.SuperMarioWorld
     self:set_type(self.type)
 
-    self.debug = false
+    self.debug = true
     self.debug_msg_rad = 0
     self.debug_trgt_rad = 0
 
+    -- only used if showing the grid
     self.grid_desired_tile = nil
     self.is_showing_grid = nil
+    self.grid_canvas = nil
     if allow_grid then capture_grid(self, grid_tile_size or self.tile_size) end
 
     self.show_world_boundary = show_world_bounds or self.debug
@@ -778,8 +785,10 @@ function Camera:__constructor__(
 
     self.max_zoom = 3
     self.canvas = love.graphics.newCanvas(
-        self.viewport_w * self.max_zoom,
-        self.viewport_h * self.max_zoom
+        self.desired_canvas_w,
+        self.desired_canvas_h
+    -- self.viewport_w * self.max_zoom,
+    -- self.viewport_h * self.max_zoom
     )
     self.canvas:setFilter("linear", "nearest")
 

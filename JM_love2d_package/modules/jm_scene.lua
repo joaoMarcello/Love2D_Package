@@ -62,7 +62,7 @@ local Scene = {}
 
 ---@param self JM.Scene
 ---@return JM.Scene
-function Scene:new(x, y, w, h, canvas_w, canvas_h)
+function Scene:new(canvas_w, canvas_h, x, y, w, h)
     local obj = {}
     setmetatable(obj, self)
     self.__index = self
@@ -81,7 +81,7 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
         >> Error: Camera module not found. Make sure the file 'jm_camera.lua' is in same directory.
         ]])
 
-
+    -- the scene offset (normally is 0, 0)
     self.x = x or 0
     self.y = y or 0
 
@@ -133,9 +133,10 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
         scale = 1.2,
 
         type = "",
-        show_grid = false,
 
-        grid_tile_size = self.tile_size_x * 4,
+        show_grid = true,
+
+        grid_tile_size = self.tile_size_x * 2,
 
         show_world_bounds = true
     })
