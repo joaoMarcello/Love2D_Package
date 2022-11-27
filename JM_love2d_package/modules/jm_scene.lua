@@ -97,7 +97,7 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
 
     self.world_left = -32 * 10
     self.world_right = 32 * 60
-    self.world_top = -32 * 0
+    self.world_top = -32 * 10
     self.world_bottom = 32 * 50
 
     self.max_zoom = 3
@@ -229,9 +229,9 @@ function Scene:implements(param)
     end
 
     self.draw = function(self)
-        love.graphics.setCanvas(self.canvas)
-        love.graphics.setBlendMode("alpha")
-        love.graphics.setColor(1, 1, 1, 1)
+        -- love.graphics.setCanvas(self.canvas)
+        -- love.graphics.setBlendMode("alpha")
+        -- love.graphics.setColor(1, 1, 1, 1)
 
         if self:get_color() then
             clear_screen(self:get_color())
@@ -252,19 +252,19 @@ function Scene:implements(param)
             camera, r = nil, nil
         end
 
-        love.graphics.setScissor(
-            self.x,
-            self.y,
-            self.w - self.x,
-            self.h - self.y
-        )
-        love.graphics.setCanvas()
-        love.graphics.setColor(1, 1, 1, 1)
-        love.graphics.setBlendMode("alpha", "premultiplied")
-        love.graphics.draw(self.canvas)
-        love.graphics.setCanvas()
-        love.graphics.setBlendMode("alpha")
-        love.graphics.setScissor()
+        -- love.graphics.setScissor(
+        --     self.x,
+        --     self.y,
+        --     self.w - self.x,
+        --     self.h - self.y
+        -- )
+        -- love.graphics.setCanvas()
+        -- love.graphics.setColor(1, 1, 1, 1)
+        -- love.graphics.setBlendMode("alpha", "premultiplied")
+        -- love.graphics.draw(self.canvas)
+        -- love.graphics.setCanvas()
+        -- love.graphics.setBlendMode("alpha")
+        -- love.graphics.setScissor()
 
     end
 end

@@ -741,8 +741,8 @@ function Camera:__constructor__(
     self.show_border = false or self.debug
 
 
-    -- self:shake_in_x(nil, self.tile_size * 2 / 4, nil, 7.587)
-    -- self:shake_in_y(nil, self.tile_size * 2.34 / 4, nil, 10.7564)
+    self:shake_in_x(nil, self.tile_size * 2 / 4, nil, 7.587)
+    self:shake_in_y(nil, self.tile_size * 2.34 / 4, nil, 10.7564)
 
     self.max_zoom = 3
     self.canvas = love.graphics.newCanvas(
@@ -1226,11 +1226,16 @@ local function debbug(self)
         (32 * 8) * self.scale / self.desired_scale,
         16 * self.scale / self.desired_scale
     )
+
     love_set_color(r, g, b, a)
+    love_push()
+    love_translate(self.viewport_x / self.desired_scale, self.viewport_y / self.desired_scale)
+    love_scale(0.5, 0.5)
     love.graphics.print(self:get_state(),
-        self.viewport_x + border_len,
-        self.viewport_y + border_len + 25
+        (self.viewport_x + (border_len + 5) * self.desired_scale),
+        self.viewport_y + (border_len + 25) * self.desired_scale
     )
+    love_pop()
 
     -- Showing the message DEBUG MODE
     self.debug_msg_rad = self.debug_msg_rad
@@ -1261,7 +1266,10 @@ function Camera:attach()
 
     love_push()
     love_scale(1, 1)
-    love_translate(-self.x, -self.y)
+    love_translate(
+        -self.x + ((self.shaking_in_x and self.shake_offset_x or 0)),
+        -self.y + ((self.shaking_in_y and self.shake_offset_y or 0))
+    )
     love_translate(self.viewport_x * 1 / self.scale, self.viewport_y * 1 / self.scale)
     r = nil
 end
@@ -1286,13 +1294,6 @@ function Camera:detach()
     love_set_blend_mode("alpha", "premultiplied")
     love_push()
     love_scale(self.scale, self.scale)
-    love_translate(
-        ((self.shaking_in_x and self.shake_offset_x or 0))
-        * self.desired_scale,
-
-        ((self.shaking_in_y and self.shake_offset_y or 0))
-        * self.desired_scale
-    )
     love_draw(self.canvas, 0, 0, 0, self.desired_scale, self.desired_scale)
     love_pop()
 
@@ -1302,8 +1303,8 @@ function Camera:detach()
     love_set_blend_mode("alpha")
     love_set_color(1, 1, 1, 1)
     r = self.show_focus and show_focus(self)
-    r = self.show_border and show_border(self)
     debbug(self)
+    r = self.show_border and show_border(self)
     love_pop()
 
     love_set_scissor()
