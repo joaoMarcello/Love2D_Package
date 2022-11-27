@@ -732,8 +732,8 @@ function Camera:__constructor__(
     self.show_border = false or self.debug
 
 
-    -- self:shake_in_x(nil, self.tile_size * 2 / 4, nil, 7.587)
-    -- self:shake_in_y(nil, self.tile_size * 2.34 / 4, nil, 10.7564)
+    self:shake_in_x(nil, self.tile_size * 2 / 4, nil, 7.587)
+    self:shake_in_y(nil, self.tile_size * 2.34 / 4, nil, 10.7564)
 
     self.max_zoom = 3
     self.canvas = love.graphics.newCanvas(
@@ -741,9 +741,6 @@ function Camera:__constructor__(
         self.viewport_h * self.max_zoom
     )
     self.canvas:setFilter("nearest", "nearest")
-
-    self.canvas_final = love.graphics.newCanvas(self.viewport_w, self.viewport_h)
-    self.canvas_final:setFilter("nearest", "nearest")
 
     self.zoom_rad = 0
 end
@@ -1279,7 +1276,6 @@ function Camera:detach()
     love_set_scissor()
 
 
-
     love.graphics.setCanvas(self.last_canvas)
 
     love_set_scissor(
@@ -1293,8 +1289,11 @@ function Camera:detach()
     love.graphics.push()
     love.graphics.scale(self.scale, self.scale)
     love.graphics.translate(
-        -self.x * self.desired_scale,
-        -self.y * self.desired_scale
+        (-self.x + (self.shaking_in_x and self.shake_offset_x or 0))
+        * self.desired_scale,
+
+        (-self.y + (self.shaking_in_y and self.shake_offset_y or 0))
+        * self.desired_scale
     )
     love.graphics.draw(self.canvas,
         0,

@@ -97,8 +97,8 @@ function Scene:__constructor__(x, y, w, h)
 
     self.world_left = -0
     self.world_right = 32 * 60
-    self.world_top = -32 * 0
-    self.world_bottom = 32 * 16
+    self.world_top = -32 * 10
+    self.world_bottom = 32 * 12
 
     self.max_zoom = 3
 
@@ -107,7 +107,7 @@ function Scene:__constructor__(x, y, w, h)
         x = 32,
         y = -64 * 0,
         w = self.w / 2,
-        h = self.h * 0.9,
+        h = self.h,
 
         -- world bounds
         bounds = {
