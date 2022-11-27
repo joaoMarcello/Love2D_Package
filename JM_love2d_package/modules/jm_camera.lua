@@ -1139,9 +1139,9 @@ function Camera:attach()
     --     -self.y + self.viewport_y --/ self.scale
     --     + (self.shaking_in_y and self.shake_offset_y or 0)
     -- )
+    love_translate(-self.x, -self.y)
     love_translate(self.viewport_x, self.viewport_y)
     r = nil
-
 end
 
 ---@param self JM.Camera.Camera
@@ -1270,12 +1270,6 @@ function Camera:detach()
 
     love_pop()
 
-    love_set_scissor()
-
-
-    love_set_scissor()
-
-
     love.graphics.setCanvas(self.last_canvas)
 
     love_set_scissor(
@@ -1289,10 +1283,10 @@ function Camera:detach()
     love.graphics.push()
     love.graphics.scale(self.scale, self.scale)
     love.graphics.translate(
-        (-self.x + (self.shaking_in_x and self.shake_offset_x or 0))
+        ((self.shaking_in_x and self.shake_offset_x or 0))
         * self.desired_scale,
 
-        (-self.y + (self.shaking_in_y and self.shake_offset_y or 0))
+        ((self.shaking_in_y and self.shake_offset_y or 0))
         * self.desired_scale
     )
     love.graphics.draw(self.canvas,
@@ -1313,7 +1307,6 @@ function Camera:detach()
     love_pop()
     love_set_scissor()
     --================================================================
-
 
     love.graphics.setBlendMode(self.last_blend_mode)
     love.graphics.setCanvas(self.last_canvas)

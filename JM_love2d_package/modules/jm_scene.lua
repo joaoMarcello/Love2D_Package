@@ -105,7 +105,7 @@ function Scene:__constructor__(x, y, w, h)
     self.camera = Camera:new({
         -- camera's viewport
         x = 32,
-        y = -64 * 0,
+        y = 32,
         w = self.w / 2,
         h = self.h,
 
