@@ -104,10 +104,10 @@ function Scene:__constructor__(x, y, w, h)
 
     self.camera = Camera:new({
         -- camera's viewport
-        x = -0,
+        x = 0,
         y = -64 * 0,
         w = self.w / 2,
-        h = self.h,
+        h = self.h * 0.9,
 
         -- world bounds
         bounds = {
@@ -123,8 +123,8 @@ function Scene:__constructor__(x, y, w, h)
 
         tile_size = self.tile_size_x,
 
-        color = nil, --{ 0.3, 0.3, 1, 1 },
-        scale = 0.9,
+        color = { 0.3, 0.3, 1, 0.5 },
+        scale = 1.2,
 
         type = "metroid",
         show_grid = true,
