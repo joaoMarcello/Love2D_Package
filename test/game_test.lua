@@ -53,9 +53,9 @@ Game:add_camera({
     tile_size = 32,
 
     color = { 153 / 255, 217 / 255, 234 / 255, 1 },
-    scale = 1.2,
+    scale = 1.5,
 
-    type = "super mario world",
+    type = "metroid",
     show_grid = true,
     show_world_bounds = true
 }, "blue")
@@ -86,11 +86,11 @@ Game:add_camera({
     show_world_bounds = true
 }, "pink")
 
-local temp
-temp = Game:get_camera("blue")
-temp:shake_in_x(nil, temp.tile_size * 2 / 4, nil, 7.587)
-temp:shake_in_y(nil, temp.tile_size * 2.34 / 4, nil, 10.7564)
-temp = nil
+-- local temp
+-- temp = Game:get_camera("blue")
+-- temp:shake_in_x(nil, temp.tile_size * 2 / 4, nil, 7.587)
+-- temp:shake_in_y(nil, temp.tile_size * 2.34 / 4, nil, 10.7564)
+-- temp = nil
 
 
 local monica_idle_normal = Anima:new({
@@ -514,7 +514,7 @@ Game:implements({
         end
 
         if cam_blue then
-            cam_blue:follow(rec:get_cx(), rec:get_cy())
+            cam_blue:follow(ship:get_cx(), ship:get_cy())
         end
 
         cam1, cam_blue, cam_pink = nil, nil, nil
@@ -630,6 +630,32 @@ Game:implements({
     layers = {
         {
             draw = function()
+                love.graphics.setColor(0.2, 0, 0.1, 1)
+                for i = 1, 10 * 20, 10 do
+                    love.graphics.rectangle("fill", 10 * (i), 32, 56, 32 * 8)
+                end
+            end,
+
+            factor = 0.1,
+            factor_y = 0.1,
+            name = "violet rect"
+        },
+
+        {
+            draw = function()
+                love.graphics.setColor(0, 0.4, 0.1, 1)
+                for i = 1, 50, 4 do
+                    love.graphics.rectangle("fill", 32 * (i), 0, 38, 32 * 9)
+                end
+            end,
+
+            factor = 0.9,
+            factor_y = 0.5,
+            name = "green rect"
+        },
+
+        {
+            draw = function()
                 do
 
                     graph_set_color(245 / 255, 160 / 255, 151 / 255, 1)
@@ -718,7 +744,8 @@ Game:implements({
                 love.graphics.setShader()
             end,
 
-            factor = 1
+            factor = 0,
+            name = "main"
         }
     }
 })

@@ -764,7 +764,7 @@ function Camera:__constructor__(
     self.type = type_ or CAMERA_TYPES.SuperMarioWorld
     self:set_type(self.type)
 
-    self.debug = true
+    self.debug = false
     self.debug_msg_rad = 0
     self.debug_trgt_rad = 0
 
@@ -1031,8 +1031,8 @@ function Camera:set_bounds(left, right, top, bottom)
     end
 
     if self.bounds_bottom - self.bounds_top < self.viewport_h / self.scale then
-        -- self.bounds_bottom = self.bounds_top + self.viewport_h / self.scale
-        self.bounds_top = self.bounds_bottom - self.viewport_h / self.scale
+        self.bounds_bottom = self.bounds_top + self.viewport_h / self.scale
+        -- self.bounds_top = self.bounds_bottom - self.viewport_h / self.scale
     end
 end
 

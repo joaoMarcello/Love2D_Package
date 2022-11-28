@@ -15,6 +15,19 @@ local set_color_draw = love.graphics.setColor
 local love_draw = love.graphics.draw
 local set_shader = love.graphics.setShader
 
+---@alias JM.Scene.Layer {draw:function, factor:number, factor_y:number, name:string}
+
+local function round(value)
+    local absolute = math.abs(value)
+    local decimal = absolute - math.floor(absolute)
+
+    if decimal >= 0.5 then
+        return value > 0 and math.ceil(value) or math.floor(value)
+    else
+        return value > 0 and math.floor(value) or math.ceil(value)
+    end
+end
+
 -- ---@param self JM.Scene
 -- local function to_world(self, x, y, camera)
 --     x = x / self.scale_x
@@ -95,8 +108,8 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
 
     self.world_left = -32 * 0
     self.world_right = 32 * 60
-    self.world_top = -32 * 0
-    self.world_bottom = 32 * 50
+    self.world_top = -32 * 15
+    self.world_bottom = 32 * 12
 
     self.max_zoom = 3
 
@@ -130,7 +143,7 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
 
         scale = 1,
 
-        type = "",
+        type = "metroid",
 
         show_grid = true,
 
@@ -143,6 +156,8 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
     self.amount_cameras = 0
 
     self.camera = self:add_camera(config, "main")
+
+    self.n_layers = 0
 
     self:implements({})
 end
@@ -224,8 +239,6 @@ function Scene:main_camera()
     return self.camera
 end
 
----@alias JM.Scene.Layer {draw:function, factor:number, x:number, y:number, angle:number, scale:number}
-
 ---
 ---@param param {load:function, init:function, update:function, draw:function, unload:function, keypressed:function, keyreleased:function, layers:table}
 function Scene:implements(param)
@@ -265,6 +278,18 @@ function Scene:implements(param)
         end
     end
 
+    if param.layers then
+        self.n_layers = #(param.layers)
+
+        for i = 1, self.n_layers, 1 do
+            local layer    = param.layers[i]
+            layer.x        = layer.x or 0
+            layer.y        = layer.y or 0
+            layer.factor_y = layer.factor_y or 0
+            layer.factor   = layer.factor or 0
+        end
+    end
+
     self.draw = function(self)
         -- love.graphics.setCanvas(self.canvas)
         -- love.graphics.setBlendMode("alpha")
@@ -293,15 +318,23 @@ function Scene:implements(param)
             camera:attach()
 
             if param.layers then
-                for i = 1, #(param.layers), 1 do
+                for i = 1, self.n_layers, 1 do
                     local layer
                     ---@type JM.Scene.Layer
                     layer = param.layers[i]
 
+                    layer.x = round(-camera.x * layer.factor)
+
+                    love.graphics.push()
+                    love.graphics.translate(
+                        layer.x,
+                        round(-camera.y * layer.factor_y)
+                    )
                     r = layer.draw and layer.draw()
+                    love.graphics.pop()
                 end
             else
-                r = param.draw and param.draw()
+                -- r = param.draw and param.draw()
             end
 
             camera:detach()
