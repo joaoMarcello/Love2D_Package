@@ -17,7 +17,7 @@ function love.keyreleased(key)
     scene:keyreleased(key)
 end
 
-local km
+local km = nil
 function love.update(dt)
     km = collectgarbage("count") / 1024.0
 
@@ -30,7 +30,7 @@ function love.update(dt)
     t = t + dt
     if t >= 10.0 then
         t = t - 10.0
-        collectgarbage()
+        -- collectgarbage()
     end
 end
 

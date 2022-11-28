@@ -340,7 +340,7 @@ local function show_grid(self)
 
     love_set_color(1, 1, 1, 1)
     love_set_blend_mode("alpha", "premultiplied")
-    love_draw(self.grid_canvas, self.bounds_left, self.bounds_top)
+    -- love_draw(self.grid_canvas, self.bounds_left, self.bounds_top)
     love_set_blend_mode(mode)
 
     mode = nil
@@ -784,8 +784,8 @@ function Camera:__constructor__(
 
     self.max_zoom = 1.5
     self.canvas = love.graphics.newCanvas(
-        self.device_width,
-        self.device_height
+        self.device_width / self.desired_scale,
+        self.device_height / self.desired_scale
     )
     self.canvas:setFilter("linear", "nearest")
 
@@ -1081,12 +1081,12 @@ function Camera:update(dt)
     -- self.scale = 1.5 + 2.9 / 2.0 / 5.0 * cos(self.zoom_rad)
     -- if true then
     --     local lx = self.lock_x
-    --     self:lock_x_axis(false)
-    --     self:set_position(self.target.x, self.target.y)
-    --     self.target.last_x = self.x
-    --     self.target.last_y = self.y
+    --     self:unlock_x_axis()
+    --     -- self:set_position(self.target.x, self.target.y)
+    --     -- self.target.last_x = self.x
+    --     -- self.target.last_y = self.y
     --     self.deadzone_w = self.tile_size * 2 * self.scale
-    --     self:lock_x_axis(lx)
+    --     self:set_lock_x_axis(lx)
     -- end
 
     local left, top, right, bottom, lock, px, py
@@ -1304,7 +1304,7 @@ local function perfect_pixel_attach(self)
 
     local r
 
-    r = self.color and love_clear(self:get_color())
+    -- r = self.color and love_clear(self:get_color())
 
     love_push()
     local s = 1 --(self.scale < 0 and 1) or 2

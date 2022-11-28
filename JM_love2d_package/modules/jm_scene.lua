@@ -315,29 +315,49 @@ function Scene:implements(param)
             ---@type JM.Camera.Camera
             camera = self.cameras_list[i]
 
-            camera:attach()
+            -- camera:attach()
+
+            love.graphics.setColor(camera:get_color())
+            love.graphics.rectangle("fill", camera.viewport_x * camera.desired_scale,
+                camera.viewport_y * camera.desired_scale,
+                camera.viewport_w,
+                camera.viewport_h)
 
             if param.layers then
                 for i = 1, self.n_layers, 1 do
+
+                    camera:attach()
+
                     local layer
                     ---@type JM.Scene.Layer
                     layer = param.layers[i]
 
-                    layer.x = round(-camera.x * layer.factor)
-
                     love.graphics.push()
+
+                    -- love.graphics.scale(
+                    --     (1 + (1 / camera.scale)),
+                    --     (1 + (1 / camera.scale))
+                    -- )
                     love.graphics.translate(
-                        layer.x,
-                        round(-camera.y * layer.factor_y)
+                        round(-self:get_camera("main").x * layer.factor),
+                        round(-self:get_camera("main").y * layer.factor_y)
                     )
+
+
                     r = layer.draw and layer.draw()
                     love.graphics.pop()
+
+                    camera:detach()
                 end
-            else
-                -- r = param.draw and param.draw()
             end
 
-            camera:detach()
+            if param.draw then
+                camera:attach()
+                r = param.draw and param.draw()
+                camera:detach()
+            end
+
+            -- camera:detach()
 
             camera = nil
         end
