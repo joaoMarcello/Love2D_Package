@@ -15,7 +15,7 @@ local set_color_draw = love.graphics.setColor
 local love_draw = love.graphics.draw
 local set_shader = love.graphics.setShader
 
----@alias JM.Scene.Layer {draw:function, factor:number, factor_y:number, name:string, on_ground:boolean, on_ceil:boolean}
+---@alias JM.Scene.Layer {draw:function, factor:number, factor_y:number, name:string, fixed_on_ground:boolean, fixed_on_ceil:boolean, position: table, top:number, bottom:number}
 
 local function round(value)
     local absolute = math.abs(value)
@@ -108,8 +108,8 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
 
     self.world_left = -32 * 0
     self.world_right = 32 * 60
-    self.world_top = -32 * 15
-    self.world_bottom = 32 * 20
+    self.world_top = -32 * 10
+    self.world_bottom = 32 * 25
 
     self.max_zoom = 3
 
@@ -154,6 +154,7 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
 
     self.cameras_list = {}
     self.amount_cameras = 0
+    self.camera_names = {}
 
     self.camera = self:add_camera(config, "main")
 
@@ -195,6 +196,7 @@ function Scene:add_camera(config, name)
     self.cameras_list[self.amount_cameras] = camera
 
     self.cameras_list[name] = camera
+    self.camera_names[self.amount_cameras] = name
 
     Camera = nil
     return camera
@@ -287,6 +289,7 @@ function Scene:implements(param)
             layer.y        = layer.y or 0
             layer.factor_y = layer.factor_y or 0
             layer.factor   = layer.factor or 0
+            layer.position = {}
         end
     end
 
@@ -315,8 +318,6 @@ function Scene:implements(param)
             ---@type JM.Camera.Camera
             camera = self.cameras_list[i]
 
-            -- camera:attach()
-
             love.graphics.setColor(camera:get_color())
             love.graphics.rectangle("fill", camera.viewport_x * camera.desired_scale,
                 camera.viewport_y * camera.desired_scale,
@@ -329,28 +330,41 @@ function Scene:implements(param)
                     ---@type JM.Scene.Layer
                     layer = param.layers[i]
 
-                    camera:attach(layer.factor, layer.factor_y)
+                    layer.position[i] = {} or layer.position[i]
+                    layer.position[i].x = (not layer.position[i].x and 0)
+                        or layer.position[i].x
+                    layer.position[i].y = (not layer.position[i].y and 0)
+                        or layer.position[i].y
 
+                    camera:attach()
 
                     love.graphics.push()
 
-                    love.graphics.translate(
-                        round(-(camera.x)
-                            / (camera.desired_scale / (camera.scale))
-                            * layer.factor),
+                    layer.position[i].x = -camera.x * layer.factor
+                    layer.position[i].y = -camera.y * layer.factor
 
-                        round(-(camera.y - camera.viewport_y)
-                            / (camera.desired_scale / (camera.scale))
-                            * layer.factor_y)
-                    )
+                    local px = -camera.x * layer.factor
+                    local py = -camera.y * layer.factor_y
+                    if layer.fixed_on_ground and layer.top then
+                        if (py) < layer.top
+                        then
+                            py = 0
+                        end
+                    end
 
-                    -- love.graphics.scale(camera.scale, camera.scale)
+                    if layer.fixed_on_ceil and layer.bottom then
+                        if py > layer.bottom then
+                            py = 0
+                        end
+                    end
 
+                    love.graphics.translate(px, py)
 
                     r = layer.draw and layer.draw(camera)
+
                     love.graphics.pop()
 
-                    camera:detach(layer.factor, layer.factor_y)
+                    camera:detach()
                 end
             end
 
@@ -359,8 +373,6 @@ function Scene:implements(param)
                 r = param.draw and param.draw()
                 camera:detach()
             end
-
-            -- camera:detach()
 
             camera = nil
         end

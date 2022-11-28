@@ -78,7 +78,7 @@ Game:add_camera({
     tile_size = 32,
 
     color = { 255 / 255, 174 / 255, 201 / 255, 1 },
-    scale = 0.4,
+    scale = 1.1,
 
     type = "metroid",
     show_grid = true,
@@ -634,12 +634,16 @@ Game:implements({
             draw = function(camera)
                 love.graphics.setColor(0.2, 0, 0.1, 1)
                 for i = 1, 10 * 20, 10 do
-                    love.graphics.rectangle("fill", 10 * (i), 32, 56, 32 * 7)
+                    love.graphics.rectangle("fill", 10 * (i), 32, 56, 32 * 8)
                 end
             end,
 
             factor = 0.2 / 5,
-            factor_y = 0.1,
+            factor_y = 0.5,
+            -- fixed_on_ground = true,
+            fixed_on_ceil = true,
+            bottom = 32 * 8,
+            top = 32,
             name = "violet rect"
         },
 
@@ -647,12 +651,16 @@ Game:implements({
             draw = function()
                 love.graphics.setColor(0, 0.4, 0.1, 1)
                 for i = 1, 50, 4 do
-                    love.graphics.rectangle("fill", 32 * (i), 0, 32, 32 * 8)
+                    love.graphics.rectangle("fill", 32 * (i), 0, 32, 32 * 9)
                 end
             end,
 
             factor = 0.5,
             factor_y = 0.5,
+            -- fixed_on_ceil = true,
+            fixed_on_ground = true,
+            bottom = 32 * 9,
+            top = 0,
             name = "green rect"
         },
 

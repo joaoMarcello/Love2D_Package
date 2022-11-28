@@ -1031,8 +1031,8 @@ function Camera:set_bounds(left, right, top, bottom)
     end
 
     if self.bounds_bottom - self.bounds_top < self.viewport_h / self.scale then
-        self.bounds_bottom = self.bounds_top + self.viewport_h / self.scale
-        -- self.bounds_top = self.bounds_bottom - self.viewport_h / self.scale
+        -- self.bounds_bottom = self.bounds_top + self.viewport_h / self.scale
+        self.bounds_top = self.bounds_bottom - self.viewport_h / self.scale
     end
 end
 
@@ -1288,7 +1288,7 @@ local function debbug(self)
     r, g, b, a = nil, nil, nil, nil
 end
 
-local function perfect_pixel_attach(self, factor, fy)
+local function perfect_pixel_attach(self)
     self.last_canvas = love_get_canvas()
     self.last_blend_mode = love_get_blend_mode()
     self.last_scissor = { love.graphics.getScissor() }
@@ -1310,12 +1310,12 @@ local function perfect_pixel_attach(self, factor, fy)
         -self.x + ((self.shaking_in_x and self.shake_offset_x or 0)),
         -self.y + ((self.shaking_in_y and self.shake_offset_y or 0))
     )
-    love_translate(0, (fy)
-        * (-self.y) * (self.scale))
+    -- love_translate(0, (fy)
+    --     * (-self.y) * (self.scale))
     r = nil
 end
 
-local function perfect_pixel_detach(self, factor, fy)
+local function perfect_pixel_detach(self)
     local r
     r = self.is_showing_grid and show_grid(self)
     r = self.show_world_boundary and draw_world_boundary(self)
@@ -1365,16 +1365,12 @@ local function perfect_pixel_detach(self, factor, fy)
     r = nil
 end
 
-function Camera:attach(factor, fy)
-    factor = factor or 0
-    fy = fy or 0
-    perfect_pixel_attach(self, factor, fy)
+function Camera:attach()
+    perfect_pixel_attach(self)
 end
 
-function Camera:detach(factor, fy)
-    factor = factor or 0
-    fy = fy or 0
-    perfect_pixel_detach(self, factor, fy)
+function Camera:detach()
+    perfect_pixel_detach(self)
 end
 
 function Camera:get_state()
