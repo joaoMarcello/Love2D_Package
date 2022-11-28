@@ -109,7 +109,7 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
     self.world_left = -32 * 0
     self.world_right = 32 * 60
     self.world_top = -32 * 15
-    self.world_bottom = 32 * 12
+    self.world_bottom = 32 * 20
 
     self.max_zoom = 3
 
@@ -335,7 +335,9 @@ function Scene:implements(param)
                     love.graphics.push()
 
                     love.graphics.translate(
-                        round(-(camera.x) * layer.factor * camera.scale),
+                        round(-(camera.x)
+                            / (camera.desired_scale / (camera.scale))
+                            * layer.factor),
 
                         round(-(camera.y - camera.viewport_y)
                             / (camera.desired_scale / (camera.scale))

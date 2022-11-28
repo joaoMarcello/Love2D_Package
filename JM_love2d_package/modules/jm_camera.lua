@@ -1288,10 +1288,6 @@ local function debbug(self)
     r, g, b, a = nil, nil, nil, nil
 end
 
-function Camera:set_scene_layers(layers)
-    self.scene_layers = layers
-end
-
 local function perfect_pixel_attach(self, factor, fy)
     self.last_canvas = love_get_canvas()
     self.last_blend_mode = love_get_blend_mode()
@@ -1314,7 +1310,8 @@ local function perfect_pixel_attach(self, factor, fy)
         -self.x + ((self.shaking_in_x and self.shake_offset_x or 0)),
         -self.y + ((self.shaking_in_y and self.shake_offset_y or 0))
     )
-    -- love_translate(-self.x * factor, -self.y * fy)
+    love_translate(0, (fy)
+        * (-self.y) * (self.scale))
     r = nil
 end
 

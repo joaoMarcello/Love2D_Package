@@ -65,7 +65,7 @@ Game:add_camera({
     x = Game.screen_w * 0,
     y = 0,
     w = Game.screen_w * 0.25,
-    h = Game.screen_h * 1,
+    h = Game.screen_h * 0.5,
 
     -- world bounds
     bounds = {
@@ -512,7 +512,7 @@ Game:implements({
         cam1:follow(ship:get_cx(), ship:get_cy())
 
         if cam_pink then
-            cam_pink:follow(rec:get_cx(), rec:get_cy())
+            cam_pink:follow(ship:get_cx(), ship:get_cy())
         end
 
         if cam_blue then
@@ -634,7 +634,7 @@ Game:implements({
             draw = function(camera)
                 love.graphics.setColor(0.2, 0, 0.1, 1)
                 for i = 1, 10 * 20, 10 do
-                    love.graphics.rectangle("fill", 10 * (i), 32, 56, 32 * 8)
+                    love.graphics.rectangle("fill", 10 * (i), 32, 56, 32 * 7)
                 end
             end,
 
@@ -647,7 +647,7 @@ Game:implements({
             draw = function()
                 love.graphics.setColor(0, 0.4, 0.1, 1)
                 for i = 1, 50, 4 do
-                    love.graphics.rectangle("fill", 32 * (i), 0, 32, 32 * 9)
+                    love.graphics.rectangle("fill", 32 * (i), 0, 32, 32 * 8)
                 end
             end,
 
