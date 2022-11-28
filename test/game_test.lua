@@ -53,7 +53,7 @@ Game:add_camera({
     tile_size = 32,
 
     color = { 153 / 255, 217 / 255, 234 / 255, 1 },
-    scale = 0.6,
+    scale = 0.7,
 
     type = "metroid",
     show_grid = true,
@@ -78,7 +78,7 @@ Game:add_camera({
     tile_size = 32,
 
     color = { 255 / 255, 174 / 255, 201 / 255, 1 },
-    scale = 1.2,
+    scale = 0.4,
 
     type = "metroid",
     show_grid = true,
