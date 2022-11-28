@@ -764,7 +764,7 @@ function Camera:__constructor__(
     self.type = type_ or CAMERA_TYPES.SuperMarioWorld
     self:set_type(self.type)
 
-    self.debug = false
+    self.debug = true
     self.debug_msg_rad = 0
     self.debug_trgt_rad = 0
 
@@ -784,8 +784,8 @@ function Camera:__constructor__(
 
     self.max_zoom = 1.5
     self.canvas = love.graphics.newCanvas(
-        self.device_width / self.desired_scale,
-        self.device_height / self.desired_scale
+        self.viewport_w,
+        self.viewport_h
     )
     self.canvas:setFilter("linear", "nearest")
 
@@ -1292,7 +1292,7 @@ function Camera:set_scene_layers(layers)
     self.scene_layers = layers
 end
 
-local function perfect_pixel_attach(self)
+local function perfect_pixel_attach(self, factor, fy)
     self.last_canvas = love_get_canvas()
     self.last_blend_mode = love_get_blend_mode()
     self.last_scissor = { love.graphics.getScissor() }
@@ -1314,11 +1314,11 @@ local function perfect_pixel_attach(self)
         -self.x + ((self.shaking_in_x and self.shake_offset_x or 0)),
         -self.y + ((self.shaking_in_y and self.shake_offset_y or 0))
     )
-    -- love_translate(self.viewport_x, self.viewport_y)
+    -- love_translate(-self.x * factor, -self.y * fy)
     r = nil
 end
 
-local function perfect_pixel_detach(self)
+local function perfect_pixel_detach(self, factor, fy)
     local r
     r = self.is_showing_grid and show_grid(self)
     r = self.show_world_boundary and draw_world_boundary(self)
@@ -1338,7 +1338,10 @@ local function perfect_pixel_detach(self)
     love_set_color(1, 1, 1, 1)
     love_set_blend_mode("alpha", "premultiplied")
     love_push()
-    love_translate(self.viewport_x * self.desired_scale, self.viewport_y * self.desired_scale)
+    love_translate(
+        self.viewport_x * self.desired_scale,
+        self.viewport_y * self.desired_scale
+    )
     love_scale(self.scale, self.scale)
     love_draw(self.canvas, 0, 0, 0, self.desired_scale, self.desired_scale)
     love_pop()
@@ -1365,12 +1368,16 @@ local function perfect_pixel_detach(self)
     r = nil
 end
 
-function Camera:attach()
-    perfect_pixel_attach(self)
+function Camera:attach(factor, fy)
+    factor = factor or 0
+    fy = fy or 0
+    perfect_pixel_attach(self, factor, fy)
 end
 
-function Camera:detach()
-    perfect_pixel_detach(self)
+function Camera:detach(factor, fy)
+    factor = factor or 0
+    fy = fy or 0
+    perfect_pixel_detach(self, factor, fy)
 end
 
 function Camera:get_state()

@@ -15,7 +15,7 @@ local set_color_draw = love.graphics.setColor
 local love_draw = love.graphics.draw
 local set_shader = love.graphics.setShader
 
----@alias JM.Scene.Layer {draw:function, factor:number, factor_y:number, name:string}
+---@alias JM.Scene.Layer {draw:function, factor:number, factor_y:number, name:string, on_ground:boolean, on_ceil:boolean}
 
 local function round(value)
     local absolute = math.abs(value)
@@ -325,29 +325,30 @@ function Scene:implements(param)
 
             if param.layers then
                 for i = 1, self.n_layers, 1 do
-
-                    camera:attach()
-
                     local layer
                     ---@type JM.Scene.Layer
                     layer = param.layers[i]
 
+                    camera:attach(layer.factor, layer.factor_y)
+
+
                     love.graphics.push()
 
-                    -- love.graphics.scale(
-                    --     (1 + (1 / camera.scale)),
-                    --     (1 + (1 / camera.scale))
-                    -- )
                     love.graphics.translate(
-                        round(-self:get_camera("main").x * layer.factor),
-                        round(-self:get_camera("main").y * layer.factor_y)
+                        round(-(camera.x) * layer.factor * camera.scale),
+
+                        round(-(camera.y - camera.viewport_y)
+                            / (camera.desired_scale / (camera.scale))
+                            * layer.factor_y)
                     )
 
+                    -- love.graphics.scale(camera.scale, camera.scale)
 
-                    r = layer.draw and layer.draw()
+
+                    r = layer.draw and layer.draw(camera)
                     love.graphics.pop()
 
-                    camera:detach()
+                    camera:detach(layer.factor, layer.factor_y)
                 end
             end
 
