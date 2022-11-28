@@ -146,7 +146,7 @@ local function dynamic_x_offset(self, dt)
     if not self:is_locked_in_x() then
         local objective = chase_target_x(self, dt)
 
-        self:lock_x_axis(objective
+        self:set_lock_x_axis(objective
             and self.target.direction_x ~= self.target.last_direction_x
         )
     else
@@ -161,7 +161,7 @@ local function dynamic_x_offset(self, dt)
             if self.dont_use_deadzone
                 or self:screen_to_world(self.target.x) > right
             then
-                self:lock_x_axis(false)
+                self:set_lock_x_axis(false)
             end
         elseif self.target.direction_x <= 0 then
             local left = self.x - deadzone_w / 2
@@ -170,7 +170,7 @@ local function dynamic_x_offset(self, dt)
             if self.dont_use_deadzone
                 or self:screen_to_world(self.target.x) < left
             then
-                self:lock_x_axis(false)
+                self:set_lock_x_axis(false)
             end
         end
     end
@@ -208,7 +208,7 @@ local function dynamic_y_offset(self, dt)
     if not self:is_locked_in_y() then
         local objective = chase_target_y(self, dt)
 
-        self:lock_y_axis(objective
+        self:set_lock_y_axis(objective
             and self.target.direction_y ~= self.target.last_direction_y
         )
     else
@@ -223,7 +223,7 @@ local function dynamic_y_offset(self, dt)
             if self.dont_use_deadzone or
                 cy > bottom
             then
-                self:lock_y_axis(false)
+                self:set_lock_y_axis(false)
             end
 
         elseif self.target.direction_y < 0 then
@@ -233,7 +233,7 @@ local function dynamic_y_offset(self, dt)
             if self.dont_use_deadzone
                 or self:y_screen_to_world(self.target.y) < top
             then
-                self:lock_y_axis(false)
+                self:set_lock_y_axis(false)
             end
         end
     end
@@ -784,8 +784,8 @@ function Camera:__constructor__(
 
     self.max_zoom = 3
     self.canvas = love.graphics.newCanvas(
-        self.desired_canvas_w * 2,
-        self.desired_canvas_h * 2
+        self.desired_canvas_w,
+        self.desired_canvas_h
     -- self.viewport_w * self.max_zoom,
     -- self.viewport_h * self.max_zoom
     )
@@ -1103,27 +1103,27 @@ function Camera:update(dt)
     lock = self.lock_x
     if px < left then
         local x = self:world_to_screen(left)
-        self:lock_x_axis(false)
+        self:set_lock_x_axis(false)
         self:set_position(x)
-        self:lock_x_axis(lock)
+        self:set_lock_x_axis(lock)
     elseif px > right then
         local x = self:world_to_screen(right)
-        self:lock_x_axis(false)
+        self:set_lock_x_axis(false)
         self:set_position(x)
-        self:lock_x_axis(lock)
+        self:set_lock_x_axis(lock)
     end
 
     lock = self.lock_y
     if py < top then
         local y = self:y_world_to_screen(top)
-        self:lock_y_axis(false)
+        self:set_lock_y_axis(false)
         self:set_position(nil, y)
-        self:lock_y_axis(lock)
+        self:set_lock_y_axis(lock)
     elseif py > bottom then
         local y = self:y_world_to_screen(bottom)
-        self:lock_y_axis(false)
+        self:set_lock_y_axis(false)
         self:set_position(nil, y)
-        self:lock_y_axis(lock)
+        self:set_lock_y_axis(lock)
     end
 
     left, top, right, bottom, lock, px, py = nil, nil, nil, nil, nil, nil, nil
@@ -1445,22 +1445,38 @@ function Camera:x_world_to_screen(x)
     return x
 end
 
-function Camera:lock_x_axis(value)
+function Camera:set_lock_x_axis(value)
     self.lock_x = (value and true) or false
 end
 
-function Camera:lock_y_axis(value)
+function Camera:unlock_x_axis()
+    self.lock_x = false
+end
+
+function Camera:lock_x_axis()
+    self.lock_x = true
+end
+
+function Camera:set_lock_y_axis(value)
     self.lock_y = (value and true) or false
 end
 
+function Camera:unlock_y_axis()
+    self.lock_y = false
+end
+
+function Camera:lock_y_axis()
+    self.lock_y = true
+end
+
 function Camera:lock_movements()
-    self:lock_x_axis(true)
-    self:lock_y_axis(true)
+    self:set_lock_x_axis(true)
+    self:set_lock_y_axis(true)
 end
 
 function Camera:unlock_movements()
-    self:lock_x_axis(false)
-    self:lock_y_axis(false)
+    self:set_lock_x_axis(false)
+    self:set_lock_y_axis(false)
 end
 
 return Camera

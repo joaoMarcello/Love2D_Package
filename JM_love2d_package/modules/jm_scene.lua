@@ -146,10 +146,10 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
 
     self:add_camera(self.camera, "main")
 
-    self.canvas = love.graphics.newCanvas(self.w, self.h)
-    self.canvas:setFilter("nearest", "nearest")
+    -- self.canvas = love.graphics.newCanvas(self.w, self.h)
+    -- self.canvas:setFilter("nearest", "nearest")
 
-    self:implements({})
+    self:implements({ first_time = true })
     Camera = nil
 end
 
@@ -181,6 +181,20 @@ function Scene:set_color(r, g, b, a)
     self.color_a = a or self.color_a
 end
 
+-- function Scene:create_layer(draw_order, factor, action)
+--     local layer = {
+--         draw_order = draw_order or (-1 - math.random()),
+--         factor = factor or 0.5,
+--         action = action
+--     }
+
+--     table.insert(self.layers, layer)
+--     self.n_layers = self.n_layers + 1
+--     table.sort(self.layers, function(a, b)
+--         return a.drar_order < b.drar_order
+--     end)
+-- end
+
 -- function Scene:to_world(x, y, camera)
 --     return to_world(self, x, y, camera or self.camera)
 -- end
@@ -195,7 +209,8 @@ function Scene:main_camera()
     return self.camera
 end
 
----@param param {load:function, init:function, update:function, draw:function, unload:function, keypressed:function, keyreleased:function}
+---
+---@param param {load:function, init:function, update:function, draw:function, unload:function, keypressed:function, keyreleased:function, first_time:boolean}
 function Scene:implements(param)
     assert(param, "\n>> Error: No parameter passed to method.")
     assert(type(param) == "table", "\n>> Error: The method expected a table. Was given " .. type(param) .. ".")
@@ -244,8 +259,9 @@ function Scene:implements(param)
             draw_tile(self)
         end
 
-        for i = 1, self.amount_cameras do
+        --=====================================================
 
+        for i = 1, self.amount_cameras, 1 do
             local camera, r
             ---@type JM.Camera.Camera
             camera = self.cameras_list[i]
@@ -254,7 +270,7 @@ function Scene:implements(param)
             r = param.draw and param.draw()
             camera:detach()
 
-            camera, r = nil, nil
+            camera = nil
         end
 
         -- love.graphics.setScissor(
