@@ -3,25 +3,24 @@ local JM_package = require("/JM_love2d_package/JM_package")
 local Anima = JM_package.Anima
 local FontGenerator = JM_package.Font
 local EffectManager = JM_package.EffectGenerator
-local Camera = require("/JM_love2d_package/modules/jm_camera")
 
-local Consolas = FontGenerator:new({ name = "consolas", font_size = 14 })
-Consolas:add_nickname_animated("--goomba--", {
-    img = "/data/goomba.png",
-    frames_list = { { 27, 85, 17, 89 },
-        { 150, 209, 17, 89 },
-        { 271, 331, 17, 89 },
-        { 391, 460, 17, 88 },
-        { 516, 579, 17, 89 },
-        { 637, 695, 17, 88 },
-        { 764, 821, 17, 89 },
-        { 888, 944, 17, 88 },
-        { 1006, 1070, 17, 88 }
-    },
-    duration = 1,
-    is_reversed = false,
-    state = "looping"
-})
+-- local Consolas = FontGenerator:new({ name = "consolas", font_size = 14 })
+-- Consolas:add_nickname_animated("--goomba--", {
+--     img = "/data/goomba.png",
+--     frames_list = { { 27, 85, 17, 89 },
+--         { 150, 209, 17, 89 },
+--         { 271, 331, 17, 89 },
+--         { 391, 460, 17, 88 },
+--         { 516, 579, 17, 89 },
+--         { 637, 695, 17, 88 },
+--         { 764, 821, 17, 89 },
+--         { 888, 944, 17, 88 },
+--         { 1006, 1070, 17, 88 }
+--     },
+--     duration = 1,
+--     is_reversed = false,
+--     state = "looping"
+-- })
 
 local function round(value)
     local absolute = math.abs(value)
@@ -34,70 +33,58 @@ local function round(value)
     end
 end
 
-local Game = Screen:new(32 * 20, 32 * 12)
+local Game = Screen:new(0, 0, nil, nil, 32 * 20, 32 * 12)
 
-Game:add_camera(
-    Camera:new({
-        -- camera's viewport
-        x = Game.screen_w * 0.75,
-        y = Game.screen_h * 0.5,
-        w = Game.screen_w * 0.25,
-        h = Game.screen_h * 0.5,
+Game:add_camera({
+    -- camera's viewport
+    x = Game.screen_w * 0.75,
+    y = Game.screen_h * 0.5,
+    w = Game.screen_w * 0.25,
+    h = Game.screen_h * 0.5,
 
-        -- world bounds
-        bounds = {
-            left = Game.world_left,
-            right = Game.world_right,
-            top = Game.world_top,
-            bottom = Game.world_bottom
-        },
+    -- world bounds
+    bounds = {
+        left = Game.world_left,
+        right = Game.world_right,
+        top = Game.world_top,
+        bottom = Game.world_bottom
+    },
 
-        --canvas size
-        canvas_width = Game.w,
-        canvas_height = Game.h,
+    tile_size = 32,
 
-        tile_size = 32,
+    color = { 153 / 255, 217 / 255, 234 / 255, 1 },
+    scale = 1.2,
 
-        color = { 153 / 255, 217 / 255, 234 / 255, 1 },
-        scale = 1.4,
+    type = "super mario world",
+    show_grid = true,
+    show_world_bounds = true
+}, "blue")
 
-        type = "super mario world",
-        show_grid = true,
-        show_world_bounds = true
-    }), "blue"
-)
+Game:add_camera({
+    -- camera's viewport
+    x = Game.screen_w * 0.75,
+    y = 0,
+    w = Game.screen_w * 0.25,
+    h = Game.screen_h * 0.5,
 
-Game:add_camera(
-    Camera:new({
-        -- camera's viewport
-        x = Game.screen_w * 0.75,
-        y = 0,
-        w = Game.screen_w * 0.25,
-        h = Game.screen_h * 0.5,
+    -- world bounds
+    bounds = {
+        left = Game.world_left,
+        right = Game.world_right,
+        top = Game.world_top,
+        bottom = Game.world_bottom
+    },
 
-        -- world bounds
-        bounds = {
-            left = Game.world_left,
-            right = Game.world_right,
-            top = Game.world_top,
-            bottom = Game.world_bottom
-        },
+    tile_size = 32,
 
-        --canvas size
-        canvas_width = Game.w,
-        canvas_height = Game.h,
+    color = { 255 / 255, 174 / 255, 201 / 255, 1 },
+    scale = 0.6,
 
-        tile_size = 32,
-
-        color = { 255 / 255, 174 / 255, 201 / 255, 1 },
-        scale = 0.6,
-
-        type = "metroid",
-        show_grid = true,
-        grid_tile_size = 32 * 4,
-        show_world_bounds = true
-    }), "pink"
-)
+    type = "metroid",
+    show_grid = true,
+    grid_tile_size = 32 * 4,
+    show_world_bounds = true
+}, "pink")
 
 local temp
 temp = Game:get_camera("blue")
@@ -521,8 +508,14 @@ Game:implements({
         -- end
 
         cam1:follow(ship:get_cx(), ship:get_cy())
-        cam_pink:follow(ship:get_cx(), ship:get_cy())
-        cam_blue:follow(rec:get_cx(), rec:get_cy())
+
+        if cam_pink then
+            cam_pink:follow(ship:get_cx(), ship:get_cy())
+        end
+
+        if cam_blue then
+            cam_blue:follow(rec:get_cx(), rec:get_cy())
+        end
 
         cam1, cam_blue, cam_pink = nil, nil, nil
     end,
@@ -545,94 +538,189 @@ Game:implements({
         end
     end,
 
-    draw = function()
-        do
+    -- draw = function()
+    --     do
 
-            graph_set_color(245 / 255, 160 / 255, 151 / 255, 1)
-            graph_rect("fill", 0, 32 * 12 - 64 * 3, 64 * 4, 64 * 3)
+    --         graph_set_color(245 / 255, 160 / 255, 151 / 255, 1)
+    --         graph_rect("fill", 0, 32 * 12 - 64 * 3, 64 * 4, 64 * 3)
 
-            graph_set_color(142 / 255, 82 / 255, 82 / 255, 1)
-            graph_rect("fill", 0, 32 * 12 - 64 * 3, 64 * 1, 64 * 3)
+    --         graph_set_color(142 / 255, 82 / 255, 82 / 255, 1)
+    --         graph_rect("fill", 0, 32 * 12 - 64 * 3, 64 * 1, 64 * 3)
 
-            -- graph_set_color(20 / 255, 160 / 255, 46 / 255, 1)
-            -- graph_rect("fill", 0, SCREEN_HEIGHT - 64, SCREEN_WIDTH, 64)
+    --         -- graph_set_color(20 / 255, 160 / 255, 46 / 255, 1)
+    --         -- graph_rect("fill", 0, SCREEN_HEIGHT - 64, SCREEN_WIDTH, 64)
 
-            -- graph_set_color(89 / 255, 193 / 255, 56 / 255, 1)
-            -- graph_rect("fill", 0, SCREEN_HEIGHT - 64, SCREEN_WIDTH, 8)
-        end
+    --         -- graph_set_color(89 / 255, 193 / 255, 56 / 255, 1)
+    --         -- graph_rect("fill", 0, SCREEN_HEIGHT - 64, SCREEN_WIDTH, 8)
+    --     end
 
-        graph_set_color(1, 0, 1, 0.9)
-        graph_rect("line", rec.x, rec.y, rec.w, rec.h)
+    --     graph_set_color(1, 0, 1, 0.9)
+    --     graph_rect("line", rec.x, rec.y, rec.w, rec.h)
 
-        current_animation:draw_rec(math.floor(rec.x), math.floor(rec.y), rec.w, rec.h)
+    --     current_animation:draw_rec(math.floor(rec.x), math.floor(rec.y), rec.w, rec.h)
 
-        -- love.graphics.setShader(pink_to_none)
+    --     -- love.graphics.setShader(pink_to_none)
 
-        for i = 1, #rects do
-            graph_set_color(1, 0.1, 0.1, 1)
-            graph_rect("line", rects[i].x, rects[i].y, rects[i].w, rects[i].h)
-            graph_set_color(0.5, 0.1, 0.9, 1)
-            graph_rect("fill", rects[i].x, rects[i].y, rects[i].w, rects[i].h)
-        end
+    --     for i = 1, #rects do
+    --         graph_set_color(1, 0.1, 0.1, 1)
+    --         graph_rect("line", rects[i].x, rects[i].y, rects[i].w, rects[i].h)
+    --         graph_set_color(0.5, 0.1, 0.9, 1)
+    --         graph_rect("fill", rects[i].x, rects[i].y, rects[i].w, rects[i].h)
+    --     end
 
-        for i = 1, 2 do
-            for j = 0, 35 do
-                if i == 1 and j == 0 then
-                    tile:draw(1, 1, 0, 32 * 12 - 32 * 2)
-                elseif i == 2 and j == 0 then
-                    tile:draw(1, 2, 0, 32 * 12 - 32 * 1)
-                elseif i == 1 then
-                    local left = j * 32
-                    local right = left + 32
-                    local top = Game.h - 64 + 32 * (i - 1)
-                    local bottom = top + 32
-                    local result = Game.camera:rect_is_on_screen(left, right, top, bottom) or true
+    --     for i = 1, 2 do
+    --         for j = 0, 35 do
+    --             if i == 1 and j == 0 then
+    --                 tile:draw(1, 1, 0, 32 * 12 - 32 * 2)
+    --             elseif i == 2 and j == 0 then
+    --                 tile:draw(1, 2, 0, 32 * 12 - 32 * 1)
+    --             elseif i == 1 then
+    --                 local left = j * 32
+    --                 local right = left + 32
+    --                 local top = Game.h - 64 + 32 * (i - 1)
+    --                 local bottom = top + 32
+    --                 local result = Game.camera:rect_is_on_screen(left, right, top, bottom) or true
 
-                    if j % 2 == 0 and result then
-                        tile:draw(2, 1, j * 32, 32 * 12 - 64 + 32 * (i - 1))
-                    elseif result then
-                        tile:draw(3, 1, j * 32, 32 * 12 - 64 + 32 * (i - 1))
-                    end
-                elseif i == 2 then
-                    if j % 2 == 0 then
-                        tile:draw(2, 2, j * 32, 32 * 12 - 64 + 32 * (i - 1))
-                    else
-                        tile:draw(3, 2, j * 32, 32 * 12 - 64 + 32 * (i - 1))
+    --                 if j % 2 == 0 and result then
+    --                     tile:draw(2, 1, j * 32, 32 * 12 - 64 + 32 * (i - 1))
+    --                 elseif result then
+    --                     tile:draw(3, 1, j * 32, 32 * 12 - 64 + 32 * (i - 1))
+    --                 end
+    --             elseif i == 2 then
+    --                 if j % 2 == 0 then
+    --                     tile:draw(2, 2, j * 32, 32 * 12 - 64 + 32 * (i - 1))
+    --                 else
+    --                     tile:draw(3, 2, j * 32, 32 * 12 - 64 + 32 * (i - 1))
+    --                 end
+    --             end
+    --         end
+    --     end
+
+    --     graph_set_color(0, 0, 0, 0.5)
+    --     graph_rect("fill", 32 * 34, 32 * 4, 32, 32)
+    --     graph_rect("fill", 32 * 10, 32 * 4, 32, 32)
+
+    --     -- graph_set_color(0, 0, 0, 0.1)
+    --     -- for i = 1, 300 do
+    --     --     local x = -32 * 45 + 32 * (i - 1)
+    --     --     love.graphics.line(x, 0, x, Game.world_bottom * 50)
+    --     -- end
+
+    --     -- for i = 1, 100 do
+    --     --     love.graphics.line(-32 * 1, 32 * (i - 1), Game.w * 50, 32 * (i - 1))
+    --     -- end
+
+    --     -- love.graphics.setColor(1, 0, 0, 1)
+    --     -- love.graphics.circle("fill", rec:get_cx(), rec:get_cy(), 130)
+    --     -- love.graphics.setColor(1, 0, 1, 1)
+    --     -- love.graphics.circle("fill", rec:get_cx(), rec:get_cy(), 128)
+    --     -- current_animation:draw_rec(math.floor(rec.x), math.floor(rec.y), rec.w, rec.h)
+
+    --     ship:draw()
+
+    --     -- graph_set_color(1, 0, 0, 0.7)
+    --     -- local mx, my = love.mouse.getPosition()
+    --     -- mx, my = Game:to_world(mx, my, Game:get_camera(3))
+    --     -- mx, my = Game:get_camera(3):screen_to_world(mx, my)
+    --     -- love.graphics.rectangle("fill", mx, my, 32, 32)
+
+    --     love.graphics.setShader()
+    -- end
+
+    layers = {
+        {
+            draw = function()
+                do
+
+                    graph_set_color(245 / 255, 160 / 255, 151 / 255, 1)
+                    graph_rect("fill", 0, 32 * 12 - 64 * 3, 64 * 4, 64 * 3)
+
+                    graph_set_color(142 / 255, 82 / 255, 82 / 255, 1)
+                    graph_rect("fill", 0, 32 * 12 - 64 * 3, 64 * 1, 64 * 3)
+
+                    -- graph_set_color(20 / 255, 160 / 255, 46 / 255, 1)
+                    -- graph_rect("fill", 0, SCREEN_HEIGHT - 64, SCREEN_WIDTH, 64)
+
+                    -- graph_set_color(89 / 255, 193 / 255, 56 / 255, 1)
+                    -- graph_rect("fill", 0, SCREEN_HEIGHT - 64, SCREEN_WIDTH, 8)
+                end
+
+                graph_set_color(1, 0, 1, 0.9)
+                graph_rect("line", rec.x, rec.y, rec.w, rec.h)
+
+                current_animation:draw_rec(math.floor(rec.x), math.floor(rec.y), rec.w, rec.h)
+
+                -- love.graphics.setShader(pink_to_none)
+
+                for i = 1, #rects do
+                    graph_set_color(1, 0.1, 0.1, 1)
+                    graph_rect("line", rects[i].x, rects[i].y, rects[i].w, rects[i].h)
+                    graph_set_color(0.5, 0.1, 0.9, 1)
+                    graph_rect("fill", rects[i].x, rects[i].y, rects[i].w, rects[i].h)
+                end
+
+                for i = 1, 2 do
+                    for j = 0, 35 do
+                        if i == 1 and j == 0 then
+                            tile:draw(1, 1, 0, 32 * 12 - 32 * 2)
+                        elseif i == 2 and j == 0 then
+                            tile:draw(1, 2, 0, 32 * 12 - 32 * 1)
+                        elseif i == 1 then
+                            local left = j * 32
+                            local right = left + 32
+                            local top = Game.h - 64 + 32 * (i - 1)
+                            local bottom = top + 32
+                            local result = Game.camera:rect_is_on_screen(left, right, top, bottom) or true
+
+                            if j % 2 == 0 and result then
+                                tile:draw(2, 1, j * 32, 32 * 12 - 64 + 32 * (i - 1))
+                            elseif result then
+                                tile:draw(3, 1, j * 32, 32 * 12 - 64 + 32 * (i - 1))
+                            end
+                        elseif i == 2 then
+                            if j % 2 == 0 then
+                                tile:draw(2, 2, j * 32, 32 * 12 - 64 + 32 * (i - 1))
+                            else
+                                tile:draw(3, 2, j * 32, 32 * 12 - 64 + 32 * (i - 1))
+                            end
+                        end
                     end
                 end
-            end
-        end
 
-        graph_set_color(0, 0, 0, 0.5)
-        graph_rect("fill", 32 * 34, 32 * 4, 32, 32)
-        graph_rect("fill", 32 * 10, 32 * 4, 32, 32)
+                graph_set_color(0, 0, 0, 0.5)
+                graph_rect("fill", 32 * 34, 32 * 4, 32, 32)
+                graph_rect("fill", 32 * 10, 32 * 4, 32, 32)
 
-        -- graph_set_color(0, 0, 0, 0.1)
-        -- for i = 1, 300 do
-        --     local x = -32 * 45 + 32 * (i - 1)
-        --     love.graphics.line(x, 0, x, Game.world_bottom * 50)
-        -- end
+                -- graph_set_color(0, 0, 0, 0.1)
+                -- for i = 1, 300 do
+                --     local x = -32 * 45 + 32 * (i - 1)
+                --     love.graphics.line(x, 0, x, Game.world_bottom * 50)
+                -- end
 
-        -- for i = 1, 100 do
-        --     love.graphics.line(-32 * 1, 32 * (i - 1), Game.w * 50, 32 * (i - 1))
-        -- end
+                -- for i = 1, 100 do
+                --     love.graphics.line(-32 * 1, 32 * (i - 1), Game.w * 50, 32 * (i - 1))
+                -- end
 
-        -- love.graphics.setColor(1, 0, 0, 1)
-        -- love.graphics.circle("fill", rec:get_cx(), rec:get_cy(), 130)
-        -- love.graphics.setColor(1, 0, 1, 1)
-        -- love.graphics.circle("fill", rec:get_cx(), rec:get_cy(), 128)
-        -- current_animation:draw_rec(math.floor(rec.x), math.floor(rec.y), rec.w, rec.h)
+                -- love.graphics.setColor(1, 0, 0, 1)
+                -- love.graphics.circle("fill", rec:get_cx(), rec:get_cy(), 130)
+                -- love.graphics.setColor(1, 0, 1, 1)
+                -- love.graphics.circle("fill", rec:get_cx(), rec:get_cy(), 128)
+                -- current_animation:draw_rec(math.floor(rec.x), math.floor(rec.y), rec.w, rec.h)
 
-        ship:draw()
+                ship:draw()
 
-        -- graph_set_color(1, 0, 0, 0.7)
-        -- local mx, my = love.mouse.getPosition()
-        -- mx, my = Game:to_world(mx, my, Game:get_camera(3))
-        -- mx, my = Game:get_camera(3):screen_to_world(mx, my)
-        -- love.graphics.rectangle("fill", mx, my, 32, 32)
+                -- graph_set_color(1, 0, 0, 0.7)
+                -- local mx, my = love.mouse.getPosition()
+                -- mx, my = Game:to_world(mx, my, Game:get_camera(3))
+                -- mx, my = Game:get_camera(3):screen_to_world(mx, my)
+                -- love.graphics.rectangle("fill", mx, my, 32, 32)
 
-        love.graphics.setShader()
-    end
+                love.graphics.setShader()
+            end,
+
+            factor = 1
+        }
+    }
 })
 
 Game:set_shader(my_shader)

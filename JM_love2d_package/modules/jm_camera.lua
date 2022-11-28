@@ -661,7 +661,7 @@ function Camera:new(args)
 
     Camera.__constructor__(obj,
         args.x, args.y, args.w, args.h, args.bounds,
-        args.canvas_width, args.canvas_height,
+        args.device_width, args.device_height,
         args.desired_canvas_w, args.desired_canvas_h,
         args.tile_size, args.color, args.scale, args.type,
         args.show_grid, args.grid_tile_size, args.show_world_bounds,
@@ -673,40 +673,40 @@ function Camera:new(args)
     return obj
 end
 
+---@alias JM.Camera.Target  {x:number, y:number, angle_x:number, angle_y:number, distance:number, range_x:number, range_y:number, last_x:number, last_y:number, direction_x:number, direction_y:number, last_direction_x:number, last_direction_y:number}
+
 function Camera:__constructor__(
     x, y, w, h, bounds,
-    canvas_width, canvas_height, desired_canvas_w, desired_canvas_h,
+    device_width, device_height, desired_canvas_w, desired_canvas_h,
     tile_size, color, scale, type_,
     allow_grid, grid_tile_size, show_world_bounds, border_color
 )
 
-    self.canvas_width = canvas_width or love.graphics.getWidth()
-    self.canvas_height = canvas_height or love.graphics.getHeight()
+    self.device_width = device_width or love.graphics.getWidth()
+    self.device_height = device_height or love.graphics.getHeight()
 
-    self.desired_canvas_w = desired_canvas_w or self.canvas_width
-    self.desired_canvas_h = desired_canvas_h or self.canvas_height
+    self.desired_canvas_w = desired_canvas_w or self.device_width
+    self.desired_canvas_h = desired_canvas_h or self.device_height
 
     self.scale = scale or 1
-    self.desired_scale = 2
+    self.desired_scale = self.device_height / self.desired_canvas_h
 
     self.viewport_x = x or 0
     self.viewport_y = y or 0
 
-    self.viewport_w = w or self.canvas_width
-    self.viewport_w = self.viewport_w * self.desired_scale
-
-    self.viewport_h = h or self.canvas_height
-    self.viewport_h = self.viewport_h * self.desired_scale
+    self.viewport_w = (w and w * self.desired_scale)
+        or self.device_width
+    self.viewport_h = (h and h * self.desired_scale)
+        or self.device_height
 
     self.tile_size = tile_size or 32
-
 
     self.x = 0
     self.y = 0
 
     self.angle = 0
 
-    ---@type {x:number, y:number, angle_x:number, angle_y:number, distance:number, range_x:number, range_y:number, last_x:number, last_y:number, direction_x:number, direction_y:number, last_direction_x:number, last_direction_y:number}|nil
+    ---@type JM.Camera.Target
     self.target = nil
 
     self.focus_x = 0
@@ -782,12 +782,10 @@ function Camera:__constructor__(
     -- self:shake_in_x(nil, self.tile_size * 2 / 4, nil, 7.587)
     -- self:shake_in_y(nil, self.tile_size * 2.34 / 4, nil, 10.7564)
 
-    self.max_zoom = 3
+    self.max_zoom = 1.5
     self.canvas = love.graphics.newCanvas(
-        self.desired_canvas_w,
-        self.desired_canvas_h
-    -- self.viewport_w * self.max_zoom,
-    -- self.viewport_h * self.max_zoom
+        self.device_width,
+        self.device_height
     )
     self.canvas:setFilter("linear", "nearest")
 
@@ -1290,7 +1288,11 @@ local function debbug(self)
     r, g, b, a = nil, nil, nil, nil
 end
 
-function Camera:attach()
+function Camera:set_scene_layers(layers)
+    self.scene_layers = layers
+end
+
+local function perfect_pixel_attach(self)
     self.last_canvas = love_get_canvas()
     self.last_blend_mode = love_get_blend_mode()
     self.last_scissor = { love.graphics.getScissor() }
@@ -1312,11 +1314,11 @@ function Camera:attach()
         -self.x + ((self.shaking_in_x and self.shake_offset_x or 0)),
         -self.y + ((self.shaking_in_y and self.shake_offset_y or 0))
     )
-    love_translate(self.viewport_x * 1 / self.scale, self.viewport_y * 1 / self.scale)
+    -- love_translate(self.viewport_x, self.viewport_y)
     r = nil
 end
 
-function Camera:detach()
+local function perfect_pixel_detach(self)
     local r
     r = self.is_showing_grid and show_grid(self)
     r = self.show_world_boundary and draw_world_boundary(self)
@@ -1336,6 +1338,7 @@ function Camera:detach()
     love_set_color(1, 1, 1, 1)
     love_set_blend_mode("alpha", "premultiplied")
     love_push()
+    love_translate(self.viewport_x * self.desired_scale, self.viewport_y * self.desired_scale)
     love_scale(self.scale, self.scale)
     love_draw(self.canvas, 0, 0, 0, self.desired_scale, self.desired_scale)
     love_pop()
@@ -1355,11 +1358,19 @@ function Camera:detach()
 
     love_set_blend_mode(self.last_blend_mode)
     love_set_canvas(self.last_canvas)
-    love.graphics.setScissor(unpack(self.last_scissor))
+    love_set_scissor(unpack(self.last_scissor))
 
     self.last_blend_mode, self.last_canvas, self.last_scissor = nil, nil, nil
 
     r = nil
+end
+
+function Camera:attach()
+    perfect_pixel_attach(self)
+end
+
+function Camera:detach()
+    perfect_pixel_detach(self)
 end
 
 function Camera:get_state()

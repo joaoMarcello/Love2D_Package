@@ -62,7 +62,7 @@ local Scene = {}
 
 ---@param self JM.Scene
 ---@return JM.Scene
-function Scene:new(canvas_w, canvas_h, x, y, w, h)
+function Scene:new(x, y, w, h, canvas_w, canvas_h)
     local obj = {}
     setmetatable(obj, self)
     self.__index = self
@@ -73,22 +73,20 @@ function Scene:new(canvas_w, canvas_h, x, y, w, h)
 end
 
 function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
-    local Camera
-    ---@type JM.Camera.Camera
-    Camera = require(string.gsub(path, "jm_scene", "jm_camera"))
 
-    assert(Camera, [[
-        >> Error: Camera module not found. Make sure the file 'jm_camera.lua' is in same directory.
-        ]])
+    -- the dispositive's screen dimensions
+    self.dispositive_w = love.graphics.getWidth()
+    self.dispositive_h = love.graphics.getHeight()
 
-    -- the scene offset (normally is 0, 0)
+    -- the scene viewport coordinates
     self.x = x or 0
     self.y = y or 0
 
-    -- the dispositive's screen size
-    self.w = w or love.graphics.getWidth()
-    self.h = h or love.graphics.getHeight()
+    -- the scene viewport dimensions
+    self.w = w or self.dispositive_w
+    self.h = h or self.dispositive_h
 
+    -- the game's screen dimensions
     self.screen_w = canvas_w or self.w
     self.screen_h = canvas_h or self.h
 
@@ -102,7 +100,7 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
 
     self.max_zoom = 3
 
-    self.camera = Camera:new({
+    local config = {
         -- camera's viewport in desired game screen coordinates
         x = self.screen_w * 0,
         y = self.y,
@@ -117,9 +115,9 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
             bottom = self.world_bottom
         },
 
-        --canvas size
-        canvas_width = self.w,
-        canvas_height = self.h,
+        -- Device screen's dimensions
+        device_width = self.dispositive_w,
+        device_height = self.dispositive_h,
 
         desired_canvas_w = self.screen_w,
         desired_canvas_h = self.screen_h,
@@ -139,26 +137,40 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
         grid_tile_size = self.tile_size_x * 2,
 
         show_world_bounds = true
-    })
+    }
 
     self.cameras_list = {}
     self.amount_cameras = 0
 
-    self:add_camera(self.camera, "main")
+    self.camera = self:add_camera(config, "main")
 
-    -- self.canvas = love.graphics.newCanvas(self.w, self.h)
-    -- self.canvas:setFilter("nearest", "nearest")
-
-    self:implements({ first_time = true })
-    Camera = nil
+    self:implements({})
 end
 
----@param camera JM.Camera.Camera
+---@param config table
 ---@param name string
-function Scene:add_camera(camera, name)
+function Scene:add_camera(config, name)
     assert(name, "\n>> Error: You not inform the Camera's name.")
     assert(not self.cameras_list[name], "\n>> Error: A camera with the name '" .. tostring(name) .. "' already exists!")
     assert(not self.cameras_list[self.amount_cameras + 1])
+
+    local Camera
+    ---@type JM.Camera.Camera
+    Camera = require(string.gsub(path, "jm_scene", "jm_camera"))
+
+    assert(Camera, [[
+        >> Error: Camera module not found. Make sure the file 'jm_camera.lua' is in same directory.
+        ]])
+
+    if self.camera then
+        config.device_width = self.camera.device_width
+        config.device_height = self.camera.device_height
+        config.desired_canvas_w = self.screen_w
+        config.desired_canvas_h = self.screen_h
+    end
+
+    local camera = Camera:new(config)
+
 
     self.amount_cameras = self.amount_cameras + 1
 
@@ -168,6 +180,9 @@ function Scene:add_camera(camera, name)
     self.cameras_list[self.amount_cameras] = camera
 
     self.cameras_list[name] = camera
+
+    Camera = nil
+    return camera
 end
 
 function Scene:get_color()
@@ -201,7 +216,7 @@ end
 
 ---@return JM.Camera.Camera
 function Scene:get_camera(index)
-    return self.cameras_list[index] or self.camera
+    return self.cameras_list[index] --or self.camera
 end
 
 ---@return JM.Camera.Camera
@@ -209,8 +224,10 @@ function Scene:main_camera()
     return self.camera
 end
 
+---@alias JM.Scene.Layer {draw:function, factor:number, x:number, y:number, angle:number, scale:number}
+
 ---
----@param param {load:function, init:function, update:function, draw:function, unload:function, keypressed:function, keyreleased:function, first_time:boolean}
+---@param param {load:function, init:function, update:function, draw:function, unload:function, keypressed:function, keyreleased:function, layers:table}
 function Scene:implements(param)
     assert(param, "\n>> Error: No parameter passed to method.")
     assert(type(param) == "table", "\n>> Error: The method expected a table. Was given " .. type(param) .. ".")
@@ -253,6 +270,13 @@ function Scene:implements(param)
         -- love.graphics.setBlendMode("alpha")
         -- love.graphics.setColor(1, 1, 1, 1)
 
+        love.graphics.setScissor(
+            self.x,
+            self.y,
+            self.w - self.x,
+            self.h - self.y
+        )
+
         if self:get_color() then
             clear_screen(self:get_color())
         else
@@ -267,11 +291,25 @@ function Scene:implements(param)
             camera = self.cameras_list[i]
 
             camera:attach()
-            r = param.draw and param.draw()
+
+            if param.layers then
+                for i = 1, #(param.layers), 1 do
+                    local layer
+                    ---@type JM.Scene.Layer
+                    layer = param.layers[i]
+
+                    r = layer.draw and layer.draw()
+                end
+            else
+                r = param.draw and param.draw()
+            end
+
             camera:detach()
 
             camera = nil
         end
+
+        love.graphics.setScissor()
 
         -- love.graphics.setScissor(
         --     self.x,
