@@ -42,11 +42,17 @@ local function chase_target(self, dt, chase_x_axis, chase_y_axis)
 
     if self.target then
 
-        if chase_x_axis and self.x ~= self.target.x then
+        if chase_x_axis
+            and (self.x ~= self.target.x or self.infinity_chase_x)
+        then
             if self.constant_speed_x then
                 self.follow_speed_x = self.constant_speed_x
             else
                 self.follow_speed_x = self.follow_speed_x + self.acc_x * dt
+
+                if self.max_speed_x and self.follow_speed_x > self.max_speed_x then
+                    self.follow_speed_x = self.max_speed_x
+                end
             end
 
             local cos_r = cos(self.target.angle_x)
@@ -64,11 +70,34 @@ local function chase_target(self, dt, chase_x_axis, chase_y_axis)
 
             self:move(abs(self.target.range_x) * cos_r * self.delay_x)
 
-            if (cos_r > 0 and self.x > self.target.x)
-                or (cos_r < 0 and self.x < self.target.x)
+            if (cos_r > 0 and self.x >= self.target.x)
+                or (cos_r < 0 and self.x <= self.target.x)
             then
-                self:set_position(self.target.x)
-                self.follow_speed_x = sqrt(2 * self.acc_x * self.default_initial_speed_x)
+
+                if not self.infinity_chase_x then
+                    self:set_position(self.target.x)
+                    self.follow_speed_x = sqrt(2 * self.acc_x * self.default_initial_speed_x)
+                end
+
+            end
+
+            if self.infinity_chase_x then
+                if self.follow_speed_x < 0
+                    and self.x <= self.target.x
+                    and cos_r < 0
+                then
+                    self.follow_speed_x = sqrt(2 * self.acc_x * 32 * 5)
+                    self:set_position(self.target.x + 1)
+
+                else
+                    if self.follow_speed_x > 0
+                        and self.x >= self.target.x
+                        and cos_r > 0
+                    then
+                        self.follow_speed_x = -sqrt(2 * self.acc_x * 32 * 5)
+                        self:set_position(self.target.x - 1)
+                    end
+                end
             end
 
             reach_objective_x = self.x == self.target.x
@@ -279,7 +308,7 @@ local function draw_grid(self)
     local qx = (self.bounds_right - self.bounds_left) / tile * jump
     local qy = (self.bounds_bottom - self.bounds_top) / tile * jump
 
-    love_set_color(1, 1, 1, 0.6)
+    love_set_color(1, 1, 1, 0.3)
     for i = 0, qx - 1, jump do
         love_line(
             self.tile_size * (i),
@@ -335,8 +364,16 @@ end
 
 ---@param self JM.Camera.Camera
 local function show_grid(self)
+    local x, y, w, h = love_get_scissor()
     local mode
     mode = love_get_blend_mode()
+
+    -- love_set_scissor(
+    --     self.viewport_x * self.desired_scale - self.viewport_w,
+    --     self.viewport_y,
+    --     self.viewport_w,
+    --     self.viewport_h
+    -- )
 
     love_set_color(1, 1, 1, 1)
     love_set_blend_mode("alpha", "premultiplied")
@@ -344,6 +381,7 @@ local function show_grid(self)
     love_set_blend_mode(mode)
 
     mode = nil
+    love_set_scissor(x, y, w, h)
 end
 
 ---@param self JM.Camera.Camera
@@ -723,11 +761,15 @@ function Camera:__constructor__(
     self.bounds_bottom = bounds and bounds.bottom or self.viewport_h / self.scale / self.desired_scale
     self:set_bounds()
 
+    self.acc_x = self.tile_size * 20
+    self.acc_y = self.acc_x
+
     self.follow_speed_x = (self.tile_size * 9)
     self.follow_speed_y = (self.tile_size * 8)
 
-    self.acc_x = self.tile_size * 20
-    self.acc_y = self.acc_x
+    self.max_speed_x = sqrt(2 * self.acc_x * self.tile_size * 5)
+    self.max_speed_y = sqrt(2 * self.acc_y * self.tile_size * 5)
+
 
     -- when delay equals 1, there's no delay
     self.delay_x = 1
@@ -760,6 +802,8 @@ function Camera:__constructor__(
     self.dont_use_deadzone = false
     self.default_initial_speed_x = self.tile_size * 1 -- (in pixels per second)
     self.default_initial_speed_y = self.default_initial_speed_x
+    self.infinity_chase_x = false
+    self.infinity_chase_y = true
 
     self.type = type_ or CAMERA_TYPES.SuperMarioWorld
     self:set_type(self.type)
@@ -782,7 +826,9 @@ function Camera:__constructor__(
     -- self:shake_in_x(nil, self.tile_size * 2 / 4, nil, 7.587)
     -- self:shake_in_y(nil, self.tile_size * 2.34 / 4, nil, 10.7564)
 
+    self.min_zoom = 0.5
     self.max_zoom = 1.5
+
     self.canvas = love.graphics.newCanvas(
         self.viewport_w,
         self.viewport_h
@@ -1304,14 +1350,12 @@ local function perfect_pixel_attach(self)
 
     love_push()
     local s = 1 --(self.scale < 0 and 1) or 2
-
     love_scale(s, s)
     love_translate(
         -self.x + ((self.shaking_in_x and self.shake_offset_x or 0)),
         -self.y + ((self.shaking_in_y and self.shake_offset_y or 0))
     )
-    -- love_translate(0, (fy)
-    --     * (-self.y) * (self.scale))
+
     r = nil
 end
 

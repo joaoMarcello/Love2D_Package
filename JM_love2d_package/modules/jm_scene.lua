@@ -15,7 +15,7 @@ local set_color_draw = love.graphics.setColor
 local love_draw = love.graphics.draw
 local set_shader = love.graphics.setShader
 
----@alias JM.Scene.Layer {draw:function, factor:number, factor_y:number, name:string, fixed_on_ground:boolean, fixed_on_ceil:boolean, position: table, top:number, bottom:number}
+---@alias JM.Scene.Layer {draw:function, factor_x:number, factor_y:number, name:string, fixed_on_ground:boolean, fixed_on_ceil:boolean, top:number, bottom:number}
 
 local function round(value)
     local absolute = math.abs(value)
@@ -88,8 +88,8 @@ end
 function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
 
     -- the dispositive's screen dimensions
-    self.dispositive_w = love.graphics.getWidth()
-    self.dispositive_h = love.graphics.getHeight()
+    self.dispositive_w = love.graphics.getWidth() - 153
+    self.dispositive_h = love.graphics.getHeight() - 137
 
     -- the scene viewport coordinates
     self.x = x or 0
@@ -181,8 +181,16 @@ function Scene:add_camera(config, name)
     if self.camera then
         config.device_width = self.camera.device_width
         config.device_height = self.camera.device_height
+
         config.desired_canvas_w = self.screen_w
         config.desired_canvas_h = self.screen_h
+
+        config.bounds = {
+            left = self.camera.bounds_left,
+            right = self.camera.bounds_right,
+            top = self.camera.bounds_top,
+            bottom = self.camera.bounds_bottom
+        }
     end
 
     local camera = Camera:new(config)
@@ -243,6 +251,7 @@ end
 
 ---
 ---@param param {load:function, init:function, update:function, draw:function, unload:function, keypressed:function, keyreleased:function, layers:table}
+---
 function Scene:implements(param)
     assert(param, "\n>> Error: No parameter passed to method.")
     assert(type(param) == "table", "\n>> Error: The method expected a table. Was given " .. type(param) .. ".")
@@ -288,8 +297,7 @@ function Scene:implements(param)
             layer.x        = layer.x or 0
             layer.y        = layer.y or 0
             layer.factor_y = layer.factor_y or 0
-            layer.factor   = layer.factor or 0
-            layer.position = {}
+            layer.factor_x = layer.factor_x or 0
         end
     end
 
@@ -315,50 +323,41 @@ function Scene:implements(param)
 
         for i = 1, self.amount_cameras, 1 do
             local camera, r
+
             ---@type JM.Camera.Camera
             camera = self.cameras_list[i]
 
             love.graphics.setColor(camera:get_color())
-            love.graphics.rectangle("fill", camera.viewport_x * camera.desired_scale,
+            love.graphics.rectangle("fill",
+                camera.viewport_x * camera.desired_scale,
                 camera.viewport_y * camera.desired_scale,
                 camera.viewport_w,
-                camera.viewport_h)
+                camera.viewport_h
+            )
 
             if param.layers then
                 for i = 1, self.n_layers, 1 do
                     local layer
+
                     ---@type JM.Scene.Layer
                     layer = param.layers[i]
-
-                    layer.position[i] = {} or layer.position[i]
-                    layer.position[i].x = (not layer.position[i].x and 0)
-                        or layer.position[i].x
-                    layer.position[i].y = (not layer.position[i].y and 0)
-                        or layer.position[i].y
 
                     camera:attach()
 
                     love.graphics.push()
 
-                    layer.position[i].x = -camera.x * layer.factor
-                    layer.position[i].y = -camera.y * layer.factor
+                    local px = -camera.x * layer.factor_x * camera.scale
+                    local py = -camera.y * layer.factor_y * camera.scale
 
-                    local px = -camera.x * layer.factor
-                    local py = -camera.y * layer.factor_y
                     if layer.fixed_on_ground and layer.top then
-                        if (py) < layer.top
-                        then
-                            py = 0
-                        end
+                        if py < layer.top then py = 0 end
                     end
 
                     if layer.fixed_on_ceil and layer.bottom then
-                        if py > layer.bottom then
-                            py = 0
-                        end
+                        if py > layer.bottom then py = 0 end
                     end
 
-                    love.graphics.translate(px, py)
+                    love.graphics.translate(round(px), round(py))
 
                     r = layer.draw and layer.draw(camera)
 

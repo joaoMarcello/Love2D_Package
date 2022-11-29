@@ -42,13 +42,13 @@ Game:add_camera({
     w = Game.screen_w * 0.25,
     h = Game.screen_h * 0.5,
 
-    -- world bounds
-    bounds = {
-        left = Game.world_left,
-        right = Game.world_right,
-        top = Game.world_top,
-        bottom = Game.world_bottom
-    },
+    -- -- world bounds
+    -- bounds = {
+    --     left = Game.world_left,
+    --     right = Game.world_right,
+    --     top = Game.world_top,
+    --     bottom = Game.world_bottom
+    -- },
 
     tile_size = 32,
 
@@ -62,18 +62,18 @@ Game:add_camera({
 
 Game:add_camera({
     -- camera's viewport
-    x = Game.screen_w * 0,
+    x = Game.screen_w * 0.2,
     y = 0,
     w = Game.screen_w * 0.25,
     h = Game.screen_h * 0.5,
 
-    -- world bounds
-    bounds = {
-        left = Game.world_left,
-        right = Game.world_right,
-        top = Game.world_top,
-        bottom = Game.world_bottom
-    },
+    -- -- world bounds
+    -- bounds = {
+    --     left = Game.world_left,
+    --     right = Game.world_right,
+    --     top = Game.world_top,
+    --     bottom = Game.world_bottom
+    -- },
 
     tile_size = 32,
 
@@ -638,7 +638,7 @@ Game:implements({
                 end
             end,
 
-            factor = 0.2 / 5,
+            factor_x = 0.2 / 5,
             factor_y = 0.5,
             -- fixed_on_ground = true,
             fixed_on_ceil = true,
@@ -655,7 +655,7 @@ Game:implements({
                 end
             end,
 
-            factor = 0.5,
+            factor_x = 0.5,
             factor_y = 0.5,
             -- fixed_on_ceil = true,
             fixed_on_ground = true,
@@ -753,7 +753,7 @@ Game:implements({
 
                 love.graphics.setShader()
             end,
-            factor = 0,
+            factor_x = 0,
             factor_y = 0,
             name = "main"
         }
