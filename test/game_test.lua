@@ -35,56 +35,56 @@ end
 
 local Game = Screen:new(0, 0, nil, nil, 32 * 20, 32 * 12)
 
-Game:add_camera({
-    -- camera's viewport
-    x = Game.screen_w * 0.75,
-    y = Game.screen_h * 0.5,
-    w = Game.screen_w * 0.25,
-    h = Game.screen_h * 0.5,
+-- Game:add_camera({
+--     -- camera's viewport
+--     x = Game.screen_w * 0.75,
+--     y = Game.screen_h * 0.5,
+--     w = Game.screen_w * 0.25,
+--     h = Game.screen_h * 0.5,
 
-    -- -- world bounds
-    -- bounds = {
-    --     left = Game.world_left,
-    --     right = Game.world_right,
-    --     top = Game.world_top,
-    --     bottom = Game.world_bottom
-    -- },
+--     -- -- world bounds
+--     -- bounds = {
+--     --     left = Game.world_left,
+--     --     right = Game.world_right,
+--     --     top = Game.world_top,
+--     --     bottom = Game.world_bottom
+--     -- },
 
-    tile_size = 32,
+--     tile_size = 32,
 
-    color = { 153 / 255, 217 / 255, 234 / 255, 1 },
-    scale = 0.7,
+--     color = { 153 / 255, 217 / 255, 234 / 255, 1 },
+--     scale = 0.7,
 
-    type = "metroid",
-    show_grid = true,
-    show_world_bounds = true
-}, "blue")
+--     type = "metroid",
+--     show_grid = true,
+--     show_world_bounds = true
+-- }, "blue")
 
-Game:add_camera({
-    -- camera's viewport
-    x = Game.screen_w * 0.2,
-    y = 0,
-    w = Game.screen_w * 0.25,
-    h = Game.screen_h * 0.5,
+-- Game:add_camera({
+--     -- camera's viewport
+--     x = Game.screen_w * 0.2,
+--     y = 0,
+--     w = Game.screen_w * 0.25,
+--     h = Game.screen_h * 0.5,
 
-    -- -- world bounds
-    -- bounds = {
-    --     left = Game.world_left,
-    --     right = Game.world_right,
-    --     top = Game.world_top,
-    --     bottom = Game.world_bottom
-    -- },
+--     -- -- world bounds
+--     -- bounds = {
+--     --     left = Game.world_left,
+--     --     right = Game.world_right,
+--     --     top = Game.world_top,
+--     --     bottom = Game.world_bottom
+--     -- },
 
-    tile_size = 32,
+--     tile_size = 32,
 
-    color = { 255 / 255, 174 / 255, 201 / 255, 1 },
-    scale = 1.1,
+--     color = { 255 / 255, 174 / 255, 201 / 255, 1 },
+--     scale = 1.1,
 
-    type = "metroid",
-    show_grid = true,
-    grid_tile_size = 32 * 4,
-    show_world_bounds = true
-}, "pink")
+--     type = "metroid",
+--     show_grid = true,
+--     grid_tile_size = 32 * 4,
+--     show_world_bounds = true
+-- }, "pink")
 
 -- local temp
 -- temp = Game:get_camera("blue")
@@ -156,7 +156,7 @@ monica_idle_blink:set_custom_action(
     { idle_normal = monica_idle_normal }
 )
 
-local shadercode, shadercode2, pink_to_none, myShader, graph_set_color, graph_rect, index_to_string, tile, my_shader
+local shadercode, shadercode2, pink_to_none, myShader, graph_set_color, graph_rect, index_to_string, tile, darken_shader
 
 do
     shadercode = [[
@@ -176,10 +176,10 @@ do
     vec4 effect( vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords )
 {
     vec4 pix = Texel(texture, texture_coords);
-    if (pix.r >= 0.85 && pix.g <= 0.1 && pix.b >= 0.85) {
+    if (pix.r == 1 && pix.g == 0 && pix.b == 1) {
         return vec4(0, 0, 0, 0);
     }
-    return vec4(pix[0], pix[1], pix[2], pix[3]);
+    return vec4(pix[0]*1.2, pix[1]*1.2, pix[2]*1.2, pix[3]);
 
     /*if (pix.r == 1 && pix.g == 0 && pix.b == 1){
         return vec4(1, 0, 0, 1);
@@ -234,15 +234,11 @@ do
     vec4 effect( vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords )
 {
     vec4 pix = Texel(texture, texture_coords);
-    if ( (pix.r == 1 && pix.g == 0 && pix.b == 1) || (pix.r == 1 && pix.g == 1 && pix.b == 0)){
-        return vec4(0, 0, 0, 0);
-    }
-    else{
-        return pix;//return vec4(pix[0]*0.3, pix[1]*0.3, pix[2]*0.3, 1);
-    }
+    
+    return vec4(pix[0]*0.3, pix[1]*0.3, pix[2]*0.3, pix[3]);
 }
   ]]
-    my_shader = love.graphics.newShader(shadercode)
+    darken_shader = love.graphics.newShader(shadercode)
 end
 --=========================================================================
 
@@ -271,7 +267,6 @@ local function check_collision(x, y, w, h)
 end
 
 local ship
-local mask = love.graphics.newImage("/data/circle_mask.png")
 --==========================================================================
 Game:implements({
     load = function()
@@ -405,11 +400,17 @@ Game:implements({
                 return self.x, self.y, self.w, self.h
             end
         }
-        rec.y = 0
+        rec.y = 32 * 6
 
         Game.camera:jump_to(rec.x, rec.y)
-        Game:get_camera("blue"):jump_to(ship:get_cx(), ship:get_cy())
-        Game:get_camera("pink"):jump_to(rec:get_cx(), rec:get_cy())
+
+        if Game:get_camera("blue") then
+            Game:get_camera("blue"):jump_to(ship:get_cx(), ship:get_cy())
+        end
+
+        if Game:get_camera("pink") then
+            Game:get_camera("pink"):jump_to(rec:get_cx(), rec:get_cy())
+        end
         -- Game.camera2:set_position(rec:get_cx(), rec:get_cy())
     end,
 
@@ -551,16 +552,16 @@ Game:implements({
             draw = function(camera)
                 love.graphics.setColor(0.2, 0, 0.1, 1)
                 for i = 1, 10 * 20, 10 do
-                    love.graphics.rectangle("fill", 10 * (i), 32, 56, 32 * 8)
+                    love.graphics.rectangle("fill", 10 * (i), 32, 56, 32 * 9)
                 end
             end,
 
             factor_x = 0.2 / 5,
-            factor_y = 0.5,
-            -- fixed_on_ground = true,
-            fixed_on_ceil = true,
-            bottom = 32 * 8,
-            top = 32,
+            factor_y = 0.1,
+            fixed_on_ground = true,
+            -- fixed_on_ceil = true,
+            bottom = 32 * 9,
+            top = 0,
             name = "violet rect"
         },
 
@@ -568,7 +569,7 @@ Game:implements({
             draw = function()
                 love.graphics.setColor(0, 0.4, 0.1, 1)
                 for i = 1, 50, 4 do
-                    love.graphics.rectangle("fill", 32 * (i), 0, 32, 32 * 9)
+                    love.graphics.rectangle("fill", 32 * (i), 0, 32, 32 * 10)
                 end
             end,
 
@@ -577,7 +578,7 @@ Game:implements({
 
             -- fixed_on_ceil = true,
             fixed_on_ground = true,
-            bottom = 32 * 9,
+            bottom = 32 * 10,
             top = 0,
             name = "green rect"
         },
@@ -670,6 +671,7 @@ Game:implements({
             factor_x = 0,
             factor_y = 0,
             shader = pink_to_none,
+            shader2 = darken_shader,
 
             name = "main background"
         },
@@ -683,7 +685,7 @@ Game:implements({
     }
 })
 
-Game:set_shader(my_shader)
+Game:set_shader(darken_shader)
 
 Game:set_background_draw(
     function()

@@ -88,8 +88,8 @@ end
 function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
 
     -- the dispositive's screen dimensions
-    self.dispositive_w = love.graphics.getWidth() - 153
-    self.dispositive_h = love.graphics.getHeight() - 137
+    self.dispositive_w = love.graphics.getWidth()
+    self.dispositive_h = love.graphics.getHeight()
 
     -- the scene viewport coordinates
     self.x = x or 0

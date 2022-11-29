@@ -41,6 +41,7 @@ local function chase_target(self, dt, chase_x_axis, chase_y_axis)
     local reach_objective_x, reach_objective_y = not chase_x_axis, not chase_y_axis
 
     if self.target then
+        self.delay_x = 0.05
 
         if chase_x_axis
             and (self.x ~= self.target.x or self.infinity_chase_x)
@@ -82,24 +83,25 @@ local function chase_target(self, dt, chase_x_axis, chase_y_axis)
             end
 
             if self.infinity_chase_x then
-                if self.follow_speed_x < 0
-                    and self.x < self.target.x
-                    and not self.touch_target
-                then
-                    self.touch_target = true
-                    self.follow_speed_x = sqrt(2 * self.acc_x * 32 * 5)
-                else
-                    if self.follow_speed_x > 0
-                        and self.x > self.target.x
-                        and not self.touch_target
-                    then
-                        self.touch_target = true
-                        self.follow_speed_x = -sqrt(2 * self.acc_x * 32 * 5)
 
-                    else
-                        self.touch_target = false
-                    end
-                end
+                -- if self.follow_speed_x < 0
+                --     and self.x < self.target.x
+                --     and not self.touch_target
+                -- then
+                --     self.touch_target = true
+                --     self.follow_speed_x = sqrt(2 * self.acc_x * 32 * 5)
+                -- else
+                --     if self.follow_speed_x > 0
+                --         and self.x > self.target.x
+                --         and not self.touch_target
+                --     then
+                --         self.touch_target = true
+                --         self.follow_speed_x = -sqrt(2 * self.acc_x * 32 * 5)
+
+                --     else
+                --         self.touch_target = false
+                --     end
+                -- end
             end
 
             reach_objective_x = self.x == self.target.x
@@ -825,8 +827,8 @@ function Camera:__constructor__(
     self.border_color = border_color or { 1, 0, 0, 1 }
 
 
-    -- self:shake_in_x(nil, self.tile_size * 2 / 4, nil, 7.587)
-    -- self:shake_in_y(nil, self.tile_size * 2.34 / 4, nil, 10.7564)
+    self:shake_in_x(nil, self.tile_size * 2 / 4, nil, 7.587)
+    self:shake_in_y(nil, self.tile_size * 2.34 / 4, nil, 10.7564)
 
     self.min_zoom = 0.5
     self.max_zoom = 1.5
