@@ -15,7 +15,7 @@ local set_color_draw = love.graphics.setColor
 local love_draw = love.graphics.draw
 local set_shader = love.graphics.setShader
 
----@alias JM.Scene.Layer {draw:function, factor_x:number, factor_y:number, name:string, fixed_on_ground:boolean, fixed_on_ceil:boolean, top:number, bottom:number}
+---@alias JM.Scene.Layer {draw:function, update:function, factor_x:number, factor_y:number, name:string, fixed_on_ground:boolean, fixed_on_ceil:boolean, top:number, bottom:number, shader:love.Shader}
 
 local function round(value)
     local absolute = math.abs(value)
@@ -276,7 +276,30 @@ function Scene:implements(param)
         self[callback] = generic(param[callback])
     end
 
+    if param.layers then
+        self.n_layers = #(param.layers)
+
+        for i = 1, self.n_layers, 1 do
+            local layer    = param.layers[i]
+            layer.x        = layer.x or 0
+            layer.y        = layer.y or 0
+            layer.factor_y = layer.factor_y or 0
+            layer.factor_x = layer.factor_x or 0
+        end
+    end
+
     self.update = function(self, dt)
+
+        if param.layers then
+            for i = 1, self.n_layers, 1 do
+                local layer
+
+                ---@type JM.Scene.Layer
+                layer = param.layers[i]
+
+                if layer.update then layer.update(dt) end
+            end
+        end
 
         local r = param.update and param.update(dt)
 
@@ -289,17 +312,7 @@ function Scene:implements(param)
         end
     end
 
-    if param.layers then
-        self.n_layers = #(param.layers)
 
-        for i = 1, self.n_layers, 1 do
-            local layer    = param.layers[i]
-            layer.x        = layer.x or 0
-            layer.y        = layer.y or 0
-            layer.factor_y = layer.factor_y or 0
-            layer.factor_x = layer.factor_x or 0
-        end
-    end
 
     self.draw = function(self)
         -- love.graphics.setCanvas(self.canvas)
@@ -342,7 +355,7 @@ function Scene:implements(param)
                     ---@type JM.Scene.Layer
                     layer = param.layers[i]
 
-                    camera:attach()
+                    camera:attach(layer.shader)
 
                     love.graphics.push()
 
@@ -363,7 +376,7 @@ function Scene:implements(param)
 
                     love.graphics.pop()
 
-                    camera:detach()
+                    camera:detach(layer.shader)
                 end
             end
 

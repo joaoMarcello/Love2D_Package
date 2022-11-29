@@ -83,19 +83,21 @@ local function chase_target(self, dt, chase_x_axis, chase_y_axis)
 
             if self.infinity_chase_x then
                 if self.follow_speed_x < 0
-                    and self.x <= self.target.x
-                    and cos_r < 0
+                    and self.x < self.target.x
+                    and not self.touch_target
                 then
+                    self.touch_target = true
                     self.follow_speed_x = sqrt(2 * self.acc_x * 32 * 5)
-                    self:set_position(self.target.x + 1)
-
                 else
                     if self.follow_speed_x > 0
-                        and self.x >= self.target.x
-                        and cos_r > 0
+                        and self.x > self.target.x
+                        and not self.touch_target
                     then
+                        self.touch_target = true
                         self.follow_speed_x = -sqrt(2 * self.acc_x * 32 * 5)
-                        self:set_position(self.target.x - 1)
+
+                    else
+                        self.touch_target = false
                     end
                 end
             end
@@ -803,7 +805,7 @@ function Camera:__constructor__(
     self.default_initial_speed_x = self.tile_size * 1 -- (in pixels per second)
     self.default_initial_speed_y = self.default_initial_speed_x
     self.infinity_chase_x = false
-    self.infinity_chase_y = true
+    self.infinity_chase_y = false
 
     self.type = type_ or CAMERA_TYPES.SuperMarioWorld
     self:set_type(self.type)
@@ -830,10 +832,10 @@ function Camera:__constructor__(
     self.max_zoom = 1.5
 
     self.canvas = love.graphics.newCanvas(
-        self.viewport_w,
+        self.viewport_w * 1.5,
         self.viewport_h
     )
-    self.canvas:setFilter("linear", "nearest")
+    self.canvas:setFilter("nearest", "nearest")
 
     self.zoom_rad = 0
 end
@@ -1334,7 +1336,7 @@ local function debbug(self)
     r, g, b, a = nil, nil, nil, nil
 end
 
-local function perfect_pixel_attach(self)
+local function perfect_pixel_attach(self, shader)
     self.last_canvas = love_get_canvas()
     self.last_blend_mode = love_get_blend_mode()
     self.last_scissor = { love.graphics.getScissor() }
@@ -1350,7 +1352,7 @@ local function perfect_pixel_attach(self)
 
     love_push()
     local s = 1 --(self.scale < 0 and 1) or 2
-    love_scale(s, s)
+    -- love_scale(s, s)
     love_translate(
         -self.x + ((self.shaking_in_x and self.shake_offset_x or 0)),
         -self.y + ((self.shaking_in_y and self.shake_offset_y or 0))
@@ -1359,7 +1361,7 @@ local function perfect_pixel_attach(self)
     r = nil
 end
 
-local function perfect_pixel_detach(self)
+local function perfect_pixel_detach(self, shader)
     local r
     r = self.is_showing_grid and show_grid(self)
     r = self.show_world_boundary and draw_world_boundary(self)
@@ -1368,12 +1370,15 @@ local function perfect_pixel_detach(self)
 
     love_set_canvas(self.last_canvas)
 
+    love.graphics.setShader(shader)
+
     love_set_scissor(
         self.viewport_x * self.desired_scale,
         self.viewport_y * self.desired_scale,
         self.viewport_w,
         self.viewport_h
     )
+
 
     local s = 1 --(self.scale < 0 and 1) or 2
     love_set_color(1, 1, 1, 1)
@@ -1387,6 +1392,7 @@ local function perfect_pixel_detach(self)
     love_draw(self.canvas, 0, 0, 0, self.desired_scale, self.desired_scale)
     love_pop()
 
+    love.graphics.setShader()
 
     love_push()
     love_scale(self.desired_scale, self.desired_scale)
@@ -1409,12 +1415,12 @@ local function perfect_pixel_detach(self)
     r = nil
 end
 
-function Camera:attach()
-    perfect_pixel_attach(self)
+function Camera:attach(shader)
+    perfect_pixel_attach(self, shader)
 end
 
-function Camera:detach()
-    perfect_pixel_detach(self)
+function Camera:detach(shader)
+    perfect_pixel_detach(self, shader)
 end
 
 function Camera:get_state()
