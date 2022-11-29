@@ -355,7 +355,9 @@ function Scene:implements(param)
                     ---@type JM.Scene.Layer
                     layer = param.layers[i]
 
-                    camera:attach(layer.shader)
+                    camera:attach()
+
+                    camera:set_shader(layer.shader)
 
                     love.graphics.push()
 
@@ -376,7 +378,10 @@ function Scene:implements(param)
 
                     love.graphics.pop()
 
-                    camera:detach(layer.shader)
+                    camera:detach()
+
+                    camera:set_shader()
+
                 end
             end
 

@@ -1336,7 +1336,7 @@ local function debbug(self)
     r, g, b, a = nil, nil, nil, nil
 end
 
-local function perfect_pixel_attach(self, shader)
+local function perfect_pixel_attach(self)
     self.last_canvas = love_get_canvas()
     self.last_blend_mode = love_get_blend_mode()
     self.last_scissor = { love.graphics.getScissor() }
@@ -1361,7 +1361,11 @@ local function perfect_pixel_attach(self, shader)
     r = nil
 end
 
-local function perfect_pixel_detach(self, shader)
+function Camera:set_shader(shader)
+    self.shader = shader
+end
+
+local function perfect_pixel_detach(self)
     local r
     r = self.is_showing_grid and show_grid(self)
     r = self.show_world_boundary and draw_world_boundary(self)
@@ -1370,7 +1374,7 @@ local function perfect_pixel_detach(self, shader)
 
     love_set_canvas(self.last_canvas)
 
-    love.graphics.setShader(shader)
+    love.graphics.setShader(self.shader)
 
     love_set_scissor(
         self.viewport_x * self.desired_scale,
@@ -1415,12 +1419,12 @@ local function perfect_pixel_detach(self, shader)
     r = nil
 end
 
-function Camera:attach(shader)
-    perfect_pixel_attach(self, shader)
+function Camera:attach()
+    perfect_pixel_attach(self)
 end
 
-function Camera:detach(shader)
-    perfect_pixel_detach(self, shader)
+function Camera:detach()
+    perfect_pixel_detach(self)
 end
 
 function Camera:get_state()

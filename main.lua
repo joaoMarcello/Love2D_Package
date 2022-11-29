@@ -22,6 +22,7 @@ function love.update(dt)
     km = collectgarbage("count") / 1024.0
 
     if love.keyboard.isDown("q") or love.keyboard.isDown("escape") then
+        collectgarbage("collect")
         love.event.quit()
     end
 
