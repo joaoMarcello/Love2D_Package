@@ -41,8 +41,6 @@ local function chase_target(self, dt, chase_x_axis, chase_y_axis)
     local reach_objective_x, reach_objective_y = not chase_x_axis, not chase_y_axis
 
     if self.target then
-        self.delay_x = 0.05
-
         if chase_x_axis
             and (self.x ~= self.target.x or self.infinity_chase_x)
         then
@@ -75,34 +73,32 @@ local function chase_target(self, dt, chase_x_axis, chase_y_axis)
                 or (cos_r < 0 and self.x <= self.target.x)
             then
 
-                if not self.infinity_chase_x then
-                    self:set_position(self.target.x)
-                    self.follow_speed_x = sqrt(2 * self.acc_x * self.default_initial_speed_x)
-                end
+                self:set_position(self.target.x)
+                self.follow_speed_x = sqrt(2 * self.acc_x * self.default_initial_speed_x)
 
             end
 
-            if self.infinity_chase_x then
+            -- if self.infinity_chase_x then
 
-                -- if self.follow_speed_x < 0
-                --     and self.x < self.target.x
-                --     and not self.touch_target
-                -- then
-                --     self.touch_target = true
-                --     self.follow_speed_x = sqrt(2 * self.acc_x * 32 * 5)
-                -- else
-                --     if self.follow_speed_x > 0
-                --         and self.x > self.target.x
-                --         and not self.touch_target
-                --     then
-                --         self.touch_target = true
-                --         self.follow_speed_x = -sqrt(2 * self.acc_x * 32 * 5)
+            --     -- if self.follow_speed_x < 0
+            --     --     and self.x < self.target.x
+            --     --     and not self.touch_target
+            --     -- then
+            --     --     self.touch_target = true
+            --     --     self.follow_speed_x = sqrt(2 * self.acc_x * 32 * 5)
+            --     -- else
+            --     --     if self.follow_speed_x > 0
+            --     --         and self.x > self.target.x
+            --     --         and not self.touch_target
+            --     --     then
+            --     --         self.touch_target = true
+            --     --         self.follow_speed_x = -sqrt(2 * self.acc_x * 32 * 5)
 
-                --     else
-                --         self.touch_target = false
-                --     end
-                -- end
-            end
+            --     --     else
+            --     --         self.touch_target = false
+            --     --     end
+            --     -- end
+            -- end
 
             reach_objective_x = self.x == self.target.x
         end
@@ -771,8 +767,8 @@ function Camera:__constructor__(
     self.follow_speed_x = (self.tile_size * 9)
     self.follow_speed_y = (self.tile_size * 8)
 
-    self.max_speed_x = sqrt(2 * self.acc_x * self.tile_size * 5)
-    self.max_speed_y = sqrt(2 * self.acc_y * self.tile_size * 5)
+    self.max_speed_x = false --sqrt(2 * self.acc_x * self.tile_size * 5)
+    self.max_speed_y = false --sqrt(2 * self.acc_y * self.tile_size * 5)
 
 
     -- when delay equals 1, there's no delay
