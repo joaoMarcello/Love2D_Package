@@ -40,6 +40,8 @@ end
 local function chase_target(self, dt, chase_x_axis, chase_y_axis)
     local reach_objective_x, reach_objective_y = not chase_x_axis, not chase_y_axis
 
+    -- Hello World
+    
     if self.target then
         if chase_x_axis
             and (self.x ~= self.target.x or self.infinity_chase_x)
