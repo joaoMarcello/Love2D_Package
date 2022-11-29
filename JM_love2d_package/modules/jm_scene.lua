@@ -108,7 +108,7 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
 
     self.world_left = -32 * 0
     self.world_right = 32 * 60
-    self.world_top = -32 * 10
+    self.world_top = -32 * 0
     self.world_bottom = 32 * 25
 
     self.max_zoom = 3
@@ -159,6 +159,8 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
     self.camera = self:add_camera(config, "main")
 
     self.n_layers = 0
+
+    self.canvas = love.graphics.newCanvas(self.w, self.h)
 
     self:implements({})
 end
@@ -315,16 +317,10 @@ function Scene:implements(param)
 
 
     self.draw = function(self)
-        -- love.graphics.setCanvas(self.canvas)
-        -- love.graphics.setBlendMode("alpha")
-        -- love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.setCanvas(self.canvas)
+        love.graphics.setBlendMode("alpha")
+        love.graphics.setColor(1, 1, 1, 1)
 
-        love.graphics.setScissor(
-            self.x,
-            self.y,
-            self.w - self.x,
-            self.h - self.y
-        )
 
         if self:get_color() then
             clear_screen(self:get_color())
@@ -361,8 +357,8 @@ function Scene:implements(param)
 
                     love.graphics.push()
 
-                    local px = -camera.x * layer.factor_x * camera.scale
-                    local py = -camera.y * layer.factor_y * camera.scale
+                    local px = -camera.x * layer.factor_x
+                    local py = -camera.y * layer.factor_y
 
                     if layer.fixed_on_ground and layer.top then
                         if py < layer.top then py = 0 end
@@ -394,21 +390,19 @@ function Scene:implements(param)
             camera = nil
         end
 
+        love.graphics.setScissor(
+            self.x,
+            self.y,
+            self.w - self.x,
+            self.h - self.y
+        )
+        love.graphics.setCanvas()
+        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.setBlendMode("alpha", "premultiplied")
+        love.graphics.draw(self.canvas)
+        love.graphics.setCanvas()
+        love.graphics.setBlendMode("alpha")
         love.graphics.setScissor()
-
-        -- love.graphics.setScissor(
-        --     self.x,
-        --     self.y,
-        --     self.w - self.x,
-        --     self.h - self.y
-        -- )
-        -- love.graphics.setCanvas()
-        -- love.graphics.setColor(1, 1, 1, 1)
-        -- love.graphics.setBlendMode("alpha", "premultiplied")
-        -- love.graphics.draw(self.canvas)
-        -- love.graphics.setCanvas()
-        -- love.graphics.setBlendMode("alpha")
-        -- love.graphics.setScissor()
 
     end
 end

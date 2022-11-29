@@ -41,7 +41,7 @@ local function chase_target(self, dt, chase_x_axis, chase_y_axis)
     local reach_objective_x, reach_objective_y = not chase_x_axis, not chase_y_axis
 
     -- Hello World
-    
+
     if self.target then
         if chase_x_axis
             and (self.x ~= self.target.x or self.infinity_chase_x)
@@ -825,14 +825,14 @@ function Camera:__constructor__(
     self.border_color = border_color or { 1, 0, 0, 1 }
 
 
-    self:shake_in_x(nil, self.tile_size * 2 / 4, nil, 7.587)
-    self:shake_in_y(nil, self.tile_size * 2.34 / 4, nil, 10.7564)
+    -- self:shake_in_x(nil, self.tile_size * 2 / 4, nil, 7.587)
+    -- self:shake_in_y(nil, self.tile_size * 2.34 / 4, nil, 10.7564)
 
     self.min_zoom = 0.5
     self.max_zoom = 1.5
 
     self.canvas = love.graphics.newCanvas(
-        self.viewport_w * 1.5,
+        self.viewport_w,
         self.viewport_h
     )
     self.canvas:setFilter("nearest", "nearest")
@@ -927,21 +927,33 @@ function Camera:screen_to_screen(x, y)
 end
 
 function Camera:screen_to_world(x, y)
+    local cos_r, sin_r
+    cos_r, sin_r = cos(self.angle), sin(self.angle)
+
     y = y or 0
     x = x or 0
 
     x = x / self.scale
     y = y / self.scale
 
+    x = cos_r * x - sin_r * y
+    y = sin_r * x + cos_r * y
+
     return round(x + self.x), round(y + self.y)
 end
 
 function Camera:world_to_screen(x, y)
+    local cos_r, sin_r
+    cos_r, sin_r = cos(self.angle), sin(self.angle)
+
     y = y or 0
     x = x or 0
 
     x = x - self.x
     y = y - self.y
+
+    x = cos_r * x - sin_r * y
+    y = sin_r * x + cos_r * y
 
     return round(x * self.scale), round(y * self.scale)
 end
@@ -1136,6 +1148,9 @@ function Camera:update(dt)
     --     self.deadzone_w = self.tile_size * 2 * self.scale
     --     self:set_lock_x_axis(lx)
     -- end
+
+    -- self.zoom_rad = self.zoom_rad + (math.pi * 2) / 20 * dt
+    -- self.angle = self.zoom_rad
 
     local left, top, right, bottom, lock, px, py
 
@@ -1351,8 +1366,9 @@ local function perfect_pixel_attach(self)
     -- r = self.color and love_clear(self:get_color())
 
     love_push()
-    local s = 1 --(self.scale < 0 and 1) or 2
+    -- local s = 2 --(self.scale < 0 and 1) or 2
     -- love_scale(s, s)
+
     love_translate(
         -self.x + ((self.shaking_in_x and self.shake_offset_x or 0)),
         -self.y + ((self.shaking_in_y and self.shake_offset_y or 0))
@@ -1365,6 +1381,7 @@ function Camera:set_shader(shader)
     self.shader = shader
 end
 
+---@param self JM.Camera.Camera
 local function perfect_pixel_detach(self)
     local r
     r = self.is_showing_grid and show_grid(self)
@@ -1384,15 +1401,18 @@ local function perfect_pixel_detach(self)
     )
 
 
-    local s = 1 --(self.scale < 0 and 1) or 2
+    -- local s = 2 --(self.scale < 0 and 1) or 2
     love_set_color(1, 1, 1, 1)
     love_set_blend_mode("alpha", "premultiplied")
     love_push()
+
     love_translate(
         self.viewport_x * self.desired_scale,
         self.viewport_y * self.desired_scale
     )
+
     love_scale(self.scale, self.scale)
+
     love_draw(self.canvas, 0, 0, 0, self.desired_scale, self.desired_scale)
     love_pop()
 
@@ -1411,7 +1431,7 @@ local function perfect_pixel_detach(self)
     --========================================================================
 
     love_set_blend_mode(self.last_blend_mode)
-    love_set_canvas(self.last_canvas)
+    -- love_set_canvas(self.last_canvas)
     love_set_scissor(unpack(self.last_scissor))
 
     self.last_blend_mode, self.last_canvas, self.last_scissor = nil, nil, nil

@@ -471,6 +471,12 @@ Game:implements({
         if obj then
             rec.y = obj.y - rec.h - 1
             rec.speed_y = 0
+
+            if rec.jump and cam1 then
+                -- cam1:shake_in_x(0.3, 13, nil, 0.1)
+                cam1:shake_in_y(0.05, 3, 0.2, 0.1)
+            end
+
             rec.jump = false
             obj = nil
         end
@@ -554,6 +560,13 @@ Game:implements({
                 for i = 1, 10 * 20, 10 do
                     love.graphics.rectangle("fill", 10 * (i), 32, 56, 32 * 9)
                 end
+
+                love.graphics.setColor(1, 0, 0, 1)
+                love.graphics.circle("fill",
+                    rec:get_cx(),
+                    rec:get_cy(), 32
+                )
+
             end,
 
             factor_x = 0.2 / 5,
