@@ -66,11 +66,11 @@ local Game = Screen:new(0, 0, nil, nil, 32 * 20, 32 * 12)
 --     show_world_bounds = true
 -- }, "pink")
 
-local temp
-temp = Game:get_camera("main")
-temp:shake_in_x(nil, temp.tile_size * 2 / 4, nil, 7.587)
-temp:shake_in_y(nil, temp.tile_size * 2.34 / 4, nil, 10.7564)
-temp = nil
+-- local temp
+-- temp = Game:get_camera("main")
+-- temp:shake_in_x(nil, temp.tile_size * 2 / 4, nil, 7.587)
+-- temp:shake_in_y(nil, temp.tile_size * 2.34 / 4, nil, 10.7564)
+-- temp = nil
 
 
 local monica_idle_normal = Anima:new({
@@ -450,10 +450,9 @@ Game:implements({
         obj = rec.speed_y >= 0 and check_collision(rx, ry, rw, rh + 15)
         if obj then
             if rec.speed_y > math.sqrt(2 * rec.gravity * 3) then
-                -- cam1:shake_in_x(0.3, 13, nil, 0.1)
-                cam1:shake_in_y(0.05, 3, 0.2, 0.1)
-                local r = cam_blue and cam_blue:shake_in_y(0.05, 3, 0.2, 0.1)
-                r = cam_pink and cam_pink:shake_in_y(0.05, 3, 0.2, 0.1)
+                -- cam1:shake_in_y(0.05, 3, 0.2, 0.1)
+                -- local r = cam_blue and cam_blue:shake_in_y(0.05, 3, 0.2, 0.1)
+                -- r = cam_pink and cam_pink:shake_in_y(0.05, 3, 0.2, 0.1)
             end
 
             rec.y = obj.y - rec.h - 1
@@ -562,7 +561,7 @@ Game:implements({
                 end
             end,
 
-            factor_x = 0.5,
+            factor_x = 0.2,
             factor_y = 0.5,
 
             -- fixed_on_ceil = true,

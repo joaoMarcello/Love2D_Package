@@ -314,19 +314,28 @@ local function draw_grid(self)
     for i = 0, qx - 1, jump do
         love_line(
             self.tile_size * (i),
-            0,
+            self.bounds_top,
             self.tile_size * (i),
-            self.bounds_bottom - self.bounds_top
+            self.bounds_bottom
         )
     end
     for i = 0, qy - 1, jump do
         love_line(
-            0,
-            self.tile_size * (i),
-            self.bounds_right - self.bounds_left,
-            self.tile_size * (i)
+            self.bounds_left,
+            self.bounds_top + self.tile_size * (i),
+            self.bounds_right,
+            self.bounds_top + self.tile_size * (i)
         )
     end
+
+    love_set_color(0, 0, 0, 1)
+
+    -- Drawing x-axis
+    love_line(self.bounds_left,
+        0,
+        self.bounds_right - self.bounds_left,
+        0
+    )
 
 end
 
@@ -334,56 +343,34 @@ local function capture_grid(self, tile)
     self.is_showing_grid = true
     self.grid_desired_tile = tile or self.tile_size
 
-    self.grid_canvas = love.graphics.newCanvas(
-        self.bounds_right - self.bounds_left,
-        self.bounds_bottom - self.bounds_top
-    )
-
-    local mode
-    mode = love.graphics.getBlendMode()
-    love.graphics.setCanvas(self.grid_canvas)
-    love.graphics.setBlendMode("alpha")
-    draw_grid(self)
-    love_set_color(0, 0, 0, 1)
-
-    -- Drawing x-axis
-    love_line(self.bounds_left,
-        -self.bounds_top,
-        self.bounds_right - self.bounds_left,
-        -self.bounds_top
-    )
-    -- Drawing y-axis
-    love_line(-self.bounds_left,
-        self.bounds_top,
-        -self.bounds_left,
-        self.bounds_bottom - self.bounds_top
-    )
-
-    love.graphics.setCanvas()
-    love.graphics.setBlendMode(mode)
-    mode = nil
-end
-
----@param self JM.Camera.Camera
-local function show_grid(self)
-    local x, y, w, h = love_get_scissor()
-    local mode
-    mode = love_get_blend_mode()
-
-    -- love_set_scissor(
-    --     self.viewport_x * self.desired_scale - self.viewport_w,
-    --     self.viewport_y,
-    --     self.viewport_w,
-    --     self.viewport_h
+    -- self.grid_canvas = love.graphics.newCanvas(
+    --     self.bounds_right - self.bounds_left,
+    --     self.bounds_bottom - self.bounds_top
     -- )
 
-    love_set_color(1, 1, 1, 1)
-    love_set_blend_mode("alpha", "premultiplied")
-    -- love_draw(self.grid_canvas, self.bounds_left, self.bounds_top)
-    love_set_blend_mode(mode)
+    -- local mode
+    -- mode = love.graphics.getBlendMode()
+    -- love.graphics.setCanvas(self.grid_canvas)
+    -- love.graphics.setBlendMode("alpha")
+    -- draw_grid(self)
+    -- love_set_color(0, 0, 0, 1)
 
-    mode = nil
-    love_set_scissor(x, y, w, h)
+    -- -- Drawing x-axis
+    -- love_line(self.bounds_left,
+    --     -self.bounds_top,
+    --     self.bounds_right - self.bounds_left,
+    --     -self.bounds_top
+    -- )
+    -- -- Drawing y-axis
+    -- love_line(-self.bounds_left,
+    --     self.bounds_top,
+    --     -self.bounds_left,
+    --     self.bounds_bottom - self.bounds_top
+    -- )
+
+    -- love.graphics.setCanvas()
+    -- love.graphics.setBlendMode(mode)
+    -- mode = nil
 end
 
 ---@param self JM.Camera.Camera
@@ -794,10 +781,6 @@ function Camera:__constructor__(
     self.desired_right_focus = nil
     self.desired_deadzone_width = nil
     self.desired_deadzone_height = nil
-    self.desired_delay_y = nil
-    self.desired_delay_x = nil
-    self.desired_acc_x = nil
-    self.desired_acc_y = nil
     self.constant_speed_x = nil
     self.constant_speed_y = nil
     self.invert_dynamic_focus_x = nil
@@ -1155,7 +1138,7 @@ function Camera:update(dt)
     --     self:set_lock_x_axis(lx)
     -- end
 
-    -- self.zoom_rad = self.zoom_rad + (math.pi * 2) / 20 * dt
+    -- self.zoom_rad = self.zoom_rad + (math.pi * 2) / 10 * dt
     -- self.angle = self.zoom_rad
 
     local left, top, right, bottom, lock, px, py
@@ -1372,8 +1355,8 @@ local function perfect_pixel_attach(self)
     -- r = self.color and love_clear(self:get_color())
 
     love_push()
-    local s = 1 --(self.scale < 0 and 1) or 2
-    love_scale(s, s)
+    -- local s = 1 --(self.scale < 0 and 1) or 2
+    -- love_scale(s, s)
 
     love_translate(
         -self.x + ((self.shaking_in_x and self.shake_offset_x or 0)),
@@ -1390,7 +1373,7 @@ end
 ---@param self JM.Camera.Camera
 local function perfect_pixel_detach(self)
     local r
-    r = self.is_showing_grid and show_grid(self)
+    r = self.is_showing_grid and draw_grid(self)
     r = self.show_world_boundary and draw_world_boundary(self)
 
     love_pop()
@@ -1407,10 +1390,11 @@ local function perfect_pixel_detach(self)
     )
 
 
-    local s = 1 --(self.scale < 0 and 1) or 2
+    -- local s = 1 --(self.scale < 0 and 1) or 2
     love_set_color(1, 1, 1, 1)
     love_set_blend_mode("alpha", "premultiplied")
     love_push()
+
 
     love_translate(
         self.viewport_x * self.desired_scale,
@@ -1418,8 +1402,11 @@ local function perfect_pixel_detach(self)
     )
 
     love_scale(self.scale, self.scale)
+    -- love.graphics.rotate(self.angle)
+    love_draw(self.canvas, 0, 0, 0,
+        self.desired_scale, self.desired_scale
+    )
 
-    love_draw(self.canvas, 0, 0, 0, self.desired_scale / s, self.desired_scale / s)
     love_pop()
 
     love.graphics.setShader()

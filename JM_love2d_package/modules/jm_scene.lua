@@ -141,7 +141,7 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
 
         scale = 1,
 
-        type = "",
+        type = "metroid",
 
         show_grid = true,
 
