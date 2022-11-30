@@ -88,8 +88,8 @@ end
 function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
 
     -- the dispositive's screen dimensions
-    self.dispositive_w = love.graphics.getWidth()
-    self.dispositive_h = love.graphics.getHeight()
+    self.dispositive_w = love.graphics.getWidth() - 64
+    self.dispositive_h = love.graphics.getHeight() - 64
 
     -- the scene viewport coordinates
     self.x = x or 0
@@ -108,10 +108,8 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
 
     self.world_left = -32 * 0
     self.world_right = 32 * 60
-    self.world_top = -32 * 0
+    self.world_top = -32 * 10
     self.world_bottom = 32 * 25
-
-    self.max_zoom = 3
 
     local config = {
         -- camera's viewport in desired game screen coordinates
@@ -143,7 +141,7 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
 
         scale = 1,
 
-        type = "metroid",
+        type = "",
 
         show_grid = true,
 
@@ -193,6 +191,8 @@ function Scene:add_camera(config, name)
             top = self.camera.bounds_top,
             bottom = self.camera.bounds_bottom
         }
+
+        config.tile_size = self.camera.tile_size
     end
 
     local camera = Camera:new(config)
@@ -299,7 +299,7 @@ function Scene:implements(param)
                 ---@type JM.Scene.Layer
                 layer = param.layers[i]
 
-                if layer.update then layer.update(dt) end
+                if layer.update then layer:update(dt) end
             end
         end
 
@@ -361,16 +361,16 @@ function Scene:implements(param)
                     local py = -camera.y * layer.factor_y
 
                     if layer.fixed_on_ground and layer.top then
-                        if py < layer.top then py = 0 end
+                        if layer.top <= camera.y + layer.top then py = 0 end
                     end
 
                     if layer.fixed_on_ceil and layer.bottom then
-                        if py > layer.bottom then py = 0 end
+                        if py >= layer.bottom then py = 0 end
                     end
 
                     love.graphics.translate(round(px), round(py))
 
-                    r = layer.draw and layer.draw(camera)
+                    r = layer.draw and layer:draw()
 
                     love.graphics.pop()
 
@@ -390,12 +390,12 @@ function Scene:implements(param)
             camera = nil
         end
 
-        love.graphics.setScissor(
-            self.x,
-            self.y,
-            self.w - self.x,
-            self.h - self.y
-        )
+        -- love.graphics.setScissor(
+        --     self.x,
+        --     self.y,
+        --     self.w,
+        --     self.h
+        -- )
         love.graphics.setCanvas()
         love.graphics.setColor(1, 1, 1, 1)
         love.graphics.setBlendMode("alpha", "premultiplied")
@@ -403,6 +403,9 @@ function Scene:implements(param)
         love.graphics.setCanvas()
         love.graphics.setBlendMode("alpha")
         love.graphics.setScissor()
+
+        love.graphics.setColor(0, 0, 1, 1)
+        love.graphics.circle("fill", love.mouse.getX(), love.mouse.getY(), 5)
 
     end
 end

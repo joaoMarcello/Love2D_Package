@@ -42,18 +42,8 @@ local Game = Screen:new(0, 0, nil, nil, 32 * 20, 32 * 12)
 --     w = Game.screen_w * 0.25,
 --     h = Game.screen_h * 0.5,
 
---     -- -- world bounds
---     -- bounds = {
---     --     left = Game.world_left,
---     --     right = Game.world_right,
---     --     top = Game.world_top,
---     --     bottom = Game.world_bottom
---     -- },
-
---     tile_size = 32,
-
 --     color = { 153 / 255, 217 / 255, 234 / 255, 1 },
---     scale = 0.7,
+--     scale = 0.6,
 
 --     type = "metroid",
 --     show_grid = true,
@@ -67,16 +57,6 @@ local Game = Screen:new(0, 0, nil, nil, 32 * 20, 32 * 12)
 --     w = Game.screen_w * 0.25,
 --     h = Game.screen_h * 0.5,
 
---     -- -- world bounds
---     -- bounds = {
---     --     left = Game.world_left,
---     --     right = Game.world_right,
---     --     top = Game.world_top,
---     --     bottom = Game.world_bottom
---     -- },
-
---     tile_size = 32,
-
 --     color = { 255 / 255, 174 / 255, 201 / 255, 1 },
 --     scale = 1.1,
 
@@ -86,11 +66,11 @@ local Game = Screen:new(0, 0, nil, nil, 32 * 20, 32 * 12)
 --     show_world_bounds = true
 -- }, "pink")
 
--- local temp
--- temp = Game:get_camera("blue")
--- temp:shake_in_x(nil, temp.tile_size * 2 / 4, nil, 7.587)
--- temp:shake_in_y(nil, temp.tile_size * 2.34 / 4, nil, 10.7564)
--- temp = nil
+local temp
+temp = Game:get_camera("main")
+temp:shake_in_x(nil, temp.tile_size * 2 / 4, nil, 7.587)
+temp:shake_in_y(nil, temp.tile_size * 2.34 / 4, nil, 10.7564)
+temp = nil
 
 
 local monica_idle_normal = Anima:new({
@@ -273,7 +253,7 @@ Game:implements({
         -- love.graphics.setDefaultFilter("nearest", "nearest")
         ship = {
             x = 0,
-            y = 0,
+            y = 32 * 8,
             w = 64,
             h = 32,
             spx = 0,
@@ -469,13 +449,16 @@ Game:implements({
         local rx, ry, rw, rh = rec:rect()
         obj = rec.speed_y >= 0 and check_collision(rx, ry, rw, rh + 15)
         if obj then
+            if rec.speed_y > math.sqrt(2 * rec.gravity * 3) then
+                -- cam1:shake_in_x(0.3, 13, nil, 0.1)
+                cam1:shake_in_y(0.05, 3, 0.2, 0.1)
+                local r = cam_blue and cam_blue:shake_in_y(0.05, 3, 0.2, 0.1)
+                r = cam_pink and cam_pink:shake_in_y(0.05, 3, 0.2, 0.1)
+            end
+
             rec.y = obj.y - rec.h - 1
             rec.speed_y = 0
 
-            if rec.jump and cam1 then
-                -- cam1:shake_in_x(0.3, 13, nil, 0.1)
-                cam1:shake_in_y(0.05, 3, 0.2, 0.1)
-            end
 
             rec.jump = false
             obj = nil
@@ -555,18 +538,11 @@ Game:implements({
 
     layers = {
         {
-            draw = function(camera)
+            draw = function()
                 love.graphics.setColor(0.2, 0, 0.1, 1)
                 for i = 1, 10 * 20, 10 do
                     love.graphics.rectangle("fill", 10 * (i), 32, 56, 32 * 9)
                 end
-
-                love.graphics.setColor(1, 0, 0, 1)
-                love.graphics.circle("fill",
-                    rec:get_cx(),
-                    rec:get_cy(), 32
-                )
-
             end,
 
             factor_x = 0.2 / 5,
@@ -574,7 +550,7 @@ Game:implements({
             fixed_on_ground = true,
             -- fixed_on_ceil = true,
             bottom = 32 * 9,
-            top = 0,
+            top = 32,
             name = "violet rect"
         },
 
@@ -687,6 +663,28 @@ Game:implements({
             shader2 = darken_shader,
 
             name = "main background"
+        },
+
+        {
+            name = "Light",
+            rad = 0.5,
+            alpha = 1,
+
+            update = function(self, dt)
+                self.rad = self.rad + (math.pi * 2) / 1 * dt
+                self.alpha = 0.3 * math.cos(self.rad)
+            end,
+
+            draw = function(self)
+                love.graphics.setBlendMode("add", 'premultiplied')
+                love.graphics.setColor(0.7 + self.alpha, 0.7 + self.alpha, 0, 1)
+                love.graphics.circle("fill",
+                    rec:get_cx(),
+                    rec:get_cy(), 32 * 2
+                )
+                love.graphics.setBlendMode("alpha")
+            end
+
         },
 
         {

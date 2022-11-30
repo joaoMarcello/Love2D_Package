@@ -460,16 +460,17 @@ end
 
 ---@param self JM.Camera.Camera
 local function show_focus(self)
-    love_set_color(0, 0, 0, 0.2)
-    love_rect("fill",
-        self.viewport_x + self.focus_x / self.desired_scale,
-        self.viewport_y / self.desired_scale, 2, self.viewport_h
-    )
-    love_rect("fill", self.viewport_x / self.desired_scale,
-        self.viewport_y + self.focus_y / self.desired_scale,
-        self.viewport_w,
-        2
-    )
+    -- -- Focus guide lines
+    -- love_set_color(0, 0, 0, 0.2)
+    -- love_rect("fill",
+    --     self.viewport_x + self.focus_x / self.desired_scale,
+    --     self.viewport_y / self.desired_scale, 2, self.viewport_h
+    -- )
+    -- love_rect("fill", self.viewport_x / self.desired_scale,
+    --     self.viewport_y + self.focus_y / self.desired_scale,
+    --     self.viewport_w,
+    --     2
+    -- )
     --=============================================================
 
     if self.target then
@@ -802,7 +803,7 @@ function Camera:__constructor__(
     self.invert_dynamic_focus_x = nil
     self.invert_dynamic_focus_y = nil
     self.dont_use_deadzone = false
-    self.default_initial_speed_x = self.tile_size * 1 -- (in pixels per second)
+    self.default_initial_speed_x = self.tile_size * 2 -- (in pixels per second)
     self.default_initial_speed_y = self.default_initial_speed_x
     self.infinity_chase_x = false
     self.infinity_chase_y = false
@@ -832,8 +833,8 @@ function Camera:__constructor__(
     self.max_zoom = 1.5
 
     self.canvas = love.graphics.newCanvas(
-        self.viewport_w,
-        self.viewport_h
+        self.viewport_w / self.desired_scale * (1 / self.min_zoom),
+        self.viewport_h / self.desired_scale * (1 / self.min_zoom)
     )
     self.canvas:setFilter("nearest", "nearest")
 
@@ -904,13 +905,18 @@ function Camera:set_type(s)
 
     else
         self.movement_x = dynamic_x_offset
-        self.movement_y = dynamic_y_offset
+        self.movement_y = chase_target_y
         self.desired_deadzone_height = 32 * 3 * self.scale
         self.deadzone_h = self.desired_deadzone_height
 
         self.desired_top_focus = self.viewport_h * 0.25
         self.desired_bottom_focus = self.viewport_h * 0.75
-        -- self.constant_speed_x = sqrt(2 * self.acc_y * 32 * 1)
+
+        self.desired_left_focus = self.viewport_w * 0.4
+        self.desired_right_focus = self.viewport_w * 0.6
+        self.constant_speed_x = sqrt(2 * self.acc_x * 32 * 2)
+        -- self.constant_speed_y = sqrt(2 * self.acc_y * 32 * 3)
+        -- self.acc_x = 32 * 5
         self:set_focus_y(self.desired_top_focus)
     end
 end
@@ -1366,8 +1372,8 @@ local function perfect_pixel_attach(self)
     -- r = self.color and love_clear(self:get_color())
 
     love_push()
-    -- local s = 2 --(self.scale < 0 and 1) or 2
-    -- love_scale(s, s)
+    local s = 1 --(self.scale < 0 and 1) or 2
+    love_scale(s, s)
 
     love_translate(
         -self.x + ((self.shaking_in_x and self.shake_offset_x or 0)),
@@ -1401,7 +1407,7 @@ local function perfect_pixel_detach(self)
     )
 
 
-    -- local s = 2 --(self.scale < 0 and 1) or 2
+    local s = 1 --(self.scale < 0 and 1) or 2
     love_set_color(1, 1, 1, 1)
     love_set_blend_mode("alpha", "premultiplied")
     love_push()
@@ -1413,7 +1419,7 @@ local function perfect_pixel_detach(self)
 
     love_scale(self.scale, self.scale)
 
-    love_draw(self.canvas, 0, 0, 0, self.desired_scale, self.desired_scale)
+    love_draw(self.canvas, 0, 0, 0, self.desired_scale / s, self.desired_scale / s)
     love_pop()
 
     love.graphics.setShader()
