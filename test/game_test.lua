@@ -35,36 +35,38 @@ end
 
 local Game = Screen:new(0, 0, nil, nil, 32 * 20, 32 * 12)
 
-Game:add_camera({
-    -- camera's viewport
-    x = Game.screen_w * 0.75,
-    y = Game.screen_h * 0.5,
-    w = Game.screen_w * 0.25,
-    h = Game.screen_h * 0.5,
+-- Game:add_camera({
+--     -- camera's viewport
+--     x = Game.screen_w * 0.5,
+--     y = Game.screen_h * 0,
+--     w = Game.screen_w * 0.5,
+--     h = Game.screen_h * 1,
 
-    color = { 153 / 255, 217 / 255, 234 / 255, 1 },
-    scale = 0.6,
+--     color = { 153 / 255, 217 / 255, 234 / 255, 1 },
+--     scale = 0.6,
 
-    type = "metroid",
-    show_grid = true,
-    show_world_bounds = true
-}, "blue")
+--     type = "metroid",
+--     show_grid = true,
+--     show_world_bounds = true
+-- }, "blue")
 
-Game:add_camera({
-    -- camera's viewport
-    x = Game.screen_w * 0.2,
-    y = 0,
-    w = Game.screen_w * 0.25,
-    h = Game.screen_h * 0.5,
+-- Game:get_camera("main"):set_viewport(0, 0, Game.screen_w * 0.5, Game.screen_h)
 
-    color = { 255 / 255, 174 / 255, 201 / 255, 1 },
-    scale = 1.1,
+-- Game:add_camera({
+--     -- camera's viewport
+--     x = Game.screen_w * 0.6,
+--     y = Game.screen_h * 0.75,
+--     w = Game.screen_w * 0.4,
+--     h = Game.screen_h * 0.25,
 
-    type = "metroid",
-    show_grid = true,
-    grid_tile_size = 32 * 4,
-    show_world_bounds = true
-}, "pink")
+--     color = { 255 / 255, 174 / 255, 201 / 255, 1 },
+--     scale = 0.5,
+
+--     type = "metroid",
+--     show_grid = true,
+--     grid_tile_size = 32 * 4,
+--     show_world_bounds = true
+-- }, "pink")
 
 -- local temp
 -- temp = Game:get_camera("main")

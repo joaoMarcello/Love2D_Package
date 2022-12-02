@@ -141,7 +141,7 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
 
         scale = 1,
 
-        type = "metroid",
+        type = "super mario world",
 
         show_grid = true,
 
@@ -337,8 +337,8 @@ function Scene:implements(param)
 
                     push()
 
-                    local px = -camera.x * layer.factor_x
-                    local py = -camera.y * layer.factor_y
+                    local px = -camera.x * layer.factor_x * camera.scale
+                    local py = -camera.y * layer.factor_y * camera.scale
 
                     if layer.fixed_on_ground and layer.top then
                         if layer.top <= camera.y + layer.top then py = 0 end
