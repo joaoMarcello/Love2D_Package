@@ -10,6 +10,16 @@ local Utils = require("/JM_love2d_package/utils")
 
 local Frame = require("/JM_love2d_package/modules/classes/Frame")
 
+-- Some local variables to store global modules.
+local love_graphics = love.graphics
+local love_graphics_draw = love_graphics.draw
+local love_graphics_rectangle = love_graphics.rectangle
+local love_graphics_set_color = love_graphics.setColor
+local love_graphics_push = love_graphics.push
+local love_graphics_pop = love_graphics.pop
+local love_graphics_apply_transform = love_graphics.applyTransform
+local love_math_new_transform = love.math.newTransform
+
 -- Class to animate.
 --- @class JM.Anima: JM.Affectable
 --- @field __configuration {scale: JM.Point, color: JM.Color, direction: -1|1, rotation: number, speed: number, flip: table, kx: number, ky: number, current_frame: number}
@@ -553,16 +563,6 @@ end
 function Anima:__draw__(x, y)
     return self:__draw_with_no_effects__(x, y)
 end
-
--- Some local variables to store global modules.
-local love_graphics = love.graphics
-local love_graphics_draw = love_graphics.draw
-local love_graphics_rectangle = love_graphics.rectangle
-local love_graphics_set_color = love_graphics.setColor
-local love_graphics_push = love_graphics.push
-local love_graphics_pop = love_graphics.pop
-local love_graphics_apply_transform = love_graphics.applyTransform
-local love_math_new_transform = love.math.newTransform
 
 ---
 --- Draws the animation without apply any effect.

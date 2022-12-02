@@ -88,14 +88,14 @@ end
 function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
 
     -- the dispositive's screen dimensions
-    self.dispositive_w = love.graphics.getWidth() - 64
-    self.dispositive_h = love.graphics.getHeight() - 64
+    self.dispositive_w = love.graphics.getWidth()
+    self.dispositive_h = love.graphics.getHeight()
 
-    -- the scene viewport coordinates
+    -- the scene position coordinates
     self.x = x or 0
     self.y = y or 0
 
-    -- the scene viewport dimensions
+    -- the scene dimensions
     self.w = w or self.dispositive_w
     self.h = h or self.dispositive_h
 
@@ -152,7 +152,6 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
 
     self.cameras_list = {}
     self.amount_cameras = 0
-    self.camera_names = {}
 
     self.camera = self:add_camera(config, "main")
 
@@ -206,7 +205,6 @@ function Scene:add_camera(config, name)
     self.cameras_list[self.amount_cameras] = camera
 
     self.cameras_list[name] = camera
-    self.camera_names[self.amount_cameras] = name
 
     Camera = nil
     return camera
@@ -223,27 +221,9 @@ function Scene:set_color(r, g, b, a)
     self.color_a = a or self.color_a
 end
 
--- function Scene:create_layer(draw_order, factor, action)
---     local layer = {
---         draw_order = draw_order or (-1 - math.random()),
---         factor = factor or 0.5,
---         action = action
---     }
-
---     table.insert(self.layers, layer)
---     self.n_layers = self.n_layers + 1
---     table.sort(self.layers, function(a, b)
---         return a.drar_order < b.drar_order
---     end)
--- end
-
--- function Scene:to_world(x, y, camera)
---     return to_world(self, x, y, camera or self.camera)
--- end
-
 ---@return JM.Camera.Camera
 function Scene:get_camera(index)
-    return self.cameras_list[index] --or self.camera
+    return self.cameras_list[index]
 end
 
 ---@return JM.Camera.Camera
@@ -300,6 +280,7 @@ function Scene:implements(param)
                 layer = param.layers[i]
 
                 if layer.update then layer:update(dt) end
+                layer = nil
             end
         end
 
@@ -317,10 +298,9 @@ function Scene:implements(param)
 
 
     self.draw = function(self)
-        love.graphics.setCanvas(self.canvas)
-        love.graphics.setBlendMode("alpha")
-        love.graphics.setColor(1, 1, 1, 1)
-
+        -- set_canvas(self.canvas)
+        -- set_blend_mode("alpha")
+        -- set_color_draw(1, 1, 1, 1)
 
         if self:get_color() then
             clear_screen(self:get_color())
@@ -336,7 +316,7 @@ function Scene:implements(param)
             ---@type JM.Camera.Camera
             camera = self.cameras_list[i]
 
-            love.graphics.setColor(camera:get_color())
+            set_color_draw(camera:get_color())
             love.graphics.rectangle("fill",
                 camera.viewport_x * camera.desired_scale,
                 camera.viewport_y * camera.desired_scale,
@@ -355,7 +335,7 @@ function Scene:implements(param)
 
                     camera:set_shader(layer.shader)
 
-                    love.graphics.push()
+                    push()
 
                     local px = -camera.x * layer.factor_x
                     local py = -camera.y * layer.factor_y
@@ -368,17 +348,18 @@ function Scene:implements(param)
                         if py >= layer.bottom then py = 0 end
                     end
 
-                    love.graphics.translate(round(px), round(py))
+                    translate(round(px), round(py))
 
                     r = layer.draw and layer:draw()
 
-                    love.graphics.pop()
+                    pop()
 
                     camera:detach()
 
                     camera:set_shader()
 
-                end
+                    layer = nil
+                end -- END FOR Layers
             end
 
             if param.draw then
@@ -390,21 +371,15 @@ function Scene:implements(param)
             camera = nil
         end
 
-        -- love.graphics.setScissor(
-        --     self.x,
-        --     self.y,
-        --     self.w,
-        --     self.h
-        -- )
-        love.graphics.setCanvas()
-        love.graphics.setColor(1, 1, 1, 1)
-        love.graphics.setBlendMode("alpha", "premultiplied")
-        love.graphics.draw(self.canvas)
-        love.graphics.setCanvas()
-        love.graphics.setBlendMode("alpha")
-        love.graphics.setScissor()
+        -- set_canvas()
+        -- set_color_draw(1, 1, 1, 1)
+        -- set_blend_mode("alpha", "premultiplied")
+        -- love_draw(self.canvas)
+        -- set_canvas()
+        -- set_blend_mode("alpha")
+        -- love.graphics.setScissor()
 
-        love.graphics.setColor(0, 0, 1, 1)
+        set_color_draw(0, 0, 1, 1)
         love.graphics.circle("fill", love.mouse.getX(), love.mouse.getY(), 5)
 
     end

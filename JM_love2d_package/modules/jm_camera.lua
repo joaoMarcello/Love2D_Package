@@ -819,7 +819,7 @@ function Camera:__constructor__(
         self.viewport_w / self.desired_scale * (1 / self.min_zoom),
         self.viewport_h / self.desired_scale * (1 / self.min_zoom)
     )
-    self.canvas:setFilter("nearest", "nearest")
+    self.canvas:setFilter("linear", "nearest")
 
     self.zoom_rad = 0
 end
@@ -947,7 +947,7 @@ function Camera:world_to_screen(x, y)
     return round(x * self.scale), round(y * self.scale)
 end
 
-function Camera:follow(x, y)
+function Camera:follow(x, y, name)
     if not self.target then self.target = {} end
 
     x = x - self.focus_x / self.scale / self.desired_scale
@@ -955,6 +955,14 @@ function Camera:follow(x, y)
 
     x = round(x)
     y = round(y)
+
+    self.target.last_name = self.target.name or name
+    self.target.name = name or ""
+
+    if self.target.name ~= self.target.last_name then
+        self.target.x = nil
+        self.target.y = nil
+    end
 
     self.target.last_x = self.target.x or x
     self.target.last_y = self.target.y or y
@@ -1223,12 +1231,11 @@ end
 local function debbug(self)
     if not self.debug then return end
 
-
-    -- printing some useful information
+    -- -- printing some useful information
     -- do
     --     love_set_color(0, 0, 0, 1)
-    --     local x, y = mfloor((self.x + self.offset_x / self.scale) / self.tile_size),
-    --         mfloor((self.y + self.offset_y / self.scale) / self.tile_size)
+    --     local x, y = mfloor((self.x + self.focus_x / self.scale) / self.tile_size),
+    --         mfloor((self.y + self.focus_y / self.scale) / self.tile_size)
 
     --     love.graphics.print("Focus: (" .. tostring(x) .. ", " .. tostring(y) .. ")",
     --         self.viewport_x + (self.tile_size + 5) * self.scale,
@@ -1237,8 +1244,8 @@ local function debbug(self)
 
     --     if self.target and self.target.x and self.target.y then
     --         local x, y
-    --         x, y = mfloor((self.target.x + self.offset_x / self.scale) / self.tile_size),
-    --             mfloor((self.target.y + self.offset_y / self.scale) / self.tile_size)
+    --         x, y = mfloor((self.target.x + self.focus_x / self.scale) / self.tile_size),
+    --             mfloor((self.target.y + self.focus_y / self.scale) / self.tile_size)
 
     --         love.graphics.print("Target: (" .. tostring(x) .. ", " .. tostring(y) .. ")",
     --             self.viewport_x + (self.tile_size + 5) * self.scale,
@@ -1355,8 +1362,8 @@ local function perfect_pixel_attach(self)
     -- r = self.color and love_clear(self:get_color())
 
     love_push()
-    -- local s = 1 --(self.scale < 0 and 1) or 2
-    -- love_scale(s, s)
+    local s = 1 --(self.scale < 1 and 2) or 1
+    love_scale(s, s)
 
     love_translate(
         -self.x + ((self.shaking_in_x and self.shake_offset_x or 0)),
@@ -1373,7 +1380,7 @@ end
 ---@param self JM.Camera.Camera
 local function perfect_pixel_detach(self)
     local r
-    r = self.is_showing_grid and draw_grid(self)
+    -- r = self.is_showing_grid and draw_grid(self)
     r = self.show_world_boundary and draw_world_boundary(self)
 
     love_pop()
@@ -1390,7 +1397,7 @@ local function perfect_pixel_detach(self)
     )
 
 
-    -- local s = 1 --(self.scale < 0 and 1) or 2
+    local s = 1 --(self.scale < 1 and 2) or 1
     love_set_color(1, 1, 1, 1)
     love_set_blend_mode("alpha", "premultiplied")
     love_push()
@@ -1401,7 +1408,7 @@ local function perfect_pixel_detach(self)
         self.viewport_y * self.desired_scale
     )
 
-    love_scale(self.scale, self.scale)
+    love_scale(self.scale / s, self.scale / s)
     -- love.graphics.rotate(self.angle)
     love_draw(self.canvas, 0, 0, 0,
         self.desired_scale, self.desired_scale
@@ -1411,14 +1418,14 @@ local function perfect_pixel_detach(self)
 
     love.graphics.setShader()
 
-    love_push()
-    love_scale(self.desired_scale, self.desired_scale)
-    love_set_blend_mode("alpha")
-    love_set_color(1, 1, 1, 1)
-    r = self.show_focus and show_focus(self)
-    debbug(self)
-    r = self.border_color and show_border(self)
-    love_pop()
+    -- love_push()
+    -- love_scale(self.desired_scale, self.desired_scale)
+    -- love_set_blend_mode("alpha")
+    -- love_set_color(1, 1, 1, 1)
+    -- r = self.show_focus and show_focus(self)
+    -- debbug(self)
+    -- r = self.border_color and show_border(self)
+    -- love_pop()
 
     love_set_scissor()
     --========================================================================
@@ -1432,12 +1439,44 @@ local function perfect_pixel_detach(self)
     r = nil
 end
 
+---@param self JM.Camera.Camera
+local function normal_attach(self)
+    love_set_scissor(
+        self.viewport_x * self.desired_scale,
+        self.viewport_y * self.desired_scale,
+        self.viewport_w,
+        self.viewport_h
+    )
+
+    love_push()
+    love_scale(self.scale)
+    love_scale(self.desired_scale, self.desired_scale)
+    love_translate(
+        -self.x + (self.viewport_x / self.scale)
+        + ((self.shaking_in_x and self.shake_offset_x or 0)),
+
+        -self.y + (self.viewport_y / self.scale)
+        + ((self.shaking_in_y and self.shake_offset_y or 0))
+    )
+end
+
+---@param self JM.Camera.Camera
+local function normal_detach(self)
+    local r
+    r = self.show_world_boundary and draw_world_boundary(self)
+    love_pop()
+
+    love_set_scissor()
+end
+
 function Camera:attach()
-    perfect_pixel_attach(self)
+    normal_attach(self)
+    -- perfect_pixel_attach(self)
 end
 
 function Camera:detach()
-    perfect_pixel_detach(self)
+    normal_detach(self)
+    -- perfect_pixel_detach(self)
 end
 
 function Camera:get_state()

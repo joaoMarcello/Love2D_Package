@@ -35,36 +35,36 @@ end
 
 local Game = Screen:new(0, 0, nil, nil, 32 * 20, 32 * 12)
 
--- Game:add_camera({
---     -- camera's viewport
---     x = Game.screen_w * 0.75,
---     y = Game.screen_h * 0.5,
---     w = Game.screen_w * 0.25,
---     h = Game.screen_h * 0.5,
+Game:add_camera({
+    -- camera's viewport
+    x = Game.screen_w * 0.75,
+    y = Game.screen_h * 0.5,
+    w = Game.screen_w * 0.25,
+    h = Game.screen_h * 0.5,
 
---     color = { 153 / 255, 217 / 255, 234 / 255, 1 },
---     scale = 0.6,
+    color = { 153 / 255, 217 / 255, 234 / 255, 1 },
+    scale = 0.6,
 
---     type = "metroid",
---     show_grid = true,
---     show_world_bounds = true
--- }, "blue")
+    type = "metroid",
+    show_grid = true,
+    show_world_bounds = true
+}, "blue")
 
--- Game:add_camera({
---     -- camera's viewport
---     x = Game.screen_w * 0.2,
---     y = 0,
---     w = Game.screen_w * 0.25,
---     h = Game.screen_h * 0.5,
+Game:add_camera({
+    -- camera's viewport
+    x = Game.screen_w * 0.2,
+    y = 0,
+    w = Game.screen_w * 0.25,
+    h = Game.screen_h * 0.5,
 
---     color = { 255 / 255, 174 / 255, 201 / 255, 1 },
---     scale = 1.1,
+    color = { 255 / 255, 174 / 255, 201 / 255, 1 },
+    scale = 1.1,
 
---     type = "metroid",
---     show_grid = true,
---     grid_tile_size = 32 * 4,
---     show_world_bounds = true
--- }, "pink")
+    type = "metroid",
+    show_grid = true,
+    grid_tile_size = 32 * 4,
+    show_world_bounds = true
+}, "pink")
 
 -- local temp
 -- temp = Game:get_camera("main")
@@ -504,7 +504,11 @@ Game:implements({
         --     cam2:follow(rec:get_cx(), rec:get_cy())
         -- end
 
-        cam1:follow(ship:get_cx(), ship:get_cy())
+        if love.keyboard.isDown("up") then
+            cam1:follow(rec:get_cx(), rec:get_cy() - 32 * 3, "up monica")
+        else
+            cam1:follow(rec:get_cx(), rec:get_cy(), "monica")
+        end
 
         if cam_pink then
             cam_pink:follow(ship:get_cx(), ship:get_cy())
@@ -634,13 +638,10 @@ Game:implements({
                 graph_rect("fill", 32 * 10, 32 * 4, 32, 32)
 
 
-                -- love.graphics.setColor(1, 1, 1, 1)
-                -- love.graphics.draw(mask, rec:get_cx(), rec:get_cy())
-
-                love.graphics.setColor(0.1, 0.1, 0.1, 1)
-                love.graphics.circle("fill", rec:get_cx(), rec:get_cy(), 32 * 2 + 2)
-                love.graphics.setColor(1, 0, 1, 1)
-                love.graphics.circle("fill", rec:get_cx(), rec:get_cy(), 32 * 2)
+                -- love.graphics.setColor(0.1, 0.1, 0.1, 1)
+                -- love.graphics.circle("fill", rec:get_cx(), rec:get_cy(), 32 * 2 + 2)
+                -- love.graphics.setColor(1, 0, 1, 1)
+                -- love.graphics.circle("fill", rec:get_cx(), rec:get_cy(), 32 * 2)
 
 
                 -- love.graphics.circle("fill", rec:get_cx(), rec:get_cy(), 32 * 3)
@@ -658,8 +659,7 @@ Game:implements({
             end,
             factor_x = 0,
             factor_y = 0,
-            shader = pink_to_none,
-            shader2 = darken_shader,
+            -- shader = pink_to_none,
 
             name = "main background"
         },
@@ -671,15 +671,16 @@ Game:implements({
 
             update = function(self, dt)
                 self.rad = self.rad + (math.pi * 2) / 1 * dt
-                self.alpha = 0.3 * math.cos(self.rad)
+                self.alpha = 0.3 * math.sin(self.rad * 2)
+                self.alpha = 0.1
             end,
 
             draw = function(self)
                 love.graphics.setBlendMode("add", 'premultiplied')
-                love.graphics.setColor(0.7 + self.alpha, 0.7 + self.alpha, 0, 1)
+                love.graphics.setColor(0.4 + self.alpha, 0.4 + self.alpha, 0, 1)
                 love.graphics.circle("fill",
                     rec:get_cx(),
-                    rec:get_cy(), 32 * 2
+                    rec:get_cy(), (32 * 2.5) + 3 * math.sin(self.rad)
                 )
                 love.graphics.setBlendMode("alpha")
             end
