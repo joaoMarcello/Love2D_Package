@@ -3,6 +3,7 @@ local JM_package = require("/JM_love2d_package/JM_package")
 local Anima = JM_package.Anima
 local FontGenerator = JM_package.Font
 local EffectManager = JM_package.EffectGenerator
+local Physics = require("/JM_love2d_package/modules/jm_physics")
 
 -- local Consolas = FontGenerator:new({ name = "consolas", font_size = 14 })
 -- Consolas:add_nickname_animated("--goomba--", {
@@ -249,9 +250,43 @@ local function check_collision(x, y, w, h)
 end
 
 local ship
+local obj, ground
+---@type JM.Physics.World
+local world
 --==========================================================================
 Game:implements({
     load = function()
+        world = Physics:newWorld()
+        obj = {
+            acc = 32 * 4
+        }
+        obj.body = Physics:newBody(world, 32 * 15, 32 * 8, 32, 64, "dynamic")
+        obj.draw = function(self)
+            local body
+            ---@type JM.Physics.Body
+            body = self.body
+            love.graphics.setColor(0.6, 0.8, 0.1, 1)
+            love.graphics.rectangle("fill", body:rect())
+            body = nil
+        end
+        obj.body.bouncing = 1.0
+        obj.body:jump(32 * 8)
+        obj.body.acc_x = -obj.acc
+        obj.body:on_ground_collision(function(self)
+            if obj.body.speed_x < 0 then
+                obj.body.acc_x = obj.acc
+            end
+
+            -- self:jump(32 * 3)
+        end)
+
+        ground = {}
+        ground.body = Physics:newBody(world, 0, 32 * 10, 32 * 30, 32 * 2, "static")
+        ground.draw = function(self)
+            love.graphics.setColor(0.4, 0.4, 0.7, 1)
+            love.graphics.rectangle("fill", self.body:rect())
+        end
+
         -- love.graphics.setDefaultFilter("nearest", "nearest")
         ship = {
             x = 0,
@@ -384,7 +419,8 @@ Game:implements({
         }
         rec.y = 32 * 6
 
-        Game.camera:jump_to(rec.x, rec.y)
+        Game.camera:jump_to(ship.x, ship.y)
+        Game.camera:set_position(0, 0)
 
         if Game:get_camera("blue") then
             Game:get_camera("blue"):jump_to(ship:get_cx(), ship:get_cy())
@@ -393,10 +429,10 @@ Game:implements({
         if Game:get_camera("pink") then
             Game:get_camera("pink"):jump_to(rec:get_cx(), rec:get_cy())
         end
-        -- Game.camera2:set_position(rec:get_cx(), rec:get_cy())
     end,
 
     update = function(dt)
+        world:update(dt)
 
         local cam1, cam_blue, cam_pink
         cam1, cam_blue = Game:get_camera(1), Game:get_camera("blue")
@@ -506,10 +542,10 @@ Game:implements({
         --     cam2:follow(rec:get_cx(), rec:get_cy())
         -- end
 
-        if love.keyboard.isDown("up") then
+        if love.keyboard.isDown("up") and false then
             cam1:follow(rec:get_cx(), rec:get_cy() - 32 * 3, "up monica")
         else
-            cam1:follow(rec:get_cx(), rec:get_cy(), "monica")
+            cam1:follow(ship:get_cx(), ship:get_cy(), "monica")
         end
 
         if cam_pink then
@@ -694,6 +730,14 @@ Game:implements({
                 current_animation:draw_rec(round(rec.x), round(rec.y), rec.w, rec.h)
             end,
             name = "player"
+        },
+
+        {
+            draw = function(self)
+                obj:draw()
+                ground:draw()
+            end,
+            name = "physics bodies"
         }
     }
 })

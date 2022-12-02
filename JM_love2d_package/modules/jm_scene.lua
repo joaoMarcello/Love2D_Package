@@ -108,8 +108,8 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
 
     self.world_left = -32 * 0
     self.world_right = 32 * 60
-    self.world_top = -32 * 10
-    self.world_bottom = 32 * 25
+    self.world_top = -32 * 0
+    self.world_bottom = 32 * 12
 
     local config = {
         -- camera's viewport in desired game screen coordinates
@@ -141,7 +141,7 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
 
         scale = 1,
 
-        type = "super mario world",
+        type = "metroid",
 
         show_grid = true,
 
