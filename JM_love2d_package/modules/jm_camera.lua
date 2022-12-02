@@ -750,7 +750,7 @@ function Camera:__constructor__(
     self.acc_x = self.tile_size * 13
     self.acc_y = self.acc_x
 
-    self.follow_speed_x = (self.tile_size * 9)
+    self.follow_speed_x = (self.tile_size * 8)
     self.follow_speed_y = (self.tile_size * 8)
 
     self.max_speed_x = false --sqrt(2 * self.acc_x * self.tile_size * 5)
@@ -962,6 +962,8 @@ function Camera:follow(x, y, name)
     if self.target.name ~= self.target.last_name then
         self.target.x = nil
         self.target.y = nil
+        self.follow_speed_y = sqrt(2 * self.acc_y * self.default_initial_speed_y)
+        self.follow_speed_x = sqrt(2 * self.acc_x * self.default_initial_speed_x)
     end
 
     self.target.last_x = self.target.x or x
