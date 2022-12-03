@@ -269,8 +269,8 @@ Game:implements({
             love.graphics.rectangle("fill", body:rect())
             body = nil
         end
-        obj.body.bouncing = 1.0
-        obj.body:jump(32 * 8)
+        obj.body.bouncing = 0.7
+        obj.body:jump(32 * 3)
         obj.body.acc_x = -obj.acc
         obj.body:on_ground_collision(function(self)
             if obj.body.speed_x < 0 then
@@ -383,6 +383,7 @@ Game:implements({
             y = -100,
             w = 28,
             h = 58,
+            body = Physics:newBody(world, 450, -100, 28, 58, "dynamic"),
             jump = false,
             speed_y = 0,
             gravity = (32 * 3.5) * 9.8,
