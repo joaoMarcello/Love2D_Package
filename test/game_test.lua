@@ -392,22 +392,22 @@ Game:implements({
             acc = 64 * 3,
             dacc = 64 * 10,
             direction = 1,
-            accelerate = function(self, dt, acc, direction)
-                if self.speed_x == 0 then
-                    self.speed_x = 32 * direction
-                end
-                self.speed_x = self.speed_x + acc * dt * direction
+            -- accelerate = function(self, dt, acc, direction)
+            --     if self.speed_x == 0 then
+            --         self.speed_x = 32 * direction
+            --     end
+            --     self.speed_x = self.speed_x + acc * dt * direction
 
-                if math.abs(self.speed_x) > self.max_speed then
-                    self.speed_x = self.max_speed * direction
-                end
-            end,
-            run = function(self, dt, acc)
-                if math.abs(self.speed_x) ~= 0 then
-                    self.x = self.x
-                        + (self.speed_x * dt + (acc * dt * dt) / 2)
-                end
-            end,
+            --     if math.abs(self.speed_x) > self.max_speed then
+            --         self.speed_x = self.max_speed * direction
+            --     end
+            -- end,
+            -- run = function(self, dt, acc)
+            --     if math.abs(self.speed_x) ~= 0 then
+            --         self.x = self.x
+            --             + (self.speed_x * dt + (acc * dt * dt) / 2)
+            --     end
+            -- end,
             get_cx = function(self)
                 return self.x + self.w / 2
             end,
@@ -419,6 +419,7 @@ Game:implements({
             end
         }
         rec.y = 32 * 6
+        rec.body.max_speed_x = rec.max_speed
 
         Game.camera:jump_to(ship.x, ship.y)
         Game.camera:set_position(0, 0)
@@ -441,83 +442,88 @@ Game:implements({
 
         ship:update(dt)
 
+        ---@type JM.Physics.Body
+        local rbody = rec.body
+
         if love.keyboard.isDown("left")
             -- and rec.x > 0
-            and rec.speed_x <= 0
+            and rbody.speed_x <= 0
         then
             rec.direction = -1
-            rec:accelerate(dt, rec.acc, -1)
-            rec:run(dt, rec.acc)
+            rbody:move(-rec.acc)
 
             change_animation(monica_run, current_animation)
             current_animation:set_flip_x(true)
 
         elseif love.keyboard.isDown("right")
-            and rec.speed_x >= 0
+            and rbody.speed_x >= 0
         then
             rec.direction = 1
-            rec:accelerate(dt, rec.acc, 1)
-            rec:run(dt, rec.acc)
+            rbody:move(rec.acc)
 
             change_animation(monica_run, current_animation)
             current_animation:set_flip_x(false)
 
-        elseif math.abs(rec.speed_x) ~= 0 then
+        elseif math.abs(rbody.speed_x) ~= 0 then
             local dacc = rec.dacc
                 * ((love.keyboard.isDown("left") or love.keyboard.isDown("right"))
                     and 1.5 or 1)
-            rec:accelerate(dt, dacc, rec.speed_x > 0 and -1 or 1)
-            rec:run(dt, dacc)
-            if rec.direction > 0 and rec.speed_x < 0 then rec.speed_x = 0 end
-            if rec.direction < 0 and rec.speed_x > 0 then rec.speed_x = 0 end
+
+            rbody:set_acc(dacc * (rbody.speed_x > 0 and -1 or 1))
         end
 
-        rec.y = rec.y + rec.speed_y * dt + (rec.gravity * dt * dt) / 2
-        rec.speed_y = rec.speed_y + rec.gravity * dt
+        -- if rec.jump and rec.speed_y < 0 and not love.keyboard.isDown("space") then
+        --     rec.speed_y = math.sqrt(2 * rec.gravity * 1)
+        -- end
 
-        if rec.jump and rec.speed_y < 0 and not love.keyboard.isDown("space") then
-            rec.speed_y = math.sqrt(2 * rec.gravity * 1)
-        end
-
-        if rec.y + rec.h > Game.world_bottom then
-            rec.y = Game.world_bottom - rec.h
-            rec.jump = nil
-        end
-
-        local obj
-        local rx, ry, rw, rh = rec:rect()
-        obj = rec.speed_y >= 0 and check_collision(rx, ry, rw, rh + 15)
-        if obj then
-            if rec.speed_y > math.sqrt(2 * rec.gravity * 3) then
-                -- cam1:shake_in_y(0.05, 3, 0.2, 0.1)
-                -- local r = cam_blue and cam_blue:shake_in_y(0.05, 3, 0.2, 0.1)
-                -- r = cam_pink and cam_pink:shake_in_y(0.05, 3, 0.2, 0.1)
-            end
-
-            rec.y = obj.y - rec.h - 1
-            rec.speed_y = 0
-
-
+        -- if rec.y + rec.h > Game.world_bottom then
+        --     -- rec.y = Game.world_bottom - rec.h
+        --     -- rec.jump = nil
+        -- end
+        if rbody.y + rbody.h > Game.world_bottom then
+            rbody.y = Game.world_bottom - rbody.h
             rec.jump = false
-            obj = nil
         end
 
-        obj = rec.speed_x >= 0 and check_collision(rx, ry, rw + 3, rh)
-        if obj then
-            rec.x = obj.x - rec.w
-            rec.speed_x = 0
-            obj = nil
+        if rbody.ground then
+            rec.jump = false
         end
 
-        obj = rec.speed_x <= 0 and check_collision(rx - 3, ry, rw, rh)
-        if obj then
-            rec.speed_x = 0
-            rec.x = obj.x + obj.w
-            obj = nil
-        end
+        -- local obj
+        -- local rx, ry, rw, rh = rec:rect()
+        -- obj = rec.speed_y >= 0 and check_collision(rx, ry, rw, rh + 15)
+        -- if obj then
+        --     if rec.speed_y > math.sqrt(2 * rec.gravity * 3) then
+        --         -- cam1:shake_in_y(0.05, 3, 0.2, 0.1)
+        --         -- local r = cam_blue and cam_blue:shake_in_y(0.05, 3, 0.2, 0.1)
+        --         -- r = cam_pink and cam_pink:shake_in_y(0.05, 3, 0.2, 0.1)
+        --     end
 
-        rec.x = round(rec.x)
-        rec.y = round(rec.y)
+        --     rec.y = obj.y - rec.h - 1
+        --     rec.speed_y = 0
+
+
+        --     rec.jump = false
+        --     obj = nil
+        -- end
+
+        -- obj = rec.speed_x >= 0 and check_collision(rx, ry, rw + 3, rh)
+        -- if obj then
+        --     rec.x = obj.x - rec.w
+        --     rec.speed_x = 0
+        --     obj = nil
+        -- end
+
+        -- obj = rec.speed_x <= 0 and check_collision(rx - 3, ry, rw, rh)
+        -- if obj then
+        --     rec.speed_x = 0
+        --     rec.x = obj.x + obj.w
+        --     obj = nil
+        -- end
+
+        rec.x = round(rbody.x)
+        rec.y = round(rbody.y)
+
         current_animation:update(dt)
         my_effect:apply(current_animation, false)
         -- Consolas:update(dt)
@@ -532,16 +538,6 @@ Game:implements({
             rec.speed_x = 0
         end
 
-
-        -- if love.keyboard.isDown("up")
-        -- then
-        --     cam2:follow(rec:get_cx(), rec:get_cy() - 32 * 3)
-        -- elseif love.keyboard.isDown("down")
-        -- then
-        --     cam2:follow(rec:get_cx(), rec:get_cy() + 32 * 3)
-        -- else
-        --     cam2:follow(rec:get_cx(), rec:get_cy())
-        -- end
 
         if love.keyboard.isDown("up") and false then
             cam1:follow(rec:get_cx(), rec:get_cy() - 32 * 3, "up monica")
@@ -564,7 +560,8 @@ Game:implements({
         if key == "space" then
             if not rec.jump then
                 rec.jump = true
-                rec.speed_y = -math.sqrt(2 * rec.gravity * 32 * 3.5)
+                -- rec.speed_y = -math.sqrt(2 * rec.gravity * 32 * 3.5)
+                rec.body:jump(32 * 3.5)
             end
         end
     end,

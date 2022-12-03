@@ -1,4 +1,4 @@
-local abs, mfloor, mceil = math.abs, math.floor, math.ceil
+local abs, mfloor, mceil, sqrt = math.abs, math.floor, math.ceil, math.sqrt
 
 ---@enum JM.Physics.BodyTypes
 local BodyTypes = {
@@ -146,8 +146,9 @@ do
     end
 
     function Body:jump(desired_height)
+        self.ground = nil
         self:reset_gravity()
-        self.speed_y = -math.sqrt(2 * self.acc_y * desired_height)
+        self.speed_y = -sqrt(2 * self.acc_y * desired_height)
     end
 
     function Body:move(acc)
@@ -221,9 +222,14 @@ do
                             if abs(obj.speed_y) <= 32 then
                                 obj.speed_y = 0
                             end
+                        else
+                            obj.speed_y = sqrt(2 * obj.acc_y * 1)
                         end
 
                         local r = obj.on_ground_collision_action and obj.on_ground_collision_action(obj)
+
+                        obj.ground = cobj
+
                         r = nil
                     end
                 end
@@ -272,6 +278,29 @@ do
             end
         end
         return false
+    end
+
+    ---@param obj JM.Physics.Body
+    function World:check(obj)
+        obj.collisions = nil
+        obj.collisions = {}
+        obj.n_collisions = 0
+
+        for i = 1, self.n_bodies, 1 do
+            local bd
+
+            ---@type JM.Physics.Body
+            bd = self.bodies[i]
+
+            if bd ~= obj and collision_rect(
+                bd.x, bd.y, bd.w, bd.h,
+                obj.x, obj.y, obj.w, obj.h)
+            then
+                table.insert(obj.collisions, bd)
+                obj.n_collisions = obj.n_collisions + 1
+            end
+            bd = nil
+        end
     end
 end
 --=============================================================================
