@@ -480,6 +480,7 @@ Game:implements({
         --     -- rec.y = Game.world_bottom - rec.h
         --     -- rec.jump = nil
         -- end
+
         if rbody.y + rbody.h > Game.world_bottom then
             rbody.y = Game.world_bottom - rbody.h
             rec.jump = false

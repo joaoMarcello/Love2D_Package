@@ -45,20 +45,21 @@ end
 local Body = {}
 do
     ---@return JM.Physics.Body
-    function Body:new(x, y, w, h, type_, world)
+    function Body:new(x, y, w, h, type_, world, id)
         local obj = {}
         setmetatable(obj, self)
         self.__index = self
 
-        Body.__constructor__(obj, x, y, w, h, type_, world)
+        Body.__constructor__(obj, x, y, w, h, type_, world, id)
         return obj
     end
 
     ---@param world JM.Physics.World
     ---@param type_ JM.Physics.BodyTypes
-    function Body:__constructor__(x, y, w, h, type_, world)
+    function Body:__constructor__(x, y, w, h, type_, world, id)
 
         self.type = type_
+        self.id = id or ""
         self.world = world
 
         self.x = x
@@ -177,7 +178,7 @@ do
         self.meter = self.tile * 3.5
         self.gravity = 9.8 * self.meter
         self.max_speed_y = self.meter * 7
-        self.default_mass = 50
+        self.default_mass = 65
 
         self.bodies = {}
         self.n_bodies = 0
