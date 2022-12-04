@@ -43,7 +43,7 @@ end
 local function draw_tile(self)
     local tile, qx, qy
 
-    tile = self.tile_size_x * 4
+    tile = 32 --self.tile_size_x * 4
     qx = (self.w - self.x) / tile
     qy = (self.h - self.y) / tile
 
@@ -316,13 +316,13 @@ function Scene:implements(param)
             ---@type JM.Camera.Camera
             camera = self.cameras_list[i]
 
-            set_color_draw(camera:get_color())
-            love.graphics.rectangle("fill",
-                camera.viewport_x * camera.desired_scale,
-                camera.viewport_y * camera.desired_scale,
-                camera.viewport_w,
-                camera.viewport_h
-            )
+            -- set_color_draw(camera:get_color())
+            -- love.graphics.rectangle("fill",
+            --     camera.viewport_x * camera.desired_scale,
+            --     camera.viewport_y * camera.desired_scale,
+            --     camera.viewport_w,
+            --     camera.viewport_h
+            -- )
 
             if param.layers then
                 for i = 1, self.n_layers, 1 do

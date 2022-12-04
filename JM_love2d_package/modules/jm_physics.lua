@@ -179,7 +179,7 @@ do
         self.tile = 32
         self.meter = self.tile * 3.5
         self.gravity = 9.8 * self.meter
-        self.max_speed_y = self.meter * 7
+        self.max_speed_y = self.meter * 8
         self.default_mass = 65
 
         self.bodies = {}
@@ -192,12 +192,22 @@ do
         return mfloor(x / self.tile) + 1, mfloor(y / self.tile) + 1
     end
 
+    function World:count_Cells()
+        local count = 0
+        for _, row in pairs(self.grid) do
+            for _, _ in pairs(row) do
+                count = count + 1
+            end
+        end
+        return count
+    end
+
     function World:rect_to_cell(x, y, w, h)
         local cleft, ctop = self:to_cell(x, y)
-        local cright = mceil(w / self.tile)
-        local cbottom = mceil(h / self.tile)
+        local cright = mceil((x + w) / self.tile)
+        local cbottom = mceil((y + h) / self.tile)
 
-        return cleft, ctop, cleft + cright, ctop + cbottom
+        return cleft, ctop, cright - cleft + 1, cbottom - ctop + 1
     end
 
     function World:add_obj_to_cell(obj, cx, cy)
@@ -215,45 +225,47 @@ do
 
     ---@param obj JM.Physics.Body
     function World:get_items_in_cell_obj(obj)
-        local cl, ct, cr, cb = self:rect_to_cell(obj.x, obj.y, obj.w, obj.h)
+        local cl, ct, cw, ch = self:rect_to_cell(obj.x, obj.y, obj.w, obj.h)
         local items = {}
 
-        for cy = ct, cb do
+        for cy = ct, ct + ch - 1 do
             local row = self.grid[cy]
 
-            for cx = cl, cr do
-                ---@type JM.Physics.Cell
-                local cell = row[cx]
+            if row then
+                for cx = cl, cl + cw - 1 do
+                    ---@type JM.Physics.Cell
+                    local cell = row[cx]
 
-                if cell and cell.count > 0 then
-                    for item, _ in pairs(cell.items) do
-                        items[item] = true
+                    if cell and cell.count > 0 then
+                        for item, _ in pairs(cell.items) do
+                            items[item] = true
+                        end
                     end
-                end
 
-            end -- End For Columns
+                end -- End For Columns
+            end
         end -- End for rows
 
         return items
     end
 
+    ---@param obj JM.Physics.Body
     function World:add(obj)
         table.insert(self.bodies, obj)
         self.n_bodies = self.n_bodies + 1
 
-        local qx = mfloor(obj.w / self.tile) + 1
-        local qy = mfloor(obj.h / self.tile) + 1
+        local cl, ct, cr, cb = self:rect_to_cell(obj:rect())
 
-        for i = 0, qx, 1 do
-            for j = 0, qy, 1 do
-                local cx, cy = self:to_cell(
-                    obj.x + (self.tile * i),
-                    obj.y + (self.tile * j)
-                )
-
+        for cy = ct, ct + cb - 1, 1 do
+            for cx = cl, cl + cr - 1, 1 do
                 self:add_obj_to_cell(obj, cx, cy)
             end
         end
+
+        self.debug = {
+            l = tostring(cl), t = tostring(ct), r = tostring(cr), b = tostring(cb)
+        }
+
     end
 
     function World:remove(obj)
@@ -281,25 +293,25 @@ do
                         + (obj.acc_y * dt * dt) / 2.0
                     )
 
-                    local cobj = self:check_collision(obj)
-                    if cobj then
-                        obj:set_y_pos(cobj.y - obj.h)
+                    -- local cobj = self:check_collision(obj)
+                    -- if cobj then
+                    --     obj:set_y_pos(cobj.y - obj.h)
 
-                        if obj.bouncing then
-                            obj.speed_y = -obj.speed_y * obj.bouncing
-                            if abs(obj.speed_y) <= 32 then
-                                obj.speed_y = 0
-                            end
-                        else
-                            obj.speed_y = sqrt(2 * obj.acc_y * 1)
-                        end
+                    --     if obj.bouncing then
+                    --         obj.speed_y = -obj.speed_y * obj.bouncing
+                    --         if abs(obj.speed_y) <= 32 then
+                    --             obj.speed_y = 0
+                    --         end
+                    --     else
+                    --         obj.speed_y = sqrt(2 * obj.acc_y * 1)
+                    --     end
 
-                        local r = obj.on_ground_collision_action and obj.on_ground_collision_action(obj)
+                    --     local r = obj.on_ground_collision_action and obj.on_ground_collision_action(obj)
 
-                        obj.ground = cobj
+                    --     obj.ground = cobj
 
-                        r = nil
-                    end
+                    --     r = nil
+                    -- end
                 end
 
                 -- moving in x axis
@@ -327,6 +339,11 @@ do
                     obj:set_x_pos(obj.x + (obj.speed_x * dt)
                         + (obj.acc_x * dt * dt) / 2.0
                     )
+
+                    local col = self:check(obj)
+                    if col then
+                        obj.x = col.x + col.w
+                    end
                 end -- end moving in x axis
             end --end if body is dynamic
         end
@@ -350,25 +367,38 @@ do
 
     ---@param obj JM.Physics.Body
     function World:check(obj)
-        obj.collisions = nil
-        obj.collisions = {}
-        obj.n_collisions = 0
+        local cl, ct, cw, ch = self:rect_to_cell(obj:rect())
+        local items = self:get_items_in_cell_obj(obj)
 
-        for i = 1, self.n_bodies, 1 do
-            local bd
-
-            ---@type JM.Physics.Body
-            bd = self.bodies[i]
-
-            if bd ~= obj and collision_rect(
-                bd.x, bd.y, bd.w, bd.h,
-                obj.x, obj.y, obj.w, obj.h)
+        for item, _ in pairs(items) do
+            if item ~= obj and collision_rect(
+                obj.x, obj.y, obj.w, obj.h,
+                item.x, item.y, item.w, item.h
+            )
             then
-                table.insert(obj.collisions, bd)
-                obj.n_collisions = obj.n_collisions + 1
+                return item
             end
-            bd = nil
         end
+
+        -- obj.collisions = nil
+        -- obj.collisions = {}
+        -- obj.n_collisions = 0
+
+        -- for i = 1, self.n_bodies, 1 do
+        --     local bd
+
+        --     ---@type JM.Physics.Body
+        --     bd = self.bodies[i]
+
+        --     if bd ~= obj and collision_rect(
+        --         bd.x, bd.y, bd.w, bd.h,
+        --         obj.x, obj.y, obj.w, obj.h)
+        --     then
+        --         table.insert(obj.collisions, bd)
+        --         obj.n_collisions = obj.n_collisions + 1
+        --     end
+        --     bd = nil
+        -- end
     end
 end
 --=============================================================================
@@ -388,6 +418,7 @@ function Phys:newBody(world, x, y, w, h, type_)
         or BodyTypes.static
 
     local b = Body:new(x, y, w, h, type_, world)
+
     world:add(b)
     return b
 end

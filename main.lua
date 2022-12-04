@@ -5,7 +5,7 @@ local a = {}
 local tab = {}
 tab[a] = 5
 
-local scene = require("/test/game_test")
+local scene = require("/test/teste_fisica")
 
 local t = 0
 
