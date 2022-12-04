@@ -7,6 +7,8 @@ local BodyTypes = {
     kinematic = 3
 }
 
+---@alias JM.Physics.Cell {count:number, x:number, y:number, items:table}
+
 local function collision_rect(x1, y1, w1, h1, x2, y2, w2, h2)
     return x1 + w1 > x2
         and x1 < x2 + w2
@@ -182,11 +184,76 @@ do
 
         self.bodies = {}
         self.n_bodies = 0
+
+        self.grid = {}
+    end
+
+    function World:to_cell(x, y)
+        return mfloor(x / self.tile) + 1, mfloor(y / self.tile) + 1
+    end
+
+    function World:rect_to_cell(x, y, w, h)
+        local cleft, ctop = self:to_cell(x, y)
+        local cright = mceil(w / self.tile)
+        local cbottom = mceil(h / self.tile)
+
+        return cleft, ctop, cleft + cright, ctop + cbottom
+    end
+
+    function World:add_obj_to_cell(obj, cx, cy)
+        self.grid[cy] = self.grid[cy] or {}
+        local row = self.grid[cy]
+
+        row[cx] = row[cx] or { count = 0, x = cx, y = cy, items = {} }
+        local cell = row[cx]
+
+        if not cell.items[obj] then
+            cell.items[obj] = true
+            cell.count = cell.count + 1
+        end
+    end
+
+    ---@param obj JM.Physics.Body
+    function World:get_items_in_cell_obj(obj)
+        local cl, ct, cr, cb = self:rect_to_cell(obj.x, obj.y, obj.w, obj.h)
+        local items = {}
+
+        for cy = ct, cb do
+            local row = self.grid[cy]
+
+            for cx = cl, cr do
+                ---@type JM.Physics.Cell
+                local cell = row[cx]
+
+                if cell and cell.count > 0 then
+                    for item, _ in pairs(cell.items) do
+                        items[item] = true
+                    end
+                end
+
+            end -- End For Columns
+        end -- End for rows
+
+        return items
     end
 
     function World:add(obj)
         table.insert(self.bodies, obj)
         self.n_bodies = self.n_bodies + 1
+
+        local qx = mfloor(obj.w / self.tile) + 1
+        local qy = mfloor(obj.h / self.tile) + 1
+
+        for i = 0, qx, 1 do
+            for j = 0, qy, 1 do
+                local cx, cy = self:to_cell(
+                    obj.x + (self.tile * i),
+                    obj.y + (self.tile * j)
+                )
+
+                self:add_obj_to_cell(obj, cx, cy)
+            end
+        end
     end
 
     function World:remove(obj)
