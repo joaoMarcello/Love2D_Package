@@ -62,7 +62,7 @@ Game:implements({
         end
 
         local block = {
-            body = Physics:newBody(world, 128, 0 + 64 * 4, 32 * 4, 64, "static"),
+            body = Physics:newBody(world, 128, 10 + 64 * 4, 32 * 4, 64, "static"),
             draw = function(self)
                 love.graphics.setColor(0.1, 0.4, 0.5)
                 love.graphics.rectangle("fill", self.body:rect())

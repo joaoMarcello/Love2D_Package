@@ -293,6 +293,15 @@ do
                         + (obj.acc_y * dt * dt) / 2.0
                     )
 
+                    local col = self:check(obj)
+                    if col then
+                        if obj.speed_y > 0 then
+                            obj.y = col.y - obj.h
+                        else
+                            obj.y = col.y + col.h
+                        end
+                        obj.speed_y = 0
+                    end
                     -- local cobj = self:check_collision(obj)
                     -- if cobj then
                     --     obj:set_y_pos(cobj.y - obj.h)
@@ -342,7 +351,12 @@ do
 
                     local col = self:check(obj)
                     if col then
-                        obj.x = col.x + col.w
+                        if obj.speed_x < 0 then
+                            obj.x = col.x + col.w
+                        else
+                            obj.x = col.x - obj.w
+                        end
+                        obj.speed_x = 0
                     end
                 end -- end moving in x axis
             end --end if body is dynamic
