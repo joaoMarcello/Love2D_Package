@@ -58,11 +58,20 @@ Game:implements({
         player.body.acc_y = 0
 
         for i = 0, 0 do
-
+            local block = {
+                body = Physics:newBody(world, 128 + 32, 64 * 5, 32 * 4, 64, "static"),
+                draw = function(self)
+                    love.graphics.setColor(0.1, 0.4, 0.5)
+                    love.graphics.rectangle("fill", self.body:rect())
+                    love.graphics.setColor(1, 1, 1)
+                    love.graphics.rectangle("line", self.body:rect())
+                end
+            }
+            components[block] = true
         end
 
         local block = {
-            body = Physics:newBody(world, 128, 10 + 64 * 4, 32 * 4, 64, "static"),
+            body = Physics:newBody(world, 120, 64 * 4 + 10, 32 * 4, 64, "static"),
             draw = function(self)
                 love.graphics.setColor(0.1, 0.4, 0.5)
                 love.graphics.rectangle("fill", self.body:rect())

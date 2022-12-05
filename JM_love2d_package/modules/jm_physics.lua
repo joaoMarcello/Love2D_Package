@@ -161,6 +161,51 @@ do
     function Body:on_ground_collision(action)
         self.on_ground_collision_action = action
     end
+
+    function Body:refresh(x, y, w, h)
+        x = x or self.x
+        y = y or self.y
+        w = w or self.w
+        h = h or self.h
+
+        if x ~= self.x or y ~= self.y or w ~= self.w or h ~= self.h then
+            local cellsize = self.world.tile
+            local world = self.world
+            local cl1, ct1, cw1, ch1 = world:rect_to_cell(self:rect())
+            local cl2, ct2, cw2, ch2 = world:rect_to_cell(x, y, w, h)
+
+            if cl1 ~= cl2 or ct1 ~= ct2 or cw1 ~= cw2 or ch1 ~= ch2 then
+
+                local cr1, cb1 = (cl1 + cw1 - 1), (ct1 + ch1 - 1)
+                local cr2, cb2 = (cl2 + cw2 - 1), (ct2 + ch2 - 1)
+                local cy_out
+
+                for cy = ct1, cb1 do
+
+                    cy_out = cy < ct2 or cy > cb2
+
+                    for cx = cl1, cr1 do
+                        if cy_out or cx < cl2 or cx > cr2 then
+                            world:remove_obj_from_cell(self, cx, cy)
+                        end
+                    end
+                end
+
+                for cy = ct2, cb2 do
+
+                    cy_out = cy < ct1 or cy > cb1
+
+                    for cx = cl2, cr2 do
+                        if cy_out or cx < cl1 or cx > cr1 then
+                            world:add_obj_to_cell(self, cx, cy)
+                        end
+                    end
+                end
+            end -- End If
+
+            self.x, self.y, self.w, self.h = x, y, w, h
+        end
+    end
 end
 --=============================================================================
 ---@class JM.Physics.World
@@ -223,6 +268,17 @@ do
         end
     end
 
+    function World:remove_obj_from_cell(obj, cx, cy)
+        local row = self.grid[cy]
+        if not row or not row[cx] or not row[cx].items[obj] then return end
+
+        ---@type JM.Physics.Cell
+        local cell = row[cx]
+        cell.items[obj] = nil
+        cell.count = cell.count - 1
+        return true
+    end
+
     ---@param obj JM.Physics.Body
     function World:get_items_in_cell_obj(obj)
         local cl, ct, cw, ch = self:rect_to_cell(obj.x, obj.y, obj.w, obj.h)
@@ -233,6 +289,7 @@ do
 
             if row then
                 for cx = cl, cl + cw - 1 do
+
                     ---@type JM.Physics.Cell
                     local cell = row[cx]
 
@@ -254,23 +311,35 @@ do
         table.insert(self.bodies, obj)
         self.n_bodies = self.n_bodies + 1
 
-        local cl, ct, cr, cb = self:rect_to_cell(obj:rect())
+        local cl, ct, cw, ch = self:rect_to_cell(obj:rect())
 
-        for cy = ct, ct + cb - 1, 1 do
-            for cx = cl, cl + cr - 1, 1 do
+        for cy = ct, ct + ch - 1, 1 do
+            for cx = cl, cl + cw - 1, 1 do
                 self:add_obj_to_cell(obj, cx, cy)
             end
         end
 
         self.debug = {
-            l = tostring(cl), t = tostring(ct), r = tostring(cr), b = tostring(cb)
+            l = tostring(cl), t = tostring(ct), r = tostring(cw), b = tostring(ch)
         }
 
     end
 
-    function World:remove(obj)
-        local r = table.remove(self.bodies, obj)
-        if r then self.n_bodies = self.n_bodies - 1 end
+    ---@param obj JM.Physics.Body
+    function World:remove(obj, index)
+        local r = table.remove(self.bodies, index)
+
+        if r then
+            self.n_bodies = self.n_bodies - 1
+
+            local cl, ct, cw, ch = self:rect_to_cell(obj:rect())
+
+            for cy = ct, (ct + ch - 1) do
+                for cx = cl, (cl + cw - 1) do
+                    self:remove_obj_from_cell(obj, cx, cy)
+                end
+            end
+        end
         r = nil
     end
 
@@ -280,6 +349,8 @@ do
             local obj = self.bodies[i]
 
             if is_dynamic(obj) or is_kinematic(obj) then
+                local goalx, goaly
+
                 -- falling
                 if (obj.acc_y ~= 0) or (obj.speed_y ~= 0) then
                     -- speed up with acceleration
@@ -289,9 +360,14 @@ do
                         obj.speed_y = self.max_speed_y
                     end
 
-                    obj:set_y_pos(obj.y + (obj.speed_y * dt)
+                    goaly = obj.y + (obj.speed_y * dt)
                         + (obj.acc_y * dt * dt) / 2.0
-                    )
+
+                    -- obj:set_y_pos(obj.y + (obj.speed_y * dt)
+                    --     + (obj.acc_y * dt * dt) / 2.0
+                    -- )
+
+                    obj:refresh(nil, goaly)
 
                     local col = self:check(obj)
                     if col then
@@ -302,6 +378,7 @@ do
                         end
                         obj.speed_y = 0
                     end
+
                     -- local cobj = self:check_collision(obj)
                     -- if cobj then
                     --     obj:set_y_pos(cobj.y - obj.h)
@@ -345,9 +422,14 @@ do
                         obj.acc_x = 0
                     end
 
-                    obj:set_x_pos(obj.x + (obj.speed_x * dt)
+                    -- obj:set_x_pos(obj.x + (obj.speed_x * dt)
+                    --     + (obj.acc_x * dt * dt) / 2.0
+                    -- )
+
+                    goalx = obj.x + (obj.speed_x * dt)
                         + (obj.acc_x * dt * dt) / 2.0
-                    )
+
+                    obj:refresh(goalx)
 
                     local col = self:check(obj)
                     if col then
