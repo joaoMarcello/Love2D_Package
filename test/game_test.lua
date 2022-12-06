@@ -486,7 +486,7 @@ Game:implements({
             rec.jump = false
         end
 
-        if rbody.ground then
+        if rbody.ground or true then
             rec.jump = false
         end
 
