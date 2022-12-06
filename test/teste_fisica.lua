@@ -20,7 +20,7 @@ Game:implements({
         world = Physics:newWorld()
 
         player = {
-            body = Physics:newBody(world, 64, 0, 64, 64, "dynamic"),
+            body = Physics:newBody(world, 64, 0, 25, 25, "dynamic"),
             acc = 32 * 8,
             max_speed = 32 * 7,
 
@@ -28,14 +28,15 @@ Game:implements({
                 local body
                 ---@type JM.Physics.Body
                 body = self.body
-                if love.keyboard.isDown("down") then
-                    body.acc_y = self.acc
-                elseif love.keyboard.isDown("up") then
-                    body.acc_y = -self.acc
-                else
-                    body.speed_y = 0
-                    body.acc_y = 0
-                end
+
+                -- if love.keyboard.isDown("down") then
+                --     body.acc_y = self.acc
+                -- elseif love.keyboard.isDown("up") then
+                --     body.acc_y = -self.acc
+                -- else
+                --     body.speed_y = 0
+                --     body.acc_y = 0
+                -- end
 
                 if love.keyboard.isDown("left") then
                     body.acc_x = -self.acc
@@ -48,6 +49,12 @@ Game:implements({
                 end
             end,
 
+            keypressed = function(self, key)
+                if key == "space" then
+                    self.body:jump(32 * 2)
+                end
+            end,
+
             draw = function(self)
                 love.graphics.setColor(0.4, 0.4, 1)
                 love.graphics.rectangle("fill", self.body:rect())
@@ -55,11 +62,11 @@ Game:implements({
                 love.graphics.rectangle("line", self.body:rect())
             end
         }
-        player.body.acc_y = 0
+        -- player.body.acc_y = 0
 
         for i = 0, 0 do
             local block = {
-                body = Physics:newBody(world, 128 + 32, 64 * 5, 32 * 4, 64, "static"),
+                body = Physics:newBody(world, 128 + 32, 64 * 5, 32 * 4, 10, "static"),
                 draw = function(self)
                     love.graphics.setColor(0.1, 0.4, 0.5)
                     love.graphics.rectangle("fill", self.body:rect())
@@ -71,7 +78,7 @@ Game:implements({
         end
 
         local block = {
-            body = Physics:newBody(world, 120, 64 * 4 + 10, 32 * 4, 64, "static"),
+            body = Physics:newBody(world, 128, 64 * 4, 32 * 4, 64, "static"),
             draw = function(self)
                 love.graphics.setColor(0.1, 0.4, 0.5)
                 love.graphics.rectangle("fill", self.body:rect())
@@ -88,6 +95,10 @@ Game:implements({
         Game.count_cells = world:count_Cells()
     end,
 
+    keypressed = function(key)
+        player:keypressed(key)
+    end,
+
     update = function(dt)
         world:update(dt)
 
@@ -102,10 +113,14 @@ Game:implements({
         end
 
         love.graphics.setColor(1, 1, 0, 1)
-        love.graphics.print("Quant. Cells: " .. tostring(Game.count_cells), 200, 50)
+        local cells = world:count_Cells()
+        love.graphics.print("Quant. Cells: " .. tostring(cells), 200, 50)
+
+        local cl, ct, cw, ch = world:rect_to_cell(player.body:rect())
+
         love.graphics.print("left - " ..
-            world.debug.l .. ", right - " .. world.debug.r .. ", top: " ..
-            world.debug.t .. ", bottom: " .. world.debug.b, 200, 80)
+            cl .. ", right - " .. cw .. ", top: " ..
+            ct .. ", bottom: " .. ch, 200, 80)
 
         love.graphics.print(tostring(world.debug.block.body.x), 200, 100)
     end

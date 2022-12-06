@@ -7,6 +7,16 @@ local BodyTypes = {
     kinematic = 3
 }
 
+---@enum JM.Physics.BodyShapes
+local BodyShapes = {
+    rectangle = 1,
+    ground_slope = 2,
+    inverted_ground_slope = 3,
+    ceil_slope = 4,
+    inverted_ceil_slope = 5,
+    circle = 8
+}
+
 ---@alias JM.Physics.Cell {count:number, x:number, y:number, items:table}
 
 local function collision_rect(x1, y1, w1, h1, x2, y2, w2, h2)
@@ -89,6 +99,12 @@ do
 
         self.bouncing = nil
 
+        self.shape = BodyShapes.rectangle
+    end
+
+    function Body:check_collision(obj)
+        return collision_rect(self.x, self.y, self.w, self.h,
+            obj.x, obj.y, obj.w, obj.h)
     end
 
     function Body:reset_gravity()
@@ -101,10 +117,7 @@ do
     end
 
     function Body:set_position(x, y)
-        x = x or self.x
-        y = y or self.y
-        self.x = x
-        self.y = y
+        self:refresh(x, y)
     end
 
     function Body:set_y_pos(y)
@@ -116,10 +129,7 @@ do
     end
 
     function Body:set_dimensions(w, h)
-        w = w or self.w
-        h = h or self.h
-        self.w = w
-        self.h = h
+        self:refresh(nil, nil, w, h)
     end
 
     function Body:rect()
@@ -151,7 +161,7 @@ do
     function Body:jump(desired_height)
         self.ground = nil
         self:reset_gravity()
-        self.speed_y = -sqrt(2 * self.acc_y * desired_height)
+        self.speed_y = -sqrt(2.0 * abs(self.acc_y) * desired_height)
     end
 
     function Body:move(acc)
@@ -169,7 +179,7 @@ do
         h = h or self.h
 
         if x ~= self.x or y ~= self.y or w ~= self.w or h ~= self.h then
-            local cellsize = self.world.tile
+
             local world = self.world
             local cl1, ct1, cw1, ch1 = world:rect_to_cell(self:rect())
             local cl2, ct2, cw2, ch2 = world:rect_to_cell(x, y, w, h)
@@ -224,7 +234,7 @@ do
         self.tile = 32
         self.meter = self.tile * 3.5
         self.gravity = 9.8 * self.meter
-        self.max_speed_y = self.meter * 8
+        self.max_speed_y = self.meter * 15
         self.default_mass = 65
 
         self.bodies = {}
@@ -276,6 +286,12 @@ do
         local cell = row[cx]
         cell.items[obj] = nil
         cell.count = cell.count - 1
+
+        if cell.count == 0 then
+            cell.items = nil
+            row[cx] = nil
+            if #row <= 0 then self.grid[cy] = nil end
+        end
         return true
     end
 
@@ -344,7 +360,9 @@ do
     end
 
     function World:update(dt)
-        for i = 1, self.n_bodies, 1 do
+        dt = 1.0 / 60.0
+
+        for i = self.n_bodies, 1, -1 do
             ---@type JM.Physics.Body
             local obj = self.bodies[i]
 
@@ -363,10 +381,6 @@ do
                     goaly = obj.y + (obj.speed_y * dt)
                         + (obj.acc_y * dt * dt) / 2.0
 
-                    -- obj:set_y_pos(obj.y + (obj.speed_y * dt)
-                    --     + (obj.acc_y * dt * dt) / 2.0
-                    -- )
-
                     obj:refresh(nil, goaly)
 
                     local col = self:check(obj)
@@ -376,7 +390,7 @@ do
                         else
                             obj.y = col.y + col.h
                         end
-                        obj.speed_y = 0
+                        obj.speed_y = 0.000001
                     end
 
                     -- local cobj = self:check_collision(obj)
@@ -422,10 +436,6 @@ do
                         obj.acc_x = 0
                     end
 
-                    -- obj:set_x_pos(obj.x + (obj.speed_x * dt)
-                    --     + (obj.acc_x * dt * dt) / 2.0
-                    -- )
-
                     goalx = obj.x + (obj.speed_x * dt)
                         + (obj.acc_x * dt * dt) / 2.0
 
@@ -445,57 +455,34 @@ do
         end
     end
 
-    ---@param obj JM.Physics.Body
-    function World:check_collision(obj)
-        for i = 1, self.n_bodies, 1 do
-            ---@type JM.Physics.Body
-            local bd = self.bodies[i]
+    -- ---@param obj JM.Physics.Body
+    -- function World:check_collision(obj)
+    --     for i = 1, self.n_bodies, 1 do
+    --         ---@type JM.Physics.Body
+    --         local bd = self.bodies[i]
 
-            if bd ~= obj and collision_rect(
-                bd.x, bd.y, bd.w, bd.h,
-                obj.x, obj.y, obj.w, obj.h)
-            then
-                return bd
-            end
-        end
-        return false
-    end
+    --         if bd ~= obj and collision_rect(
+    --             bd.x, bd.y, bd.w, bd.h,
+    --             obj.x, obj.y, obj.w, obj.h)
+    --         then
+    --             return bd
+    --         end
+    --     end
+    --     return false
+    -- end
 
     ---@param obj JM.Physics.Body
     function World:check(obj)
-        local cl, ct, cw, ch = self:rect_to_cell(obj:rect())
+        -- local cl, ct, cw, ch = self:rect_to_cell(obj:rect())
         local items = self:get_items_in_cell_obj(obj)
 
         for item, _ in pairs(items) do
-            if item ~= obj and collision_rect(
-                obj.x, obj.y, obj.w, obj.h,
-                item.x, item.y, item.w, item.h
-            )
-            then
+            if item ~= obj and obj:check_collision(item) then
                 return item
             end
         end
-
-        -- obj.collisions = nil
-        -- obj.collisions = {}
-        -- obj.n_collisions = 0
-
-        -- for i = 1, self.n_bodies, 1 do
-        --     local bd
-
-        --     ---@type JM.Physics.Body
-        --     bd = self.bodies[i]
-
-        --     if bd ~= obj and collision_rect(
-        --         bd.x, bd.y, bd.w, bd.h,
-        --         obj.x, obj.y, obj.w, obj.h)
-        --     then
-        --         table.insert(obj.collisions, bd)
-        --         obj.n_collisions = obj.n_collisions + 1
-        --     end
-        --     bd = nil
-        -- end
     end
+
 end
 --=============================================================================
 ---@class JM.Physics
