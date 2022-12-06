@@ -253,9 +253,14 @@ local ship
 local obj, ground
 ---@type JM.Physics.World
 local world
+local components
+local bb
+
 --==========================================================================
 Game:implements({
     load = function()
+        components = {}
+
         world = Physics:newWorld()
         obj = {
             acc = 32 * 4
@@ -288,8 +293,28 @@ Game:implements({
         end
 
         for _, rect in ipairs(rects) do
-            local body = Physics:newBody(world, rect.x, rect.y, rect.w, rect.h, "static")
+            local block = {
+                body = Physics:newBody(world, rect.x, rect.y, rect.w, rect.h, "static"),
+                draw = function(self)
+                    love.graphics.setColor(0.1, 0.4, 0.5)
+                    love.graphics.rectangle("fill", self.body:rect())
+                    love.graphics.setColor(1, 1, 1)
+                    love.graphics.rectangle("line", self.body:rect())
+                end
+            }
+            -- components[block] = true
         end
+
+        bb = {}
+        bb.body = Physics:newBody(world, 32 * 10, 32 * 6, 32, 32, "static")
+        bb.draw = function(self)
+            love.graphics.setColor(0.1, 0.4, 0.5)
+            love.graphics.rectangle("fill", self.body:rect())
+            love.graphics.setColor(1, 1, 1)
+            love.graphics.rectangle("line", self.body:rect())
+        end
+        components[bb] = true
+
 
         -- love.graphics.setDefaultFilter("nearest", "nearest")
         ship = {
@@ -476,21 +501,13 @@ Game:implements({
             rbody:set_acc(dacc * (rbody.speed_x > 0 and -1 or 1))
         end
 
-        -- if rec.jump and rec.speed_y < 0 and not love.keyboard.isDown("space") then
-        --     rec.speed_y = math.sqrt(2 * rec.gravity * 1)
-        -- end
-
-        -- if rec.y + rec.h > Game.world_bottom then
-        --     -- rec.y = Game.world_bottom - rec.h
-        --     -- rec.jump = nil
-        -- end
 
         if rbody.y + rbody.h > Game.world_bottom then
             rbody.y = Game.world_bottom - rbody.h
             rec.jump = false
         end
 
-        if rbody.speed_y == 0 then
+        if rbody.speed_y == 0 or true then
             rec.jump = false
         else
             rec.jump = true
@@ -673,6 +690,10 @@ Game:implements({
                 graph_set_color(0, 0, 0, 0.5)
                 graph_rect("fill", 32 * 34, 32 * 4, 32, 32)
                 graph_rect("fill", 32 * 10, 32 * 4, 32, 32)
+
+                for b in pairs(components) do
+                    b:draw()
+                end
 
 
                 -- love.graphics.setColor(0.1, 0.1, 0.1, 1)

@@ -322,9 +322,9 @@ do
         cell.count = cell.count - 1
 
         if cell.count == 0 then
-            cell.items = nil
-            row[cx] = nil
-            if #row <= 0 then self.grid[cy] = nil end
+            -- cell.items = nil
+            -- row[cx] = nil
+            -- if #row <= 0 then self.grid[cy] = nil end
         end
         return true
     end
@@ -446,6 +446,9 @@ do
                             else
                                 obj.speed_y = 0
                             end
+
+                            local r = obj.on_ground_collision_action and
+                                obj.on_ground_collision_action()
                         else
                             obj:refresh(nil, max_b) -- up
                             obj.speed_y = 0

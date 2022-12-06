@@ -64,9 +64,9 @@ Game:implements({
         }
         -- player.body.bouncing = 0.7
 
-        for i = 0, 0 do
+        for i = 0, 2 do
             local block = {
-                body = Physics:newBody(world, 128 + 32, 64 * 5, 32 * 4, 10, "static"),
+                body = Physics:newBody(world, 128 + 128 * i, 64 * 5, 32 * 2, 10, "static"),
                 draw = function(self)
                     love.graphics.setColor(0.1, 0.4, 0.5)
                     love.graphics.rectangle("fill", self.body:rect())
@@ -74,7 +74,8 @@ Game:implements({
                     love.graphics.rectangle("line", self.body:rect())
                 end
             }
-            components[block] = true
+            table.insert(components, block)
+            -- components[block] = true
         end
 
         local block = {
@@ -87,9 +88,11 @@ Game:implements({
             end
         }
 
-        components[block] = true
+        table.insert(components, block)
 
-        components[player] = true
+
+        table.insert(components, player)
+
 
         Game.count_cells = world:count_Cells()
     end,
@@ -101,13 +104,13 @@ Game:implements({
     update = function(dt)
         world:update(dt)
 
-        for component, _ in pairs(components) do
+        for _, component in ipairs(components) do
             local r = component.update and component:update(dt)
         end
     end,
 
     draw = function(self)
-        for c, _ in pairs(components) do
+        for _, c in ipairs(components) do
             local r = c.draw and c:draw()
         end
 
