@@ -99,6 +99,8 @@ do
 
         self.bouncing = nil
 
+        self.__remove = nil
+
         self.shape = BodyShapes.rectangle
     end
 
@@ -329,11 +331,11 @@ do
         local cl, ct, cw, ch = self:rect_to_cell(x, y, w, h)
         local items = {}
 
-        for cy = ct, ct + ch - 1 do
+        for cy = ct, (ct + ch - 1) do
             local row = self.grid[cy]
 
             if row then
-                for cx = cl, cl + cw - 1 do
+                for cx = cl, (cl + cw - 1) do
 
                     ---@type JM.Physics.Cell
                     local cell = row[cx]
@@ -358,8 +360,8 @@ do
 
         local cl, ct, cw, ch = self:rect_to_cell(obj:rect())
 
-        for cy = ct, ct + ch - 1, 1 do
-            for cx = cl, cl + cw - 1, 1 do
+        for cy = ct, (ct + ch - 1) do
+            for cx = cl, (cl + cw - 1) do
                 self:add_obj_to_cell(obj, cx, cy)
             end
         end
@@ -391,10 +393,17 @@ do
     function World:update(dt)
 
         for i = self.n_bodies, 1, -1 do
-            ---@type JM.Physics.Body
-            local obj = self.bodies[i]
+            local obj
 
-            if is_dynamic(obj) or is_kinematic(obj) then
+            ---@type JM.Physics.Body
+            obj = self.bodies[i]
+
+            if obj.__remove then
+                self:remove(obj, i)
+                obj = nil
+            end
+
+            if obj and (is_dynamic(obj) or is_kinematic(obj)) then
                 local goalx, goaly
 
                 -- falling
@@ -486,6 +495,8 @@ do
                     end
                 end -- end moving in x axis
             end --end if body is dynamic
+
+            obj = nil
         end
     end
 
