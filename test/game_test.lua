@@ -287,6 +287,10 @@ Game:implements({
             love.graphics.rectangle("fill", self.body:rect())
         end
 
+        for _, rect in ipairs(rects) do
+            local body = Physics:newBody(world, rect.x, rect.y, rect.w, rect.h, "static")
+        end
+
         -- love.graphics.setDefaultFilter("nearest", "nearest")
         ship = {
             x = 0,
@@ -486,8 +490,10 @@ Game:implements({
             rec.jump = false
         end
 
-        if rbody.ground or true then
+        if rbody.speed_y == 0 then
             rec.jump = false
+        else
+            rec.jump = true
         end
 
         -- local obj
@@ -623,17 +629,11 @@ Game:implements({
                     graph_set_color(142 / 255, 82 / 255, 82 / 255, 1)
                     graph_rect("fill", 0, 32 * 12 - 64 * 3, 64 * 1, 64 * 3)
 
-                    -- graph_set_color(20 / 255, 160 / 255, 46 / 255, 1)
-                    -- graph_rect("fill", 0, SCREEN_HEIGHT - 64, SCREEN_WIDTH, 64)
-
-                    -- graph_set_color(89 / 255, 193 / 255, 56 / 255, 1)
-                    -- graph_rect("fill", 0, SCREEN_HEIGHT - 64, SCREEN_WIDTH, 8)
                 end
 
                 graph_set_color(1, 0, 1, 0.9)
                 graph_rect("line", rec.x, rec.y, rec.w, rec.h)
 
-                -- love.graphics.setShader(pink_to_none)
 
                 for i = 1, #rects do
                     graph_set_color(1, 0.1, 0.1, 1)

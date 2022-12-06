@@ -216,6 +216,32 @@ do
             self.x, self.y, self.w, self.h = x, y, w, h
         end
     end
+
+    function Body:check(goal_x, goal_y)
+        goal_x = goal_x or self.x
+        goal_y = goal_y or self.y
+
+        local left, top, right, bottom
+        top = math.min(self.y, goal_y)
+        bottom = math.max(self.y + self.h, goal_y + self.h)
+        left = math.min(self.x, goal_x)
+        right = math.max(self.x + self.w, goal_x + self.w)
+
+        local x, y, w, h = left, top, right - left, bottom - top
+
+        local items = self.world:get_items_in_cell_obj(x, y, w, h)
+
+        for item, _ in pairs(items) do
+            if item ~= self
+                and collision_rect(
+                    x, y, w, h,
+                    item.x, item.y, item.w, item.h
+                )
+            then
+                return item
+            end
+        end
+    end
 end
 --=============================================================================
 ---@class JM.Physics.World
@@ -295,9 +321,12 @@ do
         return true
     end
 
-    ---@param obj JM.Physics.Body
-    function World:get_items_in_cell_obj(obj)
-        local cl, ct, cw, ch = self:rect_to_cell(obj.x, obj.y, obj.w, obj.h)
+    ---@param x number
+    ---@param y number
+    ---@param w number
+    ---@param h number
+    function World:get_items_in_cell_obj(x, y, w, h)
+        local cl, ct, cw, ch = self:rect_to_cell(x, y, w, h)
         local items = {}
 
         for cy = ct, ct + ch - 1 do
@@ -360,7 +389,6 @@ do
     end
 
     function World:update(dt)
-        dt = 1.0 / 60.0
 
         for i = self.n_bodies, 1, -1 do
             ---@type JM.Physics.Body
@@ -371,6 +399,14 @@ do
 
                 -- falling
                 if (obj.acc_y ~= 0) or (obj.speed_y ~= 0) then
+
+                    goaly = obj.y + (obj.speed_y * dt)
+                        + (obj.acc_y * dt * dt) / 2.0
+
+                    if obj.speed_y == 0 then
+                        obj.speed_y = sqrt(2 * obj.acc_y * 1)
+                    end
+
                     -- speed up with acceleration
                     obj.speed_y = obj.speed_y + obj.acc_y * dt
 
@@ -378,19 +414,17 @@ do
                         obj.speed_y = self.max_speed_y
                     end
 
-                    goaly = obj.y + (obj.speed_y * dt)
-                        + (obj.acc_y * dt * dt) / 2.0
+                    local col = obj:check(nil, goaly)
 
-                    obj:refresh(nil, goaly)
-
-                    local col = self:check(obj)
                     if col then
                         if obj.speed_y > 0 then
-                            obj.y = col.y - obj.h
+                            obj:refresh(nil, col.y - obj.h)
                         else
-                            obj.y = col.y + col.h
+                            obj:refresh(nil, col.y + col.h + 1)
                         end
-                        obj.speed_y = 0.000001
+                        obj.speed_y = 0
+                    else
+                        obj:refresh(nil, goaly)
                     end
 
                     -- local cobj = self:check_collision(obj)
@@ -455,26 +489,10 @@ do
         end
     end
 
-    -- ---@param obj JM.Physics.Body
-    -- function World:check_collision(obj)
-    --     for i = 1, self.n_bodies, 1 do
-    --         ---@type JM.Physics.Body
-    --         local bd = self.bodies[i]
-
-    --         if bd ~= obj and collision_rect(
-    --             bd.x, bd.y, bd.w, bd.h,
-    --             obj.x, obj.y, obj.w, obj.h)
-    --         then
-    --             return bd
-    --         end
-    --     end
-    --     return false
-    -- end
-
     ---@param obj JM.Physics.Body
     function World:check(obj)
         -- local cl, ct, cw, ch = self:rect_to_cell(obj:rect())
-        local items = self:get_items_in_cell_obj(obj)
+        local items = self:get_items_in_cell_obj(obj:rect())
 
         for item, _ in pairs(items) do
             if item ~= obj and obj:check_collision(item) then

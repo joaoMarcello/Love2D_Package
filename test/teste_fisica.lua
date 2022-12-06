@@ -51,7 +51,7 @@ Game:implements({
 
             keypressed = function(self, key)
                 if key == "space" then
-                    self.body:jump(32 * 2)
+                    self.body:jump(32 * 10)
                 end
             end,
 
