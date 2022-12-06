@@ -62,7 +62,7 @@ Game:implements({
                 love.graphics.rectangle("line", self.body:rect())
             end
         }
-        -- player.body.acc_y = 0
+        -- player.body.bouncing = 0.7
 
         for i = 0, 0 do
             local block = {
@@ -87,7 +87,6 @@ Game:implements({
             end
         }
 
-        world.debug.block = block
         components[block] = true
 
         components[player] = true
@@ -122,7 +121,6 @@ Game:implements({
             cl .. ", right - " .. cw .. ", top: " ..
             ct .. ", bottom: " .. ch, 200, 80)
 
-        love.graphics.print(tostring(world.debug.block.body.x), 200, 100)
     end
 })
 

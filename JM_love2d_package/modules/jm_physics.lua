@@ -219,6 +219,7 @@ do
         end
     end
 
+    ---@return table, number
     function Body:check(goal_x, goal_y)
         goal_x = goal_x or self.x
         goal_y = goal_y or self.y
@@ -232,17 +233,22 @@ do
         local x, y, w, h = left, top, right - left, bottom - top
 
         local items = self.world:get_items_in_cell_obj(x, y, w, h)
+        local collisions, n_collisions = {}, 0
 
         for item, _ in pairs(items) do
-            if item ~= self
+            if item ~= self and not item.__remove
                 and collision_rect(
                     x, y, w, h,
                     item.x, item.y, item.w, item.h
                 )
             then
-                return item
+                table.insert(collisions, item)
+                n_collisions = n_collisions + 1
+                -- return item
             end
         end
+
+        return collisions, n_collisions
     end
 end
 --=============================================================================
@@ -366,10 +372,6 @@ do
             end
         end
 
-        self.debug = {
-            l = tostring(cl), t = tostring(ct), r = tostring(cw), b = tostring(ch)
-        }
-
     end
 
     ---@param obj JM.Physics.Body
@@ -423,15 +425,32 @@ do
                         obj.speed_y = self.max_speed_y
                     end
 
-                    local col = obj:check(nil, goaly)
+                    local col, n = obj:check(nil, goaly)
 
-                    if col then
-                        if obj.speed_y > 0 then
-                            obj:refresh(nil, col.y - obj.h)
-                        else
-                            obj:refresh(nil, col.y + col.h + 1)
+                    if n > 0 then -- collision!
+                        local min_y, max_b = col[1].y, col[1].y + col[1].h
+                        for i = 2, n do
+                            min_y = (col[i].y < min_y and col[i].y) or min_y
+
+                            max_b = (col[i].y + col[i].h > max_b and (col[i].y + col[i].h)) or max_b
                         end
-                        obj.speed_y = 0
+
+                        if obj.speed_y > 0 then --falling
+                            obj:refresh(nil, min_y - obj.h)
+
+                            if obj.bouncing then
+                                obj.speed_y = -obj.speed_y * obj.bouncing
+                                if abs(obj.speed_y) <= sqrt(2 * obj.acc_y * 2) then
+                                    obj.speed_y = 0
+                                end
+                            else
+                                obj.speed_y = 0
+                            end
+                        else
+                            obj:refresh(nil, max_b) -- up
+                            obj.speed_y = 0
+                        end
+
                     else
                         obj:refresh(nil, goaly)
                     end
@@ -506,7 +525,7 @@ do
         local items = self:get_items_in_cell_obj(obj:rect())
 
         for item, _ in pairs(items) do
-            if item ~= obj and obj:check_collision(item) then
+            if item ~= obj and not item.__remove and obj:check_collision(item) then
                 return item
             end
         end
