@@ -494,6 +494,13 @@ Game:implements({
             rbody.dacc_x = dacc
         end
 
+        if love.keyboard.isDown("up") then
+            rbody.acc_y = -world.gravity
+            rbody.speed_y = 32
+        else
+            rbody.acc_y = 0
+        end
+
 
         if rbody:bottom() > Game.world_bottom then
             rbody:refresh(nil, Game.world_bottom - rec.h)
