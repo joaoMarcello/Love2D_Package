@@ -263,7 +263,7 @@ Game:implements({
 
         world = Physics:newWorld()
         obj = {
-            acc = 32 * 4
+            acc = -32 * 4
         }
         obj.body = Physics:newBody(world, 32 * 15, 32 * 8, 32, 64, "dynamic")
         obj.draw = function(self)
@@ -274,16 +274,20 @@ Game:implements({
             love.graphics.rectangle("fill", body:rect())
             body = nil
         end
-        obj.body.bouncing = 0.7
-        obj.body:jump(32 * 3)
-        obj.body.acc_x = -obj.acc
-        obj.body:on_ground_collision(function(self)
-            if obj.body.speed_x < 0 then
-                obj.body.acc_x = obj.acc
+        obj.update = function(self, dt)
+            if not obj.collide then
+                obj.body:move(obj.acc)
             end
-
+        end
+        obj.body.bouncing = 0.7
+        obj.body:jump(32 * 10)
+        obj.body:on_ground_collision(function(self)
+            -- self.speed_x = 0
+            obj.acc = 0
+            obj.collide = true
             -- self:jump(32 * 3)
         end)
+        components[obj] = true
 
         ground = {}
         ground.body = Physics:newBody(world, 0, 32 * 10, 32 * 30, 32 * 2, "static")
@@ -306,7 +310,7 @@ Game:implements({
         end
 
         bb = {}
-        bb.body = Physics:newBody(world, 32 * 10, 32 * 6, 32, 32, "static")
+        bb.body = Physics:newBody(world, 32 * 3, 32 * 6, 32, 32, "static")
         bb.draw = function(self)
             love.graphics.setColor(0.1, 0.4, 0.5)
             love.graphics.rectangle("fill", self.body:rect())
@@ -408,11 +412,11 @@ Game:implements({
         }
 
         rec = {
-            x = 450,
+            x = 0,
             y = -100,
             w = 28,
             h = 58,
-            body = Physics:newBody(world, 450, -100, 28, 58, "dynamic"),
+            body = Physics:newBody(world, 0, -100, 28, 58, "dynamic"),
             jump = false,
             speed_y = 0,
             gravity = (32 * 3.5) * 9.8,
@@ -421,22 +425,6 @@ Game:implements({
             acc = 64 * 3,
             dacc = 64 * 10,
             direction = 1,
-            -- accelerate = function(self, dt, acc, direction)
-            --     if self.speed_x == 0 then
-            --         self.speed_x = 32 * direction
-            --     end
-            --     self.speed_x = self.speed_x + acc * dt * direction
-
-            --     if math.abs(self.speed_x) > self.max_speed then
-            --         self.speed_x = self.max_speed * direction
-            --     end
-            -- end,
-            -- run = function(self, dt, acc)
-            --     if math.abs(self.speed_x) ~= 0 then
-            --         self.x = self.x
-            --             + (self.speed_x * dt + (acc * dt * dt) / 2)
-            --     end
-            -- end,
             get_cx = function(self)
                 return self.x + self.w / 2
             end,
@@ -449,6 +437,7 @@ Game:implements({
         }
         rec.y = 32 * 6
         rec.body.max_speed_x = rec.max_speed
+        -- rec.body.mass = rec.body.mass * 2
 
         Game.camera:jump_to(ship.x, ship.y)
         Game.camera:set_position(0, 0)
@@ -464,6 +453,10 @@ Game:implements({
 
     update = function(dt)
         world:update(dt)
+
+        for c in pairs(components) do
+            local r = c.update and c:update(dt)
+        end
 
         local cam1, cam_blue, cam_pink
         cam1, cam_blue = Game:get_camera(1), Game:get_camera("blue")
@@ -498,8 +491,7 @@ Game:implements({
             local dacc = rec.dacc
                 * ((love.keyboard.isDown("left") or love.keyboard.isDown("right"))
                     and 1.5 or 1)
-
-            rbody:set_acc(dacc * (rbody.speed_x > 0 and -1 or 1))
+            rbody.dacc_x = dacc
         end
 
 

@@ -91,6 +91,9 @@ do
         self.acc_y = 0 --world.gravity * (self.mass / world.default_mass)
         self.acc_y = (self.type ~= BodyTypes.dynamic and 0) or self.acc_y
 
+        self.dacc_x = self.world.meter * 3.5
+        self.dacc_y = nil
+
         -- used if body is static
         self.resistance_x = 1
 
@@ -481,7 +484,7 @@ do
                             end
 
                             local r = obj.on_ground_collision_action and
-                                obj.on_ground_collision_action()
+                                obj.on_ground_collision_action(obj)
                         else
                             obj:refresh(nil, max_b) -- up
                             obj.speed_y = 0
@@ -544,8 +547,13 @@ do
                     else
                         obj:refresh(goalx)
                     end
+
                     col = nil
 
+                    if obj.speed_x ~= 0 then
+                        local dacc = obj.dacc_x or abs(obj.acc_x)
+                        obj:set_acc(dacc * -obj:direction_x())
+                    end
                 end -- end moving in x axis
             end --end if body is dynamic
 
