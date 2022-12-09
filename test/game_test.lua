@@ -41,7 +41,7 @@ local Game = Screen:new(0, 0, nil, nil, 32 * 20, 32 * 12)
 --     x = Game.screen_w * 0.5,
 --     y = Game.screen_h * 0,
 --     w = Game.screen_w * 0.5,
---     h = Game.screen_h * 1,
+--     h = Game.screen_h * 0.5,
 
 --     color = { 153 / 255, 217 / 255, 234 / 255, 1 },
 --     scale = 0.6,
@@ -55,10 +55,10 @@ local Game = Screen:new(0, 0, nil, nil, 32 * 20, 32 * 12)
 
 -- Game:add_camera({
 --     -- camera's viewport
---     x = Game.screen_w * 0.6,
---     y = Game.screen_h * 0.75,
---     w = Game.screen_w * 0.4,
---     h = Game.screen_h * 0.25,
+--     x = Game.screen_w * 0.5,
+--     y = Game.screen_h * 0.5,
+--     w = Game.screen_w * 0.5,
+--     h = Game.screen_h * 0.5,
 
 --     color = { 255 / 255, 174 / 255, 201 / 255, 1 },
 --     scale = 0.5,
@@ -279,13 +279,11 @@ Game:implements({
                 obj.body:move(obj.acc)
             end
         end
-        obj.body.bouncing = 0.7
-        obj.body:jump(32 * 10)
-        obj.body:on_ground_collision(function(self)
-            -- self.speed_x = 0
-            obj.acc = 0
+        obj.body.bouncing = 0
+        obj.body:jump(32 * 6)
+        obj.body:on_ground_collision(function()
+            -- obj.acc = 0
             obj.collide = true
-            -- self:jump(32 * 3)
         end)
         components[obj] = true
 

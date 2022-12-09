@@ -165,7 +165,7 @@ do
 
     function Body:jump(desired_height)
         self.ground = nil
-        -- self:reset_gravity()
+
         local acc_y = self.world.gravity
             * (self.mass / self.world.default_mass)
             + self.acc_y
@@ -465,14 +465,19 @@ do
 
                     if n > 0 then -- collision!
                         local min_y, max_b = col[1].y, col[1].y + col[1].h
+                        obj.ground = col[1]
+
                         for i = 2, n do
                             min_y = (col[i].y < min_y and col[i].y) or min_y
+
+                            obj.ground = (col[i].y < obj.ground.y and col[i])
+                                or obj.ground
 
                             max_b = (col[i].y + col[i].h > max_b and (col[i].y + col[i].h)) or max_b
                         end
 
                         if obj.speed_y >= 0 then --falling
-                            obj:refresh(nil, min_y - obj.h - 0.005)
+                            obj:refresh(nil, min_y - obj.h - 0.1)
 
                             if obj.bouncing then
                                 obj.speed_y = -obj.speed_y * obj.bouncing
@@ -486,7 +491,7 @@ do
                             local r = obj.on_ground_collision_action and
                                 obj.on_ground_collision_action(obj)
                         else
-                            obj:refresh(nil, max_b + 0.005) -- up
+                            obj:refresh(nil, max_b + 0.1) -- up
                             obj.speed_y = 0
                         end
 
@@ -538,9 +543,9 @@ do
                         end
 
                         if obj.speed_x > 0 then
-                            obj:refresh(min_left - obj.w - 0.005)
+                            obj:refresh(min_left - obj.w - 0.1)
                         else
-                            obj:refresh(max_right + 0.005)
+                            obj:refresh(max_right + 0.1)
                         end
 
                         obj.speed_x = 0

@@ -349,7 +349,7 @@ function Scene:implements(param)
                     end
 
                     translate(round(px), round(py))
-
+                    
                     r = layer.draw and layer:draw()
 
                     pop()
