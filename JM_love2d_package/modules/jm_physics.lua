@@ -1,4 +1,4 @@
-local abs, mfloor, mceil, sqrt = math.abs, math.floor, math.ceil, math.sqrt
+local abs, mfloor, mceil, sqrt, min, max = math.abs, math.floor, math.ceil, math.sqrt, math.min, math.max
 
 ---@enum JM.Physics.BodyTypes
 local BodyTypes = {
@@ -100,9 +100,10 @@ do
         ---@type JM.Physics.Body
         self.ground = nil -- used if body is not static
 
-        self.bouncing = nil
-
+        -- some properties
+        self.bouncing = nil -- need to be a number between 0 and 1
         self.__remove = nil
+        self.is_stucked = nil
 
         self.shape = BodyShapes.rectangle
     end
@@ -229,36 +230,97 @@ do
         end
     end
 
+    local default_filter = function(body, item)
+        return true
+    end
+
     ---@return table, number
-    function Body:check(goal_x, goal_y)
+    function Body:check(goal_x, goal_y, filter)
         goal_x = goal_x or self.x
         goal_y = goal_y or self.y
+        filter = filter or default_filter
+
+        local diff_x = goal_x - self.x
+        local diff_y = goal_y - self.y
 
         local left, top, right, bottom
-        top = math.min(self.y, goal_y)
-        bottom = math.max(self.y + self.h, goal_y + self.h)
-        left = math.min(self.x, goal_x)
-        right = math.max(self.x + self.w, goal_x + self.w)
+        top = min(self.y, goal_y)
+        bottom = max(self.y + self.h, goal_y + self.h)
+        left = min(self.x, goal_x)
+        right = max(self.x + self.w, goal_x + self.w)
 
         local x, y, w, h = left, top, right - left, bottom - top
 
         local items = self.world:get_items_in_cell_obj(x, y, w, h)
         local collisions, n_collisions = {}, 0
+        local most_left, most_right
+        local most_up, most_bottom
 
         for item, _ in pairs(items) do
-            if item ~= self and not item.__remove
+            if item ~= self and not item.__remove and not item.is_stucked
+
                 and collision_rect(
                     x, y, w, h,
                     item.x, item.y, item.w, item.h
                 )
+
+                and filter(self, item)
             then
                 table.insert(collisions, item)
                 n_collisions = n_collisions + 1
-                -- return item
+
+                most_left = most_left or item
+                most_left = (item.x < most_left.x and item) or most_left
+
+                most_right = most_right or item
+                most_right = ((item.x + item.w)
+                    > (most_right.x + most_right.w) and item)
+                    or most_left
+
+                most_up = most_up or item
+                most_up = (item.y < most_up.y and item) or most_up
+
+                most_bottom = most_bottom or item
+                most_bottom = ((item.y + item.h)
+                    > (most_bottom.y + most_bottom.h) and item)
+                    or most_bottom
             end
         end
         items = nil
+
+        collisions.most_left = most_left
+        collisions.most_right = most_right
+        collisions.most_up = most_up
+        collisions.most_bottom = most_bottom
+
+        collisions.top = most_up and most_up.y
+        collisions.bottom = most_bottom and (most_bottom.y + most_bottom.h)
+        collisions.left = most_left and most_left.x
+        collisions.right = most_right and most_right.x + most_right.w
+
+        collisions.diff_x = diff_x
+        collisions.diff_y = diff_y
+
+        collisions.n = n_collisions
+
         return collisions, n_collisions
+    end
+
+    function Body:check2(goal_x, goal_y, filter, x, y, w, h)
+        x = x or self.x
+        y = y or self.y
+        w = w or self.w
+        h = h or self.h
+
+        local bd = Body:new(x, y, w, h, self.type, self.world, self.id)
+
+        local filter__ = function(obj, item)
+            local r = filter and filter(obj, item)
+            r = r and item ~= bd
+            return r
+        end
+
+        return bd:check(goal_x, goal_y, filter__)
     end
 
     function Body:right()
@@ -437,6 +499,10 @@ do
                 obj = nil
             end
 
+            if obj and obj.is_stucked then
+                goto end_for_world_bodies
+            end
+
             if obj and (is_dynamic(obj) or is_kinematic(obj)) then
                 local goalx, goaly, acc_y
 
@@ -461,23 +527,14 @@ do
                     end
 
                     local col, n
-                    col, n = obj:check(nil, goaly)
+                    col, n = obj:check(nil, goaly, function(obj, item)
+                        return is_kinematic(item) or is_static(item)
+                    end)
 
                     if n > 0 then -- collision!
-                        local min_y, max_b = col[1].y, col[1].y + col[1].h
-                        obj.ground = col[1]
-
-                        for i = 2, n do
-                            min_y = (col[i].y < min_y and col[i].y) or min_y
-
-                            obj.ground = (col[i].y < obj.ground.y and col[i])
-                                or obj.ground
-
-                            max_b = (col[i].y + col[i].h > max_b and (col[i].y + col[i].h)) or max_b
-                        end
 
                         if obj.speed_y >= 0 then --falling
-                            obj:refresh(nil, min_y - obj.h - 0.1)
+                            obj:refresh(nil, col.top - obj.h - 0.1)
 
                             if obj.bouncing then
                                 obj.speed_y = -obj.speed_y * obj.bouncing
@@ -491,7 +548,7 @@ do
                             local r = obj.on_ground_collision_action and
                                 obj.on_ground_collision_action(obj)
                         else
-                            obj:refresh(nil, max_b + 0.1) -- up
+                            obj:refresh(nil, col.bottom + 0.1) -- up
                             obj.speed_y = 0
                         end
 
@@ -529,27 +586,66 @@ do
 
 
                     local col, n
-                    col, n = obj:check(goalx)
+                    col, n = obj:check(goalx, nil, function(obj, item)
+                        return not is_dynamic(item)
+                    end)
 
                     if n > 0 then
-                        local min_left, max_right = col[1].x,
-                            col[1].x + col[1].w
-
-                        for i = 2, n do
-                            min_left = (col[i].x < min_left and col[i].x)
-                                or min_left
-
-                            max_right = (col[i].x + col[i].w > max_right and (col[i].x + col[i].w)) or max_right
-                        end
-
                         if obj.speed_x > 0 then
-                            obj:refresh(min_left - obj.w - 0.1)
+                            obj:refresh(col.left - obj.w - 0.1)
                         else
-                            obj:refresh(max_right + 0.1)
+                            obj:refresh(col.right + 0.1)
                         end
 
                         obj.speed_x = 0
                     else
+
+                        -- kinematic bodies moves dynamic objects
+                        if is_kinematic(obj) then
+                            local col, n = obj:check2(goalx, nil,
+
+                                function(obj, item)
+                                    return is_dynamic(item)
+                                end,
+
+                                nil, obj.y - 1, nil, obj.h + 2
+                            )
+
+                            if n > 0 then
+                                for i = 1, n do
+                                    local bd
+                                    
+                                    ---@type JM.Physics.Body
+                                    bd = col[i]
+
+                                    bd:refresh(bd.x + col.diff_x)
+
+                                    local col_bd, n_bd
+
+                                    col_bd, n_bd = bd:check(nil, nil, function(obj, item)
+                                        return not is_dynamic(item)
+                                    end)
+
+                                    if n_bd > 0 then
+                                        if col.diff_x < 0 then
+                                            bd:refresh(col_bd.right)
+                                        else
+                                            bd:refresh(col_bd.left - bd.w)
+                                        end
+
+                                        local col_f, nn = bd:check(nil, nil, function(obj, item)
+                                            return not is_dynamic(item)
+                                        end)
+
+                                        bd.is_stucked = nn > 0
+                                        -- bd.is_stucked = true
+                                    end
+
+                                    bd, col_bd = nil, nil
+                                end
+                            end
+                        end
+
                         obj:refresh(goalx)
                     end
 
@@ -563,6 +659,8 @@ do
             end --end if body is dynamic
 
             obj = nil
+
+            ::end_for_world_bodies::
         end
     end
 
@@ -589,13 +687,14 @@ function Phys:newWorld(args)
 end
 
 ---@param world JM.Physics.World
+---@param type_ "dynamic"|"kinematic"|"static"
 ---@return JM.Physics.Body
 function Phys:newBody(world, x, y, w, h, type_)
-    type_ = (type_ == "dynamic" and BodyTypes.dynamic)
+    local bd_type = (type_ == "dynamic" and BodyTypes.dynamic)
         or (type_ == "kinematic" and BodyTypes.kinematic)
         or BodyTypes.static
 
-    local b = Body:new(x, y, w, h, type_, world)
+    local b = Body:new(x, y, w, h, bd_type, world)
 
     world:add(b)
     return b

@@ -265,7 +265,7 @@ Game:implements({
         obj = {
             acc = -32 * 4
         }
-        obj.body = Physics:newBody(world, 32 * 15, 32 * 8, 32, 64, "dynamic")
+        obj.body = Physics:newBody(world, 32 * 15, 32 * 8, 32, 64, "kinematic")
         obj.draw = function(self)
             local body
             ---@type JM.Physics.Body
@@ -278,12 +278,18 @@ Game:implements({
             if not obj.collide then
                 obj.body:move(obj.acc)
             end
+
+            if obj.body.x < 0 then
+                obj.body:refresh(0)
+                obj.acc = 32 * 1
+                obj.body.speed_x = 32
+            end
         end
-        obj.body.bouncing = 0
+        -- obj.body.bouncing = 0
         obj.body:jump(32 * 6)
         obj.body:on_ground_collision(function()
-            -- obj.acc = 0
-            obj.collide = true
+            obj.acc = 0
+            -- obj.collide = true
         end)
         components[obj] = true
 
