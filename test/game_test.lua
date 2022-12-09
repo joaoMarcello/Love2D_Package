@@ -471,8 +471,9 @@ Game:implements({
 
         ship:update(dt)
 
+        local rbody
         ---@type JM.Physics.Body
-        local rbody = rec.body
+        rbody = rec.body
 
         if love.keyboard.isDown("left")
             -- and rec.x > 0
@@ -502,8 +503,8 @@ Game:implements({
         end
 
 
-        if rbody.y + rbody.h > Game.world_bottom then
-            rbody.y = Game.world_bottom - rbody.h
+        if rbody:bottom() > Game.world_bottom then
+            rbody:refresh(nil, Game.world_bottom - rec.h)
             rec.jump = false
         end
 
@@ -531,19 +532,15 @@ Game:implements({
         --     obj = nil
         -- end
 
-        -- obj = rec.speed_x >= 0 and check_collision(rx, ry, rw + 3, rh)
-        -- if obj then
-        --     rec.x = obj.x - rec.w
-        --     rec.speed_x = 0
-        --     obj = nil
-        -- end
+        if rbody:right() > Game.world_right then
+            rbody:refresh(Game.world_right - rec.w)
+            rec.speed_x = 0
+        end
 
-        -- obj = rec.speed_x <= 0 and check_collision(rx - 3, ry, rw, rh)
-        -- if obj then
-        --     rec.speed_x = 0
-        --     rec.x = obj.x + obj.w
-        --     obj = nil
-        -- end
+        if rbody:left() <= Game.world_left then
+            rbody:refresh(Game.world_left)
+            rec.speed_x = 0
+        end
 
         rec.x = round(rbody.x)
         rec.y = round(rbody.y)
@@ -552,21 +549,10 @@ Game:implements({
         my_effect:apply(current_animation, false)
         -- Consolas:update(dt)
 
-        if rec.x + rec.w > Game.world_right then
-            rec.x = Game.world_right - rec.w
-            rec.speed_x = 0
-        end
-
-        if rec.x <= Game.world_left then
-            rec.x = Game.world_left
-            rec.speed_x = 0
-        end
-
-
         if love.keyboard.isDown("up") and false then
             cam1:follow(rec:get_cx(), rec:get_cy() - 32 * 3, "up monica")
         else
-            cam1:follow(ship:get_cx(), ship:get_cy(), "monica")
+            cam1:follow(rec:get_cx(), rec:get_cy(), "monica")
         end
 
         if cam_pink then
@@ -578,6 +564,7 @@ Game:implements({
         end
 
         cam1, cam_blue, cam_pink = nil, nil, nil
+        rbody = nil
     end,
 
     keypressed = function(key)

@@ -43,7 +43,7 @@ end
 local function draw_tile(self)
     local tile, qx, qy
 
-    tile = 32 --self.tile_size_x * 4
+    tile = self.tile_size_x * 4
     qx = (self.w - self.x) / tile
     qy = (self.h - self.y) / tile
 

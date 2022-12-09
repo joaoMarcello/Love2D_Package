@@ -88,7 +88,7 @@ do
         self.max_speed_y = nil
 
         self.acc_x = 0 --world.meter * 1.5
-        self.acc_y = world.gravity * (self.mass / world.default_mass)
+        self.acc_y = 0 --world.gravity * (self.mass / world.default_mass)
         self.acc_y = (self.type ~= BodyTypes.dynamic and 0) or self.acc_y
 
         -- used if body is static
@@ -109,13 +109,13 @@ do
             obj.x, obj.y, obj.w, obj.h)
     end
 
-    function Body:reset_gravity()
-        self.acc_y = self.world.gravity * (self.mass / self.world.default_mass)
-    end
+    -- function Body:reset_gravity()
+    --     self.acc_y = self.world.gravity * (self.mass / self.world.default_mass)
+    -- end
 
     function Body:set_mass(mass)
         self.mass = mass
-        self:reset_gravity()
+        -- self:reset_gravity()
     end
 
     function Body:set_position(x, y)
@@ -162,8 +162,12 @@ do
 
     function Body:jump(desired_height)
         self.ground = nil
-        self:reset_gravity()
-        self.speed_y = -sqrt(2.0 * abs(self.acc_y) * desired_height)
+        -- self:reset_gravity()
+        local acc_y = self.world.gravity
+            * (self.mass / self.world.default_mass)
+            + self.acc_y
+
+        self.speed_y = -sqrt(2 * abs(acc_y) * desired_height)
     end
 
     function Body:move(acc)
@@ -182,7 +186,9 @@ do
 
         if x ~= self.x or y ~= self.y or w ~= self.w or h ~= self.h then
 
-            local world = self.world
+            local world
+            world = self.world
+
             local cl1, ct1, cw1, ch1 = world:rect_to_cell(self:rect())
             local cl2, ct2, cw2, ch2 = world:rect_to_cell(x, y, w, h)
 
@@ -215,6 +221,7 @@ do
                 end
             end -- End If
 
+            world = nil
             self.x, self.y, self.w, self.h = x, y, w, h
         end
     end
@@ -247,8 +254,24 @@ do
                 -- return item
             end
         end
-
+        items = nil
         return collisions, n_collisions
+    end
+
+    function Body:right()
+        return self.x + self.w
+    end
+
+    function Body:bottom()
+        return self.y + self.h
+    end
+
+    function Body:left()
+        return self.x
+    end
+
+    function Body:top()
+        return self.y
     end
 end
 --=============================================================================
@@ -316,16 +339,20 @@ do
         local row = self.grid[cy]
         if not row or not row[cx] or not row[cx].items[obj] then return end
 
+        local cell
+
         ---@type JM.Physics.Cell
-        local cell = row[cx]
+        cell = row[cx]
         cell.items[obj] = nil
         cell.count = cell.count - 1
 
         if cell.count == 0 then
-            -- cell.items = nil
-            -- row[cx] = nil
-            -- if #row <= 0 then self.grid[cy] = nil end
+            cell.items = nil
+            self.grid[cy][cx] = nil
         end
+
+        row = nil
+        cell = nil
         return true
     end
 
@@ -342,15 +369,17 @@ do
 
             if row then
                 for cx = cl, (cl + cw - 1) do
-
+                    local cell
                     ---@type JM.Physics.Cell
-                    local cell = row[cx]
+                    cell = row[cx]
 
                     if cell and cell.count > 0 then
                         for item, _ in pairs(cell.items) do
                             items[item] = true
                         end
                     end
+
+                    cell = nil
 
                 end -- End For Columns
             end
@@ -406,26 +435,30 @@ do
             end
 
             if obj and (is_dynamic(obj) or is_kinematic(obj)) then
-                local goalx, goaly
+                local goalx, goaly, acc_y
+
+                acc_y = self.gravity * (obj.mass / self.default_mass)
+                    + obj.acc_y
 
                 -- falling
-                if (obj.acc_y ~= 0) or (obj.speed_y ~= 0) then
+                if (acc_y ~= 0) or (obj.speed_y ~= 0) then
 
                     goaly = obj.y + (obj.speed_y * dt)
-                        + (obj.acc_y * dt * dt) / 2.0
+                        + (acc_y * dt * dt) / 2.0
 
                     if obj.speed_y == 0 then
-                        obj.speed_y = sqrt(2 * obj.acc_y * 1)
+                        obj.speed_y = sqrt(2 * acc_y * 1)
                     end
 
                     -- speed up with acceleration
-                    obj.speed_y = obj.speed_y + obj.acc_y * dt
+                    obj.speed_y = obj.speed_y + acc_y * dt
 
                     if self.max_speed_y and obj.speed_y > self.max_speed_y then
                         obj.speed_y = self.max_speed_y
                     end
 
-                    local col, n = obj:check(nil, goaly)
+                    local col, n
+                    col, n = obj:check(nil, goaly)
 
                     if n > 0 then -- collision!
                         local min_y, max_b = col[1].y, col[1].y + col[1].h
@@ -440,7 +473,7 @@ do
 
                             if obj.bouncing then
                                 obj.speed_y = -obj.speed_y * obj.bouncing
-                                if abs(obj.speed_y) <= sqrt(2 * obj.acc_y * 2) then
+                                if abs(obj.speed_y) <= sqrt(2 * acc_y * 2) then
                                     obj.speed_y = 0
                                 end
                             else
@@ -458,25 +491,7 @@ do
                         obj:refresh(nil, goaly)
                     end
 
-                    -- local cobj = self:check_collision(obj)
-                    -- if cobj then
-                    --     obj:set_y_pos(cobj.y - obj.h)
-
-                    --     if obj.bouncing then
-                    --         obj.speed_y = -obj.speed_y * obj.bouncing
-                    --         if abs(obj.speed_y) <= 32 then
-                    --             obj.speed_y = 0
-                    --         end
-                    --     else
-                    --         obj.speed_y = sqrt(2 * obj.acc_y * 1)
-                    --     end
-
-                    --     local r = obj.on_ground_collision_action and obj.on_ground_collision_action(obj)
-
-                    --     obj.ground = cobj
-
-                    --     r = nil
-                    -- end
+                    col = nil
                 end
 
                 -- moving in x axis
@@ -504,17 +519,33 @@ do
                     goalx = obj.x + (obj.speed_x * dt)
                         + (obj.acc_x * dt * dt) / 2.0
 
-                    obj:refresh(goalx)
 
-                    local col = self:check(obj)
-                    if col then
-                        if obj.speed_x < 0 then
-                            obj.x = col.x + col.w
-                        else
-                            obj.x = col.x - obj.w
+                    local col, n
+                    col, n = obj:check(goalx)
+
+                    if n > 0 then
+                        local min_left, max_right = col[1].x,
+                            col[1].x + col[1].w
+
+                        for i = 2, n do
+                            min_left = (col[i].x < min_left and col[i].x)
+                                or min_left
+
+                            max_right = (col[i].x + col[i].w > max_right and (col[i].x + col[i].w)) or max_right
                         end
+
+                        if obj.speed_x > 0 then
+                            obj:refresh(min_left - obj.w)
+                        else
+                            obj:refresh(max_right)
+                        end
+
                         obj.speed_x = 0
+                    else
+                        obj:refresh(goalx)
                     end
+                    col = nil
+
                 end -- end moving in x axis
             end --end if body is dynamic
 
