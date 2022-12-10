@@ -660,7 +660,7 @@ do
                 if (obj.acc_x ~= 0) or (obj.speed_x ~= 0) then
                     local last_sx = obj.speed_x
 
-                    obj.speed_x = obj.speed_x + obj.acc_x * dt * 0.7
+                    obj.speed_x = obj.speed_x + obj.acc_x * dt
 
                     -- if reach max speed
                     if obj.max_speed_x
@@ -715,7 +715,6 @@ do
                         and (obj.ground or obj.allowed_air_dacc)
                     then
                         local dacc = obj.dacc_x or abs(obj.acc_x)
-                        dacc = (obj.ground and (dacc * (1 - 0.7))) or dacc
                         obj:set_acc(dacc * -obj:direction_x())
                     end
                 end -- end moving in x axis

@@ -36,38 +36,38 @@ end
 
 local Game = Screen:new(0, 0, nil, nil, 32 * 20, 32 * 12)
 
-Game:add_camera({
-    -- camera's viewport
-    x = Game.screen_w * 0.5,
-    y = Game.screen_h * 0,
-    w = Game.screen_w * 0.5,
-    h = Game.screen_h * 0.5,
+-- Game:add_camera({
+--     -- camera's viewport
+--     x = Game.screen_w * 0.5,
+--     y = Game.screen_h * 0,
+--     w = Game.screen_w * 0.5,
+--     h = Game.screen_h * 0.5,
 
-    color = { 153 / 255, 217 / 255, 234 / 255, 1 },
-    scale = 0.6,
+--     color = { 153 / 255, 217 / 255, 234 / 255, 1 },
+--     scale = 0.6,
 
-    type = "metroid",
-    show_grid = true,
-    show_world_bounds = true
-}, "blue")
+--     type = "metroid",
+--     show_grid = true,
+--     show_world_bounds = true
+-- }, "blue")
 
-Game:get_camera("main"):set_viewport(0, 0, Game.screen_w * 0.5, Game.screen_h)
+-- Game:get_camera("main"):set_viewport(0, 0, Game.screen_w * 0.5, Game.screen_h)
 
-Game:add_camera({
-    -- camera's viewport
-    x = Game.screen_w * 0.5,
-    y = Game.screen_h * 0.5,
-    w = Game.screen_w * 0.5,
-    h = Game.screen_h * 0.5,
+-- Game:add_camera({
+--     -- camera's viewport
+--     x = Game.screen_w * 0.5,
+--     y = Game.screen_h * 0.5,
+--     w = Game.screen_w * 0.5,
+--     h = Game.screen_h * 0.5,
 
-    color = { 255 / 255, 174 / 255, 201 / 255, 1 },
-    scale = 0.5,
+--     color = { 255 / 255, 174 / 255, 201 / 255, 1 },
+--     scale = 0.5,
 
-    type = "metroid",
-    show_grid = true,
-    grid_tile_size = 32 * 4,
-    show_world_bounds = true
-}, "pink")
+--     type = "metroid",
+--     show_grid = true,
+--     grid_tile_size = 32 * 4,
+--     show_world_bounds = true
+-- }, "pink")
 
 -- local temp
 -- temp = Game:get_camera("main")
@@ -271,18 +271,22 @@ Game:implements({
         ball.draw = function(self)
             love.graphics.setColor(0.9, 0.2, 0.3, 1)
             local x, y, w, h = ball.body:rect()
-            x, y = round(x), round(y)
+            -- x, y = round(x), round(y)
             love.graphics.rectangle("fill", x, y, w, h)
         end
         ball.body.bouncing_y = 0.7
-        ball.body.bouncing_x = 0.7
-        ball.body.speed_x = -64 * 15
+        ball.body.bouncing_x = 1
+        ball.body.speed_x = -64 * 1
         ball.body.acc_x = 0
         ball.body.dacc_x = 32 * 5
-        ball.body.allowed_air_dacc = true
+        ball.body.allowed_air_dacc = false
         ball.update = function(self, dt)
             -- ball.body:jump(32)
+            ball.body:move(0, ball.body.speed_x)
         end
+        ball.body:on_wall_collision(function()
+            ball.body:jump(16)
+        end)
 
         components[ball] = true
 
@@ -304,8 +308,8 @@ Game:implements({
                 -- obj.body.speed_x = obj.speed
             end
 
-            if obj.body.y < 32 then
-                obj.body:refresh(nil, 32)
+            if obj.body.y < 32 * 3 then
+                obj.body:refresh(nil, 32 * 3)
                 obj.speed = -obj.speed
             end
 
