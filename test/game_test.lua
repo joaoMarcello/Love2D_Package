@@ -239,6 +239,7 @@ local rects = {
     { x = 32 * 16, y = 32 * 7, w = 32 * 4, h = 32 * 3 },
     { x = 32 * 20, y = 32 * 4, w = 32 * 4, h = 32 * 3 },
     { x = 32 * 24, y = 32 * 1, w = 32 * 4, h = 32 * 3 },
+    { x = -2, y = Game.world_top, w = 1, h = Game.world_bottom - Game.world_top }
 }
 
 local function check_collision(x, y, w, h)
@@ -278,18 +279,17 @@ Game:implements({
             if not obj.collide then
                 obj.body:move(obj.acc)
             end
-
-            if obj.body.x < 0 then
-                obj.body:refresh(0)
-                obj.acc = 32 * 1
-                obj.body.speed_x = 32
-            end
         end
-        -- obj.body.bouncing = 0
+        obj.body.bouncing = 0.6
         obj.body:jump(32 * 6)
-        obj.body:on_ground_collision(function()
-            obj.acc = 0
-            -- obj.collide = true
+        -- obj.body:on_ground_collision(function()
+        --     obj.acc = 0
+        --     -- obj.collide = true
+        -- end)
+        obj.body:on_wall_collision(function()
+            --obj.body:set_speed(32)
+            obj.body:jump(32 * 3)
+            obj.acc = -obj.acc
         end)
         components[obj] = true
 
@@ -314,7 +314,7 @@ Game:implements({
         end
 
         bb = {}
-        bb.body = Physics:newBody(world, 32 * 3, 32 * 6, 32, 32, "static")
+        bb.body = Physics:newBody(world, 32 * 10, 32 * 6, 32, 32, "static")
         bb.draw = function(self)
             love.graphics.setColor(0.1, 0.4, 0.5)
             love.graphics.rectangle("fill", self.body:rect())

@@ -179,7 +179,11 @@ do
     end
 
     function Body:on_ground_collision(action)
-        self.on_ground_collision_action = action
+        self.on_ground_coll_action = action
+    end
+
+    function Body:on_wall_collision(action)
+        self.on_wall_coll_action = action
     end
 
     function Body:refresh(x, y, w, h)
@@ -486,6 +490,52 @@ do
         r = nil
     end
 
+    local function dynamic_filter(obj, item)
+        return is_dynamic(item)
+    end
+
+    local function colliders_filter(obj, item)
+        return not is_dynamic(item)
+    end
+
+    local function kinematic_moves_dynamic(kbody, goalx, goaly)
+        local col, n = kbody:check2(goalx, nil,
+            dynamic_filter,
+            nil, kbody.y - 1, nil, kbody.h + 2
+        )
+
+        if n > 0 then
+            for i = 1, n do
+                local bd
+
+                ---@type JM.Physics.Body
+                bd = col[i]
+
+                bd:refresh(bd.x + col.diff_x)
+
+                local col_bd, n_bd
+
+                col_bd, n_bd = bd:check(nil, nil, colliders_filter)
+
+                if n_bd > 0 then
+                    if col.diff_x < 0 then
+                        bd:refresh(col_bd.right + 0.1)
+                    else
+                        bd:refresh(col_bd.left - bd.w - 0.1)
+                    end
+
+                    local col_f, nn = bd:check(nil, nil, colliders_filter)
+
+                    bd.is_stucked = nn > 0
+                    -- bd.is_stucked = true
+                end
+
+                bd, col_bd = nil, nil
+            end
+        end
+
+    end
+
     function World:update(dt)
 
         for i = self.n_bodies, 1, -1 do
@@ -527,9 +577,7 @@ do
                     end
 
                     local col, n
-                    col, n = obj:check(nil, goaly, function(obj, item)
-                        return is_kinematic(item) or is_static(item)
-                    end)
+                    col, n = obj:check(nil, goaly, colliders_filter)
 
                     if n > 0 then -- collision!
 
@@ -545,8 +593,8 @@ do
                                 obj.speed_y = 0
                             end
 
-                            local r = obj.on_ground_collision_action and
-                                obj.on_ground_collision_action(obj)
+                            local r = obj.on_ground_coll_action and
+                                obj.on_ground_coll_action(obj)
                         else
                             obj:refresh(nil, col.bottom + 0.1) -- up
                             obj.speed_y = 0
@@ -586,9 +634,7 @@ do
 
 
                     local col, n
-                    col, n = obj:check(goalx, nil, function(obj, item)
-                        return not is_dynamic(item)
-                    end)
+                    col, n = obj:check(goalx, nil, colliders_filter)
 
                     if n > 0 then
                         if obj.speed_x > 0 then
@@ -597,53 +643,59 @@ do
                             obj:refresh(col.right + 0.1)
                         end
 
+                        local r = obj.on_wall_coll_action and obj.on_wall_coll_action()
+
                         obj.speed_x = 0
                     else
 
-                        -- kinematic bodies moves dynamic objects
+                        -- -- kinematic bodies moves dynamic objects
+                        -- if is_kinematic(obj) then
+                        --     local col, n = obj:check2(goalx, nil,
+
+                        --         function(obj, item)
+                        --             return is_dynamic(item)
+                        --         end,
+
+                        --         nil, obj.y - 1, nil, obj.h + 2
+                        --     )
+
+                        --     if n > 0 then
+                        --         for i = 1, n do
+                        --             local bd
+
+                        --             ---@type JM.Physics.Body
+                        --             bd = col[i]
+
+                        --             bd:refresh(bd.x + col.diff_x)
+
+                        --             local col_bd, n_bd
+
+                        --             col_bd, n_bd = bd:check(nil, nil, function(obj, item)
+                        --                 return not is_dynamic(item)
+                        --             end)
+
+                        --             if n_bd > 0 then
+                        --                 if col.diff_x < 0 then
+                        --                     bd:refresh(col_bd.right + 0.1)
+                        --                 else
+                        --                     bd:refresh(col_bd.left - bd.w - 0.1)
+                        --                 end
+
+                        --                 local col_f, nn = bd:check(nil, nil, function(obj, item)
+                        --                     return not is_dynamic(item)
+                        --                 end)
+
+                        --                 bd.is_stucked = nn > 0
+                        --                 -- bd.is_stucked = true
+                        --             end
+
+                        --             bd, col_bd = nil, nil
+                        --         end
+                        --     end
+                        -- end
+
                         if is_kinematic(obj) then
-                            local col, n = obj:check2(goalx, nil,
-
-                                function(obj, item)
-                                    return is_dynamic(item)
-                                end,
-
-                                nil, obj.y - 1, nil, obj.h + 2
-                            )
-
-                            if n > 0 then
-                                for i = 1, n do
-                                    local bd
-                                    
-                                    ---@type JM.Physics.Body
-                                    bd = col[i]
-
-                                    bd:refresh(bd.x + col.diff_x)
-
-                                    local col_bd, n_bd
-
-                                    col_bd, n_bd = bd:check(nil, nil, function(obj, item)
-                                        return not is_dynamic(item)
-                                    end)
-
-                                    if n_bd > 0 then
-                                        if col.diff_x < 0 then
-                                            bd:refresh(col_bd.right)
-                                        else
-                                            bd:refresh(col_bd.left - bd.w)
-                                        end
-
-                                        local col_f, nn = bd:check(nil, nil, function(obj, item)
-                                            return not is_dynamic(item)
-                                        end)
-
-                                        bd.is_stucked = nn > 0
-                                        -- bd.is_stucked = true
-                                    end
-
-                                    bd, col_bd = nil, nil
-                                end
-                            end
+                            kinematic_moves_dynamic(obj, goalx)
                         end
 
                         obj:refresh(goalx)
