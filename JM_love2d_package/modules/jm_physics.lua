@@ -87,23 +87,26 @@ do
         self.max_speed_x = nil
         self.max_speed_y = nil
 
-        self.acc_x = 0 --world.meter * 1.5
-        self.acc_y = 0 --world.gravity * (self.mass / world.default_mass)
+        self.acc_x = 0
+        self.acc_y = 0
         self.acc_y = (self.type ~= BodyTypes.dynamic and 0) or self.acc_y
 
         self.dacc_x = self.world.meter * 3.5
         self.dacc_y = nil
 
-        -- used if body is static
+        -- used if body is static or kinematic
         self.resistance_x = 1
 
         ---@type JM.Physics.Body
         self.ground = nil -- used if body is not static
 
         -- some properties
-        self.bouncing = nil -- need to be a number between 0 and 1
+        self.bouncing_y = nil -- need to be a number between 0 and 1
+        self.bouncing_x = nil
         self.__remove = nil
         self.is_stucked = nil
+
+        self.allowed_air_dacc = false
 
         self.shape = BodyShapes.rectangle
     end
@@ -165,6 +168,8 @@ do
     end
 
     function Body:jump(desired_height)
+        if self.speed_y ~= 0 then return end
+
         self.ground = nil
 
         local acc_y = self.world.gravity
@@ -498,7 +503,9 @@ do
         return not is_dynamic(item)
     end
 
-    local function kinematic_moves_dynamic(kbody, goalx, goaly)
+    local function kinematic_moves_dynamic_x(kbody, goalx)
+        -- if true then return end
+
         local col, n = kbody:check2(goalx, nil,
             dynamic_filter,
             nil, kbody.y - 1, nil, kbody.h + 2
@@ -526,11 +533,44 @@ do
 
                     local col_f, nn = bd:check(nil, nil, colliders_filter)
 
-                    bd.is_stucked = nn > 0
+                    -- bd.is_stucked = nn > 0
                     -- bd.is_stucked = true
                 end
 
                 bd, col_bd = nil, nil
+            end
+        end
+
+    end
+
+    local function kinematic_moves_dynamic_y(kbody, goaly)
+        local col, n = kbody:check2(nil, goaly - 1,
+            dynamic_filter,
+            nil, kbody.y - 1, nil, kbody.h + 2
+        )
+
+        if n > 0 then
+            for i = 1, n do
+                local bd
+
+                ---@type JM.Physics.Body
+                bd = col[i]
+
+                bd:refresh(nil, bd.y + col.diff_y)
+
+                local col_bd
+                col_bd = bd:check(nil, nil, function(obj, item)
+                    return item ~= kbody and colliders_filter(obj, item)
+                end)
+
+                if col_bd.n > 0 then
+                    if col.diff_y > 0 then
+                        bd:refresh(nil, col_bd.top - bd.h - 0.1)
+                    end
+                end
+
+                bd = nil
+                col_bd = nil
             end
         end
 
@@ -584,8 +624,8 @@ do
                         if obj.speed_y >= 0 then --falling
                             obj:refresh(nil, col.top - obj.h - 0.1)
 
-                            if obj.bouncing then
-                                obj.speed_y = -obj.speed_y * obj.bouncing
+                            if obj.bouncing_y then
+                                obj.speed_y = -obj.speed_y * obj.bouncing_y
                                 if abs(obj.speed_y) <= sqrt(2 * acc_y * 2) then
                                     obj.speed_y = 0
                                 end
@@ -595,12 +635,20 @@ do
 
                             local r = obj.on_ground_coll_action and
                                 obj.on_ground_coll_action(obj)
+
+                            obj.ground = col.most_up
                         else
                             obj:refresh(nil, col.bottom + 0.1) -- up
                             obj.speed_y = 0
                         end
 
                     else
+                        obj.ground = nil
+
+                        if is_kinematic(obj) then
+                            kinematic_moves_dynamic_y(obj, goaly)
+                        end
+
                         obj:refresh(nil, goaly)
                     end
 
@@ -643,59 +691,18 @@ do
                             obj:refresh(col.right + 0.1)
                         end
 
+
                         local r = obj.on_wall_coll_action and obj.on_wall_coll_action()
 
-                        obj.speed_x = 0
+                        if obj.bouncing_x then
+                            obj.speed_x = -obj.speed_x * obj.bouncing_x
+                        else
+                            obj.speed_x = 0
+                        end
                     else
 
-                        -- -- kinematic bodies moves dynamic objects
-                        -- if is_kinematic(obj) then
-                        --     local col, n = obj:check2(goalx, nil,
-
-                        --         function(obj, item)
-                        --             return is_dynamic(item)
-                        --         end,
-
-                        --         nil, obj.y - 1, nil, obj.h + 2
-                        --     )
-
-                        --     if n > 0 then
-                        --         for i = 1, n do
-                        --             local bd
-
-                        --             ---@type JM.Physics.Body
-                        --             bd = col[i]
-
-                        --             bd:refresh(bd.x + col.diff_x)
-
-                        --             local col_bd, n_bd
-
-                        --             col_bd, n_bd = bd:check(nil, nil, function(obj, item)
-                        --                 return not is_dynamic(item)
-                        --             end)
-
-                        --             if n_bd > 0 then
-                        --                 if col.diff_x < 0 then
-                        --                     bd:refresh(col_bd.right + 0.1)
-                        --                 else
-                        --                     bd:refresh(col_bd.left - bd.w - 0.1)
-                        --                 end
-
-                        --                 local col_f, nn = bd:check(nil, nil, function(obj, item)
-                        --                     return not is_dynamic(item)
-                        --                 end)
-
-                        --                 bd.is_stucked = nn > 0
-                        --                 -- bd.is_stucked = true
-                        --             end
-
-                        --             bd, col_bd = nil, nil
-                        --         end
-                        --     end
-                        -- end
-
                         if is_kinematic(obj) then
-                            kinematic_moves_dynamic(obj, goalx)
+                            kinematic_moves_dynamic_x(obj, goalx)
                         end
 
                         obj:refresh(goalx)
@@ -703,8 +710,11 @@ do
 
                     col = nil
 
-                    if obj.speed_x ~= 0 then
+                    if obj.speed_x ~= 0
+                        and (obj.ground or obj.allowed_air_dacc)
+                    then
                         local dacc = obj.dacc_x or abs(obj.acc_x)
+
                         obj:set_acc(dacc * -obj:direction_x())
                     end
                 end -- end moving in x axis

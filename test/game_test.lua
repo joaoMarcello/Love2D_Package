@@ -36,38 +36,38 @@ end
 
 local Game = Screen:new(0, 0, nil, nil, 32 * 20, 32 * 12)
 
--- Game:add_camera({
---     -- camera's viewport
---     x = Game.screen_w * 0.5,
---     y = Game.screen_h * 0,
---     w = Game.screen_w * 0.5,
---     h = Game.screen_h * 0.5,
+Game:add_camera({
+    -- camera's viewport
+    x = Game.screen_w * 0.5,
+    y = Game.screen_h * 0,
+    w = Game.screen_w * 0.5,
+    h = Game.screen_h * 0.5,
 
---     color = { 153 / 255, 217 / 255, 234 / 255, 1 },
---     scale = 0.6,
+    color = { 153 / 255, 217 / 255, 234 / 255, 1 },
+    scale = 0.6,
 
---     type = "metroid",
---     show_grid = true,
---     show_world_bounds = true
--- }, "blue")
+    type = "metroid",
+    show_grid = true,
+    show_world_bounds = true
+}, "blue")
 
--- Game:get_camera("main"):set_viewport(0, 0, Game.screen_w * 0.5, Game.screen_h)
+Game:get_camera("main"):set_viewport(0, 0, Game.screen_w * 0.5, Game.screen_h)
 
--- Game:add_camera({
---     -- camera's viewport
---     x = Game.screen_w * 0.5,
---     y = Game.screen_h * 0.5,
---     w = Game.screen_w * 0.5,
---     h = Game.screen_h * 0.5,
+Game:add_camera({
+    -- camera's viewport
+    x = Game.screen_w * 0.5,
+    y = Game.screen_h * 0.5,
+    w = Game.screen_w * 0.5,
+    h = Game.screen_h * 0.5,
 
---     color = { 255 / 255, 174 / 255, 201 / 255, 1 },
---     scale = 0.5,
+    color = { 255 / 255, 174 / 255, 201 / 255, 1 },
+    scale = 0.5,
 
---     type = "metroid",
---     show_grid = true,
---     grid_tile_size = 32 * 4,
---     show_world_bounds = true
--- }, "pink")
+    type = "metroid",
+    show_grid = true,
+    grid_tile_size = 32 * 4,
+    show_world_bounds = true
+}, "pink")
 
 -- local temp
 -- temp = Game:get_camera("main")
@@ -263,8 +263,32 @@ Game:implements({
         components = {}
 
         world = Physics:newWorld()
+
+        local ball = {
+            speed = 64 * 10
+        }
+        ball.body = Physics:newBody(world, 32 * 10 + 10, 0, 16, 16, "dynamic")
+        ball.draw = function(self)
+            love.graphics.setColor(0.9, 0.2, 0.3, 1)
+            local x, y, w, h = ball.body:rect()
+            x, y = round(x), round(y)
+            love.graphics.rectangle("fill", x, y, w, h)
+        end
+        ball.body.bouncing_y = 0.7
+        ball.body.bouncing_x = 0.7
+        ball.body.speed_x = -64 * 15
+        ball.body.acc_x = 0
+        ball.body.dacc_x = 32 * 5
+        ball.body.allowed_air_dacc = true
+        ball.update = function(self, dt)
+            -- ball.body:jump(32)
+        end
+
+        components[ball] = true
+
         obj = {
-            acc = -32 * 4
+            acc = -32 * 4,
+            speed = -math.sqrt(2 * 32 * 4 * 32)
         }
         obj.body = Physics:newBody(world, 32 * 15, 32 * 8, 32, 64, "kinematic")
         obj.draw = function(self)
@@ -277,19 +301,27 @@ Game:implements({
         end
         obj.update = function(self, dt)
             if not obj.collide then
-                obj.body:move(obj.acc)
+                -- obj.body.speed_x = obj.speed
             end
+
+            if obj.body.y < 32 then
+                obj.body:refresh(nil, 32)
+                obj.speed = -obj.speed
+            end
+
+            obj.body.speed_y = obj.speed
+
         end
-        obj.body.bouncing = 0.6
-        obj.body:jump(32 * 6)
-        -- obj.body:on_ground_collision(function()
-        --     obj.acc = 0
-        --     -- obj.collide = true
-        -- end)
+
+        obj.body:on_ground_collision(function()
+            obj.speed = -obj.speed
+        end)
+
         obj.body:on_wall_collision(function()
             --obj.body:set_speed(32)
-            obj.body:jump(32 * 3)
+            obj.body:jump(32)
             obj.acc = -obj.acc
+            obj.speed = -obj.speed
         end)
         components[obj] = true
 
@@ -420,7 +452,7 @@ Game:implements({
             y = -100,
             w = 28,
             h = 58,
-            body = Physics:newBody(world, 0, -100, 28, 58, "dynamic"),
+            body = Physics:newBody(world, 0, 32 * 6, 28, 58, "dynamic"),
             jump = false,
             speed_y = 0,
             gravity = (32 * 3.5) * 9.8,
@@ -439,8 +471,8 @@ Game:implements({
                 return self.x, self.y, self.w, self.h
             end
         }
-        rec.y = 32 * 6
         rec.body.max_speed_x = rec.max_speed
+        rec.body.allowed_air_dacc = true
         -- rec.body.mass = rec.body.mass * 2
 
         Game.camera:jump_to(ship.x, ship.y)
