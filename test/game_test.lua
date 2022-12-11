@@ -104,7 +104,7 @@ local my_effect = EffectManager:generate_effect("clickHere", { color = { 0.9, 0.
 local current_animation = monica_idle_normal
 my_effect:apply(current_animation)
 
--- monica_idle_normal:apply_effect("ufo")
+-- monica_idle_normal:apply_effect("clickHere")
 
 ---@param new_anima JM.Anima
 ---@param last_anima JM.Anima
@@ -454,7 +454,7 @@ Game:implements({
             y = -100,
             w = 28,
             h = 58,
-            body = Physics:newBody(world, 0, 32 * 6, 28, 58, "dynamic"),
+            body = Physics:newBody(world, 32 * 2, 32 * 7, 28, 58, "dynamic"),
             jump = false,
             speed_y = 0,
             gravity = (32 * 3.5) * 9.8,
@@ -613,8 +613,7 @@ Game:implements({
         rec.y = round(rbody.y)
 
         current_animation:update(dt)
-        my_effect:apply(current_animation, false)
-        -- Consolas:update(dt)
+        -- my_effect:apply(current_animation, false)
 
         if love.keyboard.isDown("up") and false then
             cam1:follow(rec:get_cx(), rec:get_cy() - 32 * 3, "up monica")

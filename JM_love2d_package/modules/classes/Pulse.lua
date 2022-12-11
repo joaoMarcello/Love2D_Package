@@ -1,3 +1,4 @@
+---@type JM.Effect
 local Effect = require((...):gsub("Pulse", "Effect"))
 
 ---@class JM.Effect.Pulse: JM.Effect

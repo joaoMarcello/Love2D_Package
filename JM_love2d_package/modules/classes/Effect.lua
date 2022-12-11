@@ -158,6 +158,10 @@ function Effect:set_object(object)
     end
 end
 
+function Effect:get_object()
+    return self.__object
+end
+
 function Effect:__increment_cycle()
     self.__cycle_count = self.__cycle_count + 1
 end
@@ -231,7 +235,7 @@ function Effect:draw(x, y)
 end
 
 --- Forca efeito em um objeto que nao era dele.
----@param object JM.Affectable
+---@param object JM.Affectable|nil
 function Effect:apply(object, reset)
     if not object then return end
 

@@ -23,7 +23,7 @@ local flick_shader = love.graphics.newShader(shader_code)
 --- Flick is a Effectsub-class.
 local Flick = Effect:new(nil, nil)
 
-
+---@return JM.Effect.Flick
 function Flick:new(animation, args)
     local ef = Effect:new(animation, args)
     setmetatable(ef, self)

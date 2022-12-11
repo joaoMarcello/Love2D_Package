@@ -82,7 +82,7 @@ function EffectManager:update(dt)
         for i = #self.__effects_list, 1, -1 do
             local eff = self:__get_effect_in_list__(i)
             local r1 = eff:__update__(dt)
-            local r2 = eff.__is_enabled and eff:update(dt)
+            local r2 = eff.__is_enabled and eff.update and eff:update(dt)
 
             if eff.__remove then
                 if eff.__final_action then
@@ -270,51 +270,46 @@ function EffectManager:apply_effect(object, eff_type, effect_args, __only_get__)
     elseif eff_type == "idle" or eff_type == Effect.TYPE.idle then
         eff = Idle:new(object, effect_args)
     elseif eff_type == "heartBeat"
-        or eff_type == Effect.TYPE.heartBeat then
+        or eff_type == Effect.TYPE.heartBeat
+    then
 
-        eff = Pulse:new(object, { max_sequence = 2, speed = 0.3, range = 0.1 })
-        eff.__rad = 0
+        local pulse = Pulse:new(object, { max_sequence = 2, speed = 0.3, range = 0.1, __id__ = Effect.TYPE.heartBeat })
+        pulse.__rad = 0
 
-        local idle_eff = Idle:new(object, { duration = 1 })
+        local idle_eff = Idle:new(object, { duration = 1, __id__ = Effect.TYPE.heartBeat })
 
-        eff:set_final_action(
-        ---@param args {idle: JM.Effect, pulse: JM.Effect}
-            function(args)
-                args.idle:apply(args.pulse.__object)
-            end,
-            { idle = idle_eff, pulse = eff }
+        pulse:set_final_action(
+            function()
+                idle_eff:apply(pulse.__object, true)
+            end
         )
 
         idle_eff:set_final_action(
-        ---@param args {idle: JM.Effect, pulse: JM.Effect}
-            function(args)
-                args.pulse:apply(args.idle.__object)
-                args.pulse.__rad = 0
-            end,
-            { idle = idle_eff, pulse = eff }
+            function()
+                pulse:apply(idle_eff.__object, true)
+                pulse.__rad = 0
+            end
         )
+
+        eff = pulse
+
     elseif eff_type == "clickHere" or eff_type == Effect.TYPE.clickHere then
-        local clickHere = Idle:new(object, { duration = 0, __id__ = Effect.TYPE.clickHere })
 
-        local bb = Swing:new(object, { range = 0.03, speed = 1 / 3, max_sequence = 2 })
+        local bb = Swing:new(object, { range = 0.03, speed = 1 / 3, max_sequence = 2, __id__ = Effect.TYPE.clickHere })
 
-        local idle = Idle:new(object, { duration = 1 })
+        local idle = Flick:new(object, { duration = 1, __id__ = Effect.TYPE.clickHere })
 
         bb:set_final_action(
             function()
-                idle:apply(bb.__object)
+                idle:apply(bb:get_object(), true)
             end)
 
         idle:set_final_action(
             function()
-                bb:apply(idle.__object)
+                bb:apply(idle:get_object(), true)
             end)
 
-        clickHere:set_final_action(function()
-            bb:apply(clickHere.__object)
-        end)
-
-        eff = clickHere
+        eff = bb
 
     elseif eff_type == "jelly" or eff_type == Effect.TYPE.jelly then
         effect_args.__id__ = Effect.TYPE.jelly
@@ -362,8 +357,10 @@ function EffectManager:apply_effect(object, eff_type, effect_args, __only_get__)
     elseif eff_type == "ufo" or eff_type == Effect.TYPE.ufo then
 
         local circle = self:generate_effect("circle", { range = 25, speed = 4, adjust_range_x = 150 })
+
         local pulse = Pulse:new(object, { range = 0.5, speed = 4 })
-        local idle = Idle:new(object, { duration = 0, __id__ = Effect.TYPE.ufo })
+
+        local idle = Idle:new(object, { duration = 1, __id__ = Effect.TYPE.ufo })
 
         idle:set_final_action(
         ---@param args {idle: JM.Effect, pulse: JM.Effect, circle: JM.Effect}

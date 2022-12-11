@@ -527,6 +527,10 @@ do
 
                 obj.speed_x = obj.speed_x + acc_x * dt
 
+                if obj.speed_x == 0 then
+                    obj.speed_x = 0.0001
+                end
+
                 -- if reach max speed
                 if obj.max_speed_x
                     and abs(obj.speed_x) > obj.max_speed_x
