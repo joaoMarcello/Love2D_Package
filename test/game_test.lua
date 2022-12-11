@@ -82,7 +82,7 @@ local monica_idle_normal = Anima:new({
     duration = 0.5,
     height = 64,
     ref_height = 64,
-    amount_cycle = 2
+    -- amount_cycle = 2
 })
 local monica_run = Anima:new({
     img = "/data/Monica/monica-run.png",
@@ -100,9 +100,11 @@ local monica_idle_blink = Anima:new({
     amount_cycle = 1
 })
 
-local my_effect = EffectManager:generate_effect("idle", { color = { 0.9, 0.9, 0.9, 1 } })
+local my_effect = EffectManager:generate_effect("clickHere", { color = { 0.9, 0.9, 0.9, 1 } })
 local current_animation = monica_idle_normal
 my_effect:apply(current_animation)
+
+-- monica_idle_normal:apply_effect("ufo")
 
 ---@param new_anima JM.Anima
 ---@param last_anima JM.Anima
@@ -265,7 +267,8 @@ Game:implements({
         world = Physics:newWorld()
 
         local ball = {
-            speed = 64 * 10
+            speed = -64 * 1,
+            time = 0
         }
         ball.body = Physics:newBody(world, 32 * 10 + 10, 0, 16, 16, "dynamic")
         ball.draw = function(self)
@@ -274,18 +277,21 @@ Game:implements({
             -- x, y = round(x), round(y)
             love.graphics.rectangle("fill", x, y, w, h)
         end
-        ball.body.bouncing_y = 0.7
+        ball.body.bouncing_y = 0.5
         ball.body.bouncing_x = 1
         ball.body.speed_x = -64 * 1
         ball.body.acc_x = 0
-        ball.body.dacc_x = 32 * 5
+        ball.body.dacc_x = 0 --32 * 5
         ball.body.allowed_air_dacc = false
         ball.update = function(self, dt)
-            -- ball.body:jump(32)
-            ball.body:move(0, ball.body.speed_x)
+            ball.time = ball.time + dt
+            if ball.time >= 1.5 then
+                ball.time = ball.time - 1.5
+                ball.body:jump(32 / 4)
+            end
         end
         ball.body:on_wall_collision(function()
-            ball.body:jump(16)
+            ball.body:jump(32 / 4)
         end)
 
         components[ball] = true
@@ -294,7 +300,8 @@ Game:implements({
             acc = -32 * 4,
             speed = -math.sqrt(2 * 32 * 4 * 32)
         }
-        obj.body = Physics:newBody(world, 32 * 15, 32 * 8, 32, 64, "kinematic")
+        obj.body = Physics:newBody(world, 32 * 6, 32 * 2, 32, 64, "kinematic")
+        obj.body.id = "box"
         obj.draw = function(self)
             local body
             ---@type JM.Physics.Body
@@ -304,16 +311,13 @@ Game:implements({
             body = nil
         end
         obj.update = function(self, dt)
-            if not obj.collide then
-                -- obj.body.speed_x = obj.speed
-            end
 
-            if obj.body.y < 32 * 3 then
-                obj.body:refresh(nil, 32 * 3)
-                obj.speed = -obj.speed
-            end
+            -- if obj.body.y < 32 * 3 then
+            --     obj.body:refresh(nil, 32 * 3)
+            --     obj.speed = -obj.speed
+            -- end
 
-            obj.body.speed_y = obj.speed
+            -- obj.body.speed_y = obj.speed
 
         end
 
@@ -321,12 +325,6 @@ Game:implements({
             obj.speed = -obj.speed
         end)
 
-        obj.body:on_wall_collision(function()
-            --obj.body:set_speed(32)
-            obj.body:jump(32)
-            obj.acc = -obj.acc
-            obj.speed = -obj.speed
-        end)
         components[obj] = true
 
         ground = {}
@@ -513,19 +511,49 @@ Game:implements({
             and rbody.speed_x <= 0
         then
             rec.direction = -1
-            rbody:move(-rec.acc)
+            rbody:apply_force(-rec.acc)
 
             change_animation(monica_run, current_animation)
             current_animation:set_flip_x(true)
+
+            local col = rbody.ground and rbody:check2(nil, nil,
+                function(obj, item)
+                    return item.id == "box"
+                end,
+                rbody.x - 3
+            )
+
+            if col and col.n > 0 then
+                ---@type JM.Physics.Body
+                local box = col[1]
+                -- box:apply_force(-32 * 7)
+                box.speed_x = -32 * 3
+                rbody:refresh(box:right())
+            end
 
         elseif love.keyboard.isDown("right")
             and rbody.speed_x >= 0
         then
             rec.direction = 1
-            rbody:move(rec.acc)
+            rbody:apply_force(rec.acc)
 
             change_animation(monica_run, current_animation)
             current_animation:set_flip_x(false)
+
+            local col = rbody.ground and rbody:check2(nil, nil,
+                function(obj, item)
+                    return item.id == "box"
+                end,
+                nil, nil, rbody.w + 3
+            )
+
+            if col and col.n > 0 then
+                ---@type JM.Physics.Body
+                local box = col[1]
+                -- box:apply_force(32 * 7)
+                box.speed_x = 32 * 3
+                rbody:refresh(box.x - rbody.w)
+            end
 
         elseif math.abs(rbody.speed_x) ~= 0 then
             local dacc = rec.dacc

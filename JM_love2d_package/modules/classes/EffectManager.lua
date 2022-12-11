@@ -1,22 +1,47 @@
 local path = (...)
+
+---@type JM.Effect
 local Effect = require(path:gsub("EffectManager", "Effect"))
+
+---@type JM.Effect.Flash
 local Flash = require(path:gsub("EffectManager", "Flash"))
+
+---@type JM.Effect.Flick
 local Flick = require(path:gsub("EffectManager", "Flick"))
+
+---@type JM.Effect.Pulse
 local Pulse = require(path:gsub("EffectManager", "Pulse"))
+
+---@type JM.Effect.Float
 local Float = require(path:gsub("EffectManager", "Float"))
+
+---@type JM.Effect.Swing
 local Idle = require(path:gsub("EffectManager", "Idle"))
+
+---@type JM.Effect.Rotate
 local Rotate = require(path:gsub("EffectManager", "Rotate"))
+
+---@type JM.Effect.Swing
 local Swing = require(path:gsub("EffectManager", "Swing"))
+
+---@type JM.Effect.Popin
 local Popin = require(path:gsub("EffectManager", "Popin"))
+
+---@type JM.Effect.Fadein
 local Fadein = require(path:gsub("EffectManager", "Fadein"))
+
+---@type JM.Effect.Ghost
 local Ghost = require(path:gsub("EffectManager", "Ghost"))
+
+---@type JM.Effect.Disc
 local Disc = require(path:gsub("EffectManager", "Disc"))
+
 local Sample = require(path:gsub("EffectManager", "shader"))
 
 -- Global variable for control the unique id's from EffectManager class.
 ---
 --- > WARNING: Don't ever manipulate this variable.
-JM_current_id_for_effect_manager__ = 1
+local JM_current_id_for_effect_manager__ = 1
 
 ---@class JM.EffectManager
 --- Manages a list of Effect.
@@ -269,24 +294,27 @@ function EffectManager:apply_effect(object, eff_type, effect_args, __only_get__)
             { idle = idle_eff, pulse = eff }
         )
     elseif eff_type == "clickHere" or eff_type == Effect.TYPE.clickHere then
+        local clickHere = Idle:new(object, { duration = 0, __id__ = Effect.TYPE.clickHere })
+
         local bb = Swing:new(object, { range = 0.03, speed = 1 / 3, max_sequence = 2 })
+
         local idle = Idle:new(object, { duration = 1 })
 
         bb:set_final_action(
-        ---@param args {idle: JM.Effect, bal: JM.Effect}
-            function(args)
-                args.idle:apply(args.bal.__object)
-            end,
-            { idle = idle, bal = bb })
+            function()
+                idle:apply(bb.__object)
+            end)
 
         idle:set_final_action(
-        ---@param args {idle: JM.Effect, bal: JM.Effect}
-            function(args)
-                args.bal:apply(args.idle.__object)
-            end,
-            { idle = idle, bal = bb })
+            function()
+                bb:apply(idle.__object)
+            end)
 
-        eff = bb
+        clickHere:set_final_action(function()
+            bb:apply(clickHere.__object)
+        end)
+
+        eff = clickHere
 
     elseif eff_type == "jelly" or eff_type == Effect.TYPE.jelly then
         effect_args.__id__ = Effect.TYPE.jelly
