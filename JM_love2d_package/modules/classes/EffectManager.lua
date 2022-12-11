@@ -297,7 +297,7 @@ function EffectManager:apply_effect(object, eff_type, effect_args, __only_get__)
 
         local bb = Swing:new(object, { range = 0.03, speed = 1 / 3, max_sequence = 2, __id__ = Effect.TYPE.clickHere })
 
-        local idle = Flick:new(object, { duration = 1, __id__ = Effect.TYPE.clickHere })
+        local idle = Idle:new(object, { duration = 1, __id__ = Effect.TYPE.clickHere })
 
         bb:set_final_action(
             function()

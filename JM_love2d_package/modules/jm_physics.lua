@@ -194,6 +194,11 @@ do
         self.allowed_air_dacc = false
 
         self.shape = BodyShapes.rectangle
+
+        self:extra_collisor_filter(function()
+            return true
+        end)
+
     end
 
     function Body:check_collision(obj)
@@ -246,6 +251,10 @@ do
         ay = ay or self.acc_y
         self.acc_x = ax
         self.acc_y = ay
+    end
+
+    function Body:extra_collisor_filter(filter)
+        self.extra_filter = filter
     end
 
     function Body:jump(desired_height)
@@ -355,6 +364,8 @@ do
                 )
 
                 and filter(self, item)
+
+                and self.extra_filter(self, item)
             then
                 table.insert(collisions, item)
                 n_collisions = n_collisions + 1

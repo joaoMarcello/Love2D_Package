@@ -100,7 +100,7 @@ local monica_idle_blink = Anima:new({
     amount_cycle = 1
 })
 
-local my_effect = EffectManager:generate_effect("clickHere", { color = { 0.9, 0.9, 0.9, 1 } })
+local my_effect = EffectManager:generate_effect("jelly", { color = { 0.9, 0.9, 0.9, 1 } })
 local current_animation = monica_idle_normal
 my_effect:apply(current_animation)
 
@@ -567,6 +567,17 @@ Game:implements({
             rbody.speed_y = 32
         else
             rbody.acc_y = 0
+        end
+
+        if rbody.ground and love.keyboard.isDown("down") then
+            rec.last_y = rbody.ground.y
+            rbody:extra_collisor_filter(function(obj, item)
+                return item.y ~= rec.last_y
+            end)
+        elseif rbody.ground then
+            rbody:extra_collisor_filter(function()
+                return true
+            end)
         end
 
 
