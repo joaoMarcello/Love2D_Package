@@ -489,7 +489,13 @@ do
                 if col.n > 0 then -- collision!
 
                     if obj.speed_y >= 0 then --falling
+
                         obj:refresh(nil, col.top - obj.h - 0.1)
+
+                        obj.ground = col.most_up
+
+                        local r = obj.on_ground_coll_action
+                            and obj.on_ground_coll_action(obj)
 
                         if obj.bouncing_y then
                             obj.speed_y = -obj.speed_y * obj.bouncing_y
@@ -499,11 +505,6 @@ do
                         else
                             obj.speed_y = 0
                         end
-
-                        obj.ground = col.most_up
-
-                        local r = obj.on_ground_coll_action
-                            and obj.on_ground_coll_action(obj)
 
                     else -- body hit the ceil
 

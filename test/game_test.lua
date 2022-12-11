@@ -100,7 +100,7 @@ local monica_idle_blink = Anima:new({
     amount_cycle = 1
 })
 
-local my_effect = EffectManager:generate_effect("jelly", { color = { 0.9, 0.9, 0.9, 1 } })
+local my_effect = EffectManager:generate_effect("idle", { color = { 0.9, 0.9, 0.9, 1 } })
 local current_animation = monica_idle_normal
 my_effect:apply(current_animation)
 
@@ -476,6 +476,11 @@ Game:implements({
         rec.body.max_speed_x = rec.max_speed
         rec.body.allowed_air_dacc = true
         -- rec.body.mass = rec.body.mass * 2
+        rec.body:on_ground_collision(function()
+            if rec.body.speed_y > 180 then
+                -- Game:main_camera():shake_in_y(0.05, 3, 0.2, 0.1)
+            end
+        end)
 
         Game.camera:jump_to(ship.x, ship.y)
         Game.camera:set_position(0, 0)
@@ -583,6 +588,8 @@ Game:implements({
 
         if rbody:bottom() > Game.world_bottom then
             rbody:refresh(nil, Game.world_bottom - rec.h)
+            -- rec.jump = false
+            rbody.speed_y = 0
             rec.jump = false
         end
 
