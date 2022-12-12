@@ -521,11 +521,10 @@ Game:implements({
             change_animation(monica_run, current_animation)
             current_animation:set_flip_x(true)
 
-            local col = rbody.ground and rbody:check2(nil, nil,
+            local col = rbody.ground and rbody:check(rbody.x - 3, nil,
                 function(obj, item)
                     return item.id == "box"
-                end,
-                rbody.x - 3
+                end
             )
 
             if col and col.n > 0 then
@@ -545,11 +544,10 @@ Game:implements({
             change_animation(monica_run, current_animation)
             current_animation:set_flip_x(false)
 
-            local col = rbody.ground and rbody:check2(nil, nil,
+            local col = rbody.ground and rbody:check(rbody.x + 3, nil,
                 function(obj, item)
                     return item.id == "box"
-                end,
-                nil, nil, rbody.w + 3
+                end
             )
 
             if col and col.n > 0 then
@@ -580,9 +578,7 @@ Game:implements({
                 return item.y ~= rec.last_y
             end)
         elseif rbody.ground then
-            rbody:extra_collisor_filter(function()
-                return true
-            end)
+            rbody:remove_extra_filter()
         end
 
 
