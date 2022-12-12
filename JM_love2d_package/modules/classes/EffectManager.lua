@@ -41,7 +41,7 @@ local Sample = require(path:gsub("EffectManager", "shader"))
 -- Global variable for control the unique id's from EffectManager class.
 ---
 --- > WARNING: Don't ever manipulate this variable.
-local JM_current_id_for_effect_manager__ = 1
+local JM_current_id_for_effect_manager__ = math.random(1000) * math.random()
 
 ---@class JM.EffectManager
 --- Manages a list of Effect.
@@ -276,17 +276,17 @@ function EffectManager:apply_effect(object, eff_type, effect_args, __only_get__)
         local pulse = Pulse:new(object, { max_sequence = 2, speed = 0.3, range = 0.1, __id__ = Effect.TYPE.heartBeat })
         pulse.__rad = 0
 
-        local idle_eff = Idle:new(object, { duration = 1, __id__ = Effect.TYPE.heartBeat })
+        local idle_eff = Flick:new(object, { duration = 1, __id__ = Effect.TYPE.heartBeat })
 
         pulse:set_final_action(
             function()
-                idle_eff:apply(pulse.__object, true)
+                idle_eff:apply(pulse:get_object(), true)
             end
         )
 
         idle_eff:set_final_action(
             function()
-                pulse:apply(idle_eff.__object, true)
+                pulse:apply(pulse:get_object(), true)
                 pulse.__rad = 0
             end
         )

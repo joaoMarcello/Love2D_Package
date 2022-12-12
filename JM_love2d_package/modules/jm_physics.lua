@@ -19,6 +19,8 @@ local BodyShapes = {
 
 ---@alias JM.Physics.Cell {count:number, x:number, y:number, items:table}
 
+---@alias JM.Physics.Collisions {n:number, top:number, left:number, right:number, bottom:number, most_left:JM.Physics.Body, most_right:JM.Physics.Body, most_up:JM.Physics.Body, most_bottom:JM.Physics.Body, diff_x:number, diff_y:number}
+
 local function collision_rect(x1, y1, w1, h1, x2, y2, w2, h2)
     return x1 + w1 > x2
         and x1 < x2 + w2
@@ -175,6 +177,8 @@ do
 
         self.dacc_x = self.world.meter * 3.5
         self.dacc_y = nil
+        self.over_speed_dacc_x = self.dacc_x
+        self.over_speed_dacc_y = self.dacc_x
 
         self.force_x = 0
         self.force_y = 0
@@ -195,6 +199,9 @@ do
 
         self.shape = BodyShapes.rectangle
 
+        -- TODO
+        self.hit_box = nil
+
         self:extra_collisor_filter(function()
             return true
         end)
@@ -208,7 +215,6 @@ do
 
     function Body:set_mass(mass)
         self.mass = mass
-        -- self:reset_gravity()
     end
 
     function Body:set_position(x, y)
@@ -262,11 +268,13 @@ do
 
         self.ground = nil
 
-        local acc_y = self.world.gravity
-            * (self.mass / self.world.default_mass)
-            + self.acc_y
+        local acc_y = self:weight() + self.acc_y
 
-        self.speed_y = -sqrt(2 * abs(acc_y) * desired_height)
+        self.speed_y = -sqrt(2 * acc_y * desired_height)
+    end
+
+    function Body:weight()
+        return self.world.gravity * (self.mass / self.world.default_mass)
     end
 
     function Body:on_ground_collision(action)
@@ -333,8 +341,10 @@ do
         return true
     end
 
-    ---@return {n:number, top:number, left:number, right:number, bottom:number, most_left:JM.Physics.Body, most_right:JM.Physics.Body, most_up:JM.Physics.Body, most_bottom:JM.Physics.Body, diff_x:number, diff_y:number}
+    ---@return JM.Physics.Collisions
     function Body:check(goal_x, goal_y, filter)
+        local moved_x, moved_y = goal_x, goal_y
+
         goal_x = goal_x or self.x
         goal_y = goal_y or self.y
         filter = filter or default_filter
@@ -407,7 +417,7 @@ do
         return collisions
     end
 
-    ---@return {n:number, top:number, left:number, right:number, bottom:number, most_left:JM.Physics.Body, most_right:JM.Physics.Body, most_up:JM.Physics.Body, most_bottom:JM.Physics.Body, diff_x:number, diff_y:number}
+    ---@return JM.Physics.Collisions
     function Body:check2(goal_x, goal_y, filter, x, y, w, h)
         x = x or self.x
         y = y or self.y
@@ -445,26 +455,23 @@ do
     ---@param acc_y number|nil
     ---@param body JM.Physics.Body|nil
     function Body:apply_force(acc_x, acc_y, body)
-        acc_x = acc_x or 0
-        acc_y = acc_y or 0
+        self.force_x = self.force_x + ((acc_x or 0) * self.mass)
+        self.force_y = self.force_y + ((acc_y or 0) * self.mass)
 
-        self.force_x = self.force_x + (acc_x * self.mass)
-        self.force_y = self.force_y + (acc_y * self.mass)
-
-        self.acc_x = self.force_x / self.mass
-        self.acc_y = self.force_y / self.mass
+        self.acc_x = acc_x and (self.force_x / self.mass) or self.acc_x
+        self.acc_y = acc_y and (self.force_y / self.mass) or self.acc_y
     end
 
     function Body:update(dt)
-        local obj, world
+        local obj
         obj = self
-        world = self.world
 
         if is_dynamic(obj) or is_kinematic(obj) then
             local goalx, goaly, acc_y, acc_x
 
-            acc_y = world.gravity * (obj.mass / world.default_mass)
-                + obj.acc_y
+            -- applying the gravity
+            obj:apply_force(nil, obj:weight())
+            acc_y = obj.acc_y
 
             -- falling
             if (acc_y ~= 0) or (obj.speed_y ~= 0) then

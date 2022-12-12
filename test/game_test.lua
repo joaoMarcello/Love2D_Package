@@ -104,7 +104,7 @@ local my_effect = EffectManager:generate_effect("idle", { color = { 0.9, 0.9, 0.
 local current_animation = monica_idle_normal
 my_effect:apply(current_animation)
 
--- monica_idle_normal:apply_effect("clickHere")
+-- monica_idle_normal:apply_effect("heartBeat")
 
 ---@param new_anima JM.Anima
 ---@param last_anima JM.Anima
