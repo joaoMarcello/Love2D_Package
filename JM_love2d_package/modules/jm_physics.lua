@@ -560,8 +560,8 @@ do
                 goaly = obj.y + (obj.speed_y * dt)
                     + (obj.acc_y * dt * dt) / 2
 
-                if obj.speed_y == 0 then
-                    obj.speed_y = sqrt(2 * obj.acc_y * 1)
+                if abs(obj.speed_y) < 1 then
+                    obj.speed_y = sqrt(2 * obj.acc_y * 1) * obj:direction_y()
                 end
 
                 -- speed up with acceleration
@@ -602,6 +602,7 @@ do
                 goalx = obj.x + (obj.speed_x * dt)
                     + (obj.acc_x * dt * dt) / 2
 
+                -- obj.acc_x = obj.ground and obj.acc_x * 0.5 or obj.acc_x
                 obj.speed_x = obj.speed_x + obj.acc_x * dt
 
                 -- if reach max speed
@@ -655,6 +656,7 @@ do
                     and (obj.ground or obj.allowed_air_dacc)
                 then
                     local dacc = obj.dacc_x
+                    -- dacc = obj.ground and dacc * 0.3 or dacc
                     obj:apply_force(dacc * -obj:direction_x())
                 end
 
