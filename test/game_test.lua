@@ -270,7 +270,7 @@ Game:implements({
             speed = -64 * 1,
             time = 0
         }
-        ball.body = Physics:newBody(world, 32 * 10 + 10, 0, 16, 16, "dynamic")
+        ball.body = Physics:newBody(world, 32 * 3 + 10, 0, 16, 16, "dynamic")
         ball.draw = function(self)
             love.graphics.setColor(0.9, 0.2, 0.3, 1)
             local x, y, w, h = ball.body:rect()
@@ -529,7 +529,7 @@ Game:implements({
 
             if col and col.n > 0 then
                 ---@type JM.Physics.Body
-                local box = col[1]
+                local box = col.items[1]
                 -- box:apply_force(-32 * 7)
                 box.speed_x = -32 * 3
                 rbody:refresh(box:right())
@@ -552,7 +552,7 @@ Game:implements({
 
             if col and col.n > 0 then
                 ---@type JM.Physics.Body
-                local box = col[1]
+                local box = col.items[1]
                 -- box:apply_force(32 * 7)
                 box.speed_x = 32 * 3
                 rbody:refresh(box.x - rbody.w)
