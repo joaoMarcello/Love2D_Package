@@ -481,6 +481,10 @@ Game:implements({
                 -- Game:main_camera():shake_in_y(0.05, 3, 0.2, 0.1)
             end
         end)
+        rec.body:on_starting_falling(function()
+            -- current_animation:set_color({ math.random(), math.random(), math.random(), 1 })
+            -- rec.body.speed_y = 200 * 2
+        end)
 
         Game.camera:jump_to(ship.x, ship.y)
         Game.camera:set_position(0, 0)

@@ -297,6 +297,10 @@ do
         self.on_ceil_coll_action = action
     end
 
+    function Body:on_starting_falling(action)
+        self.start_falling_action = action
+    end
+
     function Body:refresh(x, y, w, h)
         x = x or self.x
         y = y or self.y
@@ -450,11 +454,11 @@ do
         collisions.diff_x = diff_x
         collisions.diff_y = diff_y
 
-        collisions.end_x = (diff_x > 0 and most_left and most_left.x - self.w)
+        collisions.end_x = (diff_x >= 0 and most_left and most_left.x - self.w)
             or (diff_x < 0 and most_right and most_right:right()) or goal_x
 
-        collisions.end_y = (diff_y > 0 and most_up and most_up.y - self.h)
-            or (diff_y < 0 and most_bottom and most_bottom:bottom()) or goal_y
+        collisions.end_y = (diff_y >= 0 and most_up and most_up.y - self.h - 0.1)
+            or (diff_y < 0 and most_bottom and most_bottom:bottom() + 0.1) or goal_y
 
         collisions.n = n_collisions
 
@@ -506,30 +510,6 @@ do
         self.acc_y = acc_y and (self.force_y / self.mass) or self.acc_y
     end
 
-    ---@param col JM.Physics.Collisions
-    function Body:resolve_collisions_x(col)
-        if col.n > 0 then
-            local offset = 0
-
-            self:refresh(col.end_x)
-
-            -- if col.diff_x >= 0 then
-            --     self:refresh(col.left - self.w - offset)
-            -- else
-            --     self:refresh(col.right + offset)
-            -- end
-
-
-            local r = self.on_wall_coll_action and self.on_wall_coll_action()
-
-            if self.bouncing_x then
-                self.speed_x = -self.speed_x * self.bouncing_x
-            else
-                self.speed_x = 0
-            end
-        end
-    end
-
     function Body:resolve_collisions_y(col)
         if col.n > 0 then -- collision!
 
@@ -537,12 +517,10 @@ do
 
             if col.diff_y >= 0 then -- body hit the floor/ground
 
-                -- self:refresh(nil, col.top - self.h)
+                local r = self.on_ground_coll_action and not self.ground
+                    and self.on_ground_coll_action(col)
 
                 self.ground = col.most_up
-
-                local r = self.on_ground_coll_action
-                    and self.on_ground_coll_action(self)
 
                 if self.bouncing_y then
                     self.speed_y = -self.speed_y * self.bouncing_y
@@ -555,12 +533,10 @@ do
 
             else -- body hit the ceil
 
+                local r = self.on_ceil_coll_action and not self.ceil
+                    and self.on_ceil_coll_action(col)
+
                 self.ceil = col.most_bottom
-
-                -- self:refresh(nil, col.bottom)
-
-                local r = self.on_ceil_coll_action
-                    and self.on_ceil_coll_action()
 
                 self.speed_y = 0
             end
@@ -579,6 +555,7 @@ do
 
             -- falling
             if (obj.acc_y ~= 0) or (obj.speed_y ~= 0) then
+                local last_sy = obj.speed_y
 
                 goaly = obj.y + (obj.speed_y * dt)
                     + (obj.acc_y * dt * dt) / 2
@@ -611,6 +588,11 @@ do
 
                     obj:refresh(nil, goaly)
                 end
+
+                if last_sy <= 0 and obj.speed_y > 0 then
+                    local r = obj.start_falling_action
+                        and obj.start_falling_action()
+                end
             end
 
             -- moving in x axis
@@ -619,7 +601,6 @@ do
 
                 goalx = obj.x + (obj.speed_x * dt)
                     + (obj.acc_x * dt * dt) / 2
-
 
                 obj.speed_x = obj.speed_x + obj.acc_x * dt
 
@@ -639,7 +620,6 @@ do
                     obj.acc_x = 0
                 end
 
-
                 --- will store the body collisions with other bodies
                 local col
 
@@ -648,7 +628,16 @@ do
 
                 if col.n > 0 then -- had collision!
 
-                    obj:resolve_collisions_x(col)
+                    self:refresh(col.end_x)
+
+                    local r = self.on_wall_coll_action
+                        and self.on_wall_coll_action(col)
+
+                    if self.bouncing_x then
+                        self.speed_x = -self.speed_x * self.bouncing_x
+                    else
+                        self.speed_x = 0
+                    end
 
                 else -- no collisions
 
