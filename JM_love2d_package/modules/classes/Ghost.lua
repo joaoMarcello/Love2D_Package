@@ -26,10 +26,10 @@ function Ghost:__constructor__(args)
 end
 
 function Ghost:update(dt)
-    self.__rad = (self.__rad + math.pi * 2. / self.__speed * dt)
-        % (math.pi * 2)
+    self.__rad = (self.__rad + self.PI * 2. / self.__speed * dt)
+        % (self.PI * 2)
 
-    self.__object:set_color({ a = 1 + math.sin(self.__rad) * self.__range })
+    self.__object:set_color({ a = 1 + self.sin(self.__rad) * self.__range })
 end
 
 return Ghost

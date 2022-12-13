@@ -276,7 +276,7 @@ do
 
         self.ground = nil
 
-        local acc_y = self:weight() + self.acc_y
+        local acc_y = self:weight() --+ self.acc_y
 
         self.speed_y = -sqrt(2 * acc_y * desired_height)
     end
@@ -572,8 +572,10 @@ do
                 -- speed up with acceleration
                 obj.speed_y = obj.speed_y + obj.acc_y * dt
 
-                if self.max_speed_y and obj.speed_y > self.max_speed_y then
-                    obj.speed_y = self.max_speed_y
+                local max_speed = obj.max_speed_y or obj.world.max_speed_y
+
+                if max_speed and obj.speed_y > max_speed then
+                    obj.speed_y = max_speed
                 end
 
                 ---@type JM.Physics.Collisions
@@ -811,10 +813,11 @@ do
         self.meter = self.tile * 3.5
         self.gravity = 9.8 * self.meter
         self.max_speed_y = self.meter * 15
+        self.max_speed_x = self.max_speed_y
         self.default_mass = 65
 
         self.bodies = {}
-        self.n_bodies = 0
+        self.bodies_number = 0
 
         self.grid = {}
     end
@@ -910,7 +913,7 @@ do
     ---@param obj JM.Physics.Body
     function World:add(obj)
         table_insert(self.bodies, obj)
-        self.n_bodies = self.n_bodies + 1
+        self.bodies_number = self.bodies_number + 1
 
         local cl, ct, cw, ch = self:rect_to_cell(obj:rect())
 
@@ -927,7 +930,7 @@ do
         local r = table_remove(self.bodies, index)
 
         if r then
-            self.n_bodies = self.n_bodies - 1
+            self.bodies_number = self.bodies_number - 1
 
             local cl, ct, cw, ch = self:rect_to_cell(obj:rect())
 
@@ -942,7 +945,7 @@ do
 
     function World:update(dt)
 
-        for i = self.n_bodies, 1, -1 do
+        for i = self.bodies_number, 1, -1 do
             local obj
 
             ---@type JM.Physics.Body

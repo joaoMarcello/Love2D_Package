@@ -54,6 +54,9 @@ local TYPE_ = {
 }
 
 Effect.TYPE = TYPE_
+Effect.sin = math.sin
+Effect.cos = math.cos
+Effect.PI = math.pi
 
 ---
 --- Class effect constructor.

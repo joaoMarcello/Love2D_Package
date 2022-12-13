@@ -258,10 +258,18 @@ local obj, ground
 local world
 local components
 local bb
+local light_eff
 
 --==========================================================================
 Game:implements({
     load = function()
+        light_eff = Anima:new({
+            img = "/data/light_effect.png",
+            scale = { x = 1.5, y = 1.5 }
+        })
+        -- light_eff:apply_effect("pulse", { range = 0.03, speed = 0.3 })
+        light_eff:apply_effect("ghost")
+
         components = {}
 
         world = Physics:newWorld()
@@ -574,10 +582,15 @@ Game:implements({
         end
 
         if love.keyboard.isDown("up") then
-            rbody.acc_y = -world.gravity
-            rbody.speed_y = 32
+            rbody:apply_force(nil, -rbody:weight())
+            rbody.speed_y = 0
         else
             rbody.acc_y = 0
+        end
+
+        if not love.keyboard.isDown("space") and rbody.speed_y < 0 and
+            rbody.speed_y > -math.sqrt(2 * rbody:weight() * 32) then
+            rbody:apply_force(nil, rbody:weight() * 2)
         end
 
         if rbody.ground and love.keyboard.isDown("down") then
@@ -806,16 +819,24 @@ Game:implements({
                 self.rad = self.rad + (math.pi * 2) / 1 * dt
                 self.alpha = 0.3 * math.sin(self.rad * 2)
                 self.alpha = 0.1
+                light_eff:update(dt)
             end,
 
             draw = function(self)
-                love.graphics.setBlendMode("add", 'premultiplied')
-                love.graphics.setColor(0.4 + self.alpha, 0.4 + self.alpha, 0, 1)
-                love.graphics.circle("fill",
-                    rec:get_cx(),
-                    rec:get_cy(), (32 * 2.5) + 3 * math.sin(self.rad)
-                )
+                ---@type JM.Anima
+                local anim = light_eff
+
+                love.graphics.setBlendMode("add")
+                anim:draw(rec:get_cx(), rec:get_cy())
                 love.graphics.setBlendMode("alpha")
+
+                -- love.graphics.setBlendMode("add", 'premultiplied')
+                -- love.graphics.setColor(0.4 + self.alpha, 0.4 + self.alpha, 0, 1)
+                -- love.graphics.circle("fill",
+                --     rec:get_cx(),
+                --     rec:get_cy(), (32 * 2.5) + 3 * math.sin(self.rad)
+                -- )
+                -- love.graphics.setBlendMode("alpha")
             end
 
         },
