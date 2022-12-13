@@ -91,7 +91,7 @@ function Flash:update(dt)
         self:__increment_cycle()
     end
 
-    self.__color[4] = self.__origin + (math.sin(self.__rad) * self.__range)
+    self.__color[4] = self.__origin + (math.math_sin(self.__rad) * self.__range)
 end
 
 --- Draw the flash effect.

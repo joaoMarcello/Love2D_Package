@@ -80,7 +80,7 @@ function gamera.new(l, t, w, h)
   local cam = setmetatable({
     x = 0, y = 0,
     scale = 1,
-    angle = 0, sin = math.sin(0), cos = math.cos(0),
+    angle = 0, sin = math.math_sin(0), cos = math.cos(0),
     l = 0, t = 0, w = sw, h = sh, w2 = sw * 0.5, h2 = sh * 0.5
   }, gameraMt)
 
@@ -127,7 +127,7 @@ function gamera:setAngle(angle)
   checkNumber(angle, "angle")
 
   self.angle = angle
-  self.cos, self.sin = math.cos(angle), math.sin(angle)
+  self.cos, self.sin = math.cos(angle), math.math_sin(angle)
 
   adjustScale(self)
   adjustPosition(self)

@@ -38,8 +38,8 @@ function Disc:update(dt)
     self.__rad = self.__rad % (math.pi * 2.)
 
     self.__object:__set_effect_transform({
-        kx = math.sin(self.__rad) * self.__range,
-        ky = -math.sin(self.__rad + math.pi * 1.5) * self.__range
+        kx = math.math_sin(self.__rad) * self.__range,
+        ky = -math.math_sin(self.__rad + math.pi * 1.5) * self.__range
     })
 end
 

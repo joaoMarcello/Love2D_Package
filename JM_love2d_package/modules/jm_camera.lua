@@ -1460,6 +1460,7 @@ local function normal_attach(self)
         -self.y + (self.viewport_y / self.scale)
         + ((self.shaking_in_y and self.shake_offset_y or 0))
     )
+
 end
 
 ---@param self JM.Camera.Camera

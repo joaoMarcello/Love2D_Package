@@ -159,6 +159,8 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
 
     self.canvas = love.graphics.newCanvas(self.w, self.h)
 
+    self.shader = nil
+
     self:implements({})
 end
 
@@ -298,9 +300,9 @@ function Scene:implements(param)
 
 
     self.draw = function(self)
-        -- set_canvas(self.canvas)
-        -- set_blend_mode("alpha")
-        -- set_color_draw(1, 1, 1, 1)
+        set_canvas(self.canvas)
+        set_blend_mode("alpha")
+        set_color_draw(1, 1, 1, 1)
 
         if self:get_color() then
             clear_screen(self:get_color())
@@ -331,9 +333,9 @@ function Scene:implements(param)
                     ---@type JM.Scene.Layer
                     layer = param.layers[i]
 
-                    camera:attach()
+                    -- camera:set_shader(self.shader)
 
-                    camera:set_shader(layer.shader)
+                    camera:attach()
 
                     push()
 
@@ -349,14 +351,14 @@ function Scene:implements(param)
                     end
 
                     translate(round(px), round(py))
-                    
+
                     r = layer.draw and layer:draw()
 
                     pop()
 
                     camera:detach()
 
-                    camera:set_shader()
+                    -- camera:set_shader()
 
                     layer = nil
                 end -- END FOR Layers
@@ -371,12 +373,14 @@ function Scene:implements(param)
             camera = nil
         end
 
-        -- set_canvas()
-        -- set_color_draw(1, 1, 1, 1)
-        -- set_blend_mode("alpha", "premultiplied")
-        -- love_draw(self.canvas)
-        -- set_canvas()
-        -- set_blend_mode("alpha")
+        set_canvas()
+        set_color_draw(1, 1, 1, 1)
+        -- set_shader(self.shader)
+        set_blend_mode("alpha", "premultiplied")
+        love_draw(self.canvas)
+        set_canvas()
+        -- set_shader()
+        set_blend_mode("alpha")
         -- love.graphics.setScissor()
 
         set_color_draw(0, 0, 1, 1)

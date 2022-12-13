@@ -20,10 +20,11 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-]]--
+]] --
 
-local function lerp(a, b, x) return a + (b - a)*x end
-local function csnap(v, x) return math.ceil(v/x)*x - x/2 end
+local function lerp(a, b, x) return a + (b - a) * x end
+
+local function csnap(v, x) return math.ceil(v / x) * x - x / 2 end
 
 -- Shake according to https://jonny.morrill.me/en/blog/gamedev-how-to-implement-a-camera-shake-effect/
 local function newShake(amplitude, duration, frequency)
@@ -32,19 +33,19 @@ local function newShake(amplitude, duration, frequency)
         duration = duration or 0,
         frequency = frequency or 60,
         samples = {},
-        start_time = love.timer.getTime()*1000,
+        start_time = love.timer.getTime() * 1000,
         t = 0,
         shaking = true,
     }
 
-    local sample_count = (self.duration/1000)*self.frequency
-    for i = 1, sample_count do self.samples[i] = 2*love.math.random()-1 end
+    local sample_count = (self.duration / 1000) * self.frequency
+    for i = 1, sample_count do self.samples[i] = 2 * love.math.random() - 1 end
 
     return self
 end
 
 local function updateShake(self, dt)
-    self.t = love.timer.getTime()*1000 - self.start_time
+    self.t = love.timer.getTime() * 1000 - self.start_time
     if self.t > self.duration then self.shaking = false end
 end
 
@@ -55,7 +56,7 @@ end
 
 local function shakeDecay(self, t)
     if t > self.duration then return 0 end
-    return (self.duration - t)/self.duration
+    return (self.duration - t) / self.duration
 end
 
 local function getShakeAmplitude(self, t)
@@ -64,11 +65,11 @@ local function getShakeAmplitude(self, t)
         t = self.t
     end
 
-    local s = (t/1000)*self.frequency
+    local s = (t / 1000) * self.frequency
     local s0 = math.floor(s)
     local s1 = s0 + 1
     local k = shakeDecay(self, t)
-    return self.amplitude*(shakeNoise(self, s0) + (s - s0)*(shakeNoise(self, s1) - shakeNoise(self, s0)))*k
+    return self.amplitude * (shakeNoise(self, s0) + (s - s0) * (shakeNoise(self, s1) - shakeNoise(self, s0))) * k
 end
 
 -- Camera
@@ -77,9 +78,9 @@ Camera.__index = Camera
 
 local function new(x, y, w, h, scale, rotation)
     return setmetatable({
-        x = x or (w or love.graphics.getWidth())/2, y = y or (h or love.graphics.getHeight())/2,
-        mx = x or (w or love.graphics.getWidth())/2, my = y or (h or love.graphics.getHeight())/2,
-        screen_x = x or (w or love.graphics.getWidth())/2, screen_y = y or (h or love.graphics.getHeight())/2,
+        x = x or (w or love.graphics.getWidth()) / 2, y = y or (h or love.graphics.getHeight()) / 2,
+        mx = x or (w or love.graphics.getWidth()) / 2, my = y or (h or love.graphics.getHeight()) / 2,
+        screen_x = x or (w or love.graphics.getWidth()) / 2, screen_y = y or (h or love.graphics.getHeight()) / 2,
         w = w or love.graphics.getWidth(), h = h or love.graphics.getHeight(),
         scale = scale or 1,
         rotation = rotation or 0,
@@ -91,15 +92,15 @@ local function new(x, y, w, h, scale, rotation)
         follow_lead_x = 0, follow_lead_y = 0,
         deadzone = nil, bound = nil,
         draw_deadzone = false,
-        flash_duration = 1, flash_timer = 0, flash_color = {0, 0, 0, 1},
+        flash_duration = 1, flash_timer = 0, flash_color = { 0, 0, 0, 1 },
         last_horizontal_shake_amount = 0, last_vertical_shake_amount = 0,
-        fade_duration = 1, fade_timer = 0, fade_color = {0, 0, 0, 0},
+        fade_duration = 1, fade_timer = 0, fade_color = { 0, 0, 0, 0 },
     }, Camera)
 end
 
 function Camera:attach()
     love.graphics.push()
-    love.graphics.translate(self.w/2, self.h/2)
+    love.graphics.translate(self.w / 2, self.h / 2)
     love.graphics.scale(self.scale)
     love.graphics.rotate(self.rotation)
     love.graphics.translate(-self.x, -self.y)
@@ -114,17 +115,17 @@ function Camera:move(dx, dy)
 end
 
 function Camera:toWorldCoords(x, y)
-    local c, s = math.cos(self.rotation), math.sin(self.rotation)
-    x, y = (x - self.w/2)/self.scale, (y - self.h/2)/self.scale
-    x, y = c*x - s*y, s*x + c*y
+    local c, s = math.cos(self.rotation), math.math_sin(self.rotation)
+    x, y = (x - self.w / 2) / self.scale, (y - self.h / 2) / self.scale
+    x, y = c * x - s * y, s * x + c * y
     return x + self.x, y + self.y
 end
 
 function Camera:toCameraCoords(x, y)
-    local c, s = math.cos(self.rotation), math.sin(self.rotation)
+    local c, s = math.cos(self.rotation), math.math_sin(self.rotation)
     x, y = x - self.x, y - self.y
-    x, y = c*x - s*y, s*x + c*y
-    return x*self.scale + self.w/2, y*self.scale + self.h/2
+    x, y = c * x - s * y, s * x + c * y
+    return x * self.scale + self.w / 2, y * self.scale + self.h / 2
 end
 
 function Camera:getMousePosition()
@@ -135,8 +136,8 @@ function Camera:shake(intensity, duration, frequency, axes)
     if not axes then axes = 'XY' end
     axes = string.upper(axes)
 
-    if string.find(axes, 'X') then table.insert(self.horizontal_shakes, newShake(intensity, duration*1000, frequency)) end
-    if string.find(axes, 'Y') then table.insert(self.vertical_shakes, newShake(intensity, duration*1000, frequency)) end
+    if string.find(axes, 'X') then table.insert(self.horizontal_shakes, newShake(intensity, duration * 1000, frequency)) end
+    if string.find(axes, 'Y') then table.insert(self.vertical_shakes, newShake(intensity, duration * 1000, frequency)) end
 end
 
 function Camera:update(dt)
@@ -155,10 +156,10 @@ function Camera:update(dt)
     if self.fading then
         self.fade_timer = self.fade_timer + dt
         self.fade_color = {
-            lerp(self.base_fade_color[1], self.target_fade_color[1], self.fade_timer/self.fade_duration),
-            lerp(self.base_fade_color[2], self.target_fade_color[2], self.fade_timer/self.fade_duration),
-            lerp(self.base_fade_color[3], self.target_fade_color[3], self.fade_timer/self.fade_duration),
-            lerp(self.base_fade_color[4], self.target_fade_color[4], self.fade_timer/self.fade_duration),
+            lerp(self.base_fade_color[1], self.target_fade_color[1], self.fade_timer / self.fade_duration),
+            lerp(self.base_fade_color[2], self.target_fade_color[2], self.fade_timer / self.fade_duration),
+            lerp(self.base_fade_color[3], self.target_fade_color[3], self.fade_timer / self.fade_duration),
+            lerp(self.base_fade_color[4], self.target_fade_color[4], self.fade_timer / self.fade_duration),
         }
         if self.fade_timer > self.fade_duration then
             self.fade_timer = 0
@@ -183,25 +184,25 @@ function Camera:update(dt)
     self:move(horizontal_shake_amount, vertical_shake_amount)
     self.last_horizontal_shake_amount, self.last_vertical_shake_amount = horizontal_shake_amount, vertical_shake_amount
 
-    -- Follow -- 
+    -- Follow --
     if not self.target_x and not self.target_y then return end
 
     -- Set follow style deadzones
     if self.follow_style == 'LOCKON' then
-        local w, h = self.w/16, self.w/16
-        self:setDeadzone((self.w - w)/2, (self.h - h)/2, w, h)
+        local w, h = self.w / 16, self.w / 16
+        self:setDeadzone((self.w - w) / 2, (self.h - h) / 2, w, h)
 
     elseif self.follow_style == 'PLATFORMER' then
-        local w, h = self.w/8, self.h/3
-        self:setDeadzone((self.w - w)/2, (self.h - h)/2 - h*0.25, w, h)
+        local w, h = self.w / 8, self.h / 3
+        self:setDeadzone((self.w - w) / 2, (self.h - h) / 2 - h * 0.25, w, h)
 
     elseif self.follow_style == 'TOPDOWN' then
-        local s = math.max(self.w, self.h)/4
-        self:setDeadzone((self.w - s)/2, (self.h - s)/2, s, s)
+        local s = math.max(self.w, self.h) / 4
+        self:setDeadzone((self.w - s) / 2, (self.h - s) / 2, s, s)
 
     elseif self.follow_style == 'TOPDOWN_TIGHT' then
-        local s = math.max(self.w, self.h)/8
-        self:setDeadzone((self.w - s)/2, (self.h - s)/2, s, s)
+        local s = math.max(self.w, self.h) / 8
+        self:setDeadzone((self.w - s) / 2, (self.h - s) / 2, s, s)
 
     elseif self.follow_style == 'SCREEN_BY_SCREEN' then
         self:setDeadzone(0, 0, 0, 0)
@@ -211,17 +212,18 @@ function Camera:update(dt)
     end
 
     -- No deadzone means we just track the target with no lerp
-    if not self.deadzone then 
-        self.x, self.y = self.target_x, self.target_y 
+    if not self.deadzone then
+        self.x, self.y = self.target_x, self.target_y
         if self.bound then
-            self.x = math.min(math.max(self.x, self.bounds_min_x + self.w/2), self.bounds_max_x - self.w/2)
-            self.y = math.min(math.max(self.y, self.bounds_min_y + self.h/2), self.bounds_max_y - self.h/2)
+            self.x = math.min(math.max(self.x, self.bounds_min_x + self.w / 2), self.bounds_max_x - self.w / 2)
+            self.y = math.min(math.max(self.y, self.bounds_min_y + self.h / 2), self.bounds_max_y - self.h / 2)
         end
         return
     end
 
     -- Convert appropriate variables to camera coordinates since the deadzone is applied in terms of the camera and not the world
-    local dx1, dy1, dx2, dy2 = self.deadzone_x, self.deadzone_y, self.deadzone_x + self.deadzone_w, self.deadzone_y + self.deadzone_h
+    local dx1, dy1, dx2, dy2 = self.deadzone_x, self.deadzone_y, self.deadzone_x + self.deadzone_w,
+        self.deadzone_y + self.deadzone_h
     local scroll_x, scroll_y = 0, 0
     local target_x, target_y = self:toCameraCoords(self.target_x, self.target_y)
     local x, y = self:toCameraCoords(self.x, self.y)
@@ -230,27 +232,31 @@ function Camera:update(dt)
     if self.follow_style == 'SCREEN_BY_SCREEN' then
         -- Don't change self.screen_x/y if already at the boundaries
         if self.bound then
-            if self.x > self.bounds_min_x + self.w/2 and target_x < 0 then self.screen_x = csnap(self.screen_x - self.w/self.scale, self.w/self.scale) end
-            if self.x < self.bounds_max_x - self.w/2 and target_x >= self.w then self.screen_x = csnap(self.screen_x + self.w/self.scale, self.w/self.scale) end
-            if self.y > self.bounds_min_y + self.h/2 and target_y < 0 then self.screen_y = csnap(self.screen_y - self.h/self.scale, self.h/self.scale) end
-            if self.y < self.bounds_max_y - self.h/2 and target_y >= self.h then self.screen_y = csnap(self.screen_y + self.h/self.scale, self.h/self.scale) end
-        -- Move to the next screen if the target is outside the screen boundaries
+            if self.x > self.bounds_min_x + self.w / 2 and target_x < 0 then self.screen_x = csnap(self.screen_x -
+                self.w / self.scale, self.w / self.scale) end
+            if self.x < self.bounds_max_x - self.w / 2 and target_x >= self.w then self.screen_x = csnap(self.screen_x +
+                self.w / self.scale, self.w / self.scale) end
+            if self.y > self.bounds_min_y + self.h / 2 and target_y < 0 then self.screen_y = csnap(self.screen_y -
+                self.h / self.scale, self.h / self.scale) end
+            if self.y < self.bounds_max_y - self.h / 2 and target_y >= self.h then self.screen_y = csnap(self.screen_y +
+                self.h / self.scale, self.h / self.scale) end
+            -- Move to the next screen if the target is outside the screen boundaries
         else
-            if target_x < 0 then self.screen_x = csnap(self.screen_x - self.w/self.scale, self.w/self.scale) end
-            if target_x >= self.w then self.screen_x = csnap(self.screen_x + self.w/self.scale, self.w/self.scale) end
-            if target_y < 0 then self.screen_y = csnap(self.screen_y - self.h/self.scale, self.h/self.scale) end
-            if target_y >= self.h then self.screen_y = csnap(self.screen_y + self.h/self.scale, self.h/self.scale) end
+            if target_x < 0 then self.screen_x = csnap(self.screen_x - self.w / self.scale, self.w / self.scale) end
+            if target_x >= self.w then self.screen_x = csnap(self.screen_x + self.w / self.scale, self.w / self.scale) end
+            if target_y < 0 then self.screen_y = csnap(self.screen_y - self.h / self.scale, self.h / self.scale) end
+            if target_y >= self.h then self.screen_y = csnap(self.screen_y + self.h / self.scale, self.h / self.scale) end
         end
         self.x = lerp(self.x, self.screen_x, self.follow_lerp_x)
         self.y = lerp(self.y, self.screen_y, self.follow_lerp_y)
 
         -- Apply bounds
         if self.bound then
-            self.x = math.min(math.max(self.x, self.bounds_min_x + self.w/2), self.bounds_max_x - self.w/2)
-            self.y = math.min(math.max(self.y, self.bounds_min_y + self.h/2), self.bounds_max_y - self.h/2)
+            self.x = math.min(math.max(self.x, self.bounds_min_x + self.w / 2), self.bounds_max_x - self.w / 2)
+            self.y = math.min(math.max(self.y, self.bounds_min_y + self.h / 2), self.bounds_max_y - self.h / 2)
         end
 
-    -- All other follow modes
+        -- All other follow modes
     else
         -- Figure out how much the camera needs to scroll
         if target_x < x + (dx1 + dx2 - x) then
@@ -271,9 +277,10 @@ function Camera:update(dt)
         end
 
         -- Apply lead
-        if not self.last_target_x and not self.last_target_y then self.last_target_x, self.last_target_y = self.target_x, self.target_y end
-        scroll_x = scroll_x + (self.target_x - self.last_target_x)*self.follow_lead_x
-        scroll_y = scroll_y + (self.target_y - self.last_target_y)*self.follow_lead_y
+        if not self.last_target_x and not self.last_target_y then self.last_target_x, self.last_target_y = self.target_x
+            , self.target_y end
+        scroll_x = scroll_x + (self.target_x - self.last_target_x) * self.follow_lead_x
+        scroll_y = scroll_y + (self.target_y - self.last_target_y) * self.follow_lead_y
         self.last_target_x, self.last_target_y = self.target_x, self.target_y
 
         -- Scroll towards target with lerp
@@ -282,8 +289,8 @@ function Camera:update(dt)
 
         -- Apply bounds
         if self.bound then
-            self.x = math.min(math.max(self.x, self.bounds_min_x + self.w/2), self.bounds_max_x - self.w/2)
-            self.y = math.min(math.max(self.y, self.bounds_min_y + self.h/2), self.bounds_max_y - self.h/2)
+            self.x = math.min(math.max(self.x, self.bounds_min_x + self.w / 2), self.bounds_max_x - self.w / 2)
+            self.y = math.min(math.max(self.y, self.bounds_min_y + self.h / 2), self.bounds_max_y - self.h / 2)
         end
     end
 end
@@ -294,12 +301,18 @@ function Camera:draw()
         love.graphics.setLineWidth(2)
         love.graphics.line(self.deadzone_x - 1, self.deadzone_y, self.deadzone_x + 6, self.deadzone_y)
         love.graphics.line(self.deadzone_x, self.deadzone_y, self.deadzone_x, self.deadzone_y + 6)
-        love.graphics.line(self.deadzone_x - 1, self.deadzone_y + self.deadzone_h, self.deadzone_x + 6, self.deadzone_y + self.deadzone_h)
-        love.graphics.line(self.deadzone_x, self.deadzone_y + self.deadzone_h, self.deadzone_x, self.deadzone_y + self.deadzone_h - 6)
-        love.graphics.line(self.deadzone_x + self.deadzone_w + 1, self.deadzone_y + self.deadzone_h, self.deadzone_x + self.deadzone_w - 6, self.deadzone_y + self.deadzone_h)
-        love.graphics.line(self.deadzone_x + self.deadzone_w, self.deadzone_y + self.deadzone_h, self.deadzone_x + self.deadzone_w, self.deadzone_y + self.deadzone_h - 6)
-        love.graphics.line(self.deadzone_x + self.deadzone_w + 1, self.deadzone_y, self.deadzone_x + self.deadzone_w - 6, self.deadzone_y)
-        love.graphics.line(self.deadzone_x + self.deadzone_w, self.deadzone_y, self.deadzone_x + self.deadzone_w, self.deadzone_y + 6)
+        love.graphics.line(self.deadzone_x - 1, self.deadzone_y + self.deadzone_h, self.deadzone_x + 6,
+            self.deadzone_y + self.deadzone_h)
+        love.graphics.line(self.deadzone_x, self.deadzone_y + self.deadzone_h, self.deadzone_x,
+            self.deadzone_y + self.deadzone_h - 6)
+        love.graphics.line(self.deadzone_x + self.deadzone_w + 1, self.deadzone_y + self.deadzone_h,
+            self.deadzone_x + self.deadzone_w - 6, self.deadzone_y + self.deadzone_h)
+        love.graphics.line(self.deadzone_x + self.deadzone_w, self.deadzone_y + self.deadzone_h,
+            self.deadzone_x + self.deadzone_w, self.deadzone_y + self.deadzone_h - 6)
+        love.graphics.line(self.deadzone_x + self.deadzone_w + 1, self.deadzone_y, self.deadzone_x + self.deadzone_w - 6
+            , self.deadzone_y)
+        love.graphics.line(self.deadzone_x + self.deadzone_w, self.deadzone_y, self.deadzone_x + self.deadzone_w,
+            self.deadzone_y + 6)
         love.graphics.setLineWidth(n)
     end
 
@@ -360,10 +373,10 @@ end
 function Camera:fade(duration, color, action)
     self.fade_duration = duration
     self.base_fade_color = self.fade_color
-    self.target_fade_color = color 
+    self.target_fade_color = color
     self.fade_timer = 0
     self.fade_action = action
     self.fading = true
 end
 
-return setmetatable({new = new}, {__call = function(_, ...) return new(...) end})
+return setmetatable({ new = new }, { __call = function(_, ...) return new(...) end })

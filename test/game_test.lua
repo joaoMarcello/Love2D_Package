@@ -263,12 +263,14 @@ local light_eff
 --==========================================================================
 Game:implements({
     load = function()
+        Game:set_shader(darken_shader)
+
         light_eff = Anima:new({
             img = "/data/light_effect.png",
             scale = { x = 1.5, y = 1.5 }
         })
         -- light_eff:apply_effect("pulse", { range = 0.03, speed = 0.3 })
-        light_eff:apply_effect("ghost")
+        light_eff:apply_effect("ghost", { min = 0.7, max = 1, speed = 3.5 })
 
         components = {}
 
@@ -857,8 +859,6 @@ Game:implements({
         }
     }
 })
-
-Game:set_shader(darken_shader)
 
 Game:set_background_draw(
     function()

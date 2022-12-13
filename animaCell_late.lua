@@ -451,7 +451,7 @@ end
 --
 function Flash:update(dt)
     self.rad = (self.rad + math.pi * 2. / self.speed * dt) % (math.pi * 2.)
-    self.alpha = 0.5 + (math.sin(self.rad) * self.range)
+    self.alpha = 0.5 + (math.math_sin(self.rad) * self.range)
 end
 
 --
@@ -506,11 +506,11 @@ function Pulse:update(dt)
     end
 
     if self.difX ~= 0 then
-        self.anima.scale.x = self.c.scale.x + (math.sin(self.rad) * (self.difX or self.range) * self.c.scale.x)
+        self.anima.scale.x = self.c.scale.x + (math.math_sin(self.rad) * (self.difX or self.range) * self.c.scale.x)
     end
     if self.difY ~= 0 then
         self.anima.scale.y = self.c.scale.y +
-            (math.sin(self.rad + self.adjust) * (self.difY or self.range) * self.c.scale.y)
+            (math.math_sin(self.rad + self.adjust) * (self.difY or self.range) * self.c.scale.y)
     end
 end
 
@@ -689,7 +689,7 @@ end
 function Ghost:update(dt)
     self.rad = (self.rad + math.pi * 2. / self.speed * dt) % (math.pi * 2)
     self.anima.color = self.color
-    self.anima.color[4] = 1. + math.sin(self.rad) * self.range
+    self.anima.color[4] = 1. + math.math_sin(self.rad) * self.range
 end
 
 --
@@ -766,7 +766,7 @@ function Spin:update(dt)
     self.rad = self.rad % (math.pi * 2.)
 
     self.rad = (self.rad + (math.pi * 2.) / self.speed * dt)
-    self.scale.x = (math.sin(self.rad) * (self.c.scale.x))
+    self.scale.x = (math.math_sin(self.rad) * (self.c.scale.x))
 
 
     --self.anima.scale.x = self.scale.x * (self.rad <= math.pi and 1 or 1)
@@ -776,7 +776,7 @@ end
 --
 function Spin:draw(x, y)
 
-    self.anima.configTr.sx = math.sin(self.rad)
+    self.anima.configTr.sx = math.math_sin(self.rad)
     self.anima:setTransform(nil)
 
     --[[
@@ -896,7 +896,7 @@ function Balance:update(dt)
     if self.rad >= math.pi * 2. then self.row = self.row + 1 end
 
     self.rad = self.rad % (math.pi * 2.)
-    self.anima.angle = math.sin(self.rad) * (math.pi * 2. * self.range)
+    self.anima.angle = math.math_sin(self.rad) * (math.pi * 2. * self.range)
 end
 
 ------------------ GROWTH -----------------------------------------------------
@@ -990,8 +990,8 @@ function Disc:update(dt)
     if self.rad >= math.pi * 2. then self.row = self.row + 1 end
 
     self.rad = self.rad % (math.pi * 2.)
-    self.anima.kx = math.sin(self.rad) * self.range
-    self.anima.ky = -math.sin(self.rad + math.pi * 1.5) * self.range
+    self.anima.kx = math.math_sin(self.rad) * self.range
+    self.anima.ky = -math.math_sin(self.rad + math.pi * 1.5) * self.range
 
 end
 
@@ -1053,10 +1053,10 @@ end
 --
 function Float:draw(x, y)
     if self.floatX then
-        self.anima.configTr.ox = x + (math.sin(self.rad + self.adjust) * self.range)
+        self.anima.configTr.ox = x + (math.math_sin(self.rad + self.adjust) * self.range)
     end
     if self.floatY then
-        self.anima.configTr.oy = y + (math.sin(self.rad) * self.range)
+        self.anima.configTr.oy = y + (math.math_sin(self.rad) * self.range)
     end
 
     self.anima:setTransform(nil)
