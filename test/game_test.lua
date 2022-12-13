@@ -475,13 +475,17 @@ Game:implements({
         }
         rec.body.max_speed_x = rec.max_speed
         rec.body.allowed_air_dacc = true
-        -- rec.body.mass = rec.body.mass * 2
+        -- rec.body.mass = rec.body.mass * 1.5
         rec.body:on_ground_collision(function()
+            -- rec.body.mass = world.default_mass
+
             if rec.body.speed_y > 180 then
                 -- Game:main_camera():shake_in_y(0.05, 3, 0.2, 0.1)
             end
         end)
         rec.body:on_starting_falling(function()
+            -- rec.body.mass = rec.body.mass * 1.5
+
             -- current_animation:set_color({ math.random(), math.random(), math.random(), 1 })
             -- rec.body.speed_y = 200 * 2
         end)

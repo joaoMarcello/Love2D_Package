@@ -298,7 +298,7 @@ do
     end
 
     function Body:on_starting_falling(action)
-        self.start_falling_action = action
+        self.on_start_falling_action = action
     end
 
     function Body:refresh(x, y, w, h)
@@ -454,11 +454,16 @@ do
         collisions.diff_x = diff_x
         collisions.diff_y = diff_y
 
-        collisions.end_x = (diff_x >= 0 and most_left and most_left.x - self.w)
-            or (diff_x < 0 and most_right and most_right:right()) or goal_x
+        local offset = 0.05
 
-        collisions.end_y = (diff_y >= 0 and most_up and most_up.y - self.h - 0.1)
-            or (diff_y < 0 and most_bottom and most_bottom:bottom() + 0.1) or goal_y
+        collisions.end_x = (diff_x >= 0 and most_left
+            and most_left.x - self.w - offset)
+            or (diff_x < 0 and most_right and most_right:right() + offset)
+            or goal_x
+
+        collisions.end_y = (diff_y >= 0 and most_up
+            and most_up.y - self.h - offset)
+            or (diff_y < 0 and most_bottom and most_bottom:bottom() + offset) or goal_y
 
         collisions.n = n_collisions
 
@@ -560,9 +565,9 @@ do
                 goaly = obj.y + (obj.speed_y * dt)
                     + (obj.acc_y * dt * dt) / 2
 
-                if abs(obj.speed_y) < 1 then
-                    obj.speed_y = sqrt(2 * obj.acc_y * 1) * obj:direction_y()
-                end
+                -- if abs(obj.speed_y) < 1 then
+                --     obj.speed_y = sqrt(2 * obj.acc_y * 1) * obj:direction_y()
+                -- end
 
                 -- speed up with acceleration
                 obj.speed_y = obj.speed_y + obj.acc_y * dt
@@ -590,8 +595,8 @@ do
                 end
 
                 if last_sy <= 0 and obj.speed_y > 0 then
-                    local r = obj.start_falling_action
-                        and obj.start_falling_action()
+                    local r = obj.on_start_falling_action
+                        and obj.on_start_falling_action()
                 end
             end
 
@@ -651,11 +656,11 @@ do
 
                 col = nil
 
-                -- simulating the ground resistence (friction)
+                -- simulating the enviroment resistence (friction)
                 if obj.speed_x ~= 0
                     and (obj.ground or obj.allowed_air_dacc)
                 then
-                    local dacc = obj.dacc_x
+                    local dacc = abs(obj.dacc_x)
                     -- dacc = obj.ground and dacc * 0.3 or dacc
                     obj:apply_force(dacc * -obj:direction_x())
                 end
