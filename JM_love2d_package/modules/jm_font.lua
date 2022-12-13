@@ -770,6 +770,7 @@ function Font:printf(text, x, y, align, limit_right)
             local action = { i = #line + 1 }
 
             if command_tag == "<color>" then
+                --- problem
                 action.action = function()
                     local parse = Utils:parse_csv_line(separated[m]:sub(2, #separated[m] - 1))
                     local r = parse[2] or 1
@@ -779,6 +780,7 @@ function Font:printf(text, x, y, align, limit_right)
                     current_color[1] = { r, g, b, 1 }
                 end
             elseif command_tag == "</color>" then
+                --- problem
                 action.action = function()
                     current_color[1] = original_color
                 end
