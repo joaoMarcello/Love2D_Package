@@ -280,6 +280,9 @@ local components
 local bb
 local light_eff, day_light_eff
 
+---@type JM.Anima
+local moon_eff
+
 --==========================================================================
 Game:implements({
     load = function()
@@ -292,7 +295,14 @@ Game:implements({
             scale = { x = sx, y = sx }
         })
         light_eff:apply_effect("pulse", { range = 0.1, speed = 3.5 })
-        light_eff:apply_effect("ghost", { min = 0.7, max = 1, speed = 3.5 })
+        -- light_eff:apply_effect("ghost", { min = 0.7, max = 1, speed = 3.5 })
+
+        ---@type JM.Anima
+        moon_eff = light_eff:copy()
+        moon_eff:set_scale({ x = 1, y = 1 })
+        -- moon_eff:set_color({ r = 0.1, g = 0.1, b = 0.8, a = 0.7 })
+        moon_eff:apply_effect("ghost", { min = 0.7, max = 1, speed = 10 })
+
 
         day_light_eff = Anima:new({
             img = "/data/day_light_effect.png",
@@ -629,7 +639,7 @@ Game:implements({
         if not love.keyboard.isDown("space") and rbody.speed_y < 0
         -- and rbody.speed_y > -math.sqrt(2 * rbody:weight() * 32)
         then
-            rbody:apply_force(nil, rbody:weight() * 2)
+            rbody:apply_force(nil, rbody:weight() * 2.5)
         end
 
         if rbody.ground and love.keyboard.isDown("down") then
@@ -640,7 +650,6 @@ Game:implements({
         elseif rbody.ground then
             rbody:remove_extra_filter()
         end
-
 
         if rbody:bottom() > Game.world_bottom then
             rbody:refresh(nil, Game.world_bottom - rec.h)
@@ -711,9 +720,12 @@ Game:implements({
         if key == "space" then
             if not rec.jump then
                 rec.jump = true
-                -- rec.speed_y = -math.sqrt(2 * rec.gravity * 32 * 3.5)
                 rec.body:jump(32 * 3.5)
             end
+        end
+
+        if key == "s" then
+            rec.body:dash(32 * 5)
         end
     end,
 
@@ -727,14 +739,17 @@ Game:implements({
     end,
 
     layers = {
+        -- MOON
         {
 
             draw = function()
                 love.graphics.setColor(1, 1, 1, 1)
-                -- for _ = 1, 20 do
-                --     love.graphics.circle("fill", Game.screen_w / 0.25 * math.random(), Game.screen_h * math.random(), 2)
-                -- end
-                love.graphics.rectangle("fill", 0, 0, Game.screen_w, Game.screen_h * 0.5)
+                love.graphics.circle("fill", 199, 44, 28)
+
+                -- moon_eff:update(love.timer.getDelta())
+                -- love.graphics.setBlendMode("add")
+                -- local r = moon_eff and moon_eff:draw(200, 45)
+                -- love.graphics.setBlendMode("alpha")
             end,
             factor_x = -1,
             factor_y = -1
@@ -757,6 +772,7 @@ Game:implements({
             name = "violet rect"
         },
 
+        -- Green rectangles
         {
             draw = function()
                 love.graphics.setColor(0, 0.4, 0.1, 1)
@@ -903,7 +919,7 @@ Game:implements({
         {
             draw = function(self)
                 obj:draw()
-                ground:draw()
+                -- ground:draw()
             end,
             name = "physics bodies"
         }

@@ -61,6 +61,8 @@ end
 function Anima:__constructor__(args)
     local EffectManager = require("/JM_love2d_package/modules/classes/EffectManager")
 
+    self.args = args
+
     self:set_img(args.img)
 
     self.__amount_frames = (args.frames_list and #args.frames_list) or (args.frames) or 1
@@ -135,6 +137,10 @@ function Anima:__constructor__(args)
     self.__stop_action_args = nil
 
     Affectable.__checks_implementation__(self)
+end
+
+function Anima:copy()
+    return Anima:new(self.args)
 end
 
 --- Sets the size in pixels to draw the frame.

@@ -887,16 +887,18 @@ function Camera:set_type(s)
         self.movement_y = chase_target_y
 
     else
-        self.movement_x = dynamic_x_offset
+        self.movement_x = chase_target_x --dynamic_x_offset
         self.movement_y = chase_target_y
         self.deadzone_h = 32 * 3 * self.scale
+
+        self.delay_y = 0.02 / 2
 
         self.desired_top_focus = self.viewport_h * 0.25
         self.desired_bottom_focus = self.viewport_h * 0.75
 
-        self.desired_left_focus = self.viewport_w * 0.4
-        self.desired_right_focus = self.viewport_w * 0.6
-        self.constant_speed_x = sqrt(2 * self.acc_x * 32 * 2)
+        self.desired_left_focus = self.viewport_w * 0.5
+        self.desired_right_focus = self.viewport_w * 0.5
+        -- self.constant_speed_x = sqrt(2 * self.acc_x * 32 * 2)
         -- self.constant_speed_y = sqrt(2 * self.acc_y * 32 * 3)
         -- self.acc_x = 32 * 5
         self:set_focus_y(self.desired_top_focus)

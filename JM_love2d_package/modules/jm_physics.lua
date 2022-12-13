@@ -281,6 +281,11 @@ do
         self.speed_y = -sqrt(2 * acc_y * desired_height)
     end
 
+    function Body:dash(desired_distance, direction)
+        self.speed_x = sqrt(2 * abs(self.acc_x) * desired_distance)
+            * (direction or self:direction_x())
+    end
+
     function Body:weight()
         return self.world.gravity * (self.mass / self.world.default_mass)
     end
