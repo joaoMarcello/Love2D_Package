@@ -220,14 +220,22 @@ do
 {
     vec4 pix = Texel(texture, texture_coords);
     vec4 c = vec4(232.0/255.0, 229.0/225.0, 196.0/255.0, 1);
+    c = vec4(1, 1, 1, 1);
     float af = 0.1;
 
     //return vec4(pix[0]*0.3, pix[1]*0.3, pix[2]*0.3, pix[3]);
 
     if (texture_coords[1] < 0.5){
         af = 0.5 - texture_coords[1];
-        af = af * 0.4;
-        return vec4(pix[0]+c[0]*af, pix[1]+c[1]*af, pix[2]+c[2]*af, pix[3]);
+        //af = af + 0.2 * (texture_coords[0]);
+        af = af * 0.9;
+
+        if (c[0]*af < 0 ){
+            af = 0;
+        }
+        pix = vec4(pix[0]+c[0]*af, pix[1]+c[1]*af, pix[2]+c[2]*af, pix[3]);
+
+        return pix;
     }
     else{
         af = 1;
@@ -270,19 +278,35 @@ local obj, ground
 local world
 local components
 local bb
-local light_eff
+local light_eff, day_light_eff
 
 --==========================================================================
 Game:implements({
     load = function()
-        Game:set_shader(darken_shader)
+        -- Game:set_shader(darken_shader)
+        Game:set_color(43 / 255, 78 / 255, 108 / 255, 1)
 
+        local sx = 1.5
         light_eff = Anima:new({
             img = "/data/light_effect.png",
-            scale = { x = 1.5, y = 1.5 }
+            scale = { x = sx, y = sx }
         })
-        -- light_eff:apply_effect("pulse", { range = 0.03, speed = 0.3 })
+        light_eff:apply_effect("pulse", { range = 0.1, speed = 3.5 })
         light_eff:apply_effect("ghost", { min = 0.7, max = 1, speed = 3.5 })
+
+        day_light_eff = Anima:new({
+            img = "/data/day_light_effect.png",
+            scale = { x = 14, y = 5 }
+        })
+        -- day_light_eff:apply_effect("stretchVertical", { speed = 2, range = 0.05 })
+        day_light_eff:apply_effect("ghost", { min = 0.1, max = 0.2, speed = 10 })
+
+        Game:set_foreground_draw(function()
+            day_light_eff:update(love.timer.getDelta())
+            love.graphics.setBlendMode("add")
+            day_light_eff:draw_rec(0, 0, Game.dispositive_w, Game.dispositive_h * 0.3)
+            love.graphics.setBlendMode("alpha")
+        end)
 
         components = {}
 
@@ -602,8 +626,9 @@ Game:implements({
             rbody.acc_y = 0
         end
 
-        if not love.keyboard.isDown("space") and rbody.speed_y < 0 and
-            rbody.speed_y > -math.sqrt(2 * rbody:weight() * 32) then
+        if not love.keyboard.isDown("space") and rbody.speed_y < 0
+        -- and rbody.speed_y > -math.sqrt(2 * rbody:weight() * 32)
+        then
             rbody:apply_force(nil, rbody:weight() * 2)
         end
 
@@ -703,6 +728,19 @@ Game:implements({
 
     layers = {
         {
+
+            draw = function()
+                love.graphics.setColor(1, 1, 1, 1)
+                -- for _ = 1, 20 do
+                --     love.graphics.circle("fill", Game.screen_w / 0.25 * math.random(), Game.screen_h * math.random(), 2)
+                -- end
+                love.graphics.rectangle("fill", 0, 0, Game.screen_w, Game.screen_h * 0.5)
+            end,
+            factor_x = -1,
+            factor_y = -1
+        },
+
+        {
             draw = function()
                 love.graphics.setColor(0.2, 0, 0.1, 1)
                 for i = 1, 10 * 20, 10 do
@@ -728,7 +766,7 @@ Game:implements({
             end,
 
             factor_x = 0.2,
-            factor_y = 0.5,
+            factor_y = 0.2,
 
             -- fixed_on_ceil = true,
             fixed_on_ground = true,

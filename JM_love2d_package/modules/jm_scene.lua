@@ -135,7 +135,7 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
 
         tile_size = self.tile_size_x,
 
-        color = { 0.3, 0.3, 1, 0.5 },
+        color = { 43 / 255, 78 / 255, 108 / 255, 1 },
 
         border_color = { 1, 1, 0, 1 },
 
@@ -310,6 +310,8 @@ function Scene:implements(param)
             draw_tile(self)
         end
 
+        local temp = self.draw_background and self.draw_background()
+
         --=====================================================
 
         for i = 1, self.amount_cameras, 1 do
@@ -339,8 +341,10 @@ function Scene:implements(param)
 
                     push()
 
-                    local px = -camera.x * layer.factor_x * camera.scale
-                    local py = -camera.y * layer.factor_y * camera.scale
+                    local px = -camera.x * layer.factor_x
+                        * (layer.factor_x > 0 and camera.scale or 1)
+                    local py = -camera.y * layer.factor_y
+                        * (layer.factor_y > 0 and camera.scale or 1)
 
                     if layer.fixed_on_ground and layer.top then
                         if layer.top <= camera.y + layer.top then py = 0 end
@@ -385,15 +389,16 @@ function Scene:implements(param)
         set_color_draw(0, 0, 1, 1)
         love.graphics.circle("fill", love.mouse.getX(), love.mouse.getY(), 5)
 
+        temp = self.draw_foreground and self.draw_foreground()
     end
 end
 
 function Scene:set_background_draw(action)
-    self.background_draw = action
+    self.draw_background = action
 end
 
 function Scene:set_foreground_draw(action)
-    self.foreground_draw = action
+    self.draw_foreground = action
 end
 
 function Scene:set_shader(shader)
