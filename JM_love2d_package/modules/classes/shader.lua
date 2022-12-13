@@ -78,7 +78,7 @@ function Sample:update(dt)
         self:__increment_cycle()
     end
 
-    self.__alpha = self.__origin + (math.math_sin(self.__rad) * self.__range)
+    self.__alpha = self.__origin + (math.sin(self.__rad) * self.__range)
 end
 
 function Sample:draw(x, y)

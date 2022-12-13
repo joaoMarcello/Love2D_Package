@@ -73,7 +73,7 @@ function Pulse:update(dt)
     if self.__difX ~= 0 then
 
         self.__object:__set_effect_transform({
-            sx = 1 + (math.math_sin(self.__rad)
+            sx = 1 + (math.sin(self.__rad)
                 * (self.__difX or self.__range))
         })
 
@@ -82,7 +82,7 @@ function Pulse:update(dt)
     if self.__difY ~= 0 then
 
         self.__object:__set_effect_transform({
-            sy = 1 + (math.math_sin(self.__rad + self.__adjust)
+            sy = 1 + (math.sin(self.__rad + self.__adjust)
                 * (self.__difY or self.__range))
         })
     end

@@ -141,10 +141,10 @@ monica_idle_blink:set_custom_action(
     { idle_normal = monica_idle_normal }
 )
 
-local shadercode, shadercode2, pink_to_none, myShader, graph_set_color, graph_rect, index_to_string, tile, darken_shader
+local shader_code_darken, shadercode2, pink_to_none, myShader, graph_set_color, graph_rect, index_to_string, tile, darken_shader
 
 do
-    shadercode = [[
+    shader_code_darken = [[
     vec4 effect( vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords )
 {
     vec4 pix = Texel(texture, texture_coords);
@@ -176,7 +176,7 @@ do
   ]]
     pink_to_none = love.graphics.newShader(shadercode2)
 
-    myShader = love.graphics.newShader(shadercode)
+    myShader = love.graphics.newShader(shader_code_darken)
     graph_set_color = love.graphics.setColor
     graph_rect = love.graphics.rectangle
 
@@ -215,15 +215,27 @@ do
     end
 
 
-    shadercode = [[
+    shader_code_darken = [[
     vec4 effect( vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords )
 {
     vec4 pix = Texel(texture, texture_coords);
-    
-    return vec4(pix[0]*0.3, pix[1]*0.3, pix[2]*0.3, pix[3]);
+    vec4 c = vec4(232.0/255.0, 229.0/225.0, 196.0/255.0, 1);
+    float af = 0.1;
+
+    //return vec4(pix[0]*0.3, pix[1]*0.3, pix[2]*0.3, pix[3]);
+
+    if (texture_coords[1] < 0.5){
+        af = 0.5 - texture_coords[1];
+        af = af * 0.4;
+        return vec4(pix[0]+c[0]*af, pix[1]+c[1]*af, pix[2]+c[2]*af, pix[3]);
+    }
+    else{
+        af = 1;
+        return vec4(pix[0]*af, pix[1]*af, pix[2]*af, pix[3]);
+    }
 }
   ]]
-    darken_shader = love.graphics.newShader(shadercode)
+    darken_shader = love.graphics.newShader(shader_code_darken)
 end
 --=========================================================================
 

@@ -68,10 +68,10 @@ function Float__:update(dt)
 end
 
 function Float__:__circle_update(dt)
-    local tx = self.__floatX and (math.math_sin(self.__rad + self.__adjust)
+    local tx = self.__floatX and (math.sin(self.__rad + self.__adjust)
         * (self.__range + self.__adjust_range_x)) or 0
 
-    local ty = self.__floatY and (math.math_sin(self.__rad * self.__adjustY)
+    local ty = self.__floatY and (math.sin(self.__rad * self.__adjustY)
         * self.__range) or 0
 
     self.__object:__set_effect_transform({
@@ -81,9 +81,9 @@ function Float__:__circle_update(dt)
 end
 
 function Float__:__not_circle_update(dt)
-    local tx = self.__floatX and (math.math_sin(self.__rad * self.__adjust) * self.__range) or 0
+    local tx = self.__floatX and (math.sin(self.__rad * self.__adjust) * self.__range) or 0
 
-    local ty = self.__floatY and (math.math_sin(self.__rad * self.__adjustY) * self.__range) * self.__direction or 0
+    local ty = self.__floatY and (math.sin(self.__rad * self.__adjustY) * self.__range) * self.__direction or 0
 
     if tx ~= 0 and ty ~= 0 then
         self.__object:__set_effect_transform({

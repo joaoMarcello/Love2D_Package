@@ -375,11 +375,10 @@ function Scene:implements(param)
 
         set_canvas()
         set_color_draw(1, 1, 1, 1)
-        -- set_shader(self.shader)
+        set_shader(self.shader)
         set_blend_mode("alpha", "premultiplied")
         love_draw(self.canvas)
-        set_canvas()
-        -- set_shader()
+        set_shader()
         set_blend_mode("alpha")
         -- love.graphics.setScissor()
 
