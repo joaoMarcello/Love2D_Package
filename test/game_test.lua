@@ -100,7 +100,7 @@ local monica_idle_blink = Anima:new({
     amount_cycle = 1
 })
 
-local my_effect = EffectManager:generate_effect("idle", { color = { 0.9, 0.9, 0.9, 1 } })
+local my_effect = EffectManager:generate_effect("jelly", { color = { 0.9, 0.9, 0.9, 1 } })
 local current_animation = monica_idle_normal
 my_effect:apply(current_animation)
 
@@ -120,25 +120,21 @@ end
 
 monica_idle_normal:set_custom_action(
 ---@param self JM.Anima
----@param param {idle_blink: JM.Anima}
-    function(self, param)
-        if self.__stopped_time > 0 then
-            change_animation(param.idle_blink, self)
+    function(self)
+        if self.time_paused > 0 then
+            change_animation(monica_idle_blink, self)
         end
-    end,
-    { idle_blink = monica_idle_blink }
+    end
 )
 
 monica_idle_blink:set_custom_action(
 ---@param self JM.Anima
----@param param {idle_normal: JM.Anima}
-    function(self, param)
-        if self.__stopped_time > 0 then
-            param.idle_normal:set_max_cycle(love.math.random(2, 4))
-            change_animation(param.idle_normal, self)
+    function(self)
+        if self.time_paused > 0 then
+            monica_idle_normal:set_max_cycle(love.math.random(2, 4))
+            change_animation(monica_idle_normal, self)
         end
-    end,
-    { idle_normal = monica_idle_normal }
+    end
 )
 
 local shader_code_darken, shadercode2, pink_to_none, myShader, graph_set_color, graph_rect, index_to_string, tile, darken_shader
@@ -299,7 +295,7 @@ Game:implements({
 
         ---@type JM.Anima
         moon_eff = light_eff:copy()
-        moon_eff:set_scale({ x = 1, y = 1 })
+        moon_eff:set_scale(1, 1)
         -- moon_eff:set_color({ r = 0.1, g = 0.1, b = 0.8, a = 0.7 })
         moon_eff:apply_effect("ghost", { min = 0.7, max = 1, speed = 10 })
 

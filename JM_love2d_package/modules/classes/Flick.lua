@@ -43,7 +43,7 @@ function Flick:__constructor__(args)
     self.__color = args and args.color or { r = 0, g = 0, b = 1, a = 0 }
 
     self.__flick_state = 1
-    self.__cycle_count = -1
+    self.cycle_count = -1
 end
 
 function Flick:update(dt)

@@ -75,7 +75,7 @@ monica_idle_normal:set_custom_action(
 ---@param self JM.Anima
 ---@param param {idle_blink: JM.Anima}
     function(self, param)
-        if self.__stopped_time > 0 then
+        if self.time_paused > 0 then
             change_animation(param.idle_blink, self)
         end
     end,
@@ -86,7 +86,7 @@ monica_idle_blink:set_custom_action(
 ---@param self JM.Anima
 ---@param param {idle_normal: JM.Anima}
     function(self, param)
-        if self.__stopped_time > 0 then
+        if self.time_paused > 0 then
             param.idle_normal:set_max_cycle(love.math.random(2, 4))
             change_animation(param.idle_normal, self)
         end

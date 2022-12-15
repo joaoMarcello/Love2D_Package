@@ -107,7 +107,7 @@ function Effect:__constructor__(object, args)
     self.__is_enabled = true
     self.__prior = 1
     self.__rad = 0
-    self.__cycle_count = 0
+    self.cycle_count = 0
     self.__args = args
     self.__remove = false
     self.__update_time = 0
@@ -157,7 +157,7 @@ function Effect:init()
     self.__remove = false
     self.__is_enabled = true
     self.__rad = 0
-    self.__cycle_count = 0
+    self.cycle_count = 0
     self.__update_time = 0
     self.__not_restaure = false
     self:__constructor__(self.__args)
@@ -188,7 +188,7 @@ function Effect:get_object()
 end
 
 function Effect:__increment_cycle()
-    self.__cycle_count = self.__cycle_count + 1
+    self.cycle_count = self.cycle_count + 1
 end
 
 function Effect:update(dt)
@@ -218,7 +218,7 @@ function Effect:__update__(dt)
 
     if self.__max_sequence
         and self.__ends_by_cycle
-        and (self.__cycle_count >= self.__max_sequence) then
+        and (self.cycle_count >= self.__max_sequence) then
 
         self.__remove = true
     end

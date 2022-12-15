@@ -146,34 +146,37 @@ function Anima:__constructor__(args)
 
     self.__amount_frames = (args.frames_list and #args.frames_list) or (args.frames) or 1
 
-    self.__frame_time = 0
-    self.__update_time = 0
-    self.__stopped_time = 0
-    self.__cycle_count = 0
+    self.time_frame = 0
+    self.time_update = 0
+    self.time_paused = 0
+    self.cycle_count = 0
     self.__is_visible = true
     self.__is_enabled = true
-    self.__initial_direction = nil
+    self.initial_direction = nil
 
     self:set_reverse_mode(args.is_reversed)
 
     self:set_color(args.color or { 1, 1, 1, 1 })
 
-    self.__rotation = args.rotation or 0
-    self.__speed = args.speed or 0.3
+    self.rotation = args.rotation or 0
+    self.speed = args.speed or 0.3
     self.__stop_at_the_end = args.stop_at_the_end or false
-    self.__max_cycle = args.amount_cycle or nil
+    self.max_cycle = args.amount_cycle or nil
     if args.duration then self:set_duration(args.duration) end
 
-    self.__current_frame = (self.__direction < 0 and self.__amount_frames) or 1
+    self.current_frame = (self.direction < 0 and self.__amount_frames) or 1
 
 
     self:set_state(args.state)
 
     self.__N__ = args.n or 0
 
-    self.__flip = { x = 1, y = 1 }
+    self.flip_x = 1
+    self.flip_y = 1
 
-    self:set_scale(args.scale)
+    self.scale_x = 1
+    self.scale_y = 1
+    self:set_scale(args.scale and args.scale.x, args.scale and args.scale.y)
 
     self.__effect_manager = EffectManager and EffectManager:new() or nil
 
@@ -209,12 +212,6 @@ function Anima:__constructor__(args)
         self.__img:getDimensions()
     )
 
-    self.__custom_action = nil
-    self.__custom_action_args = nil
-
-    self.__stop_action = nil
-    self.__stop_action_args = nil
-
     Affectable.__checks_implementation__(self)
 end
 
@@ -240,7 +237,7 @@ function Anima:set_size(width, height, ref_width, ref_height)
         )
 
         if desired_size_in_pxl then
-            self:set_scale(desired_size_in_pxl)
+            self:set_scale(desired_size_in_pxl.x, desired_size_in_pxl.y)
         end
     end
 end
@@ -249,29 +246,28 @@ end
 function Anima:set_speed(value)
     assert(value >= 0, "\nError: Value passed to 'set_speed' method is smaller than zero.")
 
-    self.__speed = value
+    self.speed = value
 end
 
 ---@param duration number
 function Anima:set_duration(duration)
     assert(duration > 0, "\nError: Value passed to 'set_duration' method is smaller than zero.")
 
-    self.__speed = duration / self.__amount_frames
+    self.speed = duration / self.__amount_frames
 end
 
 ---@param value boolean
 function Anima:set_reverse_mode(value)
-    self.__direction = value and -1 or 1
+    self.direction = value and -1 or 1
 end
 
 ---@param value boolean
 ---@param stop_action function
----@param stop_action_args any
-function Anima:stop_at_the_end(value, stop_action, stop_action_args)
+function Anima:stop_at_the_end(value, stop_action)
     self.__stop_at_the_end = value and true or false
 
     if value then
-        self:set_stop_action(stop_action, stop_action_args)
+        self:set_stop_action(stop_action)
     end
 end
 
@@ -292,51 +288,45 @@ end
 
 ---
 function Anima:set_flip_x(flip)
-    self.__flip.x = flip and -1 or 1
+    self.flip_x = flip and -1 or 1
 end
 
 ---
 function Anima:set_flip_y(flip)
-    self.__flip.y = flip and -1 or 1
+    self.flip_y = flip and -1 or 1
 end
 
 function Anima:toggle_flip_x()
-    self.__flip.x = self.__flip.x * (-1)
+    self.flip_x = self.flip_x * (-1)
 end
 
 function Anima:toggle_flip_y()
-    self.__flip.y = self.__flip.y * (-1)
+    self.flip_y = self.flip_y * (-1)
 end
 
---
---- Set scale. If no parameter is given, a default value is setted ( x=1, y=1 ).
---
----@param scale {x: number, y: number}
-function Anima:set_scale(scale)
-    self.__scale = {
-        x = (scale and scale.x)
-            or self.__scale and self.__scale.x
-            or 1,
-        y = (scale and scale.y)
-            or self.__scale and self.__scale.y
-            or 1
-    }
+---@param x number|nil
+---@param y number|nil
+function Anima:set_scale(x, y)
+    if not x and not y then return end
+
+    self.scale_x = x or self.scale_x
+    self.scale_y = y or self.scale_y
 end
 
 function Anima:get_scale()
-    return self.__scale
+    return self.scale_x, self.scale_y
 end
 
 --- Sets Animation rotation in radians.
 ---@param value number
 function Anima:set_rotation(value)
-    self.__rotation = value
+    self.rotation = value
 end
 
 --- Gets Animation current rotation in radians.
 ---@return number
 function Anima:get_rotation()
-    return self.__rotation
+    return self.rotation
 end
 
 --- Gets the animation color field.
@@ -398,7 +388,7 @@ function Anima:set_state(state)
 end
 
 function Anima:set_max_cycle(value)
-    self.__max_cycle = value
+    self.max_cycle = value
 end
 
 function Anima:set_visible(value)
@@ -409,14 +399,14 @@ end
 --- Resets Animation's fields to his default values.
 ---
 function Anima:reset()
-    self.__update_time = 0
-    self.__frame_time = 0
-    self.__stopped_time = 0
-    self.__current_frame = (self.__direction > 0 and 1)
+    self.time_update = 0
+    self.time_frame = 0
+    self.time_paused = 0
+    self.current_frame = (self.direction > 0 and 1)
         or self.__amount_frames
-    self.__cycle_count = 0
-    self.__initial_direction = nil
-    self.__stopped = nil
+    self.cycle_count = 0
+    self.initial_direction = nil
+    self.__is_paused = nil
     self.__is_visible = true
     self.__is_enabled = true
     -- self.__effect_manager:stop_all()
@@ -435,18 +425,14 @@ end
 
 --- Enable a custom action to execute in Animation update method.
 ---@param custom_action function
----@param args any
-function Anima:set_custom_action(custom_action, args)
+function Anima:set_custom_action(custom_action)
     self.__custom_action = custom_action
-    self.__custom_action_args = args
 end
 
 --- Enable a custom action to execute when Animation stops.
 ---@param action function
----@param args any
-function Anima:set_stop_action(action, args)
+function Anima:set_stop_action(action)
     self.__stop_action = action
-    self.__stop_action_args = args
 end
 
 --- Sets a custom method that executes one time on every frame change.
@@ -460,14 +446,14 @@ end
 ---@param animation JM.Anima
 local function execute_on_frame_change_action(animation)
     if animation.__on_frame_change_action then
-        animation:__on_frame_change_action(animation.__current_frame)
+        animation:__on_frame_change_action(animation.current_frame)
     end
 end
 
 ---@param animation JM.Anima
 local function execute_stop_action(animation)
     if animation.__stop_action then
-        animation.__stop_action(animation.__stop_action_args)
+        animation.__stop_action()
     end
 end
 
@@ -477,85 +463,85 @@ end
 function Anima:update(dt)
     if not self.__is_enabled then return end
 
-    self.__update_time = (self.__update_time + dt)
+    self.time_update = (self.time_update + dt)
 
-    if not self.__initial_direction then
-        self.__initial_direction = self.__direction
+    if not self.initial_direction then
+        self.initial_direction = self.direction
     end
 
     -- updating the Effects
     if self.__effect_manager then self.__effect_manager:update(dt) end
 
-    if self.__custom_action then
-        self.__custom_action(self, self.__custom_action_args)
+    do
+        -- Executing the custom update action
+        local r = self.__custom_action and self.__custom_action(self)
     end
 
-
-    if self.__stopped or
-        (self.__max_cycle and self.__cycle_count >= self.__max_cycle)
+    if self.__is_paused or
+        (self.max_cycle and self.cycle_count >= self.max_cycle)
     then
 
-        self.__stopped_time = (self.__stopped_time + dt) % 5000000
+        self.time_paused = (self.time_paused + dt) % 5000000
         return
     end
 
 
-    self.__frame_time = self.__frame_time + dt
+    self.time_frame = self.time_frame + dt
 
-    if self.__frame_time >= self.__speed then
+    if self.time_frame >= self.speed then
 
-        self.__frame_time = self.__frame_time - self.__speed
+        self.time_frame = self.time_frame - self.speed
 
         execute_on_frame_change_action(self)
 
         if self:__is_in_random_state() then
-            local last_frame = self.__current_frame
+            local last_frame = self.current_frame
             local number = love.math.random(0, self.__amount_frames - 1)
 
-            self.__current_frame = 1 + (number % self.__amount_frames)
+            self.current_frame = 1 + (number % self.__amount_frames)
 
-            self.__cycle_count = (self.__cycle_count + 1) % 6000000
+            self.cycle_count = (self.cycle_count + 1) % 6000000
 
-            if last_frame == self.__current_frame then
-                self.__current_frame = 1 + (self.__current_frame
+            if last_frame == self.current_frame then
+                self.current_frame = 1 + (self.current_frame
                     % self.__amount_frames)
             end
 
             return
         end -- END if animation is in random state
 
-        self.__current_frame = self.__current_frame
-            + (1 * self.__direction)
+        self.current_frame = self.current_frame
+            + (1 * self.direction)
 
         if self:__is_in_normal_direction() then
 
-            if self.__current_frame > self.__amount_frames then
+            if self.current_frame > self.__amount_frames then
 
                 if self:__is_in_looping_state() then
-                    self.__current_frame = 1
-                    self.__cycle_count = (self.__cycle_count + 1) % 600000
+                    self.current_frame = 1
+                    self.cycle_count = (self.cycle_count + 1) % 600000
 
                     if self:__is_stopping_at_the_end() then
-                        self.__current_frame = self.__amount_frames
+                        self.current_frame = self.__amount_frames
                         self:pause()
                     end
 
                 elseif self:__is_in_repeating_last_n_state() then
-                    self.__current_frame = self.__current_frame - self.__N__
-                    self.__cycle_count = (self.__cycle_count + 1)
+                    self.current_frame = self.current_frame - self.__N__
+                    self.cycle_count = (self.cycle_count + 1)
 
                 else -- ELSE: animation is in "back and forth" state
 
-                    self.__current_frame = self.__amount_frames
-                    self.__frame_time = self.__frame_time + self.__speed
-                    self.__direction = -self.__direction
+                    self.current_frame = self.__amount_frames
+                    self.time_frame = self.time_frame + self.speed
+                    self.direction = -self.direction
 
-                    if self.__direction == self.__initial_direction then
-                        self.__cycle_count = (self.__cycle_count + 1) % 600000
+                    if self.direction == self.initial_direction then
+                        self.cycle_count = (self.cycle_count + 1) % 600000
                     end
 
                     if self:__is_stopping_at_the_end()
-                        and self.__direction == self.__initial_direction then
+                        and self.direction == self.initial_direction then
 
                         self:pause()
                     end
@@ -565,32 +551,32 @@ function Anima:update(dt)
 
         else -- ELSE direction is negative
 
-            if self.__current_frame < 1 then
+            if self.current_frame < 1 then
 
                 if self:__is_in_looping_state() then
-                    self.__current_frame = self.__amount_frames
-                    self.__cycle_count = (self.__cycle_count + 1) % 600000
+                    self.current_frame = self.__amount_frames
+                    self.cycle_count = (self.cycle_count + 1) % 600000
 
                     if self:__is_stopping_at_the_end() then
-                        self.__current_frame = 1
+                        self.current_frame = 1
                         self:pause()
                     end
 
                 elseif self:__is_in_repeating_last_n_state() then
-                    self.__current_frame = self.__N__
-                    self.__cycle_count = (self.__cycle_count + 1)
+                    self.current_frame = self.__N__
+                    self.cycle_count = (self.cycle_count + 1)
 
                 else -- ELSE animation is not repeating
-                    self.__current_frame = 1
-                    self.__frame_time = self.__frame_time + self.__speed
-                    self.__direction = self.__direction * -1
+                    self.current_frame = 1
+                    self.time_frame = self.time_frame + self.speed
+                    self.direction = self.direction * -1
 
-                    if self.__direction == self.__initial_direction then
-                        self.__cycle_count = (self.__cycle_count + 1) % 600000
+                    if self.direction == self.initial_direction then
+                        self.cycle_count = (self.cycle_count + 1) % 600000
                     end
 
                     if self:__is_stopping_at_the_end()
-                        and self.__direction == self.__initial_direction then
+                        and self.direction == self.initial_direction then
 
                         self:pause()
                     end
@@ -617,7 +603,7 @@ end
 
 ---@return JM.Anima.Frame
 function Anima:__get_current_frame()
-    return self.__frames_list[self.__current_frame]
+    return self.__frames_list[self.current_frame]
 end
 
 ---
@@ -634,11 +620,11 @@ function Anima:draw_rec(x, y, w, h)
 
     x = x + w / 2.0
     y = y + h
-        - current_frame.h * self.__scale.y * (effect_transform and effect_transform.sy or 1)
-        + current_frame.oy * self.__scale.y * (effect_transform and effect_transform.sy or 1)
+        - current_frame.h * self.scale_y * (effect_transform and effect_transform.sy or 1)
+        + current_frame.oy * self.scale_y * (effect_transform and effect_transform.sy or 1)
 
     if self:__is_flipped_in_y() then
-        y = y - h + (current_frame.h * self.__scale.y * (effect_transform and effect_transform.sy or 1))
+        y = y - h + (current_frame.h * self.scale_y * (effect_transform and effect_transform.sy or 1))
     end
 
     self:draw(x, y)
@@ -691,8 +677,8 @@ function Anima:__draw_with_no_effects__(x, y)
     if self.__is_visible then
         love_graphics_draw(self.__img, self.__quad,
             (x), (y),
-            self.__rotation, self.__scale.x * self.__flip.x,
-            self.__scale.y * self.__flip.y,
+            self.rotation, self.scale_x * self.flip_x,
+            self.scale_y * self.flip_y,
             current_frame.ox, current_frame.oy,
             self.__kx,
             self.__ky
@@ -726,18 +712,18 @@ end
 ---Tells if animation is flipped in y-axis.
 ---@return boolean
 function Anima:__is_flipped_in_y()
-    return self.__flip.y < 0
+    return self.flip_y < 0
 end
 
 ---Tells if animation is flipped in x-axis.
 ---@return boolean
 function Anima:__is_flipped_in_x()
-    return self.__flip.x < 0
+    return self.flip_x < 0
 end
 
 --- Flips the animation.
 function Anima:flip()
-    self.__direction = self.__direction * -1
+    self.direction = self.direction * -1
 end
 
 ---
@@ -771,12 +757,12 @@ end
 --- Tells if the animation is normal mode.
 ---@return boolean result
 function Anima:__is_in_normal_direction()
-    return self.__direction > 0
+    return self.direction > 0
 end
 
 function Anima:pause()
-    if not self.__stopped then
-        self.__stopped = true
+    if not self.__is_paused then
+        self.__is_paused = true
         execute_stop_action(self)
         return true
     end
@@ -786,8 +772,8 @@ end
 ---@param restart boolean|nil
 ---@return boolean
 function Anima:unpause(restart)
-    if self.__stopped then
-        self.__stopped = false
+    if self.__is_paused then
+        self.__is_paused = false
         local r = restart and self:reset()
         return true
     end
@@ -795,7 +781,7 @@ function Anima:unpause(restart)
 end
 
 function Anima:is_paused()
-    return self.__stopped
+    return self.__is_paused
 end
 
 function Anima:stop()
@@ -818,14 +804,14 @@ function Anima:is_enabled()
     return self.__is_enabled
 end
 
---- Amount of time that animation is ruuning (in seconds).
+--- Amount of time that animation is running (in seconds).
 ---@return number
 function Anima:time_updating()
-    return self.__update_time
+    return self.time_update
 end
 
 function Anima:zera_time_updating()
-    self.__update_time = 0
+    self.time_update = 0
 end
 
 return Anima

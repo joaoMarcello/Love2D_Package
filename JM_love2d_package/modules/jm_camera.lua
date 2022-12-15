@@ -784,7 +784,7 @@ function Camera:__constructor__(
 
     self.use_deadzone = true
 
-    self.default_initial_speed_x = self.tile_size * 1 -- (in pixels per second)
+    self.default_initial_speed_x = self.tile_size * 0 -- (in pixels per second)
     self.default_initial_speed_y = self.default_initial_speed_x
 
     self.infinity_chase_x = false
