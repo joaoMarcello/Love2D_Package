@@ -3,5 +3,6 @@
         "${3rd}/love2d/library"
     ],
     "Lua.runtime.version": "LuaJIT",
-    "Lua.workspace.checkThirdParty": false
+    "Lua.workspace.checkThirdParty": false,
+    "lua.targetVersion": "5.3"
 }

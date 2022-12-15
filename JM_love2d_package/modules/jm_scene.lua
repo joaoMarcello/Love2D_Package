@@ -1,7 +1,6 @@
 --[[
     This modules need the 'jm_camera.lua' to work.
 ]]
-
 local path = (...)
 
 local set_canvas = love.graphics.setCanvas
@@ -55,9 +54,7 @@ local function draw_tile(self)
 
         for j = 0, qy, 2 do
             love.graphics.rectangle("fill", x, tile * j, tile, tile)
-            love.graphics.rectangle("fill", x + tile,
-                tile * j + tile,
-                tile, tile)
+            love.graphics.rectangle("fill", x + tile, tile * j + tile, tile, tile)
         end
         x = nil
     end
@@ -129,10 +126,8 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
         -- Device screen's dimensions
         device_width = self.dispositive_w,
         device_height = self.dispositive_h,
-
         desired_canvas_w = self.screen_w,
         desired_canvas_h = self.screen_h,
-
         tile_size = self.tile_size_x,
 
         color = { 43 / 255, 78 / 255, 108 / 255, 1 },
@@ -144,7 +139,6 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
         type = "",
 
         show_grid = true,
-
         grid_tile_size = self.tile_size_x * 2,
 
         show_world_bounds = true
@@ -175,9 +169,12 @@ function Scene:add_camera(config, name)
     ---@type JM.Camera.Camera
     Camera = require(string.gsub(path, "jm_scene", "jm_camera"))
 
-    assert(Camera, [[
+    assert(
+        Camera,
+        [[
         >> Error: Camera module not found. Make sure the file 'jm_camera.lua' is in same directory.
-        ]])
+        ]]
+    )
 
     if self.camera then
         config.device_width = self.camera.device_width
@@ -197,7 +194,6 @@ function Scene:add_camera(config, name)
     end
 
     local camera = Camera:new(config)
-
 
     self.amount_cameras = self.amount_cameras + 1
 
@@ -233,6 +229,32 @@ function Scene:main_camera()
     return self.camera
 end
 
+function Scene:pause(time)
+    if self.time_pause then
+        return
+    end
+    self.time_pause = time
+end
+
+---@param skip integer
+---@param duration number|nil
+function Scene:set_frame_skip(skip, duration)
+    if skip <= 0 then
+        self.frame_skip = nil
+        self.frame_skip_duration = nil
+        self.frame_count = nil
+        return
+    end
+
+    self.frame_count = 0
+    self.frame_skip = skip
+    self.frame_skip_duration = duration
+end
+
+function Scene:turn_off_frame_skip()
+    return self:set_frame_skip(0)
+end
+
 ---
 ---@param param {load:function, init:function, update:function, draw:function, unload:function, keypressed:function, keyreleased:function, layers:table}
 ---
@@ -241,19 +263,47 @@ function Scene:implements(param)
     assert(type(param) == "table", "\n>> Error: The method expected a table. Was given " .. type(param) .. ".")
 
     local function generic(callback)
-        return function(self, args)
+        ---@param scene JM.Scene
+        ---@param args any
+        return function(scene, args)
+            if scene.time_pause then
+                return
+            end
             local r = callback and callback(args)
         end
     end
 
     local love_callbacks = {
-        "load", "init", "keypressed", "keyreleased", "update", "draw",
-        "unload", "wheelmoved", "mousefocus", "mousemoved", "mousepressed",
-        "mousereleased", "gamepadaxis", "gamepadpressed", "gamepadreleased",
-        "joystickadded", "joystickaxis", "joystickhat", "joystickpressed",
-        "joystickreleased", "joystickremoved", "filedropped", "errorhandler",
-        "quit", "visible", "textinput", "textedited", "threaderror",
-        "displayrotated", "displayrotated"
+        "load",
+        "init",
+        "keypressed",
+        "keyreleased",
+        "update",
+        "draw",
+        "unload",
+        "wheelmoved",
+        "mousefocus",
+        "mousemoved",
+        "mousepressed",
+        "mousereleased",
+        "gamepadaxis",
+        "gamepadpressed",
+        "gamepadreleased",
+        "joystickadded",
+        "joystickaxis",
+        "joystickhat",
+        "joystickpressed",
+        "joystickreleased",
+        "joystickremoved",
+        "filedropped",
+        "errorhandler",
+        "quit",
+        "visible",
+        "textinput",
+        "textedited",
+        "threaderror",
+        "displayrotated",
+        "displayrotated"
     }
 
     for _, callback in ipairs(love_callbacks) do
@@ -264,15 +314,47 @@ function Scene:implements(param)
         self.n_layers = #(param.layers)
 
         for i = 1, self.n_layers, 1 do
-            local layer    = param.layers[i]
-            layer.x        = layer.x or 0
-            layer.y        = layer.y or 0
+            local layer = param.layers[i]
+            layer.x = layer.x or 0
+            layer.y = layer.y or 0
             layer.factor_y = layer.factor_y or 0
             layer.factor_x = layer.factor_x or 0
         end
     end
 
     self.update = function(self, dt)
+        if self.time_pause then
+            self.time_pause = self.time_pause - dt
+
+            if self.time_pause <= 0 then
+                self.time_pause = nil
+            else
+                return
+            end
+        end
+
+        if self.frame_skip then
+            -- dt = dt * self.frame_skip
+
+            if self.frame_skip_duration then
+                self.frame_skip_duration = self.frame_skip_duration - dt
+                if self.frame_skip_duration <= 0 then
+                    self.frame_skip_duration = 0.2
+                    self.frame_skip = self.frame_skip - 1
+                    if self.frame_skip <= 0 then self:set_frame_skip(0) end
+                    -- self:set_frame_skip(0)
+                end
+            end
+
+            if self.frame_count then
+                self.frame_count = self.frame_count + 1
+                if self.frame_count < self.frame_skip then
+                    return
+                else
+                    self.frame_count = 0
+                end
+            end
+        end
 
         if param.layers then
             for i = 1, self.n_layers, 1 do
@@ -281,7 +363,9 @@ function Scene:implements(param)
                 ---@type JM.Scene.Layer
                 layer = param.layers[i]
 
-                if layer.update then layer:update(dt) end
+                if layer.update then
+                    layer:update(dt)
+                end
                 layer = nil
             end
         end
@@ -296,8 +380,6 @@ function Scene:implements(param)
             camera = nil
         end
     end
-
-
 
     self.draw = function(self)
         set_canvas(self.canvas)
@@ -341,17 +423,19 @@ function Scene:implements(param)
 
                     push()
 
-                    local px = -camera.x * layer.factor_x
-                        * (layer.factor_x > 0 and camera.scale or 1)
-                    local py = -camera.y * layer.factor_y
-                        * (layer.factor_y > 0 and camera.scale or 1)
+                    local px = -camera.x * layer.factor_x * (layer.factor_x > 0 and camera.scale or 1)
+                    local py = -camera.y * layer.factor_y * (layer.factor_y > 0 and camera.scale or 1)
 
                     if layer.fixed_on_ground and layer.top then
-                        if layer.top <= camera.y + layer.top then py = 0 end
+                        if layer.top <= camera.y + layer.top then
+                            py = 0
+                        end
                     end
 
                     if layer.fixed_on_ceil and layer.bottom then
-                        if py >= layer.bottom then py = 0 end
+                        if py >= layer.bottom then
+                            py = 0
+                        end
                     end
 
                     translate(round(px), round(py))
