@@ -87,6 +87,7 @@ Effect.TYPE = TYPE_
 ---@return JM.Effect effect
 function Effect:new(object, args)
 
+    ---@type JM.Effect
     local effect = {}
     setmetatable(effect, self)
     self.__index = self
@@ -99,6 +100,7 @@ end
 ---
 --- Class effect constructor.
 ---
+---@param self JM.Effect
 ---@param object JM.Affectable
 function Effect:__constructor__(object, args)
     self.__id = Effect.TYPE.generic

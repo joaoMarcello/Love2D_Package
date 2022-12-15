@@ -123,6 +123,7 @@ local ANIMA_STATES = {
 function Anima:new(args)
     assert(args, "\nError: Trying to instance a Animation without inform any parameter.")
 
+    ---@type JM.Anima
     local animation = {}
     setmetatable(animation, self)
     self.__index = self
@@ -459,6 +460,7 @@ end
 
 ---
 -- Execute the animation logic.
+---@param self JM.Anima
 ---@param dt number # The delta time.
 function Anima:update(dt)
     if not self.__is_enabled then return end

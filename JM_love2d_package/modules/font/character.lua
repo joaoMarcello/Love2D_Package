@@ -3,20 +3,20 @@ local EffectManager = require("/JM_love2d_package/modules/classes/EffectManager"
 
 ---@class JM.Font.Character: JM.Affectable
 ---@field __anima JM.Anima
-local Character = {}
+local Glyph = {}
 
 ---@return JM.Font.Character
-function Character:new(img, quad, args)
+function Glyph:new(img, quad, args)
     local obj = {}
     setmetatable(obj, self)
     self.__index = self
 
-    Character.__constructor__(obj, img, quad, args)
+    Glyph.__constructor__(obj, img, quad, args)
 
     return obj
 end
 
-function Character:__constructor__(img, quad, args)
+function Glyph:__constructor__(img, quad, args)
     self.__img = img
     self.__quad = quad
     self.__id = args.id or ""
@@ -60,7 +60,7 @@ function Character:__constructor__(img, quad, args)
     Affectable.__checks_implementation__(self)
 end
 
-function Character:update(dt)
+function Glyph:update(dt)
     if self.__anima then
         self.__anima:update(dt)
     end
@@ -68,16 +68,16 @@ function Character:update(dt)
     self.__effect_manager:update(dt)
 end
 
-function Character:get_width()
+function Glyph:get_width()
     return self.w * self.sx
 end
 
-function Character:get_height()
+function Glyph:get_height()
     return self.h * self.sy
 end
 
-function Character:copy()
-    local obj = Character:new(self.__img, self.__quad, self.__args)
+function Glyph:copy()
+    local obj = Glyph:new(self.__img, self.__quad, self.__args)
 
     if obj.__anima then
         obj.__anima = obj.__anima:copy()
@@ -85,7 +85,7 @@ function Character:copy()
     return obj
 end
 
-function Character:set_color(value)
+function Glyph:set_color(value)
     self.__color = Affectable.set_color(self, value)
 
     if self:is_animated() then
@@ -93,12 +93,12 @@ function Character:set_color(value)
     end
 end
 
-function Character:get_color()
+function Glyph:get_color()
     return Affectable.get_color(self)
 end
 
 ---@param value number
-function Character:set_scale(value)
+function Glyph:set_scale(value)
     self.sy = value
     self.sx = self.sy
     -- if self:is_animated() then
@@ -107,28 +107,28 @@ function Character:set_scale(value)
 end
 
 ---@param value boolean|nil
-function Character:set_visible(value)
+function Glyph:set_visible(value)
     self.__visible = value
 end
 
-function Character:__set_effect_transform(arg)
+function Glyph:__set_effect_transform(arg)
     return Affectable.__set_effect_transform(self, arg)
 end
 
-function Character:__get_effect_transform()
+function Glyph:__get_effect_transform()
     return Affectable.__get_effect_transform(self)
 end
 
 ---@return {x: number, y: number}
-function Character:get_origin()
+function Glyph:get_origin()
     return { x = self.ox, y = self.oy }
 end
 
-function Character:is_animated()
+function Glyph:is_animated()
     return self.__anima and true or false
 end
 
-function Character:setViewport(img, quad, x, y)
+function Glyph:setViewport(img, quad, x, y)
     local qx = self.qx
     local qy = self.qy
     local qw = self.qw
@@ -150,12 +150,12 @@ function Character:setViewport(img, quad, x, y)
     )
 end
 
-function Character:draw(x, y)
+function Glyph:draw(x, y)
     self:__draw__(x, y)
     self.__effect_manager:draw(x, y)
 end
 
-function Character:draw_rec(x, y, w, h)
+function Glyph:draw_rec(x, y, w, h)
     x = x + w / 2
     y = y + h - self.h * self.sy + self.oy * self.sy
 
@@ -171,7 +171,7 @@ local love_graphics_pop = love_graphics.pop
 local love_graphics_apply_transform = love_graphics.applyTransform
 local love_math_new_transform = love.math.newTransform
 
-function Character:__draw__(x, y)
+function Glyph:__draw__(x, y)
     -- if self.__id == "__nule__" then return end
 
     love_graphics_push()
@@ -231,4 +231,4 @@ function Character:__draw__(x, y)
     -- end
 end
 
-return Character
+return Glyph
