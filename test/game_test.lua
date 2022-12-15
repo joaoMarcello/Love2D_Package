@@ -298,6 +298,12 @@ local light_eff, day_light_eff
 ---@type JM.Anima
 local moon_eff
 
+---@type JM.Anima
+local light_lines
+
+---@type JM.Anima
+local light_lines2
+
 --==========================================================================
 Game:implements(
     {
@@ -305,15 +311,14 @@ Game:implements(
             -- Game:set_shader(darken_shader)
             Game:set_color(43 / 255, 78 / 255, 108 / 255, 1)
 
-            local sx = 1.5
-            light_eff =
-            Anima:new(
+            local sx = 1.2
+            light_eff = Anima:new(
                 {
                     img = "/data/light_effect.png",
                     scale = { x = sx, y = sx }
                 }
             )
-            light_eff:apply_effect("pulse", { range = 0.1, speed = 3.5 })
+            light_eff:apply_effect("pulse", { range = 0.1, speed = 2 })
             -- light_eff:apply_effect("ghost", { min = 0.7, max = 1, speed = 3.5 })
 
             ---@type JM.Anima
@@ -331,6 +336,18 @@ Game:implements(
             )
             -- day_light_eff:apply_effect("stretchVertical", { speed = 2, range = 0.05 })
             day_light_eff:apply_effect("ghost", { min = 0.1, max = 0.2, speed = 10 })
+
+            light_lines = Anima:new({
+                img = "/data/light_line.png",
+                scale = { x = 1.8, y = 1.8 }
+            })
+            light_lines:set_color({ a = 0.6 })
+            light_lines:apply_effect("clockWise", { speed = 20 })
+
+            light_lines2 = light_lines:copy()
+            light_lines2:set_scale(2.2, 2.2)
+            light_lines2:set_color({ a = 0.2 })
+            light_lines2:apply_effect("clockWise", { speed = 40 })
 
             Game:set_foreground_draw(
                 function()
@@ -561,9 +578,9 @@ Game:implements(
                 function()
                     -- rec.body.mass = world.default_mass
 
-                    if rec.body.speed_y > 180 then
-                        -- Game:main_camera():shake_in_y(0.05, 3, 0.2, 0.1)
-                    end
+                    -- if rec.body.speed_y > 180 then
+                    --     Game:main_camera():shake_in_y(0.05, 5, 0.2, 0.1)
+                    -- end
                 end
             )
             rec.body:on_starting_falling(
@@ -573,6 +590,122 @@ Game:implements(
                     -- rec.body.speed_y = 200 * 2
                 end
             )
+            rec.update = function(self, dt)
+                local rbody
+                ---@type JM.Physics.Body
+                rbody = rec.body
+
+                if love.keyboard.isDown("left")
+                    and rbody.speed_x <= 0
+                then
+                    rec.direction = -1
+                    rbody:apply_force(-rec.acc)
+
+                    change_animation(monica_run, current_animation)
+                    current_animation:set_flip_x(true)
+
+                    local col =
+                    rbody.ground and
+                        rbody:check(
+                            rbody.x - 5,
+                            nil,
+                            function(obj, item)
+                                return item.id == "box"
+                            end
+                        )
+
+                    if col and col.n > 0 then
+                        ---@type JM.Physics.Body
+                        local box = col.items[1]
+                        -- box:apply_force(-32 * 7)
+                        box.speed_x = -32 * 3
+                        rbody:refresh(box:right())
+                    end
+                elseif love.keyboard.isDown("right")
+                    and rbody.speed_x >= 0
+                then
+                    rec.direction = 1
+                    rbody:apply_force(rec.acc)
+
+                    change_animation(monica_run, current_animation)
+                    current_animation:set_flip_x(false)
+
+                    local col =
+                    rbody.ground and
+                        rbody:check(
+                            rbody.x + 5,
+                            nil,
+                            function(obj, item)
+                                return item.id == "box"
+                            end
+                        )
+
+                    if col and col.n > 0 then
+                        ---@type JM.Physics.Body
+                        local box = col.items[1]
+                        -- box:apply_force(32 * 7)
+                        box.speed_x = 32 * 3
+                        rbody:refresh(box.x - rbody.w)
+                    end
+                elseif math.abs(rbody.speed_x) ~= 0 then
+                    local dacc = rec.dacc *
+                        ((love.keyboard.isDown("left") or love.keyboard.isDown("right")) and 1.5 or 1)
+                    rbody.dacc_x = dacc
+                end
+
+                if love.keyboard.isDown("up") then
+                    rbody:apply_force(nil, -rbody:weight())
+                    rbody.speed_y = 0
+                else
+                    rbody.acc_y = 0
+                end
+
+                if not love.keyboard.isDown("space") and rbody.speed_y < 0 then
+                    -- and rbody.speed_y > -math.sqrt(2 * rbody:weight() * 32)
+                    rbody:apply_force(nil, rbody:weight() * 2.5)
+                end
+
+                if rbody.ground and love.keyboard.isDown("down") then
+                    rec.last_y = rbody.ground.y
+                    rbody:extra_collisor_filter(
+                        function(obj, item)
+                            return item.y ~= rec.last_y
+                        end
+                    )
+                elseif rbody.ground then
+                    rbody:remove_extra_filter()
+                end
+
+                if rbody:bottom() > Game.world_bottom then
+                    rbody:refresh(nil, Game.world_bottom - rec.h)
+                    -- rec.jump = false
+                    rbody.speed_y = 0
+                    rec.jump = false
+                end
+
+                if rbody.speed_y == 0 or true then
+                    rec.jump = false
+                else
+                    rec.jump = true
+                end
+
+                if rbody:right() > Game.world_right then
+                    rbody:refresh(Game.world_right - rec.w)
+                    rec.speed_x = 0
+                end
+
+                if rbody:left() <= Game.world_left then
+                    rbody:refresh(Game.world_left)
+                    rec.speed_x = 0
+                end
+
+                rec.x = round(rbody.x)
+                rec.y = round(rbody.y)
+
+                current_animation:update(dt)
+            end
+
+            components[rec] = true
 
             Game.camera:jump_to(ship.x, ship.y)
             Game.camera:set_position(0, 0)
@@ -599,99 +732,7 @@ Game:implements(
 
             ship:update(dt)
 
-            local rbody
-            ---@type JM.Physics.Body
-            rbody = rec.body
 
-            if love.keyboard.isDown("left") and rbody.speed_x <= 0 -- and rec.x > 0
-            then
-                rec.direction = -1
-                rbody:apply_force(-rec.acc)
-
-                change_animation(monica_run, current_animation)
-                current_animation:set_flip_x(true)
-
-                local col =
-                rbody.ground and
-                    rbody:check(
-                        rbody.x - 5,
-                        nil,
-                        function(obj, item)
-                            return item.id == "box"
-                        end
-                    )
-
-                if col and col.n > 0 then
-                    ---@type JM.Physics.Body
-                    local box = col.items[1]
-                    -- box:apply_force(-32 * 7)
-                    box.speed_x = -32 * 3
-                    rbody:refresh(box:right())
-                end
-            elseif love.keyboard.isDown("right") and rbody.speed_x >= 0 then
-                rec.direction = 1
-                rbody:apply_force(rec.acc)
-
-                change_animation(monica_run, current_animation)
-                current_animation:set_flip_x(false)
-
-                local col =
-                rbody.ground and
-                    rbody:check(
-                        rbody.x + 5,
-                        nil,
-                        function(obj, item)
-                            return item.id == "box"
-                        end
-                    )
-
-                if col and col.n > 0 then
-                    ---@type JM.Physics.Body
-                    local box = col.items[1]
-                    -- box:apply_force(32 * 7)
-                    box.speed_x = 32 * 3
-                    rbody:refresh(box.x - rbody.w)
-                end
-            elseif math.abs(rbody.speed_x) ~= 0 then
-                local dacc = rec.dacc * ((love.keyboard.isDown("left") or love.keyboard.isDown("right")) and 1.5 or 1)
-                rbody.dacc_x = dacc
-            end
-
-            if love.keyboard.isDown("up") then
-                rbody:apply_force(nil, -rbody:weight())
-                rbody.speed_y = 0
-            else
-                rbody.acc_y = 0
-            end
-
-            if not love.keyboard.isDown("space") and rbody.speed_y < 0 then
-                -- and rbody.speed_y > -math.sqrt(2 * rbody:weight() * 32)
-                rbody:apply_force(nil, rbody:weight() * 2.5)
-            end
-
-            if rbody.ground and love.keyboard.isDown("down") then
-                rec.last_y = rbody.ground.y
-                rbody:extra_collisor_filter(
-                    function(obj, item)
-                        return item.y ~= rec.last_y
-                    end
-                )
-            elseif rbody.ground then
-                rbody:remove_extra_filter()
-            end
-
-            if rbody:bottom() > Game.world_bottom then
-                rbody:refresh(nil, Game.world_bottom - rec.h)
-                -- rec.jump = false
-                rbody.speed_y = 0
-                rec.jump = false
-            end
-
-            if rbody.speed_y == 0 or true then
-                rec.jump = false
-            else
-                rec.jump = true
-            end
 
             -- local obj
             -- local rx, ry, rw, rh = rec:rect()
@@ -710,20 +751,6 @@ Game:implements(
             --     obj = nil
             -- end
 
-            if rbody:right() > Game.world_right then
-                rbody:refresh(Game.world_right - rec.w)
-                rec.speed_x = 0
-            end
-
-            if rbody:left() <= Game.world_left then
-                rbody:refresh(Game.world_left)
-                rec.speed_x = 0
-            end
-
-            rec.x = round(rbody.x)
-            rec.y = round(rbody.y)
-
-            current_animation:update(dt)
             -- my_effect:apply(current_animation, false)
 
             if love.keyboard.isDown("up") and false then
@@ -741,7 +768,6 @@ Game:implements(
             end
 
             cam1, cam_blue, cam_pink = nil, nil, nil
-            rbody = nil
         end,
 
         keypressed = function(key)
@@ -761,7 +787,12 @@ Game:implements(
             end
 
             if key == "f" then
-                Game:set_frame_skip(3, 1.5)
+                Game:set_frame_skip(3, 1.5, function()
+                    local dt = love.timer.getDelta()
+                    -- world:update(love.timer.getDelta())
+                    -- rec:update(love.timer.getDelta())
+                    -- Game:main_camera():update(dt)
+                end)
             end
 
             if key == "g" then
@@ -881,7 +912,7 @@ Game:implements(
                     graph_rect("fill", 32 * 10, 32 * 4, 32, 32)
 
                     for b in pairs(components) do
-                        b:draw()
+                        local r = b.draw and b:draw()
                     end
 
                     -- love.graphics.setColor(0.1, 0.1, 0.1, 1)
@@ -916,22 +947,19 @@ Game:implements(
                     self.alpha = 0.3 * math.sin(self.rad * 2)
                     self.alpha = 0.1
                     light_eff:update(dt)
+                    light_lines:update(dt)
+                    light_lines2:update(dt)
                 end,
                 draw = function(self)
                     ---@type JM.Anima
                     local anim = light_eff
 
                     love.graphics.setBlendMode("add")
+                    light_lines2:draw(rec:get_cx(), rec:get_cy())
+                    light_lines:draw(rec:get_cx(), rec:get_cy())
                     anim:draw(rec:get_cx(), rec:get_cy())
                     love.graphics.setBlendMode("alpha")
 
-                    -- love.graphics.setBlendMode("add", 'premultiplied')
-                    -- love.graphics.setColor(0.4 + self.alpha, 0.4 + self.alpha, 0, 1)
-                    -- love.graphics.circle("fill",
-                    --     rec:get_cx(),
-                    --     rec:get_cy(), (32 * 2.5) + 3 * math.sin(self.rad)
-                    -- )
-                    -- love.graphics.setBlendMode("alpha")
                 end
             },
 

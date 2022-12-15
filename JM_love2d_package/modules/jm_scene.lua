@@ -238,17 +238,20 @@ end
 
 ---@param skip integer
 ---@param duration number|nil
-function Scene:set_frame_skip(skip, duration)
+---@param on_skip_action function|nil
+function Scene:set_frame_skip(skip, duration, on_skip_action)
     if skip <= 0 then
         self.frame_skip = nil
         self.frame_skip_duration = nil
         self.frame_count = nil
+        self.on_skip_action = nil
         return
     end
 
     self.frame_count = 0
     self.frame_skip = skip
     self.frame_skip_duration = duration
+    self.on_skip_action = on_skip_action
 end
 
 function Scene:turn_off_frame_skip()
@@ -323,6 +326,7 @@ function Scene:implements(param)
     end
 
     self.update = function(self, dt)
+
         if self.time_pause then
             self.time_pause = self.time_pause - dt
 
@@ -342,13 +346,13 @@ function Scene:implements(param)
                     self.frame_skip_duration = 0.2
                     self.frame_skip = self.frame_skip - 1
                     if self.frame_skip <= 0 then self:set_frame_skip(0) end
-                    -- self:set_frame_skip(0)
                 end
             end
 
             if self.frame_count then
                 self.frame_count = self.frame_count + 1
                 if self.frame_count < self.frame_skip then
+                    local r = self.on_skip_action and self.on_skip_action()
                     return
                 else
                     self.frame_count = 0
