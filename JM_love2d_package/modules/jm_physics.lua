@@ -967,7 +967,7 @@ do
             end
 
             if obj and obj.is_stucked then
-                goto end_for_world_bodies
+                obj = nil
             end
 
             if obj then
@@ -975,8 +975,6 @@ do
             end
 
             obj = nil
-
-            ::end_for_world_bodies::
         end
     end
 

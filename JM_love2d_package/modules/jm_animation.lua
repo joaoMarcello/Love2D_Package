@@ -211,7 +211,7 @@ function Anima:__constructor__(args)
         self:set_size(args.width, args.height, args.ref_width, args.ref_height)
     end
 
-    self.__quad = love.graphics.newQuad(0, 0,
+    self.quad = love.graphics.newQuad(0, 0,
         args.frames_list[1][1],
         args.frames_list[1][2],
         self.__img:getDimensions()
@@ -676,12 +676,12 @@ function Anima:__draw_with_no_effects__(x, y)
     local current_frame
     current_frame = self:__get_current_frame()
 
-    current_frame:setViewport(self.__img, self.__quad)
+    current_frame:setViewport(self.__img, self.quad)
 
     love_graphics_set_color(self.__color)
 
     if self.__is_visible then
-        love_graphics_draw(self.__img, self.__quad,
+        love_graphics_draw(self.__img, self.quad,
             (x), (y),
             self.rotation, self.scale_x * self.flip_x,
             self.scale_y * self.flip_y,

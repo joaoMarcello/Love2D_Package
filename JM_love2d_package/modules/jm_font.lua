@@ -56,7 +56,7 @@ function Font:__constructor__(args)
 
     self.__img = self.__normal_img
 
-    self.__quad = love.graphics.newQuad(
+    self.quad = love.graphics.newQuad(
         0, 0,
         20, 20,
         self.__img:getDimensions()
@@ -102,14 +102,14 @@ function Font:__constructor__(args)
 
     self:set_font_size(self.__font_size)
 
-    self.__tab_char = Character:new(self.__img, self.__quad, {
+    self.__tab_char = Character:new(self.__img, self.quad, {
         id = "\t",
         x = 0, y = 0,
         w = self.__word_space * self.__tab_size,
         h = self.__ref_height
     })
 
-    self.__space_char = Character:new(self.__img, self.__quad, {
+    self.__space_char = Character:new(self.__img, self.quad, {
         id = " ",
         x = 0, y = 0,
         w = self.__word_space,
@@ -168,7 +168,7 @@ function Font:__load_caracteres_from_csv(list, name, img, extend, hash)
             break
         end
 
-        local character_obj = Character:new(img, self.__quad,
+        local character_obj = Character:new(img, self.quad,
             { id = id, x = left, y = top, w = right - left, h = bottom - top, bottom = offset_y }
         )
 
