@@ -123,7 +123,6 @@ function Effect:__constructor__(object, args)
 
     self.__obj_initial_color = { r = 1, g = 1, b = 1, a = 1 }
     self:set_object(object)
-
 end
 
 --
@@ -173,6 +172,8 @@ end
 ---
 ---@param object JM.Affectable
 function Effect:set_object(object)
+    checks_implementation(object)
+
     self.__object = object
 
     if self.__object then
@@ -277,7 +278,7 @@ function Effect:apply(object, reset)
         }
     end
 
-    self.__object = object
+    self:set_object(object)
     self:restart(reset)
 end
 

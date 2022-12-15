@@ -82,7 +82,7 @@ local monica_idle_normal = Anima:new({
     duration = 0.5,
     height = 64,
     ref_height = 64,
-    -- amount_cycle = 2
+    amount_cycle = 2
 })
 local monica_run = Anima:new({
     img = "/data/Monica/monica-run.png",

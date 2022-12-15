@@ -139,7 +139,12 @@ end
 --- @param args {img: love.Image|string, frames: number, frames_list: table,  speed: number, rotation: number, color: JM.Color, scale: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, stop_at_the_end: boolean, amount_cycle: number, state: JM.AnimaStates, bottom: number, kx: number, ky: number, width: number, height: number, ref_width: number, ref_height: number, duration: number, n: number}  # A table containing the follow fields:
 ---
 function Anima:__constructor__(args)
-    local EffectManager = require("/JM_love2d_package/modules/classes/EffectManager")
+    local success, result = pcall(function(...)
+        --- trying load the EffectManager Module
+        return require("/JM_love2d_package/modules/classes/EffectManager")
+    end)
+
+    local EffectManager = success and result or nil
 
     self.args = args
 
@@ -167,7 +172,6 @@ function Anima:__constructor__(args)
 
     self.current_frame = (self.direction < 0 and self.__amount_frames) or 1
 
-
     self:set_state(args.state)
 
     self.__N__ = args.n or 0
@@ -181,7 +185,7 @@ function Anima:__constructor__(args)
 
     self.__effect_manager = EffectManager and EffectManager:new() or nil
 
-    self.__frames_list = {}
+    self.frames_list = {}
 
     if not args.frames_list then
         args.frames_list = {}
@@ -199,7 +203,7 @@ function Anima:__constructor__(args)
 
     -- Generating the Frame objects and inserting them into the frames_list
     for i = 1, #args.frames_list do
-        self.__frames_list[i] = Frame:new(args.frames_list[i])
+        self.frames_list[i] = Frame:new(args.frames_list[i])
     end -- END FOR for generate frames objects
 
 
@@ -213,7 +217,7 @@ function Anima:__constructor__(args)
         self.__img:getDimensions()
     )
 
-    Affectable.__checks_implementation__(self)
+    -- Affectable.__checks_implementation__(self)
 end
 
 function Anima:copy()
@@ -605,7 +609,7 @@ end
 
 ---@return JM.Anima.Frame
 function Anima:__get_current_frame()
-    return self.__frames_list[self.current_frame]
+    return self.frames_list[self.current_frame]
 end
 
 ---
