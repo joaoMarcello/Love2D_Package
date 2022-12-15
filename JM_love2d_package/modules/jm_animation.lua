@@ -6,8 +6,6 @@ local path = (...)
 
 local Affectable = require("/JM_love2d_package/modules/templates/Affectable")
 
-local Frame = require("/JM_love2d_package/modules/classes/Frame")
-
 -- Some local variables to store global modules.
 local love_graphics = love.graphics
 local love_graphics_draw = love_graphics.draw
@@ -18,7 +16,7 @@ local love_graphics_pop = love_graphics.pop
 local love_graphics_apply_transform = love_graphics.applyTransform
 local love_math_new_transform = love.math.newTransform
 
----comment
+
 ---@param width number|nil
 ---@param height number|nil
 ---@param ref_width number|nil
@@ -40,6 +38,66 @@ local function desired_size(width, height, ref_width, ref_height, keep_proportio
 
     return { x = dw, y = dh }
 end
+
+--===========================================================================
+
+---@class JM.Anima.Frame
+--- Internal class Frame.
+local Frame = {}
+do
+    ---@param args {left: number, right:number, top:number, bottom:number, speed:number}
+    function Frame:new(args)
+        local obj = {}
+        setmetatable(obj, self)
+        self.__index = self
+
+        Frame.__constructor__(obj, args)
+
+        return obj
+    end
+
+    --- Constructor.
+    function Frame:__constructor__(args)
+        local left = args.left or args[1]
+        local top = args.top or args[3]
+        local right = args.right or args[2]
+        local bottom = args.bottom or args[4]
+
+        self.x = left
+        self.y = top
+        self.w = right - left
+        self.h = bottom - top
+        self.ox = self.w / 2
+        self.oy = self.h / 2
+
+        self.speed = args.speed or nil
+
+        self.bottom = self.y + self.h
+    end
+
+    function Frame:get_offset()
+        return self.ox, self.oy
+    end
+
+    function Frame:set_offset(ox, oy)
+        self.ox = ox or self.ox
+        self.oy = oy or self.oy
+    end
+
+    --- Sets the Quad Viewport.
+    ---@param img love.Image
+    ---@param quad love.Quad
+    function Frame:setViewport(img, quad)
+        quad:setViewport(
+            self.x, self.y,
+            self.w, self.h,
+            img:getWidth(), img:getHeight()
+        )
+    end
+
+end
+--===========================================================================
+
 
 -- Class to animate.
 --- @class JM.Anima: JM.Affectable
@@ -319,7 +377,7 @@ end
 
 --
 --- Set state.
----@param state JM.AnimaStates Possible values are "repeating", "random" or "come and back". If none of these is informed, then the state is setted as "repeating".
+---@param state JM.AnimaStates Possible values are "repeating", "random" or "come and back". If none of these is informed, the state is setted as "repeating".
 function Anima:set_state(state)
     if state then
         state = string.lower(state)
@@ -353,10 +411,9 @@ end
 function Anima:reset()
     self.__update_time = 0
     self.__frame_time = 0
+    self.__stopped_time = 0
     self.__current_frame = (self.__direction > 0 and 1)
         or self.__amount_frames
-    self.__update_time = 0
-    self.__stopped_time = 0
     self.__cycle_count = 0
     self.__initial_direction = nil
     self.__stopped = nil
@@ -392,23 +449,25 @@ function Anima:set_stop_action(action, args)
     self.__stop_action_args = args
 end
 
-function Anima:__execute_stop_action__()
-    if self.__stop_action then
-        self.__stop_action(self.__stop_action_args)
+--- Sets a custom method that executes one time on every frame change.
+---@param action function
+---@param cancel_action function|nil
+function Anima:set_on_frame_change_action(action, cancel_action)
+    self.__on_frame_change_action = action
+    self.__on_frame_change_cancel_action = cancel_action
+end
+
+---@param animation JM.Anima
+local function execute_on_frame_change_action(animation)
+    if animation.__on_frame_change_action then
+        animation:__on_frame_change_action(animation.__current_frame)
     end
 end
 
---- Sets a custom method that executes on every frame change.
----@param action function
----@param args any
-function Anima:set_on_frame_change_action(action, args)
-    self.__on_frame_change_action = action
-    self.__on_frame_change_args = args
-end
-
-function Anima:__execute_on_frame_change_action()
-    if self.__on_frame_change_action then
-        self.__on_frame_change_action(self, self.__on_frame_change_args)
+---@param animation JM.Anima
+local function execute_stop_action(animation)
+    if animation.__stop_action then
+        animation.__stop_action(animation.__stop_action_args)
     end
 end
 
@@ -447,7 +506,7 @@ function Anima:update(dt)
 
         self.__frame_time = self.__frame_time - self.__speed
 
-        self:__execute_on_frame_change_action()
+        execute_on_frame_change_action(self)
 
         if self:__is_in_random_state() then
             local last_frame = self.__current_frame
@@ -718,16 +777,18 @@ end
 function Anima:pause()
     if not self.__stopped then
         self.__stopped = true
-        self:__execute_stop_action__()
+        execute_stop_action(self)
         return true
     end
     return false
 end
 
-function Anima:unpause()
+---@param restart boolean|nil
+---@return boolean
+function Anima:unpause(restart)
     if self.__stopped then
         self.__stopped = false
-        self:reset()
+        local r = restart and self:reset()
         return true
     end
     return false
