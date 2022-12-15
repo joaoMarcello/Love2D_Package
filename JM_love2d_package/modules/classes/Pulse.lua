@@ -1,6 +1,8 @@
 ---@type JM.Effect
 local Effect = require((...):gsub("Pulse", "Effect"))
 
+local m_sin, PI = math.sin, math.pi
+
 ---@class JM.Effect.Pulse: JM.Effect
 local Pulse = Effect:new(nil, nil)
 
@@ -36,7 +38,7 @@ function Pulse:__constructor__(args)
     self.__prior = 2
 
     if self.__id == Effect.TYPE.jelly then
-        self.__adjust = math.pi * 0.7
+        self.__adjust = PI * 0.7
         self.__rad = 0
     elseif self.__id == Effect.TYPE.stretchHorizontal then
         self.__difY = 0
@@ -61,10 +63,10 @@ end
 function Pulse:update(dt)
     self.__speed = self.__speed + self.__acc / 1.0 * dt
 
-    self.__rad = (self.__rad + math.pi * 2. / self.__speed * dt)
+    self.__rad = (self.__rad + PI * 2 / self.__speed * dt)
 
-    if self.__rad >= (math.pi * 2) then
-        self.__rad = self.__rad % (math.pi * 2)
+    if self.__rad >= (PI * 2) then
+        self.__rad = self.__rad % (PI * 2)
         if self.__looping then
             self:__increment_cycle()
         end
@@ -73,7 +75,7 @@ function Pulse:update(dt)
     if self.__difX ~= 0 then
 
         self.__object:__set_effect_transform({
-            sx = 1 + (math.sin(self.__rad)
+            sx = 1 + (m_sin(self.__rad)
                 * (self.__difX or self.__range))
         })
 
@@ -82,7 +84,7 @@ function Pulse:update(dt)
     if self.__difY ~= 0 then
 
         self.__object:__set_effect_transform({
-            sy = 1 + (math.sin(self.__rad + self.__adjust)
+            sy = 1 + (m_sin(self.__rad + self.__adjust)
                 * (self.__difY or self.__range))
         })
     end

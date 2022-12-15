@@ -1,5 +1,7 @@
 local Effect = require((...):gsub("Ghost", "Effect"))
 
+local m_sin, PI = math.sin, math.pi
+
 ---@class JM.Effect.Ghost: JM.Effect
 local Ghost = Effect:new(nil, nil)
 
@@ -29,11 +31,11 @@ function Ghost:__constructor__(args)
 end
 
 function Ghost:update(dt)
-    self.__rad = (self.__rad + (self.math_PI * 2) / self.__speed * dt)
-        % (self.math_PI * 2)
+    self.__rad = (self.__rad + (PI * 2) / self.__speed * dt)
+        % (PI * 2)
 
     self.__object:set_color({
-        a = self.__center + self.math_sin(self.__rad) * self.__range
+        a = self.__center + m_sin(self.__rad) * self.__range
     })
 end
 

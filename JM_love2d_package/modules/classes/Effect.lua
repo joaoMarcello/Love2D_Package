@@ -1,3 +1,5 @@
+local m_sin, m_cos, m_min, m_max, PI = math.sin, math.cos, math.min, math.max, math.pi
+
 ---
 ---@class JM.Effect
 ---@field __id JM.Effect.id_number
@@ -6,6 +8,28 @@
 local Effect = {}
 
 local MSG_using_effect_with_no_associated_affectable = "\nError: Trying to use a 'Effect' object without associate him to a 'Affectable' object.\n\nTip: Try use the ':apply' method from the 'Effect' object."
+
+--- Check if object implements all the needed Affectable methods and fields.
+---@param object table
+local function checks_implementation(object)
+    if not object then return end
+
+    assert(object.__effect_manager, "\nError: The class do not have the required '__effect_manager' field.")
+
+    assert(object.set_color, "\nError: The class do not implements the required 'set_color' method.")
+
+    assert(object.set_visible,
+        "\nError: The class do not implements the required 'set_visible' method.")
+
+    assert(object.__draw__,
+        "\nError: The class do not implements the required '__draw__' method.")
+
+    assert(object.__get_effect_transform,
+        "\nError: The class do not implements the required '__get_effect_transform' method.")
+
+    assert(object.__set_effect_transform,
+        "\nError: The class do not implements the required '__set_effect_transform' method.")
+end
 
 ---
 --- The animation effects.
@@ -54,9 +78,6 @@ local TYPE_ = {
 }
 
 Effect.TYPE = TYPE_
-Effect.math_sin = math.sin
-Effect.math_cos = math.cos
-Effect.math_PI = math.pi
 
 ---
 --- Class effect constructor.
@@ -151,6 +172,7 @@ end
 ---@param object JM.Affectable
 function Effect:set_object(object)
     self.__object = object
+
     if self.__object then
         self.__obj_initial_color = {
             r = self.__object:get_color()[1],

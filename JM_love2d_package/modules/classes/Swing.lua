@@ -1,12 +1,14 @@
+---@type JM.Effect
 local Effect = require((...):gsub("Swing", "Effect"))
+
+local m_sin, PI = math.sin, math.pi
 
 ---@class JM.Effect.Swing: JM.Effect
 local Swing = Effect:new()
 
-
 ---@param object JM.Affectable|nil
 ---@param args any
----@return JM.Effect
+---@return JM.Effect effect
 function Swing:new(object, args)
     local ef = Effect:new(object, args)
     setmetatable(ef, self)
@@ -29,15 +31,15 @@ function Swing:__constructor__(args)
 end
 
 function Swing:update(dt)
-    self.__rad = self.__rad + math.pi * 2 / self.__speed * dt * self.__direction
+    self.__rad = self.__rad + PI * 2 / self.__speed * dt * self.__direction
 
-    if self.__rad >= math.pi * 2 then
+    if self.__rad >= PI * 2 then
         self:__increment_cycle()
-        self.__rad = self.__rad % (math.pi * 2)
+        self.__rad = self.__rad % (PI * 2)
     end
 
     self.__object:__set_effect_transform({
-        rot = math.sin(self.__rad) * math.pi * 2 * self.__range
+        rot = math.sin(self.__rad) * PI * 2 * self.__range
     })
 end
 

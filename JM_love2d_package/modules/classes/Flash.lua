@@ -1,4 +1,7 @@
+---@type JM.Effect
 local Effect = require((...):gsub("Flash", "Effect"))
+
+local m_sin, PI = math.sin, math.pi
 
 local shader_code = [[
     extern vec4 flash_color;
@@ -73,7 +76,6 @@ function Flash:__constructor__(args)
     self.__alpha = 1
     self.__speed = args and args.speed or 0.3
     self.__color = args and args.color or { 238 / 255, 243 / 255, 46 / 255, 1 }
-    -- self.__color = { 0.4, 0.4, 0.4, 1 }
     local max = args and args.max or 1
     local min = args and args.min or 0.1
     self.__origin = min
@@ -84,34 +86,20 @@ end
 --- Update flash.
 ---@param dt number
 function Flash:update(dt)
-    self.__rad = (self.__rad + math.pi * 2. / self.__speed * dt)
+    self.__rad = (self.__rad + PI * 2 / self.__speed * dt)
 
-    if self.__rad >= math.pi then
-        self.__rad = self.__rad % math.pi
+    if self.__rad >= PI then
+        self.__rad = self.__rad % PI
         self:__increment_cycle()
     end
 
-    self.__color[4] = self.__origin + (math.sin(self.__rad) * self.__range)
+    self.__color[4] = self.__origin + (m_sin(self.__rad) * self.__range)
 end
 
 --- Draw the flash effect.
 ---@param x number
 ---@param y number
 function Flash:draw(x, y)
-
-    -- love.graphics.setBlendMode("add", "alphamultiply")
-
-    -- self.__object:set_color({
-    --     self.__color[1],
-    --     self.__color[2],
-    --     self.__color[3],
-    --     self.__alpha
-    -- })
-
-    -- self.__object:__draw__(x, y)
-    -- love.graphics.setBlendMode('alpha')
-    -- self.__object:set_color(self.__obj_initial_color)
-
     love.graphics.setShader(flash_shader)
     flash_shader:sendColor("flash_color", self.__color)
     self.__object:__draw__(x, y)

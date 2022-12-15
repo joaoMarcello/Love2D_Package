@@ -1,11 +1,14 @@
+---@type JM.Effect
 local Effect = require((...):gsub("Rotate", "Effect"))
+
+local PI = math.pi
 
 ---@class JM.Effect.Rotate: JM.Effect
 local Rotate = Effect:new()
 
 ---@param object JM.Affectable|nil
 ---@param args any|nil
----@return JM.Effect|JM.Effect.Float
+---@return JM.Effect effect
 function Rotate:new(object, args)
     local obj = Effect:new(object, args)
     setmetatable(obj, self)
@@ -27,10 +30,10 @@ function Rotate:__constructor__(args)
 end
 
 function Rotate:update(dt)
-    self.__rad = self.__rad + (math.pi * 2) / (self.__speed) * dt * self.__direction
+    self.__rad = self.__rad + (PI * 2) / (self.__speed) * dt * self.__direction
 
-    if self.__rad >= math.pi * 2 then
-        self.__rad = self.__rad % (math.pi * 2)
+    if self.__rad >= PI * 2 then
+        self.__rad = self.__rad % (PI * 2)
         self:__increment_cycle()
     end
 

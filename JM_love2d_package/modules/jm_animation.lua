@@ -6,8 +6,6 @@ local path = (...)
 
 local Affectable = require("/JM_love2d_package/modules/templates/Affectable")
 
-local Utils = require("/JM_love2d_package/utils")
-
 local Frame = require("/JM_love2d_package/modules/classes/Frame")
 
 -- Some local variables to store global modules.
@@ -19,6 +17,29 @@ local love_graphics_push = love_graphics.push
 local love_graphics_pop = love_graphics.pop
 local love_graphics_apply_transform = love_graphics.applyTransform
 local love_math_new_transform = love.math.newTransform
+
+---comment
+---@param width number|nil
+---@param height number|nil
+---@param ref_width number|nil
+---@param ref_height number|nil
+---@return JM.Point
+local function desired_size(width, height, ref_width, ref_height, keep_proportions)
+    local dw, dh
+
+    dw = width and width / ref_width or nil
+    dh = height and height / ref_height or nil
+
+    if keep_proportions then
+        if not dw then
+            dw = dh
+        elseif not dh then
+            dh = dw
+        end
+    end
+
+    return { x = dw, y = dh }
+end
 
 -- Class to animate.
 --- @class JM.Anima: JM.Affectable
@@ -156,7 +177,7 @@ function Anima:set_size(width, height, ref_width, ref_height)
             h = ref_height or current_frame.h
         }
 
-        local desired_size_in_pxl = Utils:desired_size(
+        local desired_size_in_pxl = desired_size(
             width, height, tt.w, tt.h, true
         )
 

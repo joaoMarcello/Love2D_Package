@@ -271,19 +271,24 @@ do
         self.extra_filter = filter
     end
 
-    function Body:jump(desired_height)
+    --- Makes the body jump in the air.
+    ---@param desired_height number
+    ---@param direction -1|1|nil
+    function Body:jump(desired_height, direction)
         if self.speed_y ~= 0 then return end
+
+        direction = direction or -1
 
         self.ground = nil
 
-        local acc_y = self:weight() --+ self.acc_y
-
-        self.speed_y = -sqrt(2 * acc_y * desired_height)
+        self.speed_y = sqrt(2 * self:weight() * desired_height) * direction
     end
 
     function Body:dash(desired_distance, direction)
+        direction = direction or self:direction_x()
+
         self.speed_x = sqrt(2 * abs(self.acc_x) * desired_distance)
-            * (direction or self:direction_x())
+            * direction
     end
 
     function Body:weight()

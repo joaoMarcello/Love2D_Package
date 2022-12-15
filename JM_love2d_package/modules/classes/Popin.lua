@@ -1,3 +1,4 @@
+---@type JM.Effect
 local Effect = require((...):gsub("Popin", "Effect"))
 
 ---@class JM.Effect.Popin: JM.Effect

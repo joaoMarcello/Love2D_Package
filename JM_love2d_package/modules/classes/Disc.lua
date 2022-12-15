@@ -1,5 +1,7 @@
 local Effect = require((...):gsub("Disc", "Effect"))
 
+local m_sin, PI = math.sin, math.pi
+
 ---@class JM.Effect.Disc: JM.Effect
 local Disc = Effect:new(nil, nil)
 
@@ -29,17 +31,17 @@ function Disc:__constructor__(args)
 end
 
 function Disc:update(dt)
-    self.__rad = self.__rad + (math.pi * 2) / self.__speed * dt
+    self.__rad = self.__rad + (PI * 2) / self.__speed * dt
 
-    if self.__rad >= math.pi * 2. then
+    if self.__rad >= PI * 2 then
         self:__increment_cycle()
     end
 
-    self.__rad = self.__rad % (math.pi * 2.)
+    self.__rad = self.__rad % (PI * 2)
 
     self.__object:__set_effect_transform({
-        kx = math.math_sin(self.__rad) * self.__range,
-        ky = -math.math_sin(self.__rad + math.pi * 1.5) * self.__range
+        kx = m_sin(self.__rad) * self.__range,
+        ky = -m_sin(self.__rad + PI * 1.5) * self.__range
     })
 end
 
