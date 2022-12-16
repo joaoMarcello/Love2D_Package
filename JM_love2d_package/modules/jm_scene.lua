@@ -13,6 +13,7 @@ local pop = love.graphics.pop
 local set_color_draw = love.graphics.setColor
 local love_draw = love.graphics.draw
 local set_shader = love.graphics.setShader
+local get_delta_time = love.timer.getDelta
 
 ---@alias JM.Scene.Layer {draw:function, update:function, factor_x:number, factor_y:number, name:string, fixed_on_ground:boolean, fixed_on_ceil:boolean, top:number, bottom:number, shader:love.Shader}
 
@@ -108,52 +109,61 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
     self.world_top = -32 * 10
     self.world_bottom = 32 * 12
 
-    local config = {
-        -- camera's viewport in desired game screen coordinates
-        x = self.screen_w * 0,
-        y = self.y,
-        w = self.screen_w,
-        h = self.screen_h,
+    do
+        -- main camera's default configuration
+        local config = {
+            -- camera's viewport in desired game screen coordinates
+            x = self.screen_w * 0,
+            y = self.y,
+            w = self.screen_w,
+            h = self.screen_h,
 
-        -- world bounds
-        bounds = {
-            left = self.world_left,
-            right = self.world_right,
-            top = self.world_top,
-            bottom = self.world_bottom
-        },
+            -- world bounds
+            bounds = {
+                left = self.world_left,
+                right = self.world_right,
+                top = self.world_top,
+                bottom = self.world_bottom
+            },
 
-        -- Device screen's dimensions
-        device_width = self.dispositive_w,
-        device_height = self.dispositive_h,
-        desired_canvas_w = self.screen_w,
-        desired_canvas_h = self.screen_h,
-        tile_size = self.tile_size_x,
+            -- Device screen's dimensions
+            device_width = self.dispositive_w,
+            device_height = self.dispositive_h,
 
-        color = { 43 / 255, 78 / 255, 108 / 255, 1 },
+            -- The in-game screen's dimensions
+            desired_canvas_w = self.screen_w,
+            desired_canvas_h = self.screen_h,
 
-        border_color = { 1, 1, 0, 1 },
+            tile_size = self.tile_size_x,
 
-        scale = 1,
+            color = { 43 / 255, 78 / 255, 108 / 255, 1 },
 
-        type = "",
+            border_color = { 1, 1, 0, 1 },
 
-        show_grid = true,
-        grid_tile_size = self.tile_size_x * 2,
+            scale = 1,
 
-        show_world_bounds = true
-    }
+            type = "",
 
-    self.cameras_list = {}
-    self.amount_cameras = 0
+            show_grid = true,
+            grid_tile_size = self.tile_size_x * 2,
 
-    self.camera = self:add_camera(config, "main")
+            show_world_bounds = true
+        }
+
+        self.cameras_list = {}
+        self.amount_cameras = 0
+
+        self.camera = self:add_camera(config, "main")
+    end
 
     self.n_layers = 0
 
     self.canvas = love.graphics.newCanvas(self.w, self.h)
 
     self.shader = nil
+
+    -- used when scene is in frame skip mode
+    self.__skip = nil
 
     self:implements({})
 end
@@ -162,7 +172,9 @@ end
 ---@param name string
 function Scene:add_camera(config, name)
     assert(name, "\n>> Error: You not inform the Camera's name.")
+
     assert(not self.cameras_list[name], "\n>> Error: A camera with the name '" .. tostring(name) .. "' already exists!")
+
     assert(not self.cameras_list[self.amount_cameras + 1])
 
     local Camera
@@ -219,7 +231,8 @@ function Scene:set_color(r, g, b, a)
     self.color_a = a or self.color_a
 end
 
----@return JM.Camera.Camera
+---@param index integer|string # Name or index of the camera.
+---@return JM.Camera.Camera camera
 function Scene:get_camera(index)
     return self.cameras_list[index]
 end
@@ -258,6 +271,35 @@ function Scene:turn_off_frame_skip()
     return self:set_frame_skip(0)
 end
 
+---@param self JM.Scene
+---@return boolean should_skip
+local function frame_skip_update(self)
+    if self.frame_skip then
+        -- dt = dt * self.frame_skip
+
+        if self.frame_skip_duration then
+            self.frame_skip_duration = self.frame_skip_duration - get_delta_time()
+
+            if self.frame_skip_duration <= 0 then
+                self.frame_skip_duration = 0.2
+                self.frame_skip = self.frame_skip - 1
+                if self.frame_skip <= 0 then self:set_frame_skip(0) end
+            end
+        end
+
+        if self.frame_count then
+            self.frame_count = self.frame_count + 1
+            if self.frame_count < self.frame_skip then
+                local r = self.on_skip_action and self.on_skip_action()
+                return true
+            else
+                self.frame_count = 0
+            end
+        end
+    end
+    return false
+end
+
 ---
 ---@param param {load:function, init:function, update:function, draw:function, unload:function, keypressed:function, keyreleased:function, layers:table}
 ---
@@ -269,7 +311,7 @@ function Scene:implements(param)
         ---@param scene JM.Scene
         ---@param args any
         return function(scene, args)
-            if scene.time_pause then
+            if scene.time_pause or scene.__skip then
                 return
             end
             local r = callback and callback(args)
@@ -337,27 +379,31 @@ function Scene:implements(param)
             end
         end
 
-        if self.frame_skip then
-            -- dt = dt * self.frame_skip
+        -- if self.frame_skip then
+        --     -- dt = dt * self.frame_skip
 
-            if self.frame_skip_duration then
-                self.frame_skip_duration = self.frame_skip_duration - dt
-                if self.frame_skip_duration <= 0 then
-                    self.frame_skip_duration = 0.2
-                    self.frame_skip = self.frame_skip - 1
-                    if self.frame_skip <= 0 then self:set_frame_skip(0) end
-                end
-            end
+        --     if self.frame_skip_duration then
+        --         self.frame_skip_duration = self.frame_skip_duration - dt
+        --         if self.frame_skip_duration <= 0 then
+        --             self.frame_skip_duration = 0.2
+        --             self.frame_skip = self.frame_skip - 1
+        --             if self.frame_skip <= 0 then self:set_frame_skip(0) end
+        --         end
+        --     end
 
-            if self.frame_count then
-                self.frame_count = self.frame_count + 1
-                if self.frame_count < self.frame_skip then
-                    local r = self.on_skip_action and self.on_skip_action()
-                    return
-                else
-                    self.frame_count = 0
-                end
-            end
+        --     if self.frame_count then
+        --         self.frame_count = self.frame_count + 1
+        --         if self.frame_count < self.frame_skip then
+        --             local r = self.on_skip_action and self.on_skip_action()
+        --             return
+        --         else
+        --             self.frame_count = 0
+        --         end
+        --     end
+        -- end
+        do
+            self.__skip = frame_skip_update(self)
+            if self.__skip then return end
         end
 
         if param.layers then

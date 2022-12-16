@@ -783,7 +783,7 @@ Game:implements(
             end
 
             if key == "p" then
-                Game:pause(0.3)
+                Game:pause(3)
             end
 
             if key == "f" then
@@ -797,6 +797,7 @@ Game:implements(
 
             if key == "g" then
                 Game:turn_off_frame_skip()
+                current_animation:set_color({ math.random(), math.random(), math.random(), 1 })
             end
         end,
 
