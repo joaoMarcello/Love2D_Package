@@ -311,7 +311,7 @@ function Scene:implements(param)
         ---@param scene JM.Scene
         ---@param args any
         return function(scene, args)
-            if scene.time_pause or scene.__skip then
+            if scene.time_pause then
                 return
             end
             local r = callback and callback(args)
@@ -319,36 +319,35 @@ function Scene:implements(param)
     end
 
     local love_callbacks = {
-        "load",
-        "init",
-        "keypressed",
-        "keyreleased",
-        "update",
+        "displayrotated",
         "draw",
-        "unload",
-        "wheelmoved",
-        "mousefocus",
-        "mousemoved",
-        "mousepressed",
-        "mousereleased",
+        "errorhandler",
+        "filedropped",
         "gamepadaxis",
         "gamepadpressed",
         "gamepadreleased",
+        "init",
         "joystickadded",
         "joystickaxis",
         "joystickhat",
         "joystickpressed",
         "joystickreleased",
         "joystickremoved",
-        "filedropped",
-        "errorhandler",
-        "quit",
-        "visible",
-        "textinput",
+        "keypressed",
+        "keyreleased",
+        "load",
+        "mousefocus",
+        "mousemoved",
+        "mousepressed",
+        "mousereleased",
         "textedited",
+        "textinput",
         "threaderror",
-        "displayrotated",
-        "displayrotated"
+        "unload",
+        "update",
+        "visible",
+        "wheelmoved",
+        "quit",
     }
 
     for _, callback in ipairs(love_callbacks) do
@@ -379,32 +378,8 @@ function Scene:implements(param)
             end
         end
 
-        -- if self.frame_skip then
-        --     -- dt = dt * self.frame_skip
-
-        --     if self.frame_skip_duration then
-        --         self.frame_skip_duration = self.frame_skip_duration - dt
-        --         if self.frame_skip_duration <= 0 then
-        --             self.frame_skip_duration = 0.2
-        --             self.frame_skip = self.frame_skip - 1
-        --             if self.frame_skip <= 0 then self:set_frame_skip(0) end
-        --         end
-        --     end
-
-        --     if self.frame_count then
-        --         self.frame_count = self.frame_count + 1
-        --         if self.frame_count < self.frame_skip then
-        --             local r = self.on_skip_action and self.on_skip_action()
-        --             return
-        --         else
-        --             self.frame_count = 0
-        --         end
-        --     end
-        -- end
-        do
-            self.__skip = frame_skip_update(self)
-            if self.__skip then return end
-        end
+        self.__skip = frame_skip_update(self)
+        if self.__skip then return end
 
         if param.layers then
             for i = 1, self.n_layers, 1 do
