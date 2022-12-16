@@ -525,6 +525,7 @@ do
         self.acc_y = acc_y and (self.force_y / self.mass) or self.acc_y
     end
 
+    ---@param col JM.Physics.Collisions
     function Body:resolve_collisions_y(col)
         if col.n > 0 then -- collision!
 
@@ -558,6 +559,22 @@ do
         end
     end
 
+    ---@param col JM.Physics.Collisions
+    function Body:resolve_collisions_x(col)
+        if col.n > 0 then
+            self:refresh(col.end_x)
+
+            local r = self.on_wall_coll_action
+                and self.on_wall_coll_action(col)
+
+            if self.bouncing_x then
+                self.speed_x = -self.speed_x * self.bouncing_x
+            else
+                self.speed_x = 0
+            end
+        end
+    end
+
     function Body:update(dt)
         local obj
         obj = self
@@ -575,17 +592,17 @@ do
                 goaly = obj.y + (obj.speed_y * dt)
                     + (obj.acc_y * dt * dt) / 2
 
-                -- if abs(obj.speed_y) < 1 then
-                --     obj.speed_y = sqrt(2 * obj.acc_y * 1) * obj:direction_y()
-                -- end
-
                 -- speed up with acceleration
                 obj.speed_y = obj.speed_y + obj.acc_y * dt
 
-                local max_speed = obj.max_speed_y or obj.world.max_speed_y
+                if obj.max_speed_y and abs(obj.speed_y) > obj.max_speed_y then
+                    obj.speed_y = obj.max_speed_y * obj:direction_y()
+                end
 
-                if max_speed and obj.speed_y > max_speed then
-                    obj.speed_y = max_speed
+                if obj.world.max_speed_y
+                    and obj.speed_y > obj.world.max_speed_y
+                then
+                    obj.speed_y = obj.world.max_speed_y
                 end
 
                 ---@type JM.Physics.Collisions
@@ -646,16 +663,7 @@ do
 
                 if col.n > 0 then -- had collision!
 
-                    self:refresh(col.end_x)
-
-                    local r = self.on_wall_coll_action
-                        and self.on_wall_coll_action(col)
-
-                    if self.bouncing_x then
-                        self.speed_x = -self.speed_x * self.bouncing_x
-                    else
-                        self.speed_x = 0
-                    end
+                    obj:resolve_collisions_x(col)
 
                 else -- no collisions
 

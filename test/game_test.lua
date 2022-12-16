@@ -772,14 +772,15 @@ Game:implements(
 
         keypressed = function(key)
             if key == "space" then
-                if not rec.jump then
-                    rec.jump = true
-                    rec.body:jump(32 * 3.5)
-                end
+                rec.body:jump(32 * 3.5)
             end
 
             if key == "s" then
-                rec.body:dash(32 * 5)
+                if love.keyboard.isDown("left") then
+                    rec.body:dash(32 * 5, -1)
+                else
+                    rec.body:dash(32 * 5, 1)
+                end
             end
 
             if key == "p" then
