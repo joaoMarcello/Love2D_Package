@@ -82,8 +82,8 @@ Anima:new(
         frames = 6,
         duration = 0.5,
         height = 64,
-        ref_height = 64
-        -- amount_cycle = 2
+        ref_height = 64,
+        amount_cycle = 2
     }
 )
 
@@ -125,27 +125,31 @@ local function change_animation(new_anima, last_anima)
 
     new_anima:reset()
     current_animation = new_anima
-    current_animation:set_flip_x(last_anima:__is_flipped_in_x())
+    current_animation:set_flip_x(last_anima:is_flipped_in_x())
     my_effect:apply(new_anima, false)
     my_effect:update(love.timer.getDelta())
 end
 
-monica_idle_normal:set_custom_action(
----@param self JM.Anima
-    function(self)
-        if self.time_paused > 0 then
-            change_animation(monica_idle_blink, self)
+monica_idle_normal:on_event("update",
+    function()
+        if monica_idle_normal.time_paused > 0 then
+            change_animation(monica_idle_blink, monica_idle_normal)
         end
     end
 )
 
-monica_idle_blink:set_custom_action(
----@param self JM.Anima
-    function(self)
-        if self.time_paused > 0 then
+monica_idle_blink:on_event("update",
+    function()
+        if monica_idle_blink.time_paused > 0 then
             monica_idle_normal:set_max_cycle(love.math.random(2, 4))
-            change_animation(monica_idle_normal, self)
+            change_animation(monica_idle_normal, monica_idle_blink)
         end
+    end
+)
+
+monica_run:on_event("frame_change",
+    function()
+        current_animation:set_color({ math.random(), math.random(), math.random(), 1 })
     end
 )
 

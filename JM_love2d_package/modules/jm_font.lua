@@ -556,7 +556,7 @@ function Font:print(text, x, y, w, h, __i__, __color__, __x_origin__, __format__
 
                 char_obj.__anima:set_size(
                     nil, self.__font_size * 1.4,
-                    nil, char_obj.__anima:__get_current_frame().h
+                    nil, char_obj.__anima:get_current_frame().h
                 )
 
                 char_obj:draw(tx + char_obj.w / 2 * char_obj.sx,
@@ -641,7 +641,7 @@ do
 
                         char_obj.__anima:set_size(
                             nil, self.__font_size * 1.4,
-                            nil, char_obj.__anima:__get_current_frame().h
+                            nil, char_obj.__anima:get_current_frame().h
                         )
 
                         char_obj:draw(tx + char_obj.w / 2 * char_obj.sx,

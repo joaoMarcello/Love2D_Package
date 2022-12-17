@@ -266,8 +266,9 @@ do
 
     ---@param name JM.Physics.EventNames
     function Body:remove_event(name)
-        if not self.events or not name then return end
-        self.events[name] = nil
+        local evt_type = BodyEvents[name]
+        if not self.events or not evt_type then return end
+        self.events[evt_type] = nil
     end
 
     function Body:remove_extra_filter()

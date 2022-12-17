@@ -66,7 +66,7 @@ local function change_animation(new_anima, last_anima)
 
     new_anima:reset()
     current_animation = new_anima
-    current_animation:set_flip_x(last_anima:__is_flipped_in_x())
+    current_animation:set_flip_x(last_anima:is_flipped_in_x())
     my_effect:apply(new_anima, false)
     my_effect:update(love.timer.getDelta())
 end

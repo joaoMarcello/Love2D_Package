@@ -207,7 +207,7 @@ function Word:draw(x, y, __max_char__, __character_count__)
         else
             cur_char.__anima:set_size(
                 nil, self.__font.__font_size * 1.4,
-                nil, cur_char.__anima:__get_current_frame().h
+                nil, cur_char.__anima:get_current_frame().h
             )
 
             local pos_y = y + cur_char.h / 2 * cur_char.sy
