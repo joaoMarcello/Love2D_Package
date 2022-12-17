@@ -231,6 +231,7 @@ do
         self.is_stucked = nil
 
         self.allowed_air_dacc = false
+        self.allowed_gravity = true
 
         self.shape = BodyShapes.rectangle
 
@@ -566,23 +567,24 @@ do
 
     ---@param col JM.Physics.Collisions
     function Body:resolve_collisions_y(col)
+
         if col.n > 0 then -- collision!
 
             self:refresh(nil, col.end_y)
 
+            if self.bouncing_y then
+                self.speed_y = -self.speed_y * self.bouncing_y
+
+                if abs(self.speed_y) <= sqrt(2 * self.acc_y * 2) then
+                    self.speed_y = 0
+                end
+            else
+                self.speed_y = 0
+            end
+
             dispatch_event(self, BodyEvents.axis_y_collision)
 
             if col.diff_y >= 0 then -- body hit the floor/ground
-
-                if self.bouncing_y then
-                    self.speed_y = -self.speed_y * self.bouncing_y
-
-                    if abs(self.speed_y) <= sqrt(2 * self.acc_y * 2) then
-                        self.speed_y = 0
-                    end
-                else
-                    self.speed_y = 0
-                end
 
                 if not self.ground then
                     dispatch_event(self, BodyEvents.ground_touch)
@@ -597,7 +599,6 @@ do
                 end
 
                 self.ceil = col.most_bottom
-                self.speed_y = 0
             end
         end
     end
@@ -606,6 +607,12 @@ do
     function Body:resolve_collisions_x(col)
         if col.n > 0 then
             self:refresh(col.end_x)
+
+            if self.bouncing_x then
+                self.speed_x = -self.speed_x * self.bouncing_x
+            else
+                self.speed_x = 0
+            end
 
             dispatch_event(self, BodyEvents.axis_x_collision)
 
@@ -623,11 +630,7 @@ do
                 self.wall_right = col.most_right
             end
 
-            if self.bouncing_x then
-                self.speed_x = -self.speed_x * self.bouncing_x
-            else
-                self.speed_x = 0
-            end
+
         end
     end
 
@@ -639,7 +642,9 @@ do
             local goalx, goaly
 
             -- applying the gravity
-            obj:apply_force(nil, obj:weight())
+            if obj.allowed_gravity then
+                obj:apply_force(nil, obj:weight())
+            end
 
             -- falling
             if (obj.acc_y ~= 0) or (obj.speed_y ~= 0) then

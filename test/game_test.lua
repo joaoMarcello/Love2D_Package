@@ -608,6 +608,10 @@ Game:implements(
                     rec.body:jump(32 * 3.5)
                 end
             )
+            rec.body:on_event("axis_x_collision", function()
+                rec.body.speed_y = 0
+                rec.body:jump(32 * 3.5)
+            end)
             rec.update = function(self, dt)
                 local rbody
                 ---@type JM.Physics.Body
