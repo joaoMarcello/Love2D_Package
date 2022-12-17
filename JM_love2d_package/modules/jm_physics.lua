@@ -20,6 +20,17 @@ local BodyShapes = {
     circle = 8
 }
 
+---@enum JM.Physics.BodyEventOptions
+local BodyEvents = {
+    ground_touch = 0,
+    ceil_touch = 1,
+    wall_left_touch = 2,
+    wall_right_touch = 3,
+    axis_x_collision = 4,
+    axis_y_collision = 5,
+    start_falling = 6,
+}
+
 ---@alias JM.Physics.Cell {count:number, x:number, y:number, items:table}
 
 ---@alias JM.Physics.Collisions {items: table,n:number, top:number, left:number, right:number, bottom:number, most_left:JM.Physics.Body, most_right:JM.Physics.Body, most_up:JM.Physics.Body, most_bottom:JM.Physics.Body, diff_x:number, diff_y:number, end_x: number, end_y: number}
@@ -124,6 +135,7 @@ local function kinematic_moves_dynamic_y(kbody, goaly)
             bd = col.items[i]
 
             bd:refresh(nil, bd.y + col.diff_y)
+            bd.speed_y = 0
 
             local col_bd
             col_bd = bd:check(nil, nil, function(obj, item)
@@ -136,8 +148,8 @@ local function kinematic_moves_dynamic_y(kbody, goaly)
                 end
             end
 
-            bd = nil
             col_bd = nil
+            bd = nil
         end
     end
 
@@ -207,9 +219,35 @@ do
         self.shape = BodyShapes.rectangle
 
         -- TODO
-        self.hit_box = nil
+        self.hit_boxes = nil
+        self.hurt_boxes = nil
+
+        self.events = {}
 
         self:extra_collisor_filter(default_filter)
+    end
+
+    ---@alias JM.Physics.Event {type:JM.Physics.BodyEventOptions, action:function, args:any}
+
+    ---@param name "ground_touch"|"ceil_touch"|"wall_left_touch"|"wall_right_touch"|"axis_x_collision"|"axis_y_collision"|"start_falling"
+    ---@param action function
+    ---@param args any
+    function Body:on_event(name, action, args)
+        local evt_type = BodyEvents[name]
+        if not evt_type then return end
+
+        self.events = self.events or {}
+
+        self.events[evt_type] = {
+            type = evt_type,
+            action = action,
+            args = args
+        }
+    end
+
+    function Body:remove_event(name)
+        if not self.events or not name then return end
+        self.events[name] = nil
     end
 
     function Body:remove_extra_filter()
@@ -293,18 +331,6 @@ do
 
     function Body:weight()
         return self.world.gravity * (self.mass / self.world.default_mass)
-    end
-
-    function Body:on_ground_collision(action)
-        self.on_ground_coll_action = action
-    end
-
-    function Body:on_wall_collision(action)
-        self.on_wall_coll_action = action
-    end
-
-    function Body:on_ceil_collision(action)
-        self.on_ceil_coll_action = action
     end
 
     function Body:on_starting_falling(action)
@@ -531,12 +557,16 @@ do
 
             self:refresh(nil, col.end_y)
 
+            ---@type JM.Physics.Event
+            local evt = self.events[BodyEvents.axis_y_collision]
+            local r = evt and evt.action(evt.args)
+
             if col.diff_y >= 0 then -- body hit the floor/ground
 
-                local r = self.on_ground_coll_action and not self.ground
-                    and self.on_ground_coll_action(col)
-
                 self.ground = col.most_up
+
+                evt = self.events[BodyEvents.ground_touch]
+                r = evt and evt.action(evt.args)
 
                 if self.bouncing_y then
                     self.speed_y = -self.speed_y * self.bouncing_y
@@ -549,10 +579,10 @@ do
 
             else -- body hit the ceil
 
-                local r = self.on_ceil_coll_action and not self.ceil
-                    and self.on_ceil_coll_action(col)
-
                 self.ceil = col.most_bottom
+
+                evt = self.events[BodyEvents.ceil_touch]
+                r = evt and evt.action(evt.args)
 
                 self.speed_y = 0
             end
@@ -564,8 +594,21 @@ do
         if col.n > 0 then
             self:refresh(col.end_x)
 
-            local r = self.on_wall_coll_action
-                and self.on_wall_coll_action(col)
+            do
+                ---@type JM.Physics.Event
+                local evt = self.events[BodyEvents.axis_x_collision]
+                local r = evt and evt.action(evt.args)
+
+                if col.diff_x < 0 then
+                    evt = self.events[BodyEvents.wall_left_touch]
+                    r = evt and evt.action(evt.args)
+                end
+
+                if col.diff_x > 0 then
+                    evt = self.events[BodyEvents.wall_right_touch]
+                    r = evt and evt.action(evt.args)
+                end
+            end
 
             if self.bouncing_x then
                 self.speed_x = -self.speed_x * self.bouncing_x

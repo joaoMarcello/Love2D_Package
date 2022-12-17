@@ -383,16 +383,18 @@ Game:implements(
                 ball.time = ball.time + dt
                 if ball.time >= 1.5 then
                     ball.time = ball.time - 1.5
-                    ball.body:jump(32 / 4)
+                    -- ball.body:jump(32 / 4)
                 end
             end
-            ball.body:on_wall_collision(
+            ball.body:on_event(
+                "axis_x_collision",
                 function()
                     ball.body:jump(32 / 4)
                 end
             )
 
             components[ball] = true
+
 
             obj = {
                 acc = -32 * 4,
@@ -408,6 +410,7 @@ Game:implements(
                 love.graphics.rectangle("fill", body:rect())
                 body = nil
             end
+            obj.body:set_mass(obj.body.mass)
             obj.update = function(self, dt)
                 -- if obj.body.y < 32 * 3 then
                 --     obj.body:refresh(nil, 32 * 3)
@@ -415,10 +418,10 @@ Game:implements(
                 -- end
                 -- obj.body.speed_y = obj.speed
             end
-
-            obj.body:on_ground_collision(
+            obj.body:on_event("ground_touch",
                 function()
-                    obj.speed = -obj.speed
+                    obj.body.speed_y = 0
+                    obj.body:jump(32 * 3)
                 end
             )
 
@@ -574,13 +577,13 @@ Game:implements(
             rec.body.max_speed_x = rec.max_speed
             rec.body.allowed_air_dacc = true
             -- rec.body.mass = rec.body.mass * 1.5
-            rec.body:on_ground_collision(
+            rec.body:on_event("ground_touch",
                 function()
                     -- rec.body.mass = world.default_mass
 
-                    -- if rec.body.speed_y > 180 then
-                    --     Game:main_camera():shake_in_y(0.05, 5, 0.2, 0.1)
-                    -- end
+                    if rec.body.speed_y > 180 then
+                        Game:main_camera():shake_in_y(0.05, 5, 0.2, 0.1)
+                    end
                 end
             )
             rec.body:on_starting_falling(
