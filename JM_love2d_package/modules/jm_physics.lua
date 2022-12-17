@@ -29,6 +29,14 @@ local BodyEvents = {
     axis_x_collision = 4,
     axis_y_collision = 5,
     start_falling = 6,
+    speed_y_change_direction = 7,
+    speed_x_change_direction = 8,
+    leaving_ground = 9,
+    leaving_ceil = 10,
+    leaving_y_axis_body = 11,
+    leaving_wall_left = 12,
+    leaving_wall_right = 13,
+    leaving_x_axis_body = 14
 }
 
 ---@alias JM.Physics.Cell {count:number, x:number, y:number, items:table}
@@ -155,6 +163,14 @@ local function kinematic_moves_dynamic_y(kbody, goaly)
 
 end
 
+---@param body JM.Physics.Body
+---@param type_ JM.Physics.BodyEventOptions
+local function dispatch_event(body, type_)
+    ---@type JM.Physics.Event
+    local evt = body.events[type_]
+    local r = evt and evt.action(evt.args)
+end
+
 --=============================================================================
 ---@class JM.Physics.Body
 local Body = {}
@@ -229,7 +245,9 @@ do
 
     ---@alias JM.Physics.Event {type:JM.Physics.BodyEventOptions, action:function, args:any}
 
-    ---@param name "ground_touch"|"ceil_touch"|"wall_left_touch"|"wall_right_touch"|"axis_x_collision"|"axis_y_collision"|"start_falling"
+    ---@alias JM.Physics.EventNames "ground_touch"|"ceil_touch"|"wall_left_touch"|"wall_right_touch"|"axis_x_collision"|"axis_y_collision"|"start_falling"|"speed_y_change_direction"|"speed_x_change_direction"|"leaving_ground"|"leaving_ceil"|"leaving_y_axis_body"|"leaving_wall_left"|"leaving_wall_right"|"leaving_x_axis_body"
+
+    ---@param name JM.Physics.EventNames
     ---@param action function
     ---@param args any
     function Body:on_event(name, action, args)
@@ -245,6 +263,7 @@ do
         }
     end
 
+    ---@param name JM.Physics.EventNames
     function Body:remove_event(name)
         if not self.events or not name then return end
         self.events[name] = nil
@@ -263,7 +282,7 @@ do
         self.mass = mass
     end
 
-    function Body:set_position(x, y)
+    function Body:set_position(x, y, resolve_collisions)
         self:refresh(x, y)
     end
 
@@ -317,8 +336,6 @@ do
 
         direction = direction or -1
 
-        self.ground = nil
-
         self.speed_y = sqrt(2 * self:weight() * desired_height) * direction
     end
 
@@ -331,10 +348,6 @@ do
 
     function Body:weight()
         return self.world.gravity * (self.mass / self.world.default_mass)
-    end
-
-    function Body:on_starting_falling(action)
-        self.on_start_falling_action = action
     end
 
     function Body:refresh(x, y, w, h)
@@ -557,19 +570,13 @@ do
 
             self:refresh(nil, col.end_y)
 
-            ---@type JM.Physics.Event
-            local evt = self.events[BodyEvents.axis_y_collision]
-            local r = evt and evt.action(evt.args)
+            dispatch_event(self, BodyEvents.axis_y_collision)
 
             if col.diff_y >= 0 then -- body hit the floor/ground
 
-                self.ground = col.most_up
-
-                evt = self.events[BodyEvents.ground_touch]
-                r = evt and evt.action(evt.args)
-
                 if self.bouncing_y then
                     self.speed_y = -self.speed_y * self.bouncing_y
+
                     if abs(self.speed_y) <= sqrt(2 * self.acc_y * 2) then
                         self.speed_y = 0
                     end
@@ -577,13 +584,19 @@ do
                     self.speed_y = 0
                 end
 
+                if not self.ground then
+                    dispatch_event(self, BodyEvents.ground_touch)
+                end
+
+                self.ground = col.most_up
+
             else -- body hit the ceil
 
+                if not self.ceil then
+                    dispatch_event(self, BodyEvents.ceil_touch)
+                end
+
                 self.ceil = col.most_bottom
-
-                evt = self.events[BodyEvents.ceil_touch]
-                r = evt and evt.action(evt.args)
-
                 self.speed_y = 0
             end
         end
@@ -594,20 +607,20 @@ do
         if col.n > 0 then
             self:refresh(col.end_x)
 
-            do
-                ---@type JM.Physics.Event
-                local evt = self.events[BodyEvents.axis_x_collision]
-                local r = evt and evt.action(evt.args)
+            dispatch_event(self, BodyEvents.axis_x_collision)
 
-                if col.diff_x < 0 then
-                    evt = self.events[BodyEvents.wall_left_touch]
-                    r = evt and evt.action(evt.args)
+            if col.diff_x < 0 then
+                if not self.wall_left then
+                    dispatch_event(self, BodyEvents.wall_left_touch)
                 end
+                self.wall_left = col.most_left
+            end
 
-                if col.diff_x > 0 then
-                    evt = self.events[BodyEvents.wall_right_touch]
-                    r = evt and evt.action(evt.args)
+            if col.diff_x > 0 then
+                if not self.wall_right then
+                    dispatch_event(self, BodyEvents.wall_right_touch)
                 end
+                self.wall_right = col.most_right
             end
 
             if self.bouncing_x then
@@ -638,14 +651,23 @@ do
                 -- speed up with acceleration
                 obj.speed_y = obj.speed_y + obj.acc_y * dt
 
+                -- checking if reach max speed y
                 if obj.max_speed_y and abs(obj.speed_y) > obj.max_speed_y then
                     obj.speed_y = obj.max_speed_y * obj:direction_y()
                 end
 
+                -- cheking if reach the global max speed
                 if obj.world.max_speed_y
                     and obj.speed_y > obj.world.max_speed_y
                 then
                     obj.speed_y = obj.world.max_speed_y
+                end
+
+                -- executing the "speed_y_change_direction" event
+                if last_sy < 0 and obj.speed_y > 0
+                    or (last_sy > 0 and obj.speed_y < 0)
+                then
+                    dispatch_event(obj, BodyEvents.speed_y_change_direction)
                 end
 
                 ---@type JM.Physics.Collisions
@@ -654,8 +676,19 @@ do
                 if col.n > 0 then -- collision!
 
                     obj:resolve_collisions_y(col)
-
                 else
+                    if obj.ground then
+                        dispatch_event(obj, BodyEvents.leaving_ground)
+                    end
+
+                    if obj.ceil then
+                        dispatch_event(obj, BodyEvents.leaving_ceil)
+                    end
+
+                    if obj.ground or obj.ceil then
+                        dispatch_event(obj, BodyEvents.leaving_y_axis_body)
+                    end
+
                     obj.ground = nil
                     obj.ceil = nil
 
@@ -667,11 +700,10 @@ do
                 end
 
                 if last_sy <= 0 and obj.speed_y > 0 then
-                    local r = obj.on_start_falling_action
-                        and obj.on_start_falling_action()
+                    dispatch_event(self, BodyEvents.start_falling)
                 end
             end
-
+            --=================================================================
             -- moving in x axis
             if (obj.acc_x ~= 0) or (obj.speed_x ~= 0) then
                 local last_sx = obj.speed_x
@@ -688,6 +720,12 @@ do
                 then
                     obj.speed_x = obj.max_speed_x
                         * obj:direction_x()
+                end
+
+                if (last_sx < 0 and obj.speed_x > 0 and obj.acc_x > 0)
+                    or (last_sx > 0 and obj.speed_x < 0 and obj.acc_x < 0)
+                then
+                    dispatch_event(obj, BodyEvents.speed_x_change_direction)
                 end
 
                 -- dacc
@@ -709,6 +747,21 @@ do
                     obj:resolve_collisions_x(col)
 
                 else -- no collisions
+
+                    if obj.wall_left then
+                        dispatch_event(obj, BodyEvents.leaving_wall_left)
+                    end
+
+                    if obj.wall_right then
+                        dispatch_event(obj, BodyEvents.leaving_wall_right)
+                    end
+
+                    if obj.wall_left or obj.wall_right then
+                        dispatch_event(obj, BodyEvents.leaving_x_axis_body)
+                    end
+
+                    obj.wall_left = nil
+                    obj.wall_right = nil
 
                     if is_kinematic(obj) then
                         kinematic_moves_dynamic_x(obj, goalx)

@@ -420,8 +420,7 @@ Game:implements(
             end
             obj.body:on_event("ground_touch",
                 function()
-                    obj.body.speed_y = 0
-                    obj.body:jump(32 * 3)
+                    obj.body:jump(32 * 2)
                 end
             )
 
@@ -581,16 +580,32 @@ Game:implements(
                 function()
                     -- rec.body.mass = world.default_mass
 
-                    if rec.body.speed_y > 180 then
-                        Game:main_camera():shake_in_y(0.05, 5, 0.2, 0.1)
-                    end
+                    current_animation:set_color({ math.random(), math.random(), math.random(), 1 })
+
+                    -- if rec.body.speed_y > 180 then
+                    --     Game:main_camera():shake_in_y(0.05, 5, 0.2, 0.1)
+                    -- end
                 end
             )
-            rec.body:on_starting_falling(
+            rec.body:on_event(
+                "ceil_touch",
+                function()
+                    Game:main_camera():shake_in_y(0.05, 5, 0.2, 0.1)
+                end
+            )
+            rec.body:on_event(
+                "start_falling",
                 function()
                     -- rec.body.mass = rec.body.mass * 1.5
                     -- current_animation:set_color({ math.random(), math.random(), math.random(), 1 })
                     -- rec.body.speed_y = 200 * 2
+                end
+            )
+            rec.body:on_event(
+                "leaving_ground",
+                function()
+                    rec.body.speed_y = 0
+                    rec.body:jump(32 * 3.5)
                 end
             )
             rec.update = function(self, dt)
