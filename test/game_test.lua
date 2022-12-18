@@ -1,27 +1,22 @@
-local Screen = require("/JM_love2d_package/modules/jm_scene")
-local JM_package = require("/JM_love2d_package/JM_package")
+local JM_package = require("/JM_love2d_package/init")
+local Screen = JM_package.Scene
 local Anima = JM_package.Anima
 local FontGenerator = JM_package.Font
 local EffectManager = JM_package.EffectGenerator
-local Physics = require("/JM_love2d_package/modules/jm_physics")
+local Physics = JM_package.Physics
 
--- local Consolas = FontGenerator:new({ name = "consolas", font_size = 14 })
--- Consolas:add_nickname_animated("--goomba--", {
---     img = "/data/goomba.png",
---     frames_list = { { 27, 85, 17, 89 },
---         { 150, 209, 17, 89 },
---         { 271, 331, 17, 89 },
---         { 391, 460, 17, 88 },
---         { 516, 579, 17, 89 },
---         { 637, 695, 17, 88 },
---         { 764, 821, 17, 89 },
---         { 888, 944, 17, 88 },
---         { 1006, 1070, 17, 88 }
---     },
---     duration = 1,
---     is_reversed = false,
---     state = "looping"
--- })
+local Consolas = FontGenerator:new({
+    name = "consolas",
+    font_size = 12,
+    tab_size = 4,
+})
+
+local text = "<color, 0.2, 0.2, 0.2> Caro senhor --a--rroz<italic>Potter,</italic> \n \n \tChegou ao conhecimento do Ministério que o senhor executou o <italic>feitiço do patrono</italic> na presença de um trouxa.\n \tSendo uma grave violação ao <italic>'Regulamento de Restrição à Prática de Magia por Menores',</italic> o senhor está expulso da <bold>Escola de Magia e Bruxaria de Hogwarts.\n \n \n </bold>\t\t\tEsperando que esteja bem,\n \t\t\t\t\t<italic>Mafalda Hopkins --goomba--</bold> "
+
+local text2 = "\tAquele que\n h--a-- habita no <italic>esconderijo</italic> do altíssimo, <color>à <color, 0, 0, 1>sombra do <color, 0.7, 0.5, 0.1>onipotente</color> --goomba-- descansará\n \n \tDiz ao Senhor, meu refúgio e meu baluarte. Deus meu em quem confio.\n \n \tPois ele te livrará do <color, 0,0,1>laço do <color, 1, 0, 0>passarinheiro</color> e da peste perniciosa. Cobrir-te-á com suas penas e sob suas asas estarás seguro. Tua verdade é <bold>pavê e escudo.</bold>"
+
+text = ""
+
 
 local function round(value)
     local absolute = math.abs(value)
@@ -1001,7 +996,11 @@ Game:implements(
                 end,
                 name = "physics bodies"
             }
-        }
+        },
+
+        draw = function()
+            Consolas:printf(text, 20, 20, "left", 300)
+        end
     }
 )
 

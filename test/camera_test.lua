@@ -1,4 +1,4 @@
-local JM_package = require("/JM_love2d_package/JM_package")
+local JM_package = require("JM_love2d_package.init")
 local Camera = JM_package.Camera
 
 local main = {}
