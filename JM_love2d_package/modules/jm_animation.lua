@@ -25,7 +25,7 @@ local Event = {
 ---@alias JM.Anima.EventNames "frame_change"|"pause"|"update"
 
 
----@enum AnimaStates
+---@enum JM.Anima.States
 local ANIMA_STATES = {
     looping = 1,
     back_and_forth = 2,
@@ -513,20 +513,22 @@ function Anima:update(dt)
     -- Executing the custom update action
     dispatch_event(self, Event.update)
 
-    if self.__is_paused or
-        (self.max_cycle and self.cycle_count >= self.max_cycle)
+    if self.__is_paused
+    -- or (self.max_cycle and self.cycle_count >= self.max_cycle)
     then
 
         self.time_paused = (self.time_paused + dt) % 5000000
         return
     end
 
+    local last_frame = self.current_frame
+    local speed = self:get_current_frame().speed or self.speed
 
     self.time_frame = self.time_frame + dt
 
-    if self.time_frame >= self.speed then
+    if self.time_frame >= speed then
 
-        self.time_frame = self.time_frame - self.speed
+        self.time_frame = self.time_frame - speed
 
         dispatch_event(self, Event.frame_change)
 
@@ -556,10 +558,10 @@ function Anima:update(dt)
                     self.current_frame = 1
                     self.cycle_count = (self.cycle_count + 1) % 600000
 
-                    if self.__stop_at_the_end then
-                        self.current_frame = self.__amount_frames
-                        self:pause()
-                    end
+                    -- if self.__stop_at_the_end then
+                    --     self.current_frame = self.__amount_frames
+                    --     self:pause()
+                    -- end
 
                 elseif is_in_repeating_last_n_state(self) then
                     self.current_frame = self.current_frame - self.__N__
@@ -568,18 +570,19 @@ function Anima:update(dt)
                 else -- ELSE: animation is in "back and forth" state
 
                     self.current_frame = self.__amount_frames
-                    self.time_frame = self.time_frame + self.speed
+                    self.time_frame = self.time_frame + speed
                     self.direction = -self.direction
 
                     if self.direction == self.initial_direction then
                         self.cycle_count = (self.cycle_count + 1) % 600000
                     end
 
-                    if self.__stop_at_the_end
-                        and self.direction == self.initial_direction then
+                    -- if self.__stop_at_the_end
+                    --     and self.direction == self.initial_direction
+                    -- then
 
-                        self:pause()
-                    end
+                    --     self:pause()
+                    -- end
                 end -- END ELSE animation in "back and forth" state
 
             end -- END ELSE if animation is repeating
@@ -592,10 +595,10 @@ function Anima:update(dt)
                     self.current_frame = self.__amount_frames
                     self.cycle_count = (self.cycle_count + 1) % 600000
 
-                    if self.__stop_at_the_end then
-                        self.current_frame = 1
-                        self:pause()
-                    end
+                    -- if self.__stop_at_the_end then
+                    --     self.current_frame = 1
+                    --     self:pause()
+                    -- end
 
                 elseif is_in_repeating_last_n_state(self) then
                     self.current_frame = self.__N__
@@ -603,23 +606,36 @@ function Anima:update(dt)
 
                 else -- ELSE animation is not repeating
                     self.current_frame = 1
-                    self.time_frame = self.time_frame + self.speed
-                    self.direction = self.direction * -1
+                    self.time_frame = self.time_frame + speed
+                    self.direction = self.direction * (-1)
 
                     if self.direction == self.initial_direction then
                         self.cycle_count = (self.cycle_count + 1) % 600000
                     end
 
-                    if self.__stop_at_the_end
-                        and self.direction == self.initial_direction then
+                    -- if self.__stop_at_the_end
+                    --     and self.direction == self.initial_direction then
 
-                        self:pause()
-                    end
+                    --     self:pause()
+                    -- end
+
                 end -- END ELSE animation is not repeating
             end
         end -- END if in normal direction (positive direction)
 
     end -- END IF time update bigger than speed
+
+    if (self.max_cycle and self.cycle_count >= self.max_cycle) then
+        self:pause()
+    end
+
+    if self.__stop_at_the_end and self.cycle_count >= 1
+        and not is_in_repeating_last_n_state(self)
+    then
+        self.cycle_count = 0
+        self.current_frame = last_frame
+        self:pause()
+    end
 
 end -- END update function
 

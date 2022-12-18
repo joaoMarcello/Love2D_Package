@@ -125,20 +125,20 @@ local function change_animation(new_anima, last_anima)
     my_effect:update(love.timer.getDelta())
 end
 
-monica_idle_normal:on_event("update",
+monica_idle_normal:on_event("pause",
     function()
-        if monica_idle_normal.time_paused > 0 then
-            change_animation(monica_idle_blink, monica_idle_normal)
-        end
+        -- if monica_idle_normal.time_paused > 0 then
+        change_animation(monica_idle_blink, monica_idle_normal)
+        -- end
     end
 )
 
-monica_idle_blink:on_event("update",
+monica_idle_blink:on_event("pause",
     function()
-        if monica_idle_blink.time_paused > 0 then
-            monica_idle_normal:set_max_cycle(love.math.random(2, 4))
-            change_animation(monica_idle_normal, monica_idle_blink)
-        end
+        -- if monica_idle_blink.time_paused > 0 then
+        monica_idle_normal:set_max_cycle(love.math.random(2, 4))
+        change_animation(monica_idle_normal, monica_idle_blink)
+        -- end
     end
 )
 
@@ -297,6 +297,28 @@ local light_lines
 
 ---@type JM.Anima
 local light_lines2
+
+local goomba_anim = Anima:new({
+    img = "/data/goomba.png",
+    frames_list = { { 27, 85, 17, 89 },
+        { 150, 209, 17, 89 },
+        { 271, 331, 17, 89 },
+        { 391, 460, 17, 88 },
+        { 516, 579, 17, 89 },
+        { 637, 695, 17, 88 },
+        { 764, 821, 17, 89 },
+        { 888, 944, 17, 88 },
+        { 1006, 1070, 17, 88 }
+    },
+    duration = 2,
+    is_reversed = true,
+    state = "looping",
+    stop_at_the_end = true
+})
+
+goomba_anim:on_event("pause", function()
+    goomba_anim:set_color({ 1, 0, 0, 1 })
+end)
 
 --==========================================================================
 Game:implements(
@@ -739,6 +761,8 @@ Game:implements(
         update = function(dt)
             world:update(dt)
 
+            goomba_anim:update(dt)
+
             for c in pairs(components) do
                 local r = c.update and c:update(dt)
             end
@@ -1000,6 +1024,7 @@ Game:implements(
 
         draw = function()
             Consolas:printf(text, 20, 20, "left", 300)
+            goomba_anim:draw(300, 200)
         end
     }
 )

@@ -19,41 +19,11 @@ function Affectable.__checks_implementation__(object)
 
     assert(object.set_color, "\nError: The class do not implements the required 'set_color' method.")
 
-    -- assert(object.__push,
-    --     "\nError: The class passed to Effect class constructor  do not implements the required '__push' method.")
-
-    -- assert(object.__pop,
-    --     "\nError: The class passed to Effect class constructor  do not implements the required '__pop' method.")
-
-    -- assert(object.__set_configuration,
-    --     "\nError: The class passed to Effect class constructor  do not implements the required '__set_configuration' method.")
-
-    -- assert(object.__get_configuration,
-    --     "\nError: The class passed to Effect class constructor  do not implements the required '__get_configuration' method.")
-
     assert(object.set_visible,
         "\nError: The class do not implements the required 'set_visible' method.")
 
     assert(object.__draw__,
         "\nError: The class do not implements the required '__draw__' method.")
-
-    -- assert(object.set_scale,
-    --     "\nError: The class passed to Effect class constructor  do not implements the required 'set_scale' method.")
-
-    -- assert(object.get_scale,
-    --     "\nError: The class passed to Effect class constructor  do not implements the required 'get_scale' method.")
-
-    -- assert(object.set_rotation,
-    --     "\nError: The class passed to Effect class constructor  do not implements the required 'set_rotation' method.")
-
-    -- assert(object.get_rotation,
-    --     "\nError: The class passed to Effect class constructor  do not implements the required 'get_rotation' method.")
-
-    -- assert(object.get_origin,
-    --     "\nError: The class passed to Effect class constructor  do not implements the required 'get_origin' method.")
-
-    -- assert(object.set_kx,
-    --     "\nError: The class passed to Effect class constructor  do not implements the required 'set_kx' method.")
 
     assert(object.__get_effect_transform,
         "\nError: The class do not implements the required '__get_effect_transform' method.")
