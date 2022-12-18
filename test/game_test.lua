@@ -315,7 +315,7 @@ local goomba_anim = Anima:new({
     state = "looping",
     -- stop_at_the_end = true
 })
-goomba_anim:config_frame(1, { ox = 0 })
+goomba_anim:config_frame(1, {})
 goomba_anim:on_event("pause", function()
     -- goomba_anim:set_color({ math.random(), math.random(), math.random(), 1 })
     -- goomba_anim:reset()
@@ -323,9 +323,9 @@ end)
 goomba_anim:on_event("frame_change", function()
     local frame = goomba_anim.current_frame
     if frame == 1 then
-        goomba_anim:set_color({ math.random(), math.random(), math.random(), 1 })
+        -- goomba_anim:set_color({ math.random(), math.random(), math.random(), 1 })
     elseif frame == 5 then
-        goomba_anim:set_color({ 1, 0, 0, 1 })
+        -- goomba_anim:set_color({ 1, 0, 0, 1 })
         -- Game:pause(0.3)
     end
 end)
@@ -637,7 +637,11 @@ Game:implements(
             )
             rec.body:on_event("axis_x_collision", function()
                 -- rec.body.speed_y = 0
-                -- rec.body:jump(32 * 3.5)
+                -- rec.body:jump(32 * 1)
+            end)
+            rec.body:on_event("leaving_x_axis_body", function()
+                -- rec.body.speed_y = 0
+                -- rec.body:jump(32 * 8)
             end)
             rec.update = function(self, dt)
                 local rbody

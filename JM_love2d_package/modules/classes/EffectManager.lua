@@ -272,26 +272,35 @@ function EffectManager:apply_effect(object, eff_type, effect_args, __only_get__)
     elseif eff_type == "heartBeat"
         or eff_type == Effect.TYPE.heartBeat
     then
+        local heartBeat = Idle:new(object, { duration = 0, __id__ = Effect.TYPE.heartBeat })
 
         local pulse = Pulse:new(object, { max_sequence = 2, speed = 0.3, range = 0.1, __id__ = Effect.TYPE.heartBeat })
         pulse.__rad = 0
 
-        local idle_eff = Flick:new(object, { duration = 1, __id__ = Effect.TYPE.heartBeat })
+        local idle_eff = Idle:new(object, { duration = 1, __id__ = Effect.TYPE.heartBeat })
 
         pulse:set_final_action(
             function()
-                idle_eff:apply(pulse:get_object(), true)
+                idle_eff:apply(heartBeat:get_object(), true)
             end
         )
 
         idle_eff:set_final_action(
             function()
-                pulse:apply(pulse:get_object(), true)
+                pulse:apply(heartBeat:get_object(), true)
                 pulse.__rad = 0
             end
         )
 
-        eff = pulse
+        heartBeat:set_final_action(function()
+            if pulse.__object == heartBeat:get_object() then
+                pulse:apply(heartBeat:get_object(), false)
+            else
+                idle_eff:apply(heartBeat:get_object(), false)
+            end
+        end)
+
+        eff = heartBeat
 
     elseif eff_type == "clickHere" or eff_type == Effect.TYPE.clickHere then
 
