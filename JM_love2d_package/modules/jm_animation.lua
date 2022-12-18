@@ -123,6 +123,27 @@ do
 end
 --===========================================================================
 
+---@param anima JM.Anima
+local function is_in_normal_direction(anima)
+    return anima.direction > 0
+end
+
+---@param anima JM.Anima
+local function is_in_looping_state(anima)
+    return anima.__current_state == ANIMA_STATES.looping
+end
+
+---@param anima JM.Anima
+local function is_in_repeating_last_n_state(anima)
+    return anima.__current_state == ANIMA_STATES.repeating_last_n_frames
+end
+
+---@param anima JM.Anima
+local function is_in_random_state(anima)
+    return anima.__current_state == ANIMA_STATES.random
+end
+
+--===========================================================================
 
 -- Class to animate.
 --- @class JM.Anima: JM.Affectable
@@ -130,12 +151,11 @@ end
 local Anima = {}
 
 
-
 ---
 --- Animation class constructor.
 ---
 --- @param args {img: love.Image|string, frames: number, frames_list: table,  speed: number, rotation: number, color: JM.Color, scale: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, stop_at_the_end: boolean, amount_cycle: number, state: JM.AnimaStates, bottom: number, kx: number, ky: number, width: number, height: number, ref_width: number, ref_height: number, duration: number, n: number}  # A table containing the following fields:
--- * img (Required): The source image for animation (could be a Love.Image or a string containing the file path). All the frames in the source image should be in the horizontal.
+-- * img (Required): The source image for animation (could be a Love.Image or a string containing the file path).
 -- * frames: The amount of frames in the animation.
 -- * speed: Time in seconds to update frame.
 --- @return JM.Anima animation # A instance of Anima class.
@@ -240,7 +260,10 @@ function Anima:__constructor__(args)
 end
 
 function Anima:copy()
-    return Anima:new(self.args)
+    local anim = Anima:new(self.args)
+    anim:set_color(self:get_color())
+    anim:set_scale(self:get_scale())
+    return anim
 end
 
 ---@param name JM.Anima.EventNames
@@ -313,7 +336,7 @@ end
 function Anima:stop_at_the_end(value, stop_action)
     self.__stop_at_the_end = value and true or false
 
-    if value then
+    if self.__stop_at_the_end and stop_action then
         self:on_event("pause", stop_action)
     end
 end
@@ -360,6 +383,8 @@ function Anima:set_scale(x, y)
     self.scale_y = y or self.scale_y
 end
 
+---@return number scale_x
+---@return number scale_y
 function Anima:get_scale()
     return self.scale_x, self.scale_y
 end
@@ -505,7 +530,7 @@ function Anima:update(dt)
 
         dispatch_event(self, Event.frame_change)
 
-        if self:is_in_random_state() then
+        if is_in_random_state(self) then
             local last_frame = self.current_frame
             local number = love.math.random(0, self.__amount_frames - 1)
 
@@ -521,23 +546,22 @@ function Anima:update(dt)
             return
         end -- END if animation is in random state
 
-        self.current_frame = self.current_frame
-            + (1 * self.direction)
+        self.current_frame = self.current_frame + (1 * self.direction)
 
-        if self:is_in_normal_direction() then
+        if is_in_normal_direction(self) then
 
             if self.current_frame > self.__amount_frames then
 
-                if self:is_in_looping_state() then
+                if is_in_looping_state(self) then
                     self.current_frame = 1
                     self.cycle_count = (self.cycle_count + 1) % 600000
 
-                    if self:is_stopping_at_the_end() then
+                    if self.__stop_at_the_end then
                         self.current_frame = self.__amount_frames
                         self:pause()
                     end
 
-                elseif self:is_in_repeating_last_n_state() then
+                elseif is_in_repeating_last_n_state(self) then
                     self.current_frame = self.current_frame - self.__N__
                     self.cycle_count = (self.cycle_count + 1)
 
@@ -551,7 +575,7 @@ function Anima:update(dt)
                         self.cycle_count = (self.cycle_count + 1) % 600000
                     end
 
-                    if self:is_stopping_at_the_end()
+                    if self.__stop_at_the_end
                         and self.direction == self.initial_direction then
 
                         self:pause()
@@ -564,16 +588,16 @@ function Anima:update(dt)
 
             if self.current_frame < 1 then
 
-                if self:is_in_looping_state() then
+                if is_in_looping_state(self) then
                     self.current_frame = self.__amount_frames
                     self.cycle_count = (self.cycle_count + 1) % 600000
 
-                    if self:is_stopping_at_the_end() then
+                    if self.__stop_at_the_end then
                         self.current_frame = 1
                         self:pause()
                     end
 
-                elseif self:is_in_repeating_last_n_state() then
+                elseif is_in_repeating_last_n_state(self) then
                     self.current_frame = self.__N__
                     self.cycle_count = (self.cycle_count + 1)
 
@@ -586,7 +610,7 @@ function Anima:update(dt)
                         self.cycle_count = (self.cycle_count + 1) % 600000
                     end
 
-                    if self:is_stopping_at_the_end()
+                    if self.__stop_at_the_end
                         and self.direction == self.initial_direction then
 
                         self:pause()
@@ -734,40 +758,6 @@ end
 
 function Anima:toggle_direction()
     self.direction = self.direction * -1
-end
-
----
---- Tells if animation should stop in the last frame.
----
----@return boolean result
-function Anima:is_stopping_at_the_end()
-    return self.__stop_at_the_end
-end
-
----
---- Tells if animation is in repeating state.
----@return boolean result
-function Anima:is_in_looping_state()
-    return self.__current_state == ANIMA_STATES.looping
-end
-
-function Anima:is_in_repeating_last_n_state()
-    return self.__current_state == ANIMA_STATES.repeating_last_n_frames
-end
-
----
---- Tells if animation is in random state.
----
----@return boolean result
-function Anima:is_in_random_state()
-    return self.__current_state == ANIMA_STATES.random
-end
-
----
---- Tells if the animation is normal mode.
----@return boolean result
-function Anima:is_in_normal_direction()
-    return self.direction > 0
 end
 
 function Anima:pause()
