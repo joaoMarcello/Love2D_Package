@@ -310,14 +310,24 @@ local goomba_anim = Anima:new({
         { 888, 944, 17, 88 },
         { 1006, 1070, 17, 88 }
     },
-    duration = 2,
-    is_reversed = true,
+    duration = 1,
+    is_reversed = false,
     state = "looping",
-    stop_at_the_end = true
+    -- stop_at_the_end = true
 })
-
+goomba_anim:config_frame(1, { ox = 0 })
 goomba_anim:on_event("pause", function()
-    goomba_anim:set_color({ 1, 0, 0, 1 })
+    -- goomba_anim:set_color({ math.random(), math.random(), math.random(), 1 })
+    -- goomba_anim:reset()
+end)
+goomba_anim:on_event("frame_change", function()
+    local frame = goomba_anim.current_frame
+    if frame == 1 then
+        goomba_anim:set_color({ math.random(), math.random(), math.random(), 1 })
+    elseif frame == 5 then
+        goomba_anim:set_color({ 1, 0, 0, 1 })
+        -- Game:pause(0.3)
+    end
 end)
 
 --==========================================================================

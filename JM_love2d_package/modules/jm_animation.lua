@@ -70,7 +70,7 @@ end
 --- Internal class Frame.
 local Frame = {}
 do
-    ---@param args {left: number, right:number, top:number, bottom:number, speed:number}
+    ---@param args {left: number, right:number, top:number, bottom:number, speed:number, ox:number, oy:number}
     function Frame:new(args)
         local obj = {}
         setmetatable(obj, self)
@@ -92,8 +92,8 @@ do
         self.y = top
         self.w = right - left
         self.h = bottom - top
-        self.ox = self.w / 2
-        self.oy = self.h / 2
+        self.ox = args.ox or (self.w / 2)
+        self.oy = args.oy or (self.h / 2)
 
         self.speed = args.speed or nil
 
@@ -264,6 +264,27 @@ function Anima:copy()
     anim:set_color(self:get_color())
     anim:set_scale(self:get_scale())
     return anim
+end
+
+---@param n integer
+---@param config {left:number, right:number, top:number, bottom:number, speed:number, ox:number, oy:number}
+function Anima:config_frame(n, config)
+
+    ---@type JM.Anima.Frame|nil
+    local frame = self.frames_list[n]
+
+    if not frame or not config then return end
+
+    config.left = config.left or frame.x
+    config.right = config.right or (frame.x + frame.w)
+    config.top = config.top or frame.y
+    config.bottom = config.bottom or frame.bottom
+    config.speed = config.speed or frame.speed
+    config.ox = config.ox or frame.ox
+    config.oy = config.oy or frame.oy
+
+    self.frames_list[n] = Frame:new(config)
+    frame = nil
 end
 
 ---@param name JM.Anima.EventNames
@@ -505,6 +526,7 @@ function Anima:update(dt)
 
     if not self.initial_direction then
         self.initial_direction = self.direction
+        dispatch_event(self, Event.frame_change)
     end
 
     -- updating the Effects
@@ -530,7 +552,7 @@ function Anima:update(dt)
 
         self.time_frame = self.time_frame - speed
 
-        dispatch_event(self, Event.frame_change)
+        -- dispatch_event(self, Event.frame_change)
 
         if is_in_random_state(self) then
             local last_frame = self.current_frame
@@ -624,6 +646,10 @@ function Anima:update(dt)
         end -- END if in normal direction (positive direction)
 
     end -- END IF time update bigger than speed
+
+    if last_frame ~= self.current_frame then
+        dispatch_event(self, Event.frame_change)
+    end
 
     if (self.max_cycle and self.cycle_count >= self.max_cycle) then
         self:pause()
