@@ -110,7 +110,7 @@ Anima:new(
     }
 )
 
-local my_effect = EffectManager:generate_effect("jelly", { color = { 0.9, 0.9, 0.9, 1 } })
+local my_effect = EffectManager:generate_effect("idle", { color = { 0.9, 0.9, 0.9, 1 } })
 local current_animation = monica_idle_normal
 my_effect:apply(current_animation)
 
@@ -147,11 +147,6 @@ monica_idle_blink:on_event("update",
     end
 )
 
-monica_run:on_event("frame_change",
-    function()
-        current_animation:set_color({ math.random(), math.random(), math.random(), 1 })
-    end
-)
 
 local shader_code_darken,
 shadercode2,
@@ -387,7 +382,7 @@ Game:implements(
                 ball.time = ball.time + dt
                 if ball.time >= 1.5 then
                     ball.time = ball.time - 1.5
-                    -- ball.body:jump(32 / 4)
+                    ball.body:jump(32 / 4)
                 end
             end
             ball.body:on_event(
@@ -584,7 +579,7 @@ Game:implements(
                 function()
                     -- rec.body.mass = world.default_mass
 
-                    current_animation:set_color({ math.random(), math.random(), math.random(), 1 })
+                    -- current_animation:set_color({ math.random(), math.random(), math.random(), 1 })
 
                     -- if rec.body.speed_y > 180 then
                     --     Game:main_camera():shake_in_y(0.05, 5, 0.2, 0.1)
@@ -600,7 +595,8 @@ Game:implements(
             rec.body:on_event(
                 "start_falling",
                 function()
-                    -- rec.body.mass = rec.body.mass * 1.5
+                    -- rec.body.mass = world.default_mass * 0.2
+
                     -- current_animation:set_color({ math.random(), math.random(), math.random(), 1 })
                     -- rec.body.speed_y = 200 * 2
                 end
@@ -608,13 +604,13 @@ Game:implements(
             rec.body:on_event(
                 "leaving_ground",
                 function()
-                    rec.body.speed_y = 0
-                    rec.body:jump(32 * 3.5)
+                    -- rec.body.speed_y = 0
+                    -- rec.body:jump(32 * 3.5)
                 end
             )
             rec.body:on_event("axis_x_collision", function()
-                rec.body.speed_y = 0
-                rec.body:jump(32 * 3.5)
+                -- rec.body.speed_y = 0
+                -- rec.body:jump(32 * 3.5)
             end)
             rec.update = function(self, dt)
                 local rbody

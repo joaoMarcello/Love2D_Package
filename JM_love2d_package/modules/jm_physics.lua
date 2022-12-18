@@ -232,6 +232,7 @@ do
 
         self.allowed_air_dacc = false
         self.allowed_gravity = true
+        self.allowed_speed_y_restriction = true
 
         self.shape = BodyShapes.rectangle
 
@@ -663,7 +664,7 @@ do
                 end
 
                 -- cheking if reach the global max speed
-                if obj.world.max_speed_y
+                if obj.world.max_speed_y and obj.allowed_speed_y_restriction
                     and obj.speed_y > obj.world.max_speed_y
                 then
                     obj.speed_y = obj.world.max_speed_y

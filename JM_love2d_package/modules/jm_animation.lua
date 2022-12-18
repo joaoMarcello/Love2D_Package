@@ -732,8 +732,7 @@ function Anima:is_flipped_in_x()
     return self.flip_x < 0
 end
 
---- Flips the animation.
-function Anima:flip()
+function Anima:toggle_direction()
     self.direction = self.direction * -1
 end
 
