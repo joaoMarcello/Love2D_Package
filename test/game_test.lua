@@ -78,7 +78,7 @@ Anima:new(
         duration = 0.5,
         height = 64,
         ref_height = 64,
-        amount_cycle = 2
+        -- amount_cycle = 2
     }
 )
 
@@ -109,7 +109,7 @@ local my_effect = EffectManager:generate_effect("idle", { color = { 0.9, 0.9, 0.
 local current_animation = monica_idle_normal
 my_effect:apply(current_animation)
 
--- monica_idle_normal:apply_effect("heartBeat")
+-- monica_idle_normal:apply_effect("pulse")
 
 ---@param new_anima JM.Anima
 ---@param last_anima JM.Anima
@@ -614,9 +614,9 @@ Game:implements(
                 end
             )
             rec.body:on_event(
-                "ceil_touch",
+                "speed_x_change_direction",
                 function()
-                    Game:main_camera():shake_in_y(0.05, 5, 0.2, 0.1)
+                    -- Game:main_camera():shake_in_y(0.05, 5, 0.2, 0.1)
                 end
             )
             rec.body:on_event(

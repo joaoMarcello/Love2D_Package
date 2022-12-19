@@ -730,18 +730,13 @@ do
                         * obj:direction_x()
                 end
 
-                if (last_sx < 0 and obj.speed_x > 0 and obj.acc_x > 0)
-                    or (last_sx > 0 and obj.speed_x < 0 and obj.acc_x < 0)
-                then
-                    dispatch_event(obj, BodyEvents.speed_x_change_direction)
-                end
-
                 -- dacc
-                if (obj.acc_x > 0 and last_sx < 0 and obj.speed_x >= 0)
-                    or (obj.acc_x < 0 and last_sx > 0 and obj.speed_x <= 0)
+                if (obj.acc_x >= 0 and last_sx < 0 and obj.speed_x >= 0)
+                    or (obj.acc_x <= 0 and last_sx > 0 and obj.speed_x <= 0)
                 then
                     obj.speed_x = 0
                     obj.acc_x = 0
+                    dispatch_event(obj, BodyEvents.speed_x_change_direction)
                 end
 
                 --- will store the body collisions with other bodies
