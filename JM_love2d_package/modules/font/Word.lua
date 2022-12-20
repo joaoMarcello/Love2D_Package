@@ -160,7 +160,7 @@ function Word:update(dt)
 end
 
 ---@param index number
----@return JM.Font.Character
+---@return JM.Font.Glyph
 function Word:__get_char_by_index(index)
     return self.__characters[index]
 end
@@ -184,7 +184,7 @@ function Word:get_height()
     return h
 end
 
----@alias JM.Font.CharacterPosition {x: number, y:number, char: JM.Font.Character}
+---@alias JM.Font.CharacterPosition {x: number, y:number, char: JM.Font.Glyph}
 
 ---@return JM.Font.CharacterPosition|nil
 function Word:draw(x, y, __max_char__, __character_count__)

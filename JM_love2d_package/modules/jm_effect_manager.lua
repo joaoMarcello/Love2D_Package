@@ -1,42 +1,42 @@
 local path = (...)
 
 ---@type JM.Effect
-local Effect = require(path:gsub("EffectManager", "Effect"))
+local Effect = require(path:gsub("jm_effect_manager", "effects.Effect"))
 
 ---@type JM.Effect.Flash
-local Flash = require(path:gsub("EffectManager", "Flash"))
+local Flash = require(path:gsub("jm_effect_manager", "effects.Flash"))
 
 ---@type JM.Effect.Flick
-local Flick = require(path:gsub("EffectManager", "Flick"))
+local Flick = require(path:gsub("jm_effect_manager", "effects.Flick"))
 
 ---@type JM.Effect.Pulse
-local Pulse = require(path:gsub("EffectManager", "Pulse"))
+local Pulse = require(path:gsub("jm_effect_manager", "effects.Pulse"))
 
 ---@type JM.Effect.Float
-local Float = require(path:gsub("EffectManager", "Float"))
+local Float = require(path:gsub("jm_effect_manager", "effects.Float"))
 
 ---@type JM.Effect.Swing
-local Idle = require(path:gsub("EffectManager", "Idle"))
+local Idle = require(path:gsub("jm_effect_manager", "effects.Idle"))
 
 ---@type JM.Effect.Rotate
-local Rotate = require(path:gsub("EffectManager", "Rotate"))
+local Rotate = require(path:gsub("jm_effect_manager", "effects.Rotate"))
 
 ---@type JM.Effect.Swing
-local Swing = require(path:gsub("EffectManager", "Swing"))
+local Swing = require(path:gsub("jm_effect_manager", "effects.Swing"))
 
 ---@type JM.Effect.Popin
-local Popin = require(path:gsub("EffectManager", "Popin"))
+local Popin = require(path:gsub("jm_effect_manager", "effects.Popin"))
 
 ---@type JM.Effect.Fadein
-local Fadein = require(path:gsub("EffectManager", "Fadein"))
+local Fadein = require(path:gsub("jm_effect_manager", "effects.Fadein"))
 
 ---@type JM.Effect.Ghost
-local Ghost = require(path:gsub("EffectManager", "Ghost"))
+local Ghost = require(path:gsub("jm_effect_manager", "effects.Ghost"))
 
 ---@type JM.Effect.Disc
-local Disc = require(path:gsub("EffectManager", "Disc"))
+local Disc = require(path:gsub("jm_effect_manager", "effects.Disc"))
 
-local Sample = require(path:gsub("EffectManager", "shader"))
+local Sample = require(path:gsub("jm_effect_manager", "effects.shader"))
 
 -- Global variable for control the unique id's from EffectManager class.
 ---

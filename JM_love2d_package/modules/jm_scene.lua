@@ -1,6 +1,7 @@
 --[[
     This modules need the 'jm_camera.lua' to work.
 ]]
+
 local path = (...)
 
 local set_canvas = love.graphics.setCanvas

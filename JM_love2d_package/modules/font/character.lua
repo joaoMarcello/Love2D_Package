@@ -1,11 +1,22 @@
-local Affectable = require("/JM_love2d_package/modules/templates/Affectable")
-local EffectManager = require("/JM_love2d_package/modules/classes/EffectManager")
+---@type JM.Affectable
+local Affectable
+---@type JM.EffectManager
+local EffectManager
 
----@class JM.Font.Character: JM.Affectable
+do
+    -- local package = require("/JM_love2d_package/init")
+    -- Affectable = package.Affectable
+    -- EffectManager = package.EffectManager
+end
+
+local Affectable = require("/JM_love2d_package/modules/templates/Affectable")
+local EffectManager = require("JM_love2d_package.modules.jm_effect_manager")
+
+---@class JM.Font.Glyph: JM.Affectable
 ---@field __anima JM.Anima
 local Glyph = {}
 
----@return JM.Font.Character
+---@return JM.Font.Glyph
 function Glyph:new(img, quad, args)
     local obj = {}
     setmetatable(obj, self)

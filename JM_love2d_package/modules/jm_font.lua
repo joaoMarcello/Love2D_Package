@@ -1,7 +1,10 @@
-local Character = require("/JM_love2d_package/modules/font/character")
+---@type string
+local path = ...
+
+local Character = require(path:gsub("jm_font", "font.character"))
+local Anima = require(path:gsub("jm_font", "jm_animation"))
+local Iterator = require(path:gsub("jm_font", "font.font_iterator"))
 local Utils = require("/JM_love2d_package/utils")
-local Anima = require "/JM_love2d_package/animation_module"
-local Iterator = require("/JM_love2d_package/modules/font/font_iterator")
 
 ---@enum JM.Font.FormatOptions
 local FontFormat = {
@@ -129,7 +132,7 @@ function Font:__constructor__(args)
     self.__bounds = { left = 0, top = 0, right = love.graphics.getWidth(), bottom = love.graphics.getHeight() }
 end
 
----@return JM.Font.CharactersIterator
+---@return JM.Font.GlyphIterator
 function Font:get_text_iterator(text)
     return Iterator:new(text, self)
 end
@@ -360,7 +363,7 @@ end
 -- end
 
 ---@param c string
----@return JM.Font.Character|nil
+---@return JM.Font.Glyph|nil
 function Font:__get_char_equals(c)
     local list = self.__format == FontFormat.normal and self.__normal_characters
         or self.__format == FontFormat.bold and self.__bold_characters
@@ -588,7 +591,7 @@ local next_not_command_index
 --- The functions below are used in the printf method
 do
     get_char_obj =
-    ---@return JM.Font.Character
+    ---@return JM.Font.Glyph
     function(param)
         return param
     end

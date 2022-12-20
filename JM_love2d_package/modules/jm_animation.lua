@@ -2,6 +2,8 @@
 
     Copyright (c) 2022, Joao Moreira.
 ]]
+
+---@type string
 local path = (...)
 
 local Affectable = require("/JM_love2d_package/modules/templates/Affectable")
@@ -180,7 +182,7 @@ end
 function Anima:__constructor__(args)
     local success, result = pcall(function(...)
         --- trying load the EffectManager Module
-        return require("/JM_love2d_package/modules/classes/EffectManager")
+        return require(path:gsub("jm_animation", "jm_effect_manager"))
     end)
 
     local EffectManager = success and result or nil

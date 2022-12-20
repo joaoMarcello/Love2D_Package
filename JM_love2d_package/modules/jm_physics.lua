@@ -143,7 +143,7 @@ local function kinematic_moves_dynamic_y(kbody, goaly)
             bd = col.items[i]
 
             bd:refresh(nil, bd.y + col.diff_y)
-            bd.speed_y = 0
+            bd.speed_y = 0.0
 
             local col_bd
             col_bd = bd:check(nil, nil, function(obj, item)
@@ -201,14 +201,14 @@ do
 
         self.mass = world.default_mass
 
-        self.speed_x = 0
-        self.speed_y = 0
+        self.speed_x = 0.0
+        self.speed_y = 0.0
 
         self.max_speed_x = nil
         self.max_speed_y = nil
 
-        self.acc_x = 0
-        self.acc_y = 0
+        self.acc_x = 0.0
+        self.acc_y = 0.0
         self.acc_y = (self.type ~= BodyTypes.dynamic and 0) or self.acc_y
 
         self.dacc_x = self.world.meter * 3.5
@@ -216,8 +216,8 @@ do
         self.over_speed_dacc_x = self.dacc_x
         self.over_speed_dacc_y = self.dacc_x
 
-        self.force_x = 0
-        self.force_y = 0
+        self.force_x = 0.0
+        self.force_y = 0.0
 
         -- used if body is static or kinematic
         self.resistance_x = 1
@@ -307,11 +307,11 @@ do
     end
 
     function Body:direction_x()
-        return (self.speed_x < 0 and -1) or (self.speed_x > 0 and 1) or 0
+        return (self.speed_x < 0.0 and -1) or (self.speed_x > 0.0 and 1) or 0
     end
 
     function Body:direction_y()
-        return (self.speed_y < 0 and -1) or (self.speed_y > 0 and 1) or 0
+        return (self.speed_y < 0.0 and -1) or (self.speed_y > 0.0 and 1) or 0
     end
 
     function Body:set_speed(sx, sy)
@@ -561,8 +561,8 @@ do
     ---@param acc_y number|nil
     ---@param body JM.Physics.Body|nil
     function Body:apply_force(acc_x, acc_y, body)
-        self.force_x = self.force_x + ((acc_x or 0) * self.mass)
-        self.force_y = self.force_y + ((acc_y or 0) * self.mass)
+        self.force_x = self.force_x + ((acc_x or 0.0) * self.mass)
+        self.force_y = self.force_y + ((acc_y or 0.0) * self.mass)
 
         self.acc_x = acc_x and (self.force_x / self.mass) or self.acc_x
         self.acc_y = acc_y and (self.force_y / self.mass) or self.acc_y
@@ -578,11 +578,11 @@ do
             if self.bouncing_y then
                 self.speed_y = -self.speed_y * self.bouncing_y
 
-                if abs(self.speed_y) <= sqrt(2 * self.acc_y * 2) then
-                    self.speed_y = 0
+                if abs(self.speed_y) <= sqrt(2.0 * self.acc_y * 2.0) then
+                    self.speed_y = 0.0
                 end
             else
-                self.speed_y = 0
+                self.speed_y = 0.0
             end
 
             dispatch_event(self, BodyEvents.axis_y_collision)
@@ -614,7 +614,7 @@ do
             if self.bouncing_x then
                 self.speed_x = -self.speed_x * self.bouncing_x
             else
-                self.speed_x = 0
+                self.speed_x = 0.0
             end
 
             dispatch_event(self, BodyEvents.axis_x_collision)
@@ -650,11 +650,11 @@ do
             end
 
             -- falling
-            if (obj.acc_y ~= 0) or (obj.speed_y ~= 0) then
+            if (obj.acc_y ~= 0.0) or (obj.speed_y ~= 0.0) then
                 local last_sy = obj.speed_y
 
                 goaly = obj.y + (obj.speed_y * dt)
-                    + (obj.acc_y * dt * dt) / 2
+                    + (obj.acc_y * dt * dt) / 2.0
 
                 -- speed up with acceleration
                 obj.speed_y = obj.speed_y + obj.acc_y * dt
@@ -672,8 +672,8 @@ do
                 end
 
                 -- executing the "speed_y_change_direction" event
-                if last_sy < 0 and obj.speed_y > 0
-                    or (last_sy > 0 and obj.speed_y < 0)
+                if last_sy < 0.0 and obj.speed_y > 0.0
+                    or (last_sy > 0.0 and obj.speed_y < 0.0)
                 then
                     dispatch_event(obj, BodyEvents.speed_y_change_direction)
                 end
@@ -707,17 +707,17 @@ do
                     obj:refresh(nil, goaly)
                 end
 
-                if last_sy <= 0 and obj.speed_y > 0 then
+                if last_sy <= 0.0 and obj.speed_y > 0.0 then
                     dispatch_event(self, BodyEvents.start_falling)
                 end
             end
             --=================================================================
             -- moving in x axis
-            if (obj.acc_x ~= 0) or (obj.speed_x ~= 0) then
+            if (obj.acc_x ~= 0.0) or (obj.speed_x ~= 0.0) then
                 local last_sx = obj.speed_x
 
                 goalx = obj.x + (obj.speed_x * dt)
-                    + (obj.acc_x * dt * dt) / 2
+                    + (obj.acc_x * dt * dt) / 2.0
 
                 -- obj.acc_x = obj.ground and obj.acc_x * 0.5 or obj.acc_x
                 obj.speed_x = obj.speed_x + obj.acc_x * dt
@@ -731,11 +731,11 @@ do
                 end
 
                 -- dacc
-                if (obj.acc_x >= 0 and last_sx < 0 and obj.speed_x >= 0)
-                    or (obj.acc_x <= 0 and last_sx > 0 and obj.speed_x <= 0)
+                if (obj.acc_x >= 0.0 and last_sx < 0.0 and obj.speed_x >= 0.0)
+                    or (obj.acc_x <= 0.0 and last_sx > 0.0 and obj.speed_x <= 0.0)
                 then
-                    obj.speed_x = 0
-                    obj.acc_x = 0
+                    obj.speed_x = 0.0
+                    obj.acc_x = 0.0
                     dispatch_event(obj, BodyEvents.speed_x_change_direction)
                 end
 
@@ -776,7 +776,7 @@ do
                 col = nil
 
                 -- simulating the enviroment resistence (friction)
-                if obj.speed_x ~= 0
+                if obj.speed_x ~= 0.0
                     and (obj.ground or obj.allowed_air_dacc)
                 then
                     local dacc = abs(obj.dacc_x)
@@ -786,8 +786,8 @@ do
 
             end -- end moving in x axis
 
-            obj.force_x = 0
-            obj.force_y = 0
+            obj.force_x = 0.0
+            obj.force_y = 0.0
 
         end --end if body is dynamic
 
@@ -930,9 +930,9 @@ do
         self.tile = 32
         self.meter = self.tile * 3.5
         self.gravity = 9.8 * self.meter
-        self.max_speed_y = self.meter * 15
+        self.max_speed_y = self.meter * 15.0
         self.max_speed_x = self.max_speed_y
-        self.default_mass = 65
+        self.default_mass = 65.0
 
         self.bodies = {}
         self.bodies_number = 0

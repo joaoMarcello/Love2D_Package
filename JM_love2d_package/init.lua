@@ -9,8 +9,8 @@ JM.Anima = require(string.gsub(path, "init", "modules.jm_animation"))
 JM.Font = require(string.gsub(path, "init", "modules.jm_font"))
 
 ---@type JM.EffectManager
-JM.EffectGenerator = require(string.gsub(
-    path, "init", "modules.classes.EffectManager"
+JM.EffectManager = require(string.gsub(
+    path, "init", "modules.jm_effect_manager"
 ))
 
 ---@type JM.Camera.Camera
@@ -21,5 +21,8 @@ JM.Scene = require(string.gsub(path, "init", "modules.jm_scene"))
 
 ---@type JM.Physics
 JM.Physics = require(string.gsub(path, "init", "modules.jm_physics"))
+
+---@type JM.Affectable
+JM.Affectable = require(string.gsub(path, "init", "modules.templates.Affectable"))
 
 return JM

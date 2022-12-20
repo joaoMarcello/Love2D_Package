@@ -1,4 +1,4 @@
-local EffectManager = require("/JM_love2d_package/modules/classes/EffectManager")
+local EffectManager = require("JM_love2d_package.modules.jm_effect_manager")
 
 local EffectGenerator = {}
 

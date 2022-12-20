@@ -1,4 +1,4 @@
----@class JM.Font.CharactersIterator
+---@class JM.Font.GlyphIterator
 local Iterator = {}
 
 function Iterator:new(text, font)
@@ -55,7 +55,7 @@ function Iterator:has_next()
     return self.__list_obj[self.__current_index] and true or false
 end
 
----@return JM.Font.Character
+---@return JM.Font.Glyph
 function Iterator:next()
     self.__current_index = self.__current_index + 1
     return self.__list_obj[self.__current_index - 1]
