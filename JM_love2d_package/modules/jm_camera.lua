@@ -16,14 +16,24 @@ local love_line = love.graphics.line
 local sin, cos, atan2, sqrt, abs = math.sin, math.cos, math.atan2, math.sqrt, math.abs
 local mfloor, mceil = math.floor, math.ceil
 
-local function round(value)
-    local absolute = abs(value)
-    local decimal = absolute - mfloor(absolute)
+-- local function round(value)
+--     local absolute = abs(value)
+--     local decimal = absolute - mfloor(absolute)
 
-    if decimal >= 0.5 then
-        return value > 0 and mceil(value) or mfloor(value)
+--     if decimal >= 0.5 then
+--         return value > 0 and mceil(value) or mfloor(value)
+--     else
+--         return value > 0 and mfloor(value) or mceil(value)
+--     end
+-- end
+
+-- the round function from lua programming book
+local function round(x)
+    local f = mfloor(x + 0.5)
+    if (x == f) or (x % 2.0 == 0.5) then
+        return f
     else
-        return value > 0 and mfloor(value) or mceil(value)
+        return mfloor(x + 0.5)
     end
 end
 

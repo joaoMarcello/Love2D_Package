@@ -472,7 +472,7 @@ function Scene:implements(param)
 
                     translate(round(px), round(py))
 
-                    r = layer.draw and layer:draw()
+                    r = layer.draw and layer:draw(camera)
 
                     pop()
 
