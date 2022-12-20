@@ -1,6 +1,6 @@
 local JM_package = require("/JM_love2d_package/init")
 local Anima = JM_package.Anima
-local FontGenerator = JM_package.Font
+local FontGenerator = JM_package.FontGenerator
 local EffectManager = JM_package.EffectManager
 local Camera = JM_package.Camera
 

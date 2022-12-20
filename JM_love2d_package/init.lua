@@ -5,8 +5,8 @@ local JM = {}
 ---@type JM.Anima
 JM.Anima = require(string.gsub(path, "init", "modules.jm_animation"))
 
----@type JM.Font.Font
-JM.Font = require(string.gsub(path, "init", "modules.jm_font"))
+---@type JM.Font.Generator
+JM.FontGenerator = require(string.gsub(path, "init", "modules.jm_font_generator"))
 
 ---@type JM.EffectManager
 JM.EffectManager = require(string.gsub(

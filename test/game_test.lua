@@ -1,7 +1,7 @@
 local JM_package = require("/JM_love2d_package/init")
 local Screen = JM_package.Scene
 local Anima = JM_package.Anima
-local FontGenerator = JM_package.Font
+local FontGenerator = JM_package.FontGenerator
 local EffectManager = JM_package.EffectManager
 local Physics = JM_package.Physics
 
@@ -1044,7 +1044,7 @@ Game:implements(
             goomba_anim:draw(300, 200)
             Consolas:printf("Oi eu sou o Goku.", 20, 100, "center", 200)
 
-            JM_package.Font:printx(text3, 10, 150, Game.screen_w)
+            Consolas:printx(text3, 10, 150, Game.screen_w)
         end
     }
 )

@@ -1,4 +1,4 @@
-local FontGenerator = require("/JM_love2d_package/modules/jm_font")
+local FontGenerator = require("JM_love2d_package.modules.jm_font_generator")
 local Phrase = require("/JM_love2d_package/modules/font/Phrase")
 
 local Consolas = FontGenerator:new({
