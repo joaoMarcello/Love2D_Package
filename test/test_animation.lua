@@ -1,6 +1,6 @@
-local Anima = require "/JM_love2d_package/animation_module"
-local EffectGenerator = require("/JM_love2d_package/effect_generator_module")
-local FontGenerator = require("/JM_love2d_package/modules/jm_font")
+local package = require("/JM_love2d_package/init")
+local Anima = package.Anima
+local EffectGenerator = package.EffectManager
 
 local test_anima = Anima:new({
     img = "/data/goomba5.png",
@@ -23,10 +23,10 @@ Anima2:set_state("back and forth")
 Anima2:set_speed(0.1)
 Anima2:reset()
 
-local pulse_eff = EffectGenerator:generate("pulse", { max_sequence = 2, speed = 0.3, range = 0.1 })
-local idle_effect = EffectGenerator:generate("idle", { duration = 1 })
+local pulse_eff = EffectGenerator:generate_effect("pulse", { max_sequence = 2, speed = 0.3, range = 0.1 })
+local idle_effect = EffectGenerator:generate_effect("idle", { duration = 1 })
 
-local hh = EffectGenerator:generate("swing", { delay = 1 })
+local hh = EffectGenerator:generate_effect("swing", { delay = 1 })
 
 test_anima:apply_effect("flash")
 test_anima:apply_effect("jelly")

@@ -1,8 +1,13 @@
-local EffectManager = require("/JM_love2d_package/effect_generator_module")
-local Affectable = require("/JM_love2d_package/modules/templates/Affectable")
+---@type JM.EffectManager
+local EffectManager
 
 ---@class JM.Font.Word
 local Word = {}
+
+---@param effect_manager JM.EffectManager
+Word.load_dependencies = function(effect_manager)
+    EffectManager = effect_manager
+end
 
 ---@param args {text: string, font: JM.Font.Font, format: JM.Font.FormatOptions}
 ---@return JM.Font.Word phrase
@@ -18,6 +23,8 @@ end
 
 ---@param args {text: string, font: JM.Font.Font, format: JM.Font.FormatOptions}
 function Word:__constructor__(args)
+    assert(EffectManager, "\n>Class EffectManager not loaded!")
+
     self.__text = args.text
     self.__font = args.font
     self.__args = args
@@ -97,13 +104,13 @@ function Word:apply_effect(startp, endp, effect_type, offset)
         local eff
 
         if effect_type == "freaky" or true then
-            eff = EffectManager:generate("float", {
+            eff = EffectManager:generate_effect("float", {
                 range = 0.7,
                 speed = 0.2,
                 rad = math.pi * (i % 4) + offset
             })
         elseif effect_type == "pump" then
-            eff = EffectManager:generate("jelly")
+            eff = EffectManager:generate_effect("jelly")
         end
 
         local char__ = self:__get_char_by_index(i)
@@ -122,7 +129,7 @@ function Word:surge_effect(startp, endp, delay)
     if not delay then delay = 1 end
 
     for i = startp, endp, 1 do
-        local eff = EffectManager:generate("fadein", {
+        local eff = EffectManager:generate_effect("fadein", {
             delay = delay
         })
         eff:apply(self.__characters[i])

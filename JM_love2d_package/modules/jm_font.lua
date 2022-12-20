@@ -1,10 +1,27 @@
 ---@type string
 local path = ...
 
-local Character = require(path:gsub("jm_font", "font.character"))
 local Anima = require(path:gsub("jm_font", "jm_animation"))
+local Utils = require(path:gsub("jm_font", "jm_utils"))
+
+---@type JM.Font.Glyph
+local Character = require(path:gsub("jm_font", "font.glyph"))
+Character.load_dependencies(
+    require(path:gsub("jm_font", "templates.Affectable")),
+    require(path:gsub("jm_font", "jm_effect_manager"))
+)
+
 local Iterator = require(path:gsub("jm_font", "font.font_iterator"))
-local Utils = require("/JM_love2d_package/utils")
+
+---@type JM.Font.Phrase
+local Phrase = require(path:gsub("jm_font", "font.Phrase"))
+Phrase.load_dependencies(
+    require(path:gsub("jm_font", "jm_effect_manager")),
+    Utils
+)
+--====================================================================
+
+local table_insert, string_find = table.insert, string.find
 
 ---@enum JM.Font.FormatOptions
 local FontFormat = {
@@ -20,7 +37,9 @@ local FontFormat = {
 
 ---@class JM.Font.Font
 ---@field __nicknames table
-local Font = {}
+local Font = {
+    buffer_time = 0.0
+}
 
 ---@overload fun(self: table, args: JM.AvailableFonts)
 ---@param args {name: JM.AvailableFonts, font_size: number, line_space: number, tab_size: number, character_space: number, color: JM.Color}
@@ -278,7 +297,7 @@ function Font:add_nickname_animated(nickname, args)
         h = self.__ref_height
     })
 
-    table.insert(self.__nicknames, nickname)
+    table_insert(self.__nicknames, nickname)
 
     self.__normal_characters[new_character.__id] = new_character
     self.__bold_characters[new_character.__id] = new_character
@@ -349,18 +368,17 @@ function Font:update(dt)
         local character = self:__get_char_equals(self.__nicknames[i])
         local r = character and character:update(dt)
     end
+
+    if self.buffer__ then
+        self.buffer_time = self.buffer_time + dt
+
+        if self.buffer_time >= 15.0 then
+            self.buffer_time = 0.0
+            self:clear_buffer()
+        end
+    end
 end
 
--- ---
--- ---@param index number
--- ---@return JM.Font.Character|nil
--- function Font:__get_char_by_index(index)
---     local list = self.__format == FontFormat.normal and self.__normal_characters
---         or self.__format == FontFormat.bold and self.__bold_characters
---         or self.__italic_characters
-
---     return list[index]
--- end
 
 ---@param c string
 ---@return JM.Font.Glyph|nil
@@ -370,15 +388,6 @@ function Font:__get_char_equals(c)
         or self.__italic_characters
 
     return list[c]
-
-    -- for i = 1, #list do
-    --     local char__ = self:__get_char_by_index(i)
-
-    --     if c == self:__get_char_by_index(i).__id then
-    --         return self:__get_char_by_index(i)
-    --     end
-    -- end
-    -- return nil
 end
 
 ---@param s string
@@ -397,7 +406,7 @@ function Font:separate_string(s, list)
         local nick = false --find and string.match(find, "%-%-%w-%-%-")
 
         if tag then
-            local startp, endp = string.find(s, tag_regex, current_init)
+            local startp, endp = string_find(s, tag_regex, current_init)
             local sub_s = s:sub(startp, endp)
             local prev_s = s:sub(current_init, startp - 1)
 
@@ -405,7 +414,7 @@ function Font:separate_string(s, list)
                 self:separate_string(prev_s, words)
             end
 
-            table.insert(words, sub_s)
+            table_insert(words, sub_s)
             current_init = endp
 
         elseif nick and nick ~= "----" then
@@ -418,22 +427,22 @@ function Font:separate_string(s, list)
             end
 
             if sub_s ~= "" and sub_s ~= " " then
-                table.insert(words, sub_s)
+                table_insert(words, sub_s)
             end
 
             current_init = endp
 
         elseif find then
 
-            local startp, endp = string.find(s, regex, current_init)
+            local startp, endp = string_find(s, regex, current_init)
             local sub_s = s:sub(startp, endp - 1)
 
             if sub_s ~= "" and sub_s ~= " " then
-                table.insert(words, sub_s)
+                table_insert(words, sub_s)
             end
 
             if s:sub(endp, endp) == "\n" then
-                table.insert(words, "\n")
+                table_insert(words, "\n")
             end
 
             current_init = endp
@@ -447,7 +456,7 @@ function Font:separate_string(s, list)
     local rest = s:sub(current_init, #s)
 
     if rest ~= "" and not rest:match(" *") then
-        table.insert(words, s:sub(current_init, #s))
+        table_insert(words, s:sub(current_init, #s))
     end
 
     return words
@@ -752,7 +761,7 @@ function Font:printf(text, x, y, align, limit_right)
         local characters = self:get_text_iterator(cur_word)
         characters = characters:get_characters_list()
 
-        table.insert(words, characters)
+        table_insert(words, characters)
 
         i = i + 1
     end
@@ -790,7 +799,7 @@ function Font:printf(text, x, y, align, limit_right)
                     current_color[1] = original_color
                 end
             end
-            table.insert(line_actions, action)
+            table_insert(line_actions, action)
         end
 
         local current_is_break_line = separated[m] == "\n"
@@ -798,7 +807,7 @@ function Font:printf(text, x, y, align, limit_right)
         if not command_tag then
 
             if not current_is_break_line or true then
-                table.insert(
+                table_insert(
                     line,
                     words[m]
                 )
@@ -847,7 +856,7 @@ function Font:printf(text, x, y, align, limit_right)
                     and separated[next_index] == "\n"
 
                 if m ~= #words and not next_is_broken_line then
-                    table.insert(
+                    table_insert(
                         line,
                         { self.__space_char }
                     )
@@ -870,9 +879,39 @@ function Font:printf(text, x, y, align, limit_right)
 
     self:pop()
 
-    love.graphics.setColor(0, 0, 0, 0.3)
-    love.graphics.line(x, 0, x, love.graphics.getHeight())
-    love.graphics.line(x + limit_right, 0, x + limit_right, love.graphics.getHeight())
+    -- love.graphics.setColor(0, 0, 0, 0.3)
+    -- love.graphics.line(x, 0, x, love.graphics.getHeight())
+    -- love.graphics.line(x + limit_right, 0, x + limit_right, love.graphics.getHeight())
 end
+
+function Font:printx(text, x, y, right, font)
+    font = font or self.Consolas
+
+    self.buffer__ = self.buffer__ or {}
+    self.buffer_time = 0.0
+
+    if not self.buffer__[font] then
+        self.buffer__[font] = {}
+
+    end
+
+    if not self.buffer__[font][text] then
+        local f = Phrase:new({ text = text, font = font })
+        f:set_bounds(nil, nil, right)
+        self.buffer__[font][text] = f
+    end
+
+    ---@type JM.Font.Phrase
+    local fr = self.buffer__[font][text]
+    local value = fr:draw(x, y, "left")
+
+    return value
+end
+
+function Font:clear_buffer()
+    self.buffer__ = nil
+end
+
+Font.Consolas = Font:new({ name = "consolas", color = { 0.1, 0.1, 0.1, 1 }, font_size = 12, tab_size = 4 })
 
 return Font

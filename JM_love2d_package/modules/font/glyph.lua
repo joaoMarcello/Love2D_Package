@@ -1,20 +1,19 @@
 ---@type JM.Affectable
 local Affectable
+
 ---@type JM.EffectManager
 local EffectManager
-
-do
-    -- local package = require("/JM_love2d_package/init")
-    -- Affectable = package.Affectable
-    -- EffectManager = package.EffectManager
-end
-
-local Affectable = require("/JM_love2d_package/modules/templates/Affectable")
-local EffectManager = require("JM_love2d_package.modules.jm_effect_manager")
 
 ---@class JM.Font.Glyph: JM.Affectable
 ---@field __anima JM.Anima
 local Glyph = {}
+
+---@param affectable JM.Affectable
+---@param effect_manager JM.EffectManager
+Glyph.load_dependencies = function(affectable, effect_manager)
+    Affectable = affectable
+    EffectManager = effect_manager
+end
 
 ---@return JM.Font.Glyph
 function Glyph:new(img, quad, args)
@@ -28,6 +27,9 @@ function Glyph:new(img, quad, args)
 end
 
 function Glyph:__constructor__(img, quad, args)
+    assert(Affectable, "\n> Class Affectable not initialized!")
+    assert(EffectManager, "\n> Class EffectManager not initialized!")
+
     self.__img = img
     self.__quad = quad
     self.__id = args.id or ""
@@ -64,6 +66,7 @@ function Glyph:__constructor__(img, quad, args)
     self.oy = self.qy and self.qh / 2 or 0
 
     self.__effect_manager = EffectManager:new()
+
     self.__visible = true
 
     self.bounds = { left = 0, top = 0, right = love.graphics.getWidth(), bottom = love.graphics.getHeight() }

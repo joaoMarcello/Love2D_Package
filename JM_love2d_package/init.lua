@@ -25,4 +25,7 @@ JM.Physics = require(string.gsub(path, "init", "modules.jm_physics"))
 ---@type JM.Affectable
 JM.Affectable = require(string.gsub(path, "init", "modules.templates.Affectable"))
 
+---@type JM.Utils
+JM.Utils = require(string.gsub(path, "init", "modules.jm_utils"))
+
 return JM

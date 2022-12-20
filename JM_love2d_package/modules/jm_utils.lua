@@ -1,3 +1,10 @@
+---@alias JM.Point {x: number, y:number}
+--- Table representing a point with x end y coordinates.
+
+---@alias JM.Color {r: number, g: number, b:number, a:number}
+--- Represents a color in RGBA space
+
+---@class JM.Utils
 local Utils = {}
 
 ---comment
@@ -26,12 +33,6 @@ end
 function Utils:desired_duration(duration, amount_steps)
     return duration / amount_steps
 end
-
----@alias JM.Point {x: number, y:number}
---- Table representing a point with x end y coordinates.
-
----@alias JM.Color {r: number, g: number, b:number, a:number}
---- Represents a color in RGBA space
 
 function Utils:parse_csv_line(line, sep)
     local res = {}

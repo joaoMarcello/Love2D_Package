@@ -1,8 +1,5 @@
-local Anima = require "/JM_love2d_package/animation_module"
-local EffectGenerator = require("/JM_love2d_package/effect_generator_module")
 local FontGenerator = require("/JM_love2d_package/modules/jm_font")
 local Phrase = require("/JM_love2d_package/modules/font/Phrase")
-local Word = require("/JM_love2d_package/modules/font/Word")
 
 local Consolas = FontGenerator:new({
     name = "consolas",

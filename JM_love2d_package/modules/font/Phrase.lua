@@ -1,9 +1,19 @@
-local Word = require("/JM_love2d_package/modules/font/Word")
-local EffectGenerator = require("/JM_love2d_package/effect_generator_module")
-local Utils = require("/JM_love2d_package/utils")
+---@type string
+local path = ...
+
+---@type JM.Font.Word
+local Word = require(path:gsub("Phrase", "Word"))
+
+---@type JM.Utils
+local Utils --= require("/JM_love2d_package/utils")
 
 ---@class JM.Font.Phrase
 local Phrase = {}
+
+Phrase.load_dependencies = function(effect_manager, utils)
+    Word.load_dependencies(effect_manager)
+    Utils = utils
+end
 
 ---@param args {text: string, font: JM.Font.Font}
 ---@return JM.Font.Phrase phrase
@@ -19,6 +29,8 @@ end
 
 ---@param args {text: string, font: JM.Font.Font}
 function Phrase:__constructor__(args)
+    assert(Utils, "\n> Module Utils not initialized!")
+
     self.__text = args.text
     self.__font = args.font
     self.__font_config = self.__font:__get_configuration()
@@ -28,7 +40,7 @@ function Phrase:__constructor__(args)
     self.__separated_string = self.__font:separate_string(self.__text)
     self.__words = {}
 
-    self.__bounds = { top = 0, left = 0, height = love.graphics.getHeight(), right = love.graphics.getWidth() - 100 }
+    self.__bounds = { top = 0, left = 0, bottom = love.graphics.getHeight(), right = love.graphics.getWidth() - 100 }
 
     for i = 1, #self.__separated_string do
         local w = Word:new({ text = self.__separated_string[i],
@@ -73,6 +85,13 @@ function Phrase:__verify_commands(text)
             self.__font:set_format_mode(self.__font_config.format)
         end
     end
+end
+
+function Phrase:set_bounds(top, left, right, bottom)
+    self.__bounds.top = top or self.__bounds.top
+    self.__bounds.left = left or self.__bounds.left
+    self.__bounds.right = right or self.__bounds.right
+    self.__bounds.bottom = bottom or self.__bounds.bottom
 end
 
 ---@param word string

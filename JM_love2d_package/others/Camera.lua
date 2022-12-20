@@ -115,14 +115,14 @@ function Camera:move(dx, dy)
 end
 
 function Camera:toWorldCoords(x, y)
-    local c, s = math.cos(self.rotation), math.math_sin(self.rotation)
+    local c, s = math.cos(self.rotation), math.sin(self.rotation)
     x, y = (x - self.w / 2) / self.scale, (y - self.h / 2) / self.scale
     x, y = c * x - s * y, s * x + c * y
     return x + self.x, y + self.y
 end
 
 function Camera:toCameraCoords(x, y)
-    local c, s = math.cos(self.rotation), math.math_sin(self.rotation)
+    local c, s = math.cos(self.rotation), math.sin(self.rotation)
     x, y = x - self.x, y - self.y
     x, y = c * x - s * y, s * x + c * y
     return x * self.scale + self.w / 2, y * self.scale + self.h / 2
@@ -233,13 +233,17 @@ function Camera:update(dt)
         -- Don't change self.screen_x/y if already at the boundaries
         if self.bound then
             if self.x > self.bounds_min_x + self.w / 2 and target_x < 0 then self.screen_x = csnap(self.screen_x -
-                self.w / self.scale, self.w / self.scale) end
+                    self.w / self.scale, self.w / self.scale)
+            end
             if self.x < self.bounds_max_x - self.w / 2 and target_x >= self.w then self.screen_x = csnap(self.screen_x +
-                self.w / self.scale, self.w / self.scale) end
+                    self.w / self.scale, self.w / self.scale)
+            end
             if self.y > self.bounds_min_y + self.h / 2 and target_y < 0 then self.screen_y = csnap(self.screen_y -
-                self.h / self.scale, self.h / self.scale) end
+                    self.h / self.scale, self.h / self.scale)
+            end
             if self.y < self.bounds_max_y - self.h / 2 and target_y >= self.h then self.screen_y = csnap(self.screen_y +
-                self.h / self.scale, self.h / self.scale) end
+                    self.h / self.scale, self.h / self.scale)
+            end
             -- Move to the next screen if the target is outside the screen boundaries
         else
             if target_x < 0 then self.screen_x = csnap(self.screen_x - self.w / self.scale, self.w / self.scale) end
@@ -278,7 +282,8 @@ function Camera:update(dt)
 
         -- Apply lead
         if not self.last_target_x and not self.last_target_y then self.last_target_x, self.last_target_y = self.target_x
-            , self.target_y end
+                , self.target_y
+        end
         scroll_x = scroll_x + (self.target_x - self.last_target_x) * self.follow_lead_x
         scroll_y = scroll_y + (self.target_y - self.last_target_y) * self.follow_lead_y
         self.last_target_x, self.last_target_y = self.target_x, self.target_y

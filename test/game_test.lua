@@ -329,10 +329,10 @@ goomba_anim:on_event("frame_change", function()
         -- Game:pause(0.3)
     end
 end)
--- goomba_anim:set_scale(0.1, 1)
--- goomba_anim:apply_effect("flickering")
--- goomba_anim:apply_effect("pulse")
 
+
+local text3 = "\tAquele que\n h--a-- habita no <italic>esconderijo</italic> do altíssimo, <color>à <color, 0, 0, 1>sombra do <color, 0.7, 0.5, 0.1>onipotente</color> --goomba-- descansará\n \n \tDiz ao Senhor, meu refúgio e meu baluarte. Deus meu em quem confio.\n \n \tPois ele te livrará do <color, 0,0,1>laço do <color, 1, 0, 0>passarinheiro</color> e da peste perniciosa. Cobrir-te-á com suas penas e sob suas asas estarás seguro. Tua verdade é <bold>pavê e escudo.</bold>"
+text3 = text3 .. text3 .. text3
 --==========================================================================
 Game:implements(
     {
@@ -1043,6 +1043,8 @@ Game:implements(
             Consolas:printf(text, 20, 20, "left", 300)
             goomba_anim:draw(300, 200)
             Consolas:printf("Oi eu sou o Goku.", 20, 100, "center", 200)
+
+            JM_package.Font:printx(text3, 10, 150, Game.screen_w)
         end
     }
 )

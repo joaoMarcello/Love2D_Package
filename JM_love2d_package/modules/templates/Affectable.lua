@@ -1,5 +1,3 @@
-local EffectManager = require("JM_love2d_package.modules.jm_effect_manager")
-
 ---@alias JM.Effect.TransformObject {x: number, y: number, rot: number, sx: number, sy: number, ox: number, oy: number, kx: number, ky: number}
 
 ---@class JM.Affectable
