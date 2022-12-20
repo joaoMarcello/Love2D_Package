@@ -5,8 +5,8 @@ local Anima = require(path:gsub("jm_font_generator", "jm_animation"))
 local Utils = require(path:gsub("jm_font_generator", "jm_utils"))
 
 ---@type JM.Font.Glyph
-local Character = require(path:gsub("jm_font_generator", "font.glyph"))
-Character.load_dependencies(
+local Glyph = require(path:gsub("jm_font_generator", "font.glyph"))
+Glyph.load_dependencies(
     require(path:gsub("jm_font_generator", "templates.Affectable")),
     require(path:gsub("jm_font_generator", "jm_effect_manager"))
 )
@@ -124,14 +124,14 @@ function Font:__constructor__(args)
 
     self:set_font_size(self.__font_size)
 
-    self.__tab_char = Character:new(self.img, self.quad, {
+    self.__tab_char = Glyph:new(self.img, self.quad, {
         id = "\t",
         x = 0, y = 0,
         w = self.__word_space * self.__tab_size,
         h = self.__ref_height
     })
 
-    self.__space_char = Character:new(self.img, self.quad, {
+    self.__space_char = Glyph:new(self.img, self.quad, {
         id = " ",
         x = 0, y = 0,
         w = self.__word_space,
@@ -190,7 +190,7 @@ function Font:__load_caracteres_from_csv(list, name, img, extend, hash)
             break
         end
 
-        local character_obj = Character:new(img, self.quad,
+        local character_obj = Glyph:new(img, self.quad,
             { id = id, x = left, y = top, w = right - left, h = bottom - top, bottom = offset_y }
         )
 
@@ -203,7 +203,7 @@ function Font:__load_caracteres_from_csv(list, name, img, extend, hash)
 end
 
 function Font:get_nule_character()
-    local char_ = Character:new(nil, nil,
+    local char_ = Glyph:new(nil, nil,
         { id = "__nule__", x = nil, y = nil, w = self.__word_space, h = self.__ref_height })
 
     return char_
@@ -290,7 +290,7 @@ function Font:add_nickname_animated(nickname, args)
 
     local animation = Anima:new(args)
 
-    local new_character = Character:new(nil, nil, {
+    local new_character = Glyph:new(nil, nil, {
         id = nickname,
         anima = animation,
         w = self.__ref_height * 1.5,
