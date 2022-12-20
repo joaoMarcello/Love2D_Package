@@ -1044,7 +1044,7 @@ Game:implements(
             goomba_anim:draw(300, 200)
             Consolas:printf("Oi eu sou o Goku.", 20, 100, "center", 200)
 
-            Consolas:printx(text3, 10, 150, Game.screen_w)
+            -- Consolas:printf(text3, 10, 150, "left", Game.screen_w)
         end
     }
 )
