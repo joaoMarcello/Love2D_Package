@@ -883,7 +883,9 @@ function Font:printf(text, x, y, align, limit_right)
     -- love.graphics.line(x + limit_right, 0, x + limit_right, love.graphics.getHeight())
 end
 
-function Font:printx(text, x, y, right)
+function Font:printx(text, x, y, right, align)
+    align = align or "left"
+
     self.buffer__ = self.buffer__ or {}
     self.buffer_time = 0.0
 
@@ -895,7 +897,7 @@ function Font:printx(text, x, y, right)
 
     ---@type JM.Font.Phrase
     local fr = self.buffer__[text]
-    local value = fr:draw(x, y, "left")
+    local value = fr:draw(x, y, align)
 
     return value
 end
