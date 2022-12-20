@@ -329,6 +329,9 @@ goomba_anim:on_event("frame_change", function()
         -- Game:pause(0.3)
     end
 end)
+-- goomba_anim:set_scale(0.1, 1)
+goomba_anim:apply_effect("flickering")
+goomba_anim:apply_effect("pulse")
 
 --==========================================================================
 Game:implements(

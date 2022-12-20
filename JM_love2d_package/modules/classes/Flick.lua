@@ -55,11 +55,11 @@ function Flick:update(dt)
     end
 
     if self.__flick_state == 1 then
-        -- self.__object:set_color(self.__color)
         self.__object:set_visible(true)
+        -- self.__object:__set_effect_transform({ sx = 1 })
     elseif self.__flick_state == -1 then
-        -- self.__object:set_color(self.__obj_initial_color)
         self.__object:set_visible(false)
+        -- self.__object:__set_effect_transform({ sx = 0 })
     end
 end
 

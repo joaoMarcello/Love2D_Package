@@ -15,7 +15,7 @@ local love_draw = love.graphics.draw
 local set_shader = love.graphics.setShader
 local get_delta_time = love.timer.getDelta
 
----@alias JM.Scene.Layer {draw:function, update:function, factor_x:number, factor_y:number, name:string, fixed_on_ground:boolean, fixed_on_ceil:boolean, top:number, bottom:number, shader:love.Shader}
+---@alias JM.Scene.Layer {draw:function, update:function, factor_x:number, factor_y:number, name:string, fixed_on_ground:boolean, fixed_on_ceil:boolean, top:number, bottom:number, shader:love.Shader, name:string}
 
 local function round(value)
     local absolute = math.abs(value)
@@ -355,6 +355,7 @@ function Scene:implements(param)
     end
 
     if param.layers then
+        local name = 1
         self.n_layers = #(param.layers)
 
         for i = 1, self.n_layers, 1 do
@@ -363,6 +364,12 @@ function Scene:implements(param)
             layer.y = layer.y or 0
             layer.factor_y = layer.factor_y or 0
             layer.factor_x = layer.factor_x or 0
+
+            if not layer.name then
+                layer.name = layer.name or ("layer " .. name)
+                name = name + 1
+            end
+
         end
     end
 

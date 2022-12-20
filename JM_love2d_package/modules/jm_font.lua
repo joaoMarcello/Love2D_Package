@@ -54,12 +54,12 @@ function Font:__constructor__(args)
         args.name .. "/" .. args.name .. "_italic" .. ".png")
     self.__italic_img:setFilter("linear", "nearest")
 
-    self.__img = self.__normal_img
+    self.img = self.__normal_img
 
     self.quad = love.graphics.newQuad(
         0, 0,
         20, 20,
-        self.__img:getDimensions()
+        self.img:getDimensions()
     )
 
     self.__nicknames = {}
@@ -102,14 +102,14 @@ function Font:__constructor__(args)
 
     self:set_font_size(self.__font_size)
 
-    self.__tab_char = Character:new(self.__img, self.quad, {
+    self.__tab_char = Character:new(self.img, self.quad, {
         id = "\t",
         x = 0, y = 0,
         w = self.__word_space * self.__tab_size,
         h = self.__ref_height
     })
 
-    self.__space_char = Character:new(self.__img, self.quad, {
+    self.__space_char = Character:new(self.img, self.quad, {
         id = " ",
         x = 0, y = 0,
         w = self.__word_space,

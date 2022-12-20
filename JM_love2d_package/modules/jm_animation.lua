@@ -228,13 +228,13 @@ function Anima:__constructor__(args)
 
     if not args.frames_list then
         args.frames_list = {}
-        local w = self.__img:getWidth() / self.__amount_frames
+        local w = self.img:getWidth() / self.__amount_frames
         for i = 1, self.__amount_frames do
             table.insert(args.frames_list, {
                 (i - 1) * w,
                 (i - 1) * w + w,
                 0,
-                args.bottom or self.__img:getHeight()
+                args.bottom or self.img:getHeight()
             })
         end
     end
@@ -253,13 +253,14 @@ function Anima:__constructor__(args)
     self.quad = love.graphics.newQuad(0, 0,
         args.frames_list[1][1],
         args.frames_list[1][2],
-        self.__img:getDimensions()
+        self.img:getDimensions()
     )
 
     -- Affectable.__checks_implementation__(self)
 end
 
 function Anima:copy()
+    self.args.img = self.img
     local anim = Anima:new(self.args)
     anim:set_color(self:get_color())
     anim:set_scale(self:get_scale())
@@ -369,12 +370,12 @@ end
 ---@param file_name string # The file path for source image.
 function Anima:set_img(file_name)
     if type(file_name) == "string" then
-        self.__img = love.graphics.newImage(file_name)
+        self.img = love.graphics.newImage(file_name)
     else
-        self.__img = file_name
+        self.img = file_name
     end
-    self.__img:setFilter("linear", "nearest")
-    return self.__img
+    self.img:setFilter("linear", "nearest")
+    return self.img
 end
 
 ---
@@ -747,12 +748,12 @@ function Anima:__draw_with_no_effects__(x, y)
     local current_frame
     current_frame = self:get_current_frame()
 
-    current_frame:setViewport(self.__img, self.quad)
+    current_frame:setViewport(self.img, self.quad)
 
     love_graphics_set_color(self.__color)
 
     if self.__is_visible then
-        love_graphics_draw(self.__img, self.quad,
+        love_graphics_draw(self.img, self.quad,
             (x), (y),
             self.rotation, self.scale_x * self.flip_x,
             self.scale_y * self.flip_y,
