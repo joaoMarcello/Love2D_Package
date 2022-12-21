@@ -1126,4 +1126,6 @@ function Phys:newBody(world, x, y, w, h, type_)
     return b
 end
 
+Phys.collision_rect = collision_rect
+
 return Phys
