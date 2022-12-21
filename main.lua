@@ -1,9 +1,9 @@
 math.randomseed(os.time())
 love.graphics.setBackgroundColor(0, 0, 0, 1)
 
-local scene = require("/test/game_test")
+local scene = require("/test/test_slope")
 
-local t = 0
+local t = 0.0
 
 function love.load()
     scene:load()
@@ -29,8 +29,8 @@ function love.update(dt)
     scene:update(dt)
 
     t = t + dt
-    if t >= 10.0 then
-        t = t - 10.0
+    if t >= 15.0 then
+        t = 0.0
         collectgarbage()
     end
 end
