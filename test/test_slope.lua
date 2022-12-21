@@ -7,13 +7,20 @@ local Game = Scene:new()
 
 local slope = {
     x = 300, y = 300,
-    w = 200, h = 200,
+    w = 230, h = 200,
     type = "floor",
+    direction = "normal_",
     pt_1 = function(self)
-        return self.x, self.x + self.h
+        if self.direction == "normal" then
+            return self.x, self.y + self.h
+        end
+        return self.x, self.y
     end,
     pt_2 = function(self)
-        return self.x + self.w, self.y
+        if self.direction == "normal" then
+            return self.x + self.w, self.y
+        end
+        return self.x + self.w, self.y + self.h
     end,
     draw = function(self)
         local x1, y1 = self:pt_1()
@@ -24,6 +31,22 @@ local slope = {
 
         love.graphics.setColor(0, 0, 0, 1)
         love.graphics.line(x1, y1, x2, y2)
+
+        love.graphics.setColor(0.3, 1, 0.3, 0.5)
+
+        if self.type == "floor" then
+            love.graphics.polygon("fill", x1, y1, x2, y2,
+                self.x + self.w,
+                self.y + self.h,
+                self.x, self.y + self.h
+            )
+        else
+            love.graphics.polygon("fill", x1, y1, x2, y2,
+                self.x + self.w,
+                self.y,
+                self.x, self.y
+            )
+        end
     end
 }
 do
@@ -43,8 +66,21 @@ do
     end
 
     slope.get_coll_point = function(self, x, y, w, h)
-        local px = x + w
-        local py = -(y + h)
+        local px, py
+        if x and w then
+            px = slope.type == "floor"
+                and (slope.direction == "normal" and x + w) or x
+
+            if slope.type ~= "floor" then
+                px = slope.type ~= "floor"
+                    and (slope.direction == "normal" and x) or (x + w)
+            end
+        end
+
+        if y and h then
+            py = (slope.type == "floor" and (y + h)) or y
+            py = -py
+        end
         return px, py
     end
 
@@ -61,16 +97,20 @@ do
         )
         if not rec_col then return false end
 
-        local pos = slope:check_up_down(x, y, w, h)
-        return pos == "DOWN"
+        local up_or_down = slope:check_up_down(x, y, w, h)
+
+        return (slope.type == "floor" and up_or_down == "DOWN")
+            or (slope.type ~= "floor" and up_or_down == "UP")
     end
 
-    slope.get_y = function(self, x, w)
-        x = x + w
+    slope.get_y = function(self, x, y, w, h)
+        x = self:get_coll_point(x, y, w, h)
         local py = -(slope:A() * x + slope:B())
-        py = (py < slope.y and slope.y + 0.05) or py
+        py = (py < slope.y and slope.y - 0.05) or py
+        py = (py > slope.y + slope.h and slope.y + slope.h) or py
 
-        return py
+        return (slope.type == "floor" and py - h)
+            or (slope.type ~= "floor" and py)
     end
 end
 
@@ -85,7 +125,7 @@ do
     end
     player.update = function(self, dt)
 
-        local last_px = player.x
+        local last_px, last_py = player.x, player.y
 
         if love.keyboard.isDown("left") then
             player.x = player.x - player.speed * dt
@@ -93,24 +133,22 @@ do
             player.x = player.x + player.speed * dt
         end
 
-        if last_px - player.x ~= 0 then
-            local col = slope:collision_check(player:rect())
 
-            if col then
-                local py = slope:get_y(player.x, player.w)
-                player.y = py - player.h
-            end
-        end
 
         if love.keyboard.isDown("up") then
             player.y = player.y - player.speed * dt
         elseif love.keyboard.isDown("down") then
             player.y = player.y + player.speed * dt
+        end
 
+        if last_px - player.x ~= 0
+            or last_py ~= player.y
+        then
             local col = slope:collision_check(player:rect())
+
             if col then
-                local py = slope:get_y(player.x, player.w)
-                player.y = py - player.h
+                local py = slope:get_y(player:rect())
+                player.y = py
             end
         end
     end
@@ -121,6 +159,10 @@ do
 
         love.graphics.setColor(0.2, 0.2, 0.2, 1)
         love.graphics.rectangle("line", self.x, self.y, self.w, self.h)
+
+        local x, y = slope:get_coll_point(self:rect())
+        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.circle("fill", x, -y, 5)
     end
 
     player.rect = function()
