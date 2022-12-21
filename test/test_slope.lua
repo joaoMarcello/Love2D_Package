@@ -7,8 +7,8 @@ local Game = Scene:new()
 
 local slope = {
     x = 300, y = 300,
-    w = 230, h = 200,
-    type = "floor",
+    w = 470, h = 120,
+    type = "floor_",
     direction = "normal_",
     pt_1 = function(self)
         if self.direction == "normal" then
@@ -104,13 +104,25 @@ do
     end
 
     slope.get_y = function(self, x, y, w, h)
-        x = self:get_coll_point(x, y, w, h)
+        x, y = self:get_coll_point(x, y, w, h)
+        y = -y
         local py = -(slope:A() * x + slope:B())
-        py = (py < slope.y and slope.y - 0.05) or py
+        py = (py < slope.y and slope.y) or py
         py = (py > slope.y + slope.h and slope.y + slope.h) or py
 
-        return (slope.type == "floor" and py - h)
-            or (slope.type ~= "floor" and py)
+        if slope.type == "floor" then
+            py = py - 0.05
+            if y > slope.y + slope.h then
+                -- return slope.y + slope.h + 0.05
+            end
+            return py - h
+        else
+            py = py + 0.05
+            if y < self.y then
+                -- return self.y - h - 0.05
+            end
+            return py
+        end
     end
 end
 
