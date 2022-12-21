@@ -8,8 +8,8 @@ local Game = Scene:new()
 local slope = {
     x = 300, y = 300,
     w = 470, h = 120,
-    type = "floor_",
-    direction = "normal_",
+    type = "floor",
+    direction = "_normal",
     pt_1 = function(self)
         if self.direction == "normal" then
             return self.x, self.y + self.h
@@ -110,19 +110,20 @@ do
         py = (py < slope.y and slope.y) or py
         py = (py > slope.y + slope.h and slope.y + slope.h) or py
 
-        if slope.type == "floor" then
-            py = py - 0.05
-            if y > slope.y + slope.h then
-                -- return slope.y + slope.h + 0.05
-            end
-            return py - h
-        else
-            py = py + 0.05
-            if y < self.y then
-                -- return self.y - h - 0.05
-            end
-            return py
-        end
+        -- if slope.type == "floor" then
+        --     py = py - 0.05
+        --     if y > slope.y + slope.h then
+        --         -- return slope.y + slope.h + 0.05
+        --     end
+        --     return py - h
+        -- else
+        --     py = py + 0.05
+        --     if y < self.y then
+        --         -- return self.y - h - 0.05
+        --     end
+        --     return py
+        -- end
+        return py
     end
 end
 
@@ -154,13 +155,17 @@ do
         end
 
         if last_px - player.x ~= 0
-            or last_py ~= player.y
+            or last_py - player.y ~= 0
         then
             local col = slope:collision_check(player:rect())
 
             if col then
                 local py = slope:get_y(player:rect())
-                player.y = py
+                if slope.type == "floor" then
+                    player.y = py - player.h
+                else
+                    player.y = py
+                end
             end
         end
     end
