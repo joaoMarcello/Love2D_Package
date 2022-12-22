@@ -342,7 +342,7 @@ do
         -- if self.speed_y ~= 0 then return end
 
         direction = direction or -1
-
+        self.y = self.y - 0.5
         self.speed_y = sqrt(2 * self:weight() * desired_height) * direction
     end
 
@@ -518,6 +518,8 @@ do
             collisions.end_y = most_up:get_y(self:rect())
             if most_up.slope_type == "floor" then
                 collisions.end_y = collisions.end_y - self.h - offset
+            else
+                collisions.end_y = collisions.end_y + offset + 1
             end
         else
             collisions.end_y = (diff_y >= 0 and most_up
@@ -1273,7 +1275,7 @@ end
 
 ---@return JM.Physics.Body|JM.Physics.Slope
 function Phys:newSlope(world, x, y, w, h, slope_type)
-    local slope = Slope:new(x, y, w, h, world, "normal", "floor_")
+    local slope = Slope:new(x, y, w, h, world, "normal", "floor")
     world:add(slope)
     return slope
 end
