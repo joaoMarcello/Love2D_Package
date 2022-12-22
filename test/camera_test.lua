@@ -3,6 +3,8 @@ local Camera = JM_package.Camera
 
 local main = {}
 
+local POS_X, POS_Y, SCALE, SCREEN_WIDTH, SCREEN_HEIGHT
+
 local function to_world(x, y)
     x, y = x - POS_X, y - POS_Y
     x, y = x / SCALE, y / SCALE

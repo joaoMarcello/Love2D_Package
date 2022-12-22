@@ -4,6 +4,8 @@ local FontGenerator = JM_package.FontGenerator
 local EffectManager = JM_package.EffectManager
 local Camera = JM_package.Camera
 
+local POS_X, POS_Y, SCALE, SCREEN_WIDTH, SCREEN_HEIGHT
+
 local t = {}
 local Consolas = FontGenerator:new({ name = "consolas", font_size = 14 })
 Consolas:add_nickname_animated("--goomba--", {
