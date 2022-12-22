@@ -1,3 +1,6 @@
+local love_math_new_transform = love.math.newTransform
+local love_graphics_apply_transform = love.graphics.applyTransform
+
 ---@alias JM.Effect.TransformObject {x: number, y: number, rot: number, sx: number, sy: number, ox: number, oy: number, kx: number, ky: number}
 
 ---@class JM.Affectable
@@ -105,7 +108,7 @@ function Affectable.apply_transform(obj, x, y)
     local eff_transf = obj:__get_effect_transform()
 
     if eff_transf then
-        local transform = love.math.newTransform()
+        local transform = love_math_new_transform()
 
         transform:setTransformation(
             x + eff_transf.ox,
@@ -119,7 +122,7 @@ function Affectable.apply_transform(obj, x, y)
             eff_transf.ky
         )
 
-        love.graphics.applyTransform(transform)
+        love_graphics_apply_transform(transform)
     end
 end
 

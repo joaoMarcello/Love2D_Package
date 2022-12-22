@@ -110,19 +110,6 @@ do
         py = (py < slope.y and slope.y) or py
         py = (py > slope.y + slope.h and slope.y + slope.h) or py
 
-        -- if slope.type == "floor" then
-        --     py = py - 0.05
-        --     if y > slope.y + slope.h then
-        --         -- return slope.y + slope.h + 0.05
-        --     end
-        --     return py - h
-        -- else
-        --     py = py + 0.05
-        --     if y < self.y then
-        --         -- return self.y - h - 0.05
-        --     end
-        --     return py
-        -- end
         return py
     end
 end

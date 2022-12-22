@@ -1102,8 +1102,8 @@ function Camera:set_bounds(left, right, top, bottom)
     end
 
     if self.bounds_bottom - self.bounds_top < self.viewport_h / self.scale then
-        self.bounds_bottom = self.bounds_top + self.viewport_h / self.scale
-        -- self.bounds_top = self.bounds_bottom - self.viewport_h / self.scale
+        -- self.bounds_bottom = self.bounds_top + self.viewport_h / self.scale
+        self.bounds_top = self.bounds_bottom - self.viewport_h / self.scale / self.desired_scale
     end
 end
 
