@@ -914,6 +914,139 @@ do
 end
 --=============================================================================
 
+---@class JM.Physics.Slope: JM.Physics.Body
+local Slope = {}
+setmetatable(Slope, Body)
+Slope.__index = Body
+
+---@alias JM.Physics.SlopeType "floor"|"ceil"
+
+function Slope:new(x, y, w, h, world, direction, slope_type)
+    local obj = Body:new(x, y, w, h, BodyTypes.static, world, "")
+    setmetatable(obj, self)
+    -- obj.__index = self
+    Slope.__constructor__(obj, x, y, w, h, BodyTypes.static, world, direction, slope_type)
+
+    return obj
+end
+
+function Slope:__constructor__(x, y, w, h, bd_type, world, direction, slope_type)
+    Body.__constructor__(self, x, y, w, h, bd_type, world, "")
+    direction = direction or "normal"
+    slope_type = slope_type or "floor"
+
+    self.direction = direction
+    self.slope_type = slope_type
+end
+
+function Slope:point_left()
+    if self.direction == "normal" then
+        return self.x, self.y + self.h
+    end
+    return self.x, self.y
+end
+
+function Slope:point_right()
+    if self.direction == "normal" then
+        return self.x + self.w, self.y
+    end
+    return self.x + self.w, self.y + self.h
+end
+
+function Slope:A()
+    local x1, y1 = self:point_left()
+    local x2, y2 = self:point_right()
+    y1, y2 = -y1, -y2
+
+    return (y1 - y2) / (x1 - x2)
+end
+
+function Slope:B()
+    local x1, y1 = self:point_left()
+    y1 = -y1
+
+    return y1 - self:A() * x1
+end
+
+function Slope:get_coll_point(x, y, w, h)
+    local px, py
+    if x and w then
+        if self.slope_type == "floor" then
+            px = (self.direction == "normal" and x + w) or x
+        else
+            px = (self.direction == "normal" and x) or x + w
+        end
+    end
+
+    if y and h then
+        py = (self.slope_type == "floor" and (y + h)) or y
+        py = -py
+    end
+
+    return px, py
+end
+
+function Slope:check_up_down(x, y, w, h)
+    local px, py = self:get_coll_point(x, y, w, h)
+    return py <= self:A() * px + self:B() and "down" or "up"
+end
+
+function Slope:check_collision(obj)
+    local x, y, w, h = obj.x, obj.y, obj.w, obj.h
+
+    do
+        local rec_col = collision_rect(
+            self.x, self.y, self.w, self.h,
+            x, y, w, h
+        )
+        if not rec_col then return false end
+    end
+
+    local up_or_down = self:check_up_down(x, y, w, h)
+
+    return (self.slope_type == "floor" and up_or_down == "down")
+        or (self.slope_type ~= "floor" and up_or_down == "up")
+end
+
+function Slope:get_y(x, y, w, h)
+    x, y = self:get_coll_point(x, y, w, h)
+    y = -y
+    local py = -(self:A() * x + self:B())
+    py = (py < self.y and self.y) or py
+    py = (py > self:bottom() and self:bottom()) or py
+
+    return py
+end
+
+function Slope:draw()
+    local x1, y1 = self:point_left()
+    local x2, y2 = self:point_right()
+
+    love.graphics.setColor(1, 0, 0, 1)
+    love.graphics.rectangle("line", self.x, self.y, self.w, self.h)
+
+    love.graphics.setColor(0, 0, 0, 1)
+    love.graphics.line(x1, y1, x2, y2)
+
+    love.graphics.setColor(0.3, 1, 0.3, 0.5)
+
+    if self.slope_type == "floor" then
+        love.graphics.polygon("fill", x1, y1, x2, y2,
+            self.x + self.w,
+            self.y + self.h,
+            self.x, self.y + self.h
+        )
+    else
+        love.graphics.polygon("fill", x1, y1, x2, y2,
+            self.x + self.w,
+            self.y,
+            self.x, self.y
+        )
+    end
+end
+
+--=============================================================================
+
 ---@class JM.Physics.World
 local World = {}
 do
@@ -1124,6 +1257,13 @@ function Phys:newBody(world, x, y, w, h, type_)
     world:add(b)
 
     return b
+end
+
+---@return JM.Physics.Slope
+function Phys:newSlope(world, x, y, w, h, slope_type)
+    local slope = Slope:new(x, y, w, h, world, "normal", "floor")
+    world:add(slope)
+    return slope
 end
 
 Phys.collision_rect = collision_rect

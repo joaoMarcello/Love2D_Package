@@ -455,6 +455,14 @@ Game:implements(
 
             components[obj] = true
 
+            local rampa = {}
+            rampa.body = Physics:newSlope(world, 300, 32 * 6, 64, 32, "normal")
+            rampa.draw = function()
+                rampa.body:A()
+            end
+
+            components[rampa] = true
+
             ground = {}
             ground.body = Physics:newBody(world, 0, 32 * 10, 32 * 30, 32 * 2, "static")
             ground.draw = function(self)
