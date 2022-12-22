@@ -456,9 +456,11 @@ Game:implements(
             components[obj] = true
 
             local rampa = {}
-            rampa.body = Physics:newSlope(world, 300, 32 * 6, 64, 32, "normal")
+            rampa.body = Physics:newSlope(world, 100, 32 * 6, 64, 32, "normal")
             rampa.draw = function()
-                rampa.body:A()
+                -- rampa.body:A()
+                rampa.body:draw()
+                Consolas:print("over here", rampa.body.x, rampa.body.y)
             end
 
             components[rampa] = true

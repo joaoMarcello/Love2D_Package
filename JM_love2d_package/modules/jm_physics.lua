@@ -921,17 +921,18 @@ Slope.__index = Body
 
 ---@alias JM.Physics.SlopeType "floor"|"ceil"
 
+---@return JM.Physics.Body|JM.Physics.Slope
 function Slope:new(x, y, w, h, world, direction, slope_type)
     local obj = Body:new(x, y, w, h, BodyTypes.static, world, "")
     setmetatable(obj, self)
-    -- obj.__index = self
+    self.__index = self
     Slope.__constructor__(obj, x, y, w, h, BodyTypes.static, world, direction, slope_type)
 
     return obj
 end
 
 function Slope:__constructor__(x, y, w, h, bd_type, world, direction, slope_type)
-    Body.__constructor__(self, x, y, w, h, bd_type, world, "")
+    -- Body.__constructor__(self, x, y, w, h, bd_type, world, "")
     direction = direction or "normal"
     slope_type = slope_type or "floor"
 
@@ -1246,9 +1247,6 @@ end
 ---@param type_ "dynamic"|"kinematic"|"static"
 ---@return JM.Physics.Body
 function Phys:newBody(world, x, y, w, h, type_)
-    -- local bd_type = (type_ == "dynamic" and BodyTypes.dynamic)
-    --     or (type_ == "kinematic" and BodyTypes.kinematic)
-    --     or BodyTypes.static
 
     local bd_type = BodyTypes[type_] or BodyTypes.static
 
@@ -1259,7 +1257,7 @@ function Phys:newBody(world, x, y, w, h, type_)
     return b
 end
 
----@return JM.Physics.Slope
+---@return JM.Physics.Body|JM.Physics.Slope
 function Phys:newSlope(world, x, y, w, h, slope_type)
     local slope = Slope:new(x, y, w, h, world, "normal", "floor")
     world:add(slope)
