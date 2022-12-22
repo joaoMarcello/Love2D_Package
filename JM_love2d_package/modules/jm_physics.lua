@@ -17,7 +17,8 @@ local BodyShapes = {
     inverted_ground_slope = 3,
     ceil_slope = 4,
     inverted_ceil_slope = 5,
-    circle = 8
+    circle = 8,
+    slope = 9
 }
 
 ---@enum JM.Physics.BodyEventOptions
@@ -39,9 +40,11 @@ local BodyEvents = {
     leaving_x_axis_body = 14
 }
 
+---@alias JM.Physics.Collide JM.Physics.Body|JM.Physics.Slope
+
 ---@alias JM.Physics.Cell {count:number, x:number, y:number, items:table}
 
----@alias JM.Physics.Collisions {items: table,n:number, top:number, left:number, right:number, bottom:number, most_left:JM.Physics.Body, most_right:JM.Physics.Body, most_up:JM.Physics.Body, most_bottom:JM.Physics.Body, diff_x:number, diff_y:number, end_x: number, end_y: number}
+---@alias JM.Physics.Collisions {items: table,n:number, top:number, left:number, right:number, bottom:number, most_left:JM.Physics.Collide, most_right:JM.Physics.Collide, most_up:JM.Physics.Collide, most_bottom:JM.Physics.Collide, diff_x:number, diff_y:number, end_x: number, end_y: number}
 
 local function collision_rect(x1, y1, w1, h1, x2, y2, w2, h2)
     return x1 + w1 > x2
@@ -277,9 +280,9 @@ do
         self:extra_collisor_filter(default_filter)
     end
 
-    function Body:check_collision(obj)
+    function Body:check_collision(x, y, w, h)
         return collision_rect(self.x, self.y, self.w, self.h,
-            obj.x, obj.y, obj.w, obj.h)
+            x, y, w, h)
     end
 
     function Body:set_mass(mass)
@@ -336,7 +339,7 @@ do
     ---@param desired_height number
     ---@param direction -1|1|nil
     function Body:jump(desired_height, direction)
-        if self.speed_y ~= 0 then return end
+        -- if self.speed_y ~= 0 then return end
 
         direction = direction or -1
 
@@ -445,7 +448,7 @@ do
         local most_up, most_bottom
 
         for item, _ in pairs(items) do
-            ---@type JM.Physics.Body
+            ---@type JM.Physics.Body|JM.Physics.Slope
             local item = item
 
             -- local cond_y = (diff_y ~= 0
@@ -460,10 +463,7 @@ do
 
                 -- and (cond_y or cond_x or (diff_x == 0 and diff_y == 0))
 
-                and collision_rect(
-                    x, y, w, h,
-                    item.x, item.y, item.w, item.h
-                )
+                and item:check_collision(x, y, w, h)
 
                 and filter(self, item)
 
@@ -514,9 +514,16 @@ do
             or (diff_x < 0 and most_right and most_right:right() + offset)
             or goal_x
 
-        collisions.end_y = (diff_y >= 0 and most_up
-            and most_up.y - self.h - offset)
-            or (diff_y < 0 and most_bottom and most_bottom:bottom() + offset) or goal_y
+        if most_up and most_up.get_y then
+            collisions.end_y = most_up:get_y(self:rect())
+            if most_up.slope_type == "floor" then
+                collisions.end_y = collisions.end_y - self.h - offset
+            end
+        else
+            collisions.end_y = (diff_y >= 0 and most_up
+                and most_up.y - self.h - offset)
+                or (diff_y < 0 and most_bottom and most_bottom:bottom() + offset) or goal_y
+        end
 
         collisions.n = n_collisions
 
@@ -608,7 +615,12 @@ do
 
     ---@param col JM.Physics.Collisions
     function Body:resolve_collisions_x(col)
+
         if col.n > 0 then
+            if col.most_up.shape == BodyShapes.slope then
+                return false
+            end
+
             self:refresh(col.end_x)
 
             if self.bouncing_x then
@@ -633,8 +645,9 @@ do
                 self.wall_right = col.most_right
             end
 
-
+            return true
         end
+
     end
 
     function Body:update(dt)
@@ -747,7 +760,9 @@ do
 
                 if col.n > 0 then -- had collision!
 
-                    obj:resolve_collisions_x(col)
+                    if not obj:resolve_collisions_x(col) then
+                        obj:refresh(goalx)
+                    end
 
                 else -- no collisions
 
@@ -936,6 +951,7 @@ function Slope:__constructor__(x, y, w, h, bd_type, world, direction, slope_type
     direction = direction or "normal"
     slope_type = slope_type or "floor"
 
+    self.shape = BodyShapes.slope
     self.direction = direction
     self.slope_type = slope_type
 end
@@ -992,12 +1008,10 @@ function Slope:check_up_down(x, y, w, h)
     return py <= self:A() * px + self:B() and "down" or "up"
 end
 
-function Slope:check_collision(obj)
-    local x, y, w, h = obj.x, obj.y, obj.w, obj.h
-
+function Slope:check_collision(x, y, w, h)
     do
         local rec_col = collision_rect(
-            self.x, self.y, self.w, self.h,
+            self.x, self.y - 10, self.w, self.h + 20,
             x, y, w, h
         )
         if not rec_col then return false end
@@ -1259,7 +1273,7 @@ end
 
 ---@return JM.Physics.Body|JM.Physics.Slope
 function Phys:newSlope(world, x, y, w, h, slope_type)
-    local slope = Slope:new(x, y, w, h, world, "normal", "floor")
+    local slope = Slope:new(x, y, w, h, world, "normal", "floor_")
     world:add(slope)
     return slope
 end

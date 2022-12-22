@@ -456,7 +456,7 @@ Game:implements(
             components[obj] = true
 
             local rampa = {}
-            rampa.body = Physics:newSlope(world, 100, 32 * 6, 64, 32, "normal")
+            rampa.body = Physics:newSlope(world, 100, 32 * 6, 32 * 3, 32, "normal")
             rampa.draw = function()
                 -- rampa.body:A()
                 rampa.body:draw()
@@ -1024,11 +1024,11 @@ Game:implements(
                     ---@type JM.Anima
                     local anim = light_eff
 
-                    love.graphics.setBlendMode("add")
-                    light_lines2:draw(rec:get_cx(), rec:get_cy())
-                    light_lines:draw(rec:get_cx(), rec:get_cy())
-                    anim:draw(rec:get_cx(), rec:get_cy())
-                    love.graphics.setBlendMode("alpha")
+                    -- love.graphics.setBlendMode("add")
+                    -- light_lines2:draw(rec:get_cx(), rec:get_cy())
+                    -- light_lines:draw(rec:get_cx(), rec:get_cy())
+                    -- anim:draw(rec:get_cx(), rec:get_cy())
+                    -- love.graphics.setBlendMode("alpha")
 
                 end
             },
