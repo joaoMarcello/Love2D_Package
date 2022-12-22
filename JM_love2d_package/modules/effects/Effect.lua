@@ -82,7 +82,7 @@ Effect.TYPE = TYPE_
 ---
 --- Class effect constructor.
 ---@overload fun(self: table|nil, object: nil, args: nil):JM.Effect
----@param object JM.Affectable # O objeto que sera afetado pelo efeito.
+---@param object JM.Template.Affectable # O objeto que sera afetado pelo efeito.
 ---@param args any
 ---@return JM.Effect effect
 function Effect:new(object, args)
@@ -101,7 +101,7 @@ end
 --- Class effect constructor.
 ---
 ---@param self JM.Effect
----@param object JM.Affectable
+---@param object JM.Template.Affectable
 function Effect:__constructor__(object, args)
     self.__id = Effect.TYPE.generic
     self.__color = { 1, 1, 1, 1 }
@@ -170,7 +170,7 @@ function Effect:copy()
 end
 
 ---
----@param object JM.Affectable
+---@param object JM.Template.Affectable
 function Effect:set_object(object)
     checks_implementation(object)
 
@@ -263,7 +263,7 @@ function Effect:draw(x, y)
 end
 
 --- Forca efeito em um objeto que nao era dele.
----@param object JM.Affectable|nil
+---@param object JM.Template.Affectable|nil
 function Effect:apply(object, reset)
     if not object then return end
 

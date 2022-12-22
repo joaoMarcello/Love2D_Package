@@ -5,7 +5,7 @@ local m_sin, PI = math.sin, math.pi
 ---@class JM.Effect.Disc: JM.Effect
 local Disc = Effect:new(nil, nil)
 
----@param object JM.Affectable|nil
+---@param object JM.Template.Affectable|nil
 ---@param args any|nil
 ---@return JM.Effect|JM.Effect.Disc
 function Disc:new(object, args)

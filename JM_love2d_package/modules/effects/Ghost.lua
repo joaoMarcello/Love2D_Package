@@ -5,7 +5,7 @@ local m_sin, PI = math.sin, math.pi
 ---@class JM.Effect.Ghost: JM.Effect
 local Ghost = Effect:new(nil, nil)
 
----@param object JM.Affectable|nil
+---@param object JM.Template.Affectable|nil
 ---@param args any|nil
 ---@return JM.Effect|JM.Effect.Ghost
 function Ghost:new(object, args)

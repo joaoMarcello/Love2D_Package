@@ -217,7 +217,7 @@ end
 
 
 ---Applies effect in a animation.
----@param object JM.Affectable|nil # The object to apply the effect.
+---@param object JM.Template.Affectable|nil # The object to apply the effect.
 ---@param eff_type JM.Effect.id_string|JM.Effect.id_number # The type of the effect.
 ---@param effect_args any # The parameters need for that especific effect.
 ---@param __only_get__ boolean|nil

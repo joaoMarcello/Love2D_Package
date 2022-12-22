@@ -6,7 +6,7 @@ local m_sin, PI = math.sin, math.pi
 ---@class JM.Effect.Swing: JM.Effect
 local Swing = Effect:new()
 
----@param object JM.Affectable|nil
+---@param object JM.Template.Affectable|nil
 ---@param args any
 ---@return JM.Effect effect
 function Swing:new(object, args)

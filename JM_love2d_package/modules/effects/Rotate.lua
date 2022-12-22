@@ -6,7 +6,7 @@ local PI = math.pi
 ---@class JM.Effect.Rotate: JM.Effect
 local Rotate = Effect:new()
 
----@param object JM.Affectable|nil
+---@param object JM.Template.Affectable|nil
 ---@param args any|nil
 ---@return JM.Effect effect
 function Rotate:new(object, args)

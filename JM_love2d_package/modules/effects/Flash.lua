@@ -54,7 +54,7 @@ local Flash = Effect:new(nil, nil)
 ---
 --- Class Effect constructor.
 ---
----@param object JM.Affectable|nil
+---@param object JM.Template.Affectable|nil
 ---@param args {speed: number, color: table, min: number, max: number}
 ---@return JM.Effect effect
 function Flash:new(object, args)

@@ -6,7 +6,8 @@
 ---@type string
 local path = (...)
 
-local Affectable = require("/JM_love2d_package/modules/templates/Affectable")
+---@type JM.Template.Affectable
+local Affectable = require(path:gsub("jm_animation", "templates.Affectable"))
 
 -- Some local variables to store global modules.
 local love_graphics = love.graphics
@@ -148,7 +149,7 @@ end
 --===========================================================================
 
 -- Class to animate.
---- @class JM.Anima: JM.Affectable
+--- @class JM.Anima: JM.Template.Affectable
 --- @field __configuration {scale: JM.Point, color: JM.Color, direction: -1|1, rotation: number, speed: number, flip: table, kx: number, ky: number, current_frame: number}
 local Anima = {}
 

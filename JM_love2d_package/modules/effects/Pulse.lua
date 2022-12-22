@@ -7,7 +7,7 @@ local m_sin, PI = math.sin, math.pi
 local Pulse = Effect:new(nil, nil)
 
 ---comment
----@param object JM.Affectable|nil
+---@param object JM.Template.Affectable|nil
 ---@param args any
 ---@return JM.Effect
 function Pulse:new(object, args)

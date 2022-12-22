@@ -3,7 +3,7 @@ local love_graphics_apply_transform = love.graphics.applyTransform
 
 ---@alias JM.Effect.TransformObject {x: number, y: number, rot: number, sx: number, sy: number, ox: number, oy: number, kx: number, ky: number}
 
----@class JM.Affectable
+---@class JM.Template.Affectable
 ---@field __effect_manager JM.EffectManager
 -- -@field __effect_transform JM.Effect.TransformObject|nil
 -- -@field set_color function
@@ -33,7 +33,7 @@ function Affectable.__checks_implementation__(object)
         "\nError: The class do not implements the required '__set_effect_transform' method.")
 end
 
----@param object JM.Affectable
+---@param object JM.Template.Affectable
 ---@param value JM.Color
 function Affectable.set_color(object, value)
     if not value then return end
@@ -64,7 +64,7 @@ function Affectable.get_color(object)
     return object.__color
 end
 
----@param object JM.Affectable
+---@param object JM.Template.Affectable
 ---@param arg JM.Effect.TransformObject
 function Affectable.__set_effect_transform(object, arg)
     if not arg then
@@ -89,7 +89,7 @@ function Affectable.__set_effect_transform(object, arg)
     }
 end
 
----@param object JM.Affectable
+---@param object JM.Template.Affectable
 ---@return JM.Effect.TransformObject
 function Affectable.__get_effect_transform(object)
     return object.__effect_transform
@@ -101,7 +101,7 @@ function Affectable.__draw__(object, x, y)
     return nil
 end
 
----@param obj JM.Affectable
+---@param obj JM.Template.Affectable
 ---@param x number
 ---@param y number
 function Affectable.apply_transform(obj, x, y)

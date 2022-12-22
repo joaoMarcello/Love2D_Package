@@ -1,14 +1,14 @@
----@type JM.Affectable
+---@type JM.Template.Affectable
 local Affectable
 
 ---@type JM.EffectManager
 local EffectManager
 
----@class JM.Font.Glyph: JM.Affectable
+---@class JM.Font.Glyph: JM.Template.Affectable
 ---@field __anima JM.Anima
 local Glyph = {}
 
----@param affectable JM.Affectable
+---@param affectable JM.Template.Affectable
 ---@param effect_manager JM.EffectManager
 Glyph.load_dependencies = function(affectable, effect_manager)
     Affectable = affectable

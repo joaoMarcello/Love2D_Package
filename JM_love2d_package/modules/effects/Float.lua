@@ -3,7 +3,7 @@ local Effect = require((...):gsub("Float", "Effect"))
 ---@class JM.Effect.Float: JM.Effect
 local Float__ = Effect:new(nil, nil)
 
----@param object JM.Affectable|nil
+---@param object JM.Template.Affectable|nil
 ---@param args any|nil
 ---@return JM.Effect|JM.Effect.Float
 function Float__:new(object, args)

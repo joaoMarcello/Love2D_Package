@@ -1026,6 +1026,7 @@ Game:implements(
             {
                 draw = function()
                     current_animation:draw_rec(round(rec.x), round(rec.y), rec.w, rec.h)
+                    -- Consolas:print(tostring(getmetatable(current_animation)), rec.x, rec.y - 35)
                 end,
                 name = "player"
             },
@@ -1043,7 +1044,7 @@ Game:implements(
             Consolas:printf(text, 20, 20, "left", 300)
             goomba_anim:draw(300, 200)
             Consolas:printf("Oi eu sou o Goku.", 20, 100, "center", 200)
-
+            -- Consolas:print(tostring(getmetatable(goomba_anim)), 300, 200 - 35)
             -- Consolas:printf(text3, 10, 150, "left", Game.screen_w)
         end
     }

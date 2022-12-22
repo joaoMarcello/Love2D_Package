@@ -4,7 +4,7 @@ local Effect = require((...):gsub("Popin", "Effect"))
 ---@class JM.Effect.Popin: JM.Effect
 local Popin = Effect:new()
 
----@param object JM.Affectable|nil
+---@param object JM.Template.Affectable|nil
 ---@param args any
 ---@return JM.Effect
 function Popin:new(object, args)

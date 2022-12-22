@@ -3,7 +3,7 @@ local Effect = require((...):gsub("Fadein", "Effect"))
 ---@class JM.Effect.Fadein: JM.Effect
 local Fadein = Effect:new(nil, nil)
 
----@param object JM.Affectable|nil
+---@param object JM.Template.Affectable|nil
 ---@param args any|nil
 ---@return JM.Effect|JM.Effect.Fadein
 function Fadein:new(object, args)
