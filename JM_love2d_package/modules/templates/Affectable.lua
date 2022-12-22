@@ -11,6 +11,12 @@ local love_graphics_apply_transform = love.graphics.applyTransform
 ---@field set_visible function
 local Affectable = {}
 
+function Affectable:new()
+    local obj = setmetatable({}, self)
+    obj.__index = self
+    return obj
+end
+
 --- Check if object implements all the needed Affectable methods and fields.
 ---@param object table
 function Affectable.__checks_implementation__(object)
@@ -95,11 +101,11 @@ function Affectable.__get_effect_transform(object)
     return object.__effect_transform
 end
 
----@param x number
----@param y number
-function Affectable.__draw__(object, x, y)
-    return nil
-end
+-- ---@param x number
+-- ---@param y number
+-- function Affectable.__draw__(object, x, y)
+--     return nil
+-- end
 
 ---@param obj JM.Template.Affectable
 ---@param x number

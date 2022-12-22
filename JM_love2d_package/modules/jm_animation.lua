@@ -6,8 +6,17 @@
 ---@type string
 local path = (...)
 
----@type JM.Template.Affectable
-local Affectable = require(path:gsub("jm_animation", "templates.Affectable"))
+-- -@type JM.Template.Affectable|nil
+local Affectable
+do
+    local success, result = pcall(function() return require(path:gsub("jm_animation", "templates.Affectable")) end)
+    Affectable = success and result or nil
+end
+
+
+
+---@type JM.Utils
+local Utils = require(path:gsub("jm_animation", "jm_utils"))
 
 -- Some local variables to store global modules.
 local love_graphics = love.graphics
@@ -133,17 +142,17 @@ end
 
 ---@param anima JM.Anima
 local function is_in_looping_state(anima)
-    return anima.__current_state == ANIMA_STATES.looping
+    return anima.current_state == ANIMA_STATES.looping
 end
 
 ---@param anima JM.Anima
 local function is_in_repeating_last_n_state(anima)
-    return anima.__current_state == ANIMA_STATES.repeating_last_n_frames
+    return anima.current_state == ANIMA_STATES.repeating_last_n_frames
 end
 
 ---@param anima JM.Anima
 local function is_in_random_state(anima)
-    return anima.__current_state == ANIMA_STATES.random
+    return anima.current_state == ANIMA_STATES.random
 end
 
 --===========================================================================
@@ -152,7 +161,6 @@ end
 --- @class JM.Anima: JM.Template.Affectable
 --- @field __configuration {scale: JM.Point, color: JM.Color, direction: -1|1, rotation: number, speed: number, flip: table, kx: number, ky: number, current_frame: number}
 local Anima = {}
-
 
 ---
 --- Animation class constructor.
@@ -181,11 +189,13 @@ end
 --- @param args {img: love.Image|string, frames: number, frames_list: table,  speed: number, rotation: number, color: JM.Color, scale: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, stop_at_the_end: boolean, amount_cycle: number, state: JM.AnimaStates, bottom: number, kx: number, ky: number, width: number, height: number, ref_width: number, ref_height: number, duration: number, n: number}  # A table containing the follow fields:
 ---
 function Anima:__constructor__(args)
-    local success, result = pcall(function(...)
+
+    local success, result = pcall(function()
         --- trying load the EffectManager Module
         return require(path:gsub("jm_animation", "jm_effect_manager"))
     end)
 
+    ---@type JM.EffectManager|nil
     local EffectManager = success and result or nil
 
     self.args = args
@@ -258,8 +268,6 @@ function Anima:__constructor__(args)
         args.frames_list[1][2],
         self.img:getDimensions()
     )
-
-    -- Affectable.__checks_implementation__(self)
 end
 
 function Anima:copy()
@@ -322,13 +330,12 @@ end
 function Anima:set_size(width, height, ref_width, ref_height)
     if width or height then
         local current_frame = self:get_current_frame()
-        local tt = {
-            w = ref_width or current_frame.w,
-            h = ref_height or current_frame.h
-        }
 
         local desired_size_in_pxl = desired_size(
-            width, height, tt.w, tt.h, true
+            width, height,
+            ref_width or current_frame.w,
+            ref_height or current_frame.h,
+            true
         )
 
         if desired_size_in_pxl then
@@ -471,16 +478,16 @@ function Anima:set_state(state)
     end
 
     if state == "random" then
-        self.__current_state = ANIMA_STATES.random
+        self.current_state = ANIMA_STATES.random
 
     elseif state == "back and forth"
         or state == "back_and_forth" then
 
-        self.__current_state = ANIMA_STATES.back_and_forth
+        self.current_state = ANIMA_STATES.back_and_forth
     elseif state == "repeat last n" then
-        self.__current_state = ANIMA_STATES.repeating_last_n_frames
+        self.current_state = ANIMA_STATES.repeating_last_n_frames
     else
-        self.__current_state = ANIMA_STATES.looping
+        self.current_state = ANIMA_STATES.looping
     end
 end
 

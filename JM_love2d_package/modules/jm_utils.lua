@@ -96,4 +96,33 @@ function Utils:getText(path)
     return text
 end
 
+-- look up for 'k' in parent_list
+local function search(k, parent_list)
+    for i = 1, #parent_list do
+        local v = parent_list[i][k]
+        if v then return v end
+    end
+end
+
+function Utils:create_class(...)
+    local class_ = {} -- the new class
+    local parents = { ... } -- the parents for the new class
+
+    -- class will search for absents fields in the parents list
+    setmetatable(class_, { __index = function(_, k)
+        return search(k, parents)
+    end })
+
+    -- prepare the class to be the metatable of its instances
+    class_.__index = class_
+
+    -- defining a new constructor for this new class
+    function class_:new()
+        local obj = setmetatable({}, class_)
+        return obj
+    end
+
+    return class_
+end
+
 return Utils
