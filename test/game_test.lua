@@ -270,7 +270,8 @@ local rects = {
     { x = 32 * 16, y = 32 * 7, w = 32 * 4, h = 32 * 3 },
     { x = 32 * 20, y = 32 * 4, w = 32 * 4, h = 32 * 3 },
     { x = 32 * 24, y = 32 * 1, w = 32 * 4, h = 32 * 3 },
-    { x = -2, y = Game.world_top, w = 1, h = Game.world_bottom - Game.world_top }
+    { x = -2, y = Game.world_top, w = 1, h = Game.world_bottom - Game.world_top },
+    { x = 0, y = Game.world_bottom, w = Game.world_right - Game.world_left, h = 2 }
 }
 
 local function check_collision(x, y, w, h)
@@ -459,7 +460,7 @@ Game:implements(
 
 
             local rampa = {}
-            rampa.body = Physics:newSlope(world, 100, 32 * 6, 32 * 4, 32 * 2, "normal")
+            rampa.body = Physics:newSlope(world, 32 * 12, 32 * 7, 32 * 4, 32 * 3, "normal")
             rampa.draw = function()
                 -- rampa.body:A()
                 rampa.body:draw()
@@ -738,6 +739,7 @@ Game:implements(
 
                 if rbody.ground and love.keyboard.isDown("down") then
                     rec.last_y = rbody.ground.y
+                    rbody:jump(32 / 4)
                     rbody:extra_collisor_filter(
                         function(obj, item)
                             return item.y ~= rec.last_y

@@ -225,7 +225,7 @@ do
         -- used if body is static or kinematic
         self.resistance_x = 1
 
-        ---@type JM.Physics.Body
+        ---@type JM.Physics.Body|JM.Physics.Slope
         self.ground = nil -- used if body is not static
 
         -- some properties
@@ -340,12 +340,15 @@ do
     ---@param direction -1|1|nil
     function Body:jump(desired_height, direction)
         -- if self.speed_y ~= 0 then return end
-        if self:check(nil, self.y + 10, colliders_filter).n <= 0 then
-            return
+        do
+            local r = self:check(nil, self.y + 10, colliders_filter)
+            if r.n <= 0 then
+                return
+            end
         end
 
         direction = direction or -1
-        self.y = self.y - 0.5
+        -- self.y = self.y - 0.5
         self.speed_y = sqrt(2 * self:weight() * desired_height) * direction
     end
 
@@ -477,7 +480,7 @@ do
                 n_collisions = n_collisions + 1
 
                 most_left = most_left or item
-                most_left = (item.x < most_left.x and item) or most_left
+                most_left = ((item.x < most_left.x or item.is_slope) and item) or most_left
 
                 most_right = most_right or item
                 most_right = ((item.x + item.w)
@@ -485,7 +488,7 @@ do
                     or most_left
 
                 most_up = most_up or item
-                most_up = (item.y < most_up.y and item) or most_up
+                most_up = ((item.y < most_up.y or item.is_slope) and item) or most_up
 
                 most_bottom = most_bottom or item
                 most_bottom = ((item.y + item.h)
@@ -587,7 +590,7 @@ do
 
             self:refresh(nil, col.end_y)
 
-            if self.bouncing_y then
+            if self.bouncing_y and (not col.most_up.is_slope) then
                 self.speed_y = -self.speed_y * self.bouncing_y
 
                 if abs(self.speed_y) <= sqrt(2.0 * self.acc_y * 2.0) then
@@ -606,6 +609,10 @@ do
                 end
 
                 self.ground = col.most_up
+
+                if self.ground.is_slope then
+                    self.y = self.ground:get_y(self:rect()) - self.h
+                end
 
             else -- body hit the ceil
 
@@ -833,6 +840,13 @@ do
         function Body:bottom_right()
             return self.y + self.h, self.x + self.w
         end
+
+        function Body:draw()
+            love.graphics.setColor(0.1, 0.4, 0.5)
+            love.graphics.rectangle("fill", self:rect())
+            love.graphics.setColor(1, 1, 1)
+            love.graphics.rectangle("line", self:rect())
+        end
     end
 end
 --=============================================================================
@@ -860,9 +874,6 @@ function Slope:__constructor__(x, y, w, h, bd_type, world, direction, slope_type
 
     self.shape = BodyShapes.slope
     self.is_slope = true
-
-    -- self.direction = direction
-    -- self.slope_type = slope_type
 
     self.normal_direction = true
     self.is_floor = true
@@ -931,7 +942,7 @@ end
 function Slope:check_collision(x, y, w, h)
     do
         local rec_col = collision_rect(
-            self.x, self.y - 10, self.w, self.h + 20,
+            self.x, self.y - 2, self.w, self.h + 4,
             x, y, w, h
         )
         if not rec_col then return false end
