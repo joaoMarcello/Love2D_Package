@@ -429,7 +429,7 @@ Game:implements(
                 acc = -32 * 4,
                 speed = -math.sqrt(2 * 32 * 4 * 32)
             }
-            obj.body = Physics:newBody(world, 32 * 6, 32 * 2, 32, 64, "kinematic")
+            obj.body = Physics:newBody(world, 32 * 10, 32 * 2, 32, 64, "kinematic")
             obj.body.id = "box"
             obj.draw = function(self)
                 local body
@@ -455,15 +455,20 @@ Game:implements(
 
             components[obj] = true
 
+
+
+
             local rampa = {}
-            rampa.body = Physics:newSlope(world, 100, 32 * 6, 32 * 3, 32, "normal")
+            rampa.body = Physics:newSlope(world, 100, 32 * 6, 32 * 4, 32 * 2, "normal")
             rampa.draw = function()
                 -- rampa.body:A()
                 rampa.body:draw()
-                Consolas:print("over here", rampa.body.x, rampa.body.y)
             end
 
             components[rampa] = true
+
+
+
 
             ground = {}
             ground.body = Physics:newBody(world, 0, 32 * 10, 32 * 30, 32 * 2, "static")
