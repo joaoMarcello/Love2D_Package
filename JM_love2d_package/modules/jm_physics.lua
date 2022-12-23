@@ -620,7 +620,6 @@ do
 
         if col.n > 0 then
             if col.most_up.is_slope then
-                -- self:resolve_collisions_y(col)
                 return false
             end
 
@@ -765,7 +764,7 @@ do
                 if col.n > 0 then -- had collision!
 
                     if not obj:resolve_collisions_x(col) then
-                        obj:refresh(goalx)
+                        obj:refresh(goalx, col.most_up:get_y(goalx, self.y, self.w, self.h) - self.h - 0.05)
                     end
 
                 else -- no collisions
