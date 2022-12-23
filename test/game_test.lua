@@ -430,7 +430,7 @@ Game:implements(
                 acc = -32 * 4,
                 speed = -math.sqrt(2 * 32 * 4 * 32)
             }
-            obj.body = Physics:newBody(world, 32 * 10, 32 * 2, 32, 64, "kinematic")
+            obj.body = Physics:newBody(world, 32 * 5, 32 * 2, 32, 64, "kinematic")
             obj.body.id = "box"
             obj.draw = function(self)
                 local body
@@ -450,7 +450,7 @@ Game:implements(
             end
             obj.body:on_event("ground_touch",
                 function()
-                    obj.body:jump(32 * 2)
+                    -- obj.body:jump(32 * 2)
                 end
             )
 

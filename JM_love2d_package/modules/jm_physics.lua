@@ -341,7 +341,7 @@ do
     function Body:jump(desired_height, direction)
         -- if self.speed_y ~= 0 then return end
         do
-            local r = self:check(nil, self.y + 10, colliders_filter)
+            local r = self:check(nil, self.y + 1, colliders_filter)
             if r.n <= 0 then
                 return
             end
@@ -942,7 +942,7 @@ end
 function Slope:check_collision(x, y, w, h)
     do
         local rec_col = collision_rect(
-            self.x, self.y - 2, self.w, self.h + 4,
+            self.x, self.y - 5, self.w, self.h + 10,
             x, y, w, h
         )
         if not rec_col then return false end
