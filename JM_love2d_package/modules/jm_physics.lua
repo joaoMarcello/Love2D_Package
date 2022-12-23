@@ -340,6 +340,9 @@ do
     ---@param direction -1|1|nil
     function Body:jump(desired_height, direction)
         -- if self.speed_y ~= 0 then return end
+        if self:check(nil, self.y + 10, colliders_filter).n <= 0 then
+            return
+        end
 
         direction = direction or -1
         self.y = self.y - 0.5
@@ -764,7 +767,9 @@ do
                 if col.n > 0 then -- had collision!
 
                     if not obj:resolve_collisions_x(col) then
-                        obj:refresh(goalx, col.most_up:get_y(goalx, self.y, self.w, self.h) - self.h - 0.05)
+                        local temp = col.most_up.is_floor and (-self.h - 0.05) or (0.05)
+
+                        obj:refresh(goalx, col.most_up:get_y(goalx, self.y, self.w, self.h) + temp)
                     end
 
                 else -- no collisions
