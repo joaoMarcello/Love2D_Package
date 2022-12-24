@@ -348,8 +348,8 @@ do
         end
 
         direction = direction or -1
-        -- self.y = self.y - 0.5
-        self.speed_y = sqrt(2 * self:weight() * desired_height) * direction
+        self.y = self.y - 0.05
+        self.speed_y = sqrt(2.0 * self:weight() * desired_height) * direction
     end
 
     function Body:dash(desired_distance, direction)
@@ -1043,6 +1043,8 @@ do
         self.bodies = {}
         self.bodies_number = 0
 
+        self.non_empty_cells = {}
+
         self.grid = {}
     end
 
@@ -1069,11 +1071,12 @@ do
     end
 
     function World:add_obj_to_cell(obj, cx, cy)
-        self.grid[cy] = self.grid[cy] or {}
+        self.grid[cy] = self.grid[cy] or setmetatable({}, { __mode = 'v' })
         local row = self.grid[cy]
 
-        row[cx] = row[cx] or { count = 0, x = cx, y = cy, items = {} }
+        row[cx] = row[cx] or { count = 0, x = cx, y = cy, items = setmetatable({}, { __mode = 'k' }) }
         local cell = row[cx]
+        self.non_empty_cells[cell] = true
 
         if not cell.items[obj] then
             cell.items[obj] = true
@@ -1093,6 +1096,7 @@ do
         cell.count = cell.count - 1
 
         if cell.count == 0 then
+            self.non_empty_cells[cell] = nil
             cell.items = nil
             self.grid[cy][cx] = nil
         end
