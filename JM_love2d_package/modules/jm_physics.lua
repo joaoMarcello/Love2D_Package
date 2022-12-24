@@ -875,7 +875,7 @@ function Slope:__constructor__(x, y, w, h, bd_type, world, direction, slope_type
     self.shape = BodyShapes.slope
     self.is_slope = true
 
-    self.normal_direction = true
+    self.normal_direction = false
     self.is_floor = true
 end
 

@@ -460,7 +460,7 @@ Game:implements(
 
 
             local rampa = {}
-            rampa.body = Physics:newSlope(world, 32 * 12, 32 * 7, 32 * 4, 32 * 3, "normal")
+            rampa.body = Physics:newSlope(world, 32 * 11, 32 * 6, 32 * 4, 32 * 3, "normal")
             rampa.draw = function()
                 -- rampa.body:A()
                 rampa.body:draw()
