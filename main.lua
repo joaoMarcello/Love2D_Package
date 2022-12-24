@@ -31,7 +31,7 @@ function love.update(dt)
     t = t + dt
     if t >= 15.0 then
         t = 0.0
-        collectgarbage()
+        -- collectgarbage()
     end
 end
 

@@ -44,7 +44,7 @@ local BodyEvents = {
 
 ---@alias JM.Physics.Cell {count:number, x:number, y:number, items:table}
 
----@alias JM.Physics.Collisions {items: table,n:number, top:number, left:number, right:number, bottom:number, most_left:JM.Physics.Collide, most_right:JM.Physics.Collide, most_up:JM.Physics.Collide, most_bottom:JM.Physics.Collide, diff_x:number, diff_y:number, end_x: number, end_y: number, has_slope:boolean, goal_x:number, goal_y:number}
+---@alias JM.Physics.Collisions {items: table,n:number, top:number, left:number, right:number, bottom:number, most_left:JM.Physics.Collide, most_right:JM.Physics.Collide, most_up:JM.Physics.Collide, most_bottom:JM.Physics.Collide, diff_x:number, diff_y:number, end_x: number, end_y: number, has_slope:JM.Physics.Collide, goal_x:number, goal_y:number}
 
 local function collision_rect(x1, y1, w1, h1, x2, y2, w2, h2)
     return x1 + w1 > x2
@@ -449,7 +449,7 @@ do
         local collisions = {}
 
         local col_items = {}
-        local n_collisions, has_slope = 0, false
+        local n_collisions, has_slope = 0, nil
         local most_left, most_right
         local most_up, most_bottom
 
@@ -478,7 +478,7 @@ do
                 table_insert(col_items, item)
 
                 if not has_slope then
-                    has_slope = item.is_slope
+                    has_slope = item.is_slope and item or nil
                 end
 
                 n_collisions = n_collisions + 1
@@ -642,7 +642,8 @@ do
 
                 local n = #(col.items)
                 local final_x, final_y
-                local slope
+                local slope = col.has_slope
+
                 for i = 1, n do
                     ---@type JM.Physics.Body|JM.Physics.Slope
                     local bd = col.items[i]
@@ -904,6 +905,7 @@ function Slope:__constructor__(direction, slope_type)
 
     self.normal_direction = true
     self.is_floor = true
+    self.resistance_x = 0.7
 end
 
 function Slope:point_left()

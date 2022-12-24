@@ -460,7 +460,7 @@ Game:implements(
 
 
             local rampa = {}
-            rampa.body = Physics:newSlope(world, 32 * 12, 32 * 7, 32 * 4, 32 * 3, "normal")
+            rampa.body = Physics:newSlope(world, 32 * 14, 32 * 7, 32 * 2, 32 * 3, "normal")
             rampa.draw = function()
                 -- rampa.body:A()
                 rampa.body:draw()
@@ -847,7 +847,8 @@ Game:implements(
 
         keypressed = function(key)
             if key == "space" then
-                rec.body:jump(32 * 3.5)
+                local h = math.abs(rec.body.speed_x) >= rec.body.max_speed_x and 4.5 or 3.5
+                rec.body:jump(32 * h)
             end
 
             if key == "s" then
@@ -859,7 +860,7 @@ Game:implements(
             end
 
             if key == "p" then
-                Game:pause(3)
+                Game:pause(1)
             end
 
             if key == "f" then
