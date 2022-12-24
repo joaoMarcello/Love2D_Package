@@ -44,7 +44,7 @@ local BodyEvents = {
 
 ---@alias JM.Physics.Cell {count:number, x:number, y:number, items:table}
 
----@alias JM.Physics.Collisions {items: table,n:number, top:number, left:number, right:number, bottom:number, most_left:JM.Physics.Collide, most_right:JM.Physics.Collide, most_up:JM.Physics.Collide, most_bottom:JM.Physics.Collide, diff_x:number, diff_y:number, end_x: number, end_y: number}
+---@alias JM.Physics.Collisions {items: table,n:number, top:number, left:number, right:number, bottom:number, most_left:JM.Physics.Collide, most_right:JM.Physics.Collide, most_up:JM.Physics.Collide, most_bottom:JM.Physics.Collide, diff_x:number, diff_y:number, end_x: number, end_y: number, has_slope:boolean, goal_x:number, goal_y:number}
 
 local function collision_rect(x1, y1, w1, h1, x2, y2, w2, h2)
     return x1 + w1 > x2
@@ -449,7 +449,7 @@ do
         local collisions = {}
 
         local col_items = {}
-        local n_collisions = 0
+        local n_collisions, has_slope = 0, false
         local most_left, most_right
         local most_up, most_bottom
 
@@ -476,6 +476,10 @@ do
                 and self.extra_filter(self, item)
             then
                 table_insert(col_items, item)
+
+                if not has_slope then
+                    has_slope = item.is_slope
+                end
 
                 n_collisions = n_collisions + 1
 
@@ -534,6 +538,10 @@ do
         end
 
         collisions.n = n_collisions
+
+        collisions.has_slope = has_slope
+        collisions.goal_x = goal_x
+        collisions.goal_y = goal_y
 
         return collisions
     end
@@ -629,9 +637,35 @@ do
     function Body:resolve_collisions_x(col)
 
         if col.n > 0 then
-            if col.most_up.is_slope then
-                return false
+
+            if col.has_slope then
+
+                local n = #(col.items)
+                local final_x, final_y
+                local slope
+                for i = 1, n do
+                    ---@type JM.Physics.Body|JM.Physics.Slope
+                    local bd = col.items[i]
+
+                    if bd.is_slope then
+                        local temp = bd.is_floor and (-self.h - 0.05) or (0.05)
+                        slope = bd
+                        final_x = col.goal_x
+                        final_y = bd:get_y(col.goal_x, self.y, self.w, self.h) + temp
+
+                    elseif is_kinematic(bd) then
+                        if col.diff_x < 0 then
+                            final_x = bd:right() + 0.05
+                        else
+                            final_x = bd:left() - 0.05
+                        end
+                    end
+                end
+
+                self:refresh(final_x, final_y)
+                goto end_function
             end
+
 
             self:refresh(col.end_x)
 
@@ -659,7 +693,7 @@ do
 
             return true
         end
-
+        ::end_function::
     end
 
     function Body:update(dt)
@@ -773,11 +807,7 @@ do
 
                 if col.n > 0 then -- had collision!
 
-                    if not obj:resolve_collisions_x(col) then
-                        local temp = col.most_up.is_floor and (-self.h - 0.05) or (0.05)
-
-                        obj:refresh(goalx, col.most_up:get_y(goalx, self.y, self.w, self.h) + temp)
-                    end
+                    obj:resolve_collisions_x(col)
 
                 else -- no collisions
 
@@ -862,20 +892,17 @@ function Slope:new(x, y, w, h, world, direction, slope_type)
     local obj = Body:new(x, y, w, h, BodyTypes.static, world, "")
     setmetatable(obj, self)
     self.__index = self
-    Slope.__constructor__(obj, x, y, w, h, BodyTypes.static, world, direction, slope_type)
+    Slope.__constructor__(obj, direction, slope_type)
 
     return obj
 end
 
-function Slope:__constructor__(x, y, w, h, bd_type, world, direction, slope_type)
-
-    direction = "normal_"
-    slope_type = "floor"
+function Slope:__constructor__(direction, slope_type)
 
     self.shape = BodyShapes.slope
     self.is_slope = true
 
-    self.normal_direction = false
+    self.normal_direction = true
     self.is_floor = true
 end
 
