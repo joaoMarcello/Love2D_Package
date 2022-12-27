@@ -960,6 +960,9 @@ function Slope:get_coll_point(x, y, w, h)
         py = -py
     end
 
+    -- do
+    --     return x + w / 2.0, py
+    -- end
     return px, py
 end
 
