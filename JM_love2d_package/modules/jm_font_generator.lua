@@ -906,6 +906,11 @@ function Font:clear_buffer()
     self.buffer__ = nil
 end
 
+---@return JM.Font.Phrase
+function Font:get_phrase(text)
+    return self.buffer__[text]
+end
+
 ---@class JM.Font.Generator
 local Generator = {
     new = function(self, args)

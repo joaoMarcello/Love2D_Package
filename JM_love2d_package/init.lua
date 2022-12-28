@@ -31,4 +31,7 @@ JM.Utils = require(string.gsub(path, "init", "modules.jm_utils"))
 ---@type JM.Font.Module
 JM.Font = require(string.gsub(path, "init", "modules.jm_font"))
 
+---@type JM.GUI
+JM.GUI = require(string.gsub(path, "init", "modules.jm_gui"))
+
 return JM

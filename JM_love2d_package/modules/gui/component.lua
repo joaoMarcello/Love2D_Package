@@ -41,6 +41,8 @@ local Component = {
 
 ---@return JM.GUI.Component
 function Component:new(args)
+    args = args or {}
+
     local obj = {}
     self.__index = self
     setmetatable(obj, self)
