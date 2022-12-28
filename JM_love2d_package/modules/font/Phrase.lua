@@ -31,13 +31,13 @@ end
 function Phrase:__constructor__(args)
     assert(Utils, "\n> Module Utils not initialized!")
 
-    self.__text = args.text
+    self.text = args.text
     self.__font = args.font
     self.__font_config = self.__font:__get_configuration()
 
     self.__font:push()
 
-    self.__separated_string = self.__font:separate_string(self.__text)
+    self.__separated_string = self.__font:separate_string(self.text)
     self.__words = {}
 
     self.__bounds = { top = 0, left = 0, bottom = love.graphics.getHeight(), right = love.graphics.getWidth() - 100 }
@@ -48,10 +48,10 @@ function Phrase:__constructor__(args)
             format = self.__font:get_format_mode()
         })
 
-        self:__verify_commands(w.__text)
+        self:__verify_commands(w.text)
 
-        if w.__text ~= "" then
-            if not self.__font:__is_a_nickname(w.__text, 1) then
+        if w.text ~= "" then
+            if not self.__font:__is_a_nickname(w.text, 1) then
                 w:set_color(self.__font.__default_color)
             end
             table.insert(self.__words, w)
@@ -101,7 +101,7 @@ function Phrase:color_pattern(word, color, mode)
 
     for i = 1, #self.__words, 1 do
         local w = self:get_word_by_index(i)
-        local text = w.__text
+        local text = w.text
         local startp, endp = 1, 1
 
         while true do
@@ -148,19 +148,19 @@ function Phrase:__find_occurrences__(sentence, mode)
             local word = self:get_word_by_index(i + j - 1)
             if not word then break end
 
-            local cur_sentence_word = Sentence:get_word_by_index(j).__text
-            local startp, endp = word.__text:find(cur_sentence_word)
+            local cur_sentence_word = Sentence:get_word_by_index(j).text
+            local startp, endp = word.text:find(cur_sentence_word)
 
-            local startp = word.__text == cur_sentence_word
-                or word.__text:sub(1, #(word.__text) - 1) == cur_sentence_word
+            local startp = word.text == cur_sentence_word
+                or word.text:sub(1, #(word.text) - 1) == cur_sentence_word
 
             if not startp then break end
 
             if j == #Sentence.__words then
-                if not (self.__font:string_is_nickname(word.__text)
-                    and word.__text ~= cur_sentence_word)
+                if not (self.__font:string_is_nickname(word.text)
+                    and word.text ~= cur_sentence_word)
                     and not (self.__font:string_is_nickname(cur_sentence_word)
-                        and cur_sentence_word ~= word.__text)
+                        and cur_sentence_word ~= word.text)
                 then
 
                     table.insert(found_stack, i)
@@ -198,7 +198,7 @@ function Phrase:color_sentence(sentence, color, mode)
                 local word = self:get_word_by_index(i)
                 local word_sentence = phrase:get_word_by_index(i - where_found + 1)
 
-                local startp, endp = word.__text:find(word_sentence.__text)
+                local startp, endp = word.text:find(word_sentence.text)
                 local r = startp and word:set_color(color, startp, endp)
                 -- r = startp and word:turn_into_bold(startp, endp)
             end
@@ -225,7 +225,7 @@ function Phrase:apply_freaky(sentence, mode)
                 local word = self:get_word_by_index(i)
                 local word_sentence = Sentence:get_word_by_index(i - where_found + 1)
 
-                local startp, endp = word.__text:find(word_sentence.__text)
+                local startp, endp = word.text:find(word_sentence.text)
                 local r = startp and word:apply_effect(startp, endp, "freaky", offset)
             end
         end
@@ -260,7 +260,7 @@ function Phrase:get_lines(x, y)
         local current_word = self:get_word_by_index(i)
         local next_word = self:get_word_by_index(i + 1)
 
-        local cur_is_tag = self.__font:__is_a_command_tag(current_word.__text)
+        local cur_is_tag = self.__font:__is_a_command_tag(current_word.text)
 
         if cur_is_tag then
             goto skip_word
@@ -270,7 +270,7 @@ function Phrase:get_lines(x, y)
             + word_char:get_width()
 
         if tx + r > self.__bounds.right
-            or current_word.__text:match("\n ?") then
+            or current_word.text:match("\n ?") then
 
             tx = x
 
@@ -279,7 +279,7 @@ function Phrase:get_lines(x, y)
                 function()
                     local last_added = self:__get_word_in_list(lines[cur_line], #lines[cur_line])
 
-                    if last_added.__text == " " then
+                    if last_added.text == " " then
                         table.remove(lines[cur_line], #lines[cur_line])
                     end
                 end)
@@ -290,9 +290,9 @@ function Phrase:get_lines(x, y)
 
         if not lines[cur_line] then lines[cur_line] = {} end
 
-        if current_word.__text ~= "\n" then
+        if current_word.text ~= "\n" then
             table.insert(lines[cur_line], current_word)
-        elseif next_word.__text ~= "\n" then
+        elseif next_word.text ~= "\n" then
             table.insert(lines[cur_line - 1], current_word)
         else
             table.insert(lines[cur_line], current_word)
@@ -300,9 +300,9 @@ function Phrase:get_lines(x, y)
         end
 
         if i ~= #(self.__words)
-            and current_word.__text ~= "\t"
-            and current_word.__text ~= "\n"
-            and next_word and next_word.__text ~= "\t"
+            and current_word.text ~= "\t"
+            and current_word.text ~= "\n"
+            and next_word and next_word.text ~= "\t"
         then
 
             table.insert(lines[cur_line], word_char)
@@ -478,7 +478,7 @@ function Phrase:refresh()
 end
 
 function Phrase:__debbug()
-    local s = self.__text
+    local s = self.text
     local w = self.__font:separate_string(s)
 
     for i = 1, #w do

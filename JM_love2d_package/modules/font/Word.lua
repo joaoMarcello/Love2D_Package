@@ -25,7 +25,7 @@ end
 function Word:__constructor__(args)
     assert(EffectManager, "\n>Class EffectManager not loaded!")
 
-    self.__text = args.text
+    self.text = args.text
     self.__font = args.font
     self.__args = args
 
@@ -43,7 +43,7 @@ function Word:__load_characters(mode)
     self.__font:set_format_mode(mode)
     self.__characters = {}
 
-    local iterator = self.__font:get_text_iterator(self.__text)
+    local iterator = self.__font:get_text_iterator(self.text)
 
     while (iterator:has_next()) do
         local char_obj = iterator:next()

@@ -908,6 +908,10 @@ end
 
 ---@return JM.Font.Phrase
 function Font:get_phrase(text)
+    if not self.buffer__[text] then
+        local f = Phrase:new({ text = text, font = self })
+        self.buffer__[text] = f
+    end
     return self.buffer__[text]
 end
 

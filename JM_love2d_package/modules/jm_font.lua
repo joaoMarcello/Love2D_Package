@@ -41,4 +41,8 @@ function Font:printx(text, x, y, limit_right, align)
     return Font.current:printx(text, x, y, limit_right, align)
 end
 
+function Font:get_phrase(text)
+    return Font.current:get_phrase(text)
+end
+
 return Font
