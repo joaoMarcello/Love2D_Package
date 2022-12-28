@@ -2,7 +2,7 @@
 local path = ...
 
 ---@class JM.GUI.Container: JM.GUI.Component
-local Container = { components = nil, n = 0 }
+local Container = { components = nil }
 
 ---@return JM.GUI.Container|JM.GUI.Component
 function Container:new()
@@ -14,7 +14,6 @@ function Container:new()
     setmetatable(obj, self)
 
     obj.components = {}
-    obj.n = 0
 
     return obj
 end
@@ -35,12 +34,73 @@ function Container:set_position(x, y)
 end
 
 function Container:update(dt)
-    for i = self.n, 1, -1 do
+    for i = #(self.components), 1, -1 do
+
         ---@type JM.GUI.Component
         local gc = self.components[i]
 
-        local r = gc.is_enable and gc:update(dt)
+        if gc.remove_ then
+            table.remove(self.components, i)
+        else
+            local r = gc.is_enable and gc:update(dt)
+        end
     end
+end
+
+function Container:mouse_pressed(x, y)
+    for i = 1, #(self.components) do
+        ---@type JM.GUI.Component
+        local gc = self.components[i]
+
+        local r = gc.is_enable and not gc.remove_
+            and gc.mouse_pressed and gc:mouse_pressed(x, y)
+    end
+end
+
+function Container:mouse_released(x, y)
+    for i = 1, #(self.components) do
+        ---@type JM.GUI.Component
+        local gc = self.components[i]
+
+        local r = gc.is_enable and not gc.remove_
+            and gc.mouse_released and gc:mouse_released(x, y)
+    end
+end
+
+function Container:key_pressed(key)
+    for i = 1, #(self.components) do
+        ---@type JM.GUI.Component
+        local gc = self.components[i]
+
+        local r = gc.is_enable and not gc.remove_
+            and gc.key_pressed and gc:key_pressed(key)
+    end
+end
+
+function Container:key_released(key)
+    for i = 1, #(self.components) do
+        ---@type JM.GUI.Component
+        local gc = self.components[i]
+
+        local r = gc.is_enable and not gc.remove_
+            and gc.key_released and gc:key_released(key)
+    end
+end
+
+function Container:draw()
+    for i = 1, #(self.components) do
+        ---@type JM.GUI.Component
+        local gc = self.components[i]
+
+        local r = gc.is_visible and not gc.remove_ and gc:draw()
+    end
+end
+
+---@param obj JM.GUI.Component
+---@return JM.GUI.Component
+function Container:add(obj)
+    table.insert(self.components, obj)
+    return obj
 end
 
 return Container
