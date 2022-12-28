@@ -17,6 +17,14 @@ function love.keyreleased(key)
     scene:keyreleased(key)
 end
 
+function love.mousepressed(x, y, button, istouch, presses)
+    scene:mousepressed(x, y, button, istouch, presses)
+end
+
+function love.mousereleased(x, y, button, istouch, presses)
+    scene:mousereleased(x, y, button, istouch, presses)
+end
+
 local km = nil
 function love.update(dt)
     km = collectgarbage("count") / 1024.0
@@ -41,4 +49,5 @@ function love.draw()
     love.graphics.setColor(1, 1, 0, 1)
     love.graphics.print(string.format("Memory:\n\t%.2f Mb", km), 10, 10)
     love.graphics.print("FPS: " .. tostring(love.timer.getFPS()), 10, 50)
+    love.graphics.print("Version: " .. love.getVersion(), 10, 70)
 end

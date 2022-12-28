@@ -22,6 +22,8 @@ local STATES = {
     locked = 4
 }
 
+
+
 ---@class JM.GUI.Button: JM.GUI.Component
 local Button = Component:new()
 
@@ -31,14 +33,35 @@ function Button:new(args)
     self.__index = self
     setmetatable(obj, self)
 
+    obj:init()
+    obj:__constructor__(args)
+
+    return obj
+end
+
+function Button:__constructor__(args)
     self.type = self.TYPE.button
     self.text = args and args.text or "button"
     self.state = STATES.on_focus
     self.color = { 0.3, 0.8, 0.3, 1.0 }
 
-    obj:init()
+    self:on_event("mouse_pressed", function(x, y)
+        self.color = { math.random(), math.random(), math.random(), 1 }
+    end)
 
-    return obj
+    self:on_event("gained_focus", function()
+        self.text = "on focus"
+    end)
+
+    self:on_event("lose_focus", function()
+        self.text = "button"
+    end)
+
+    self:on_event("mouse_released", function()
+        self.color = { math.random(), math.random(), math.random(), 1 }
+    end)
+
+
 end
 
 function Button:init()
@@ -50,7 +73,7 @@ function Button:draw()
     love.graphics.rectangle("fill", self:rect())
     love.graphics.setColor(0, 0, 0, 1)
     love.graphics.rectangle("line", self:rect())
-    Font:print(self.text, self.x, self.y)
+    Font:print(self.text, self.x + 10, self.y + 10)
 end
 
 return Button

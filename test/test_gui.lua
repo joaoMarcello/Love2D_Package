@@ -10,9 +10,25 @@ local button_1 = GUI.Button:new({
     x = 200, y = 100, w = 100, h = 50
 })
 
+local manager = GUI.Container:new()
+manager:add(button_1)
+manager:add(GUI.Button:new({ x = 200, y = 250, w = 150, h = 75 }))
+
 Game:implements({
     draw = function()
-        button_1:draw()
+        manager:draw()
+    end,
+
+    mousepressed = function(x, y)
+        manager:mouse_pressed(x, y)
+    end,
+
+    mousereleased = function(x, y)
+        manager:mouse_released(x, y)
+    end,
+
+    update = function(dt)
+        manager:update(dt)
     end
 })
 

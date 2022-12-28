@@ -38,7 +38,7 @@ function Font:printf(text, x, y, align, limit_right)
 end
 
 function Font:printx(text, x, y, limit_right, align)
-    return Font.current:printx(text, x, y, limit_right, align)
+    return Font.current:printx(text, x, y, x + limit_right, align)
 end
 
 function Font:get_phrase(text)

@@ -310,12 +310,11 @@ function Scene:implements(param)
 
     local function generic(callback)
         ---@param scene JM.Scene
-        ---@param args any
-        return function(scene, args)
+        return function(scene, ...)
             if scene.time_pause then
                 return
             end
-            local r = callback and callback(args)
+            local r = callback and callback(unpack({ ... }))
         end
     end
 

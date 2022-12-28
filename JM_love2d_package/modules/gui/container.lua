@@ -2,14 +2,15 @@
 local path = ...
 
 ---@class JM.GUI.Container: JM.GUI.Component
-local Container = { components = nil }
+---@field components table
+local Container = {}
 
 ---@return JM.GUI.Container|JM.GUI.Component
-function Container:new()
+function Container:new(args)
     ---@type JM.GUI.Component
     local Component = require(path:gsub("container", "component"))
 
-    local obj = Component:new()
+    local obj = Component:new(args)
     self.__index = self
     setmetatable(obj, self)
 
@@ -67,23 +68,23 @@ function Container:mouse_released(x, y)
     end
 end
 
-function Container:key_pressed(key)
+function Container:key_pressed(key, scancode, isrepeat)
     for i = 1, #(self.components) do
         ---@type JM.GUI.Component
         local gc = self.components[i]
 
         local r = gc.is_enable and not gc.remove_
-            and gc.key_pressed and gc:key_pressed(key)
+            and gc.key_pressed and gc:key_pressed(key, scancode, isrepeat)
     end
 end
 
-function Container:key_released(key)
+function Container:key_released(key, scancode)
     for i = 1, #(self.components) do
         ---@type JM.GUI.Component
         local gc = self.components[i]
 
         local r = gc.is_enable and not gc.remove_
-            and gc.key_released and gc:key_released(key)
+            and gc.key_released and gc:key_released(key, scancode)
     end
 end
 
