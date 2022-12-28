@@ -891,8 +891,8 @@ setmetatable(Slope, Body)
 ---@return JM.Physics.Body|JM.Physics.Slope
 function Slope:new(x, y, w, h, world, direction, slope_type)
     local obj = Body:new(x, y, w, h, BodyTypes.static, world, "")
-    setmetatable(obj, self)
     self.__index = self
+    setmetatable(obj, self)
     Slope.__constructor__(obj, direction, slope_type)
 
     return obj

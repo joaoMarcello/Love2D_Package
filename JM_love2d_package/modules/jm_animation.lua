@@ -85,6 +85,7 @@ do
     ---@param args {left: number, right:number, top:number, bottom:number, speed:number, ox:number, oy:number}
     function Frame:new(args)
         local obj = {}
+
         setmetatable(obj, self)
         self.__index = self
 

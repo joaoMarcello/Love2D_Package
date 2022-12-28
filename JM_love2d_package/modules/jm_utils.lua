@@ -109,8 +109,10 @@ function Utils:create_class(...)
     local parents = { ... } -- the parents for the new class
 
     -- class will search for absents fields in the parents list
-    setmetatable(class_, { __index = function(_, k)
-        return search(k, parents)
+    setmetatable(class_, { __index = function(t, k)
+        local v = search(k, parents)
+        t[k] = v -- saving for next access
+        return v
     end })
 
     -- prepare the class to be the metatable of its instances
@@ -118,7 +120,8 @@ function Utils:create_class(...)
 
     -- defining a new constructor for this new class
     function class_:new()
-        local obj = setmetatable({}, class_)
+        local obj = {}
+        setmetatable(obj, class_)
         return obj
     end
 
