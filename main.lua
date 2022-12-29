@@ -36,11 +36,11 @@ function love.update(dt)
 
     scene:update(dt)
 
-    t = t + dt
-    if t >= 15.0 then
-        t = 0.0
-        -- collectgarbage()
-    end
+    -- t = t + dt
+    -- if t >= 15.0 then
+    --     t = 0.0
+    --     -- collectgarbage()
+    -- end
 end
 
 function love.draw()

@@ -34,10 +34,15 @@ function Utils:desired_duration(duration, amount_steps)
     return duration / amount_steps
 end
 
-function Utils:parse_csv_line(line, sep)
+local results_parse = setmetatable({}, { __mode = 'kv' })
+
+function Utils:parse_csv_line(line)
+    local result = results_parse[line]
+    if result then return result end
+
     local res = {}
     local pos = 1
-    sep = sep or ','
+    local sep = ','
     while true do
         local c = string.sub(line, pos, pos)
         if (c == "") then break end
@@ -71,6 +76,8 @@ function Utils:parse_csv_line(line, sep)
             end
         end
     end
+
+    results_parse[line] = res
     return res
 end
 

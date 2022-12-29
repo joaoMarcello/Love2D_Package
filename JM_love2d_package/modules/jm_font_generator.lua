@@ -1,7 +1,10 @@
 ---@type string
 local path = ...
 
+---@type JM.Anima
 local Anima = require(path:gsub("jm_font_generator", "jm_animation"))
+
+---@type JM.Utils
 local Utils = require(path:gsub("jm_font_generator", "jm_utils"))
 
 ---@type JM.Font.Glyph
@@ -11,6 +14,7 @@ Glyph.load_dependencies(
     require(path:gsub("jm_font_generator", "jm_effect_manager"))
 )
 
+---@type JM.Font.GlyphIterator
 local Iterator = require(path:gsub("jm_font_generator", "font.font_iterator"))
 
 ---@type JM.Font.Phrase
@@ -172,7 +176,7 @@ function Font:__load_caracteres_from_csv(list, name, img, extend, hash)
     local lines = Utils:get_lines_in_file("/JM_love2d_package/data/Font/" .. name .. "/" .. name .. extend .. ".txt")
 
     for i = 2, #lines do
-        local parse = Utils:parse_csv_line(lines[i], ",")
+        local parse = Utils:parse_csv_line(lines[i])
         local id = (parse[1])
         if id == "" then
             id = ","
@@ -389,8 +393,14 @@ function Font:__get_char_equals(c)
     return list[c]
 end
 
+local result_sep_text = setmetatable({}, { __mode = 'kv' })
+
 ---@param s string
 function Font:separate_string(s, list)
+
+    local result = result_sep_text[s]
+    if result then return result end
+
     s = s .. " "
     local sep = "\n "
     local current_init = 1
@@ -457,6 +467,8 @@ function Font:separate_string(s, list)
     if rest ~= "" and not rest:match(" *") then
         table_insert(words, s:sub(current_init, #s))
     end
+
+    result_sep_text[s] = words
 
     return words
 end

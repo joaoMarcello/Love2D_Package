@@ -71,7 +71,7 @@ function Phrase:__verify_commands(text)
             self.__font:set_format_mode(self.__font_config.format)
         elseif result == "<color>" then
             local tag = text:match("< *color[ ,%d.]*>")
-            local parse = Utils:parse_csv_line(tag:sub(2, #tag - 1), ",")
+            local parse = Utils:parse_csv_line(tag:sub(2, #tag - 1))
             local r = tonumber(parse[2]) or 1
             local g = tonumber(parse[3]) or 0
             local b = tonumber(parse[4]) or 0
