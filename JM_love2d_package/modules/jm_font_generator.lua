@@ -364,23 +364,20 @@ end
 
 ---
 function Font:update(dt)
-    -- for _, nickname in ipairs(self.__nicknames) do
-    --     local character = self:__get_char_equals(nickname)
-    --     local r = character and character:update(dt)
-    -- end
+
     for i = 1, #(self.__nicknames), 1 do
         local character = self:__get_char_equals(self.__nicknames[i])
         local r = character and character:update(dt)
     end
 
-    if self.buffer__ then
-        self.buffer_time = self.buffer_time + dt
+    -- if self.buffer__ then
+    --     -- self.buffer_time = self.buffer_time + dt
 
-        if self.buffer_time >= 15.0 then
-            self.buffer_time = 0.0
-            self:clear_buffer()
-        end
-    end
+    --     -- if self.buffer_time >= 15.0 then
+    --     --     self.buffer_time = 0.0
+    --     --     self:clear_buffer()
+    --     -- end
+    -- end
 end
 
 ---@param c string
@@ -904,17 +901,19 @@ end
 function Font:printx(text, x, y, right, align)
     align = align or "left"
 
-    self.buffer__ = self.buffer__ or {}
+    self.buffer__ = self.buffer__ or setmetatable({}, { __mode = 'kv' })
     self.buffer_time = 0.0
 
-    if not self.buffer__[text] then
+    local index = text .. x .. y .. right .. align
+
+    if not self.buffer__[index] then
         local f = Phrase:new({ text = text, font = self })
         f:set_bounds(nil, nil, right)
-        self.buffer__[text] = f
+        self.buffer__[index] = f
     end
 
     ---@type JM.Font.Phrase
-    local fr = self.buffer__[text]
+    local fr = self.buffer__[index]
     local value = fr:draw(x, y, align)
 
     return value

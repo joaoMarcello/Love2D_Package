@@ -50,7 +50,7 @@ function Button:__constructor__(args)
     end)
 
     self:on_event("gained_focus", function()
-        self.text = "<color, 1,0,0>on <color, 1,1,0>focus<color, 0, 0, 0> did you hear me."
+        self.text = "<color, 1,0,0>on <color, 1,1,0><italic>focus</italic><color, 0, 0, 0> did you hear me."
     end)
 
     self:on_event("lose_focus", function()
@@ -73,7 +73,8 @@ function Button:draw()
     love.graphics.rectangle("fill", self:rect())
     love.graphics.setColor(0, 0, 0, 1)
     love.graphics.rectangle("line", self:rect())
-    Font:printf(self.text, self.x + 10, self.y + 10, "left", self.w - 10)
+    Font:printx(self.text, self.x + 10, self.y + 10, "left", self.w - 10)
+    love.graphics.print(self.text, self.x, self.y - 20)
 end
 
 return Button

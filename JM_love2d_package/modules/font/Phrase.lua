@@ -67,8 +67,10 @@ function Phrase:__verify_commands(text)
     if result then
         if result:match("< *bold *>") then
             self.__font:set_format_mode(self.__font.format_options.bold)
+
         elseif result:match("< */ *bold *>") then
             self.__font:set_format_mode(self.__font_config.format)
+
         elseif result == "<color>" then
             local tag = text:match("< *color[ ,%d.]*>")
             local parse = Utils:parse_csv_line(tag:sub(2, #tag - 1))
@@ -77,12 +79,16 @@ function Phrase:__verify_commands(text)
             local b = tonumber(parse[4]) or 0
             local a = tonumber(parse[5]) or 1
             self.__font:set_color({ r, g, b, a })
+
         elseif result:match("< */ *color *>") then
             self.__font:set_color(self.__font_config.color)
+
         elseif result:match("< *italic *>") then
             self.__font:set_format_mode(self.__font.format_options.italic)
+
         elseif result:match("< */ *italic *>") then
             self.__font:set_format_mode(self.__font_config.format)
+
         end
     end
 end
@@ -237,19 +243,13 @@ function Phrase:get_word_by_index(index)
     return self.__words[index]
 end
 
--- ---@param s string
--- function Phrase:__is_a_command_tag(s)
---     return (s:match("< *bold *>") and "<bold>")
---         or (s:match("< */ *bold *>") and "</bold>")
---         or (s:match("< *italic *>") and "<italic>")
---         or (s:match("< */ *italic *>") and "</italic>")
---         or (s:match("< *color[%d, .]*>") and "<color>")
---         or (s:match("< */ *color *>") and "</color>")
---         or false
--- end
+local results_get_lines = setmetatable({}, { __mode = 'kv' })
 
 ---@return table
 function Phrase:get_lines(x, y)
+    local result = results_get_lines[self] and results_get_lines[self][x]
+    if result then return result end
+
     local lines = {}
     local tx = x
     local cur_line = 1
@@ -312,6 +312,10 @@ function Phrase:get_lines(x, y)
     end
 
     table.insert(lines[cur_line], Word:new({ text = "\n", font = self.__font }))
+
+    results_get_lines[self] = results_get_lines[self]
+        or setmetatable({}, { __mode = 'k' })
+    results_get_lines[self][x] = lines
 
     return lines
 end -- END function get_lines()
@@ -496,17 +500,20 @@ function Phrase:draw(x, y, align, __max_char__)
 
     if x >= self.__bounds.right then return end
 
-    if not self.__last_lines__
-        or self.__last_lines__.x ~= x
-        or self.__last_lines__.y ~= y
-    then
-        self.__last_lines__ = { lines = self:get_lines(x, y), x = x, y = y }
-    end
+    -- if not self.__last_lines__
+    --     or self.__last_lines__.x ~= x
+    --     or self.__last_lines__.y ~= y
+    -- then
+    --     self.__last_lines__ = { lines = self:get_lines(x, y), x = x, y = y }
+    -- end
 
-    local lines = self.__last_lines__.lines
+    -- local lines = self.__last_lines__.lines
 
-    local result = self:draw_lines(lines, x, y, align, nil, __max_char__)
-
+    local result = self:draw_lines(
+        self:get_lines(x, y),
+        x, y, align,
+        nil, __max_char__
+    )
 
     -- love.graphics.setColor(0.4, 0.4, 0.4, 1)
     -- love.graphics.line(self.__bounds.right, 0, self.__bounds.right, 600)
