@@ -29,8 +29,8 @@ function Font:set_font(font)
     self.current = font
 end
 
-function Font:print(text, x, y, h)
-    Font.current:print(text, x, y, y, h)
+function Font:print(text, x, y, w, h)
+    Font.current:print(text, x, y, w, h)
 end
 
 function Font:printf(text, x, y, align, limit_right)

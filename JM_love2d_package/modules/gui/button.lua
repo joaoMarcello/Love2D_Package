@@ -73,7 +73,7 @@ function Button:draw()
     love.graphics.rectangle("fill", self:rect())
     love.graphics.setColor(0, 0, 0, 1)
     love.graphics.rectangle("line", self:rect())
-    Font:printx(self.text, self.x + 10, self.y + 10, "left", self.w - 10)
+    Font:printf(self.text, self.x + 10, self.y + 10, "left", self.w - 10)
     love.graphics.print(self.text, self.x, self.y - 20)
 end
 

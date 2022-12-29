@@ -110,7 +110,7 @@ end
 function Component:init()
     self.is_enable = true
     self.is_visible = true
-    self.on_focus = true
+    self.on_focus = false
     self.remove_ = false
 
     self.__mouse_pressed = false

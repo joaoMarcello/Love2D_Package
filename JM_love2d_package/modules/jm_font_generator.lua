@@ -11,7 +11,8 @@ local Utils = require(path:gsub("jm_font_generator", "jm_utils"))
 local Glyph = require(path:gsub("jm_font_generator", "font.glyph"))
 Glyph.load_dependencies(
     require(path:gsub("jm_font_generator", "templates.Affectable")),
-    require(path:gsub("jm_font_generator", "jm_effect_manager"))
+    require(path:gsub("jm_font_generator", "jm_effect_manager")),
+    Utils
 )
 
 ---@type JM.Font.GlyphIterator
@@ -213,8 +214,21 @@ function Font:get_nule_character()
     return char_
 end
 
+local results_get_config = setmetatable({}, { __mode = 'k' })
+
 ---@return {font_size: number, character_space: number, color: JM.Color, line_space: number, word_space: number, tab_size: number, format: JM.Font.FormatOptions }
 function Font:__get_configuration()
+    local index = "" ..
+        self.__font_size ..
+        self.__character_space ..
+        tostring(self.__default_color.r) ..
+        tostring(self.__default_color.g) ..
+        tostring(self.__default_color.b) ..
+        self.__line_space .. self.__word_space .. self.__tab_size .. self.__format
+
+    local result = results_get_config[self] and results_get_config[self][index]
+    if result then return result end
+
     local config = {}
     config.font_size = self.__font_size
     config.character_space = self.__character_space
@@ -223,6 +237,10 @@ function Font:__get_configuration()
     config.word_space = self.__word_space
     config.tab_size = self.__tab_size
     config.format = self.__format
+
+    results_get_config[self] = results_get_config[self] or setmetatable({}, { __mode = 'v' })
+    results_get_config[self][index] = config
+
     return config
 end
 
@@ -309,42 +327,6 @@ function Font:add_nickname_animated(nickname, args)
 
     return animation
 end
-
--- ---
--- ---@param nickname string
--- ---@param args {img: string|love.Image, frame: table, width: number, height: number}
--- function Font:add_nickname(nickname, args)
---     assert(is_valid_nickname(nickname),
---         "\nError: Invalid nickname. The nickname should start and ending with '--'. \nExamples: --icon--, --emoji--.")
-
---     if not args.bottom then args.bottom = self.__ref_height end
---     if not args.width then args.width = args.bottom end
-
---     local animation = Anima:new({
---         img = args.img,
---         frames_list = { args.frame },
---         width = args.width,
---         height = args.bottom,
---     })
-
---     local new_character = Character:new(nil, nil, {
---         id = nickname,
---         anima = animation,
---         w = args.width,
---         h = args.bottom
---     })
-
-
---     table.insert(self.__nicknames, {
---         nick = nickname, index = #self.__normal_characters + 1
---     })
-
---     table.insert(self.__normal_characters, new_character)
---     table.insert(self.__bold_characters, new_character)
---     table.insert(self.__italic_characters, new_character)
-
---     return animation
--- end
 
 ---@param s string
 ---@return string|nil nickname
@@ -501,6 +483,7 @@ function Font:print(text, x, y, w, h, __i__, __color__, __x_origin__, __format__
     local x_origin = __x_origin__ or tx
 
     local i = __i__ or 1
+
     local text_size = #(text)
 
     while (i <= text_size) do
@@ -533,7 +516,8 @@ function Font:print(text, x, y, w, h, __i__, __color__, __x_origin__, __format__
                 local g = parse[3] or 0
                 local b = parse[4] or 0
 
-                current_color = { r, g, b, 1 }
+                current_color = Utils:get_rgba(r, g, b, 1) --{ r, g, b, 1 }
+
             elseif match == "</color>" then
                 current_color = original_color
             elseif match == "<bold>" then
@@ -561,6 +545,7 @@ function Font:print(text, x, y, w, h, __i__, __color__, __x_origin__, __format__
 
         local char_obj = self:__get_char_equals(char_string)
 
+
         if not char_obj then
             char_obj = self:__get_char_equals(text:sub(i, i + 1))
         end
@@ -574,7 +559,10 @@ function Font:print(text, x, y, w, h, __i__, __color__, __x_origin__, __format__
         end
 
         if char_obj then
-            char_obj:set_color(current_color)
+            char_obj:set_color2(Utils:unpack_color(current_color))
+
+            -- char_obj:set_color(current_color)
+
             char_obj:set_scale(self.__scale)
 
             if char_obj:is_animated() then
@@ -659,7 +647,9 @@ do
             for i = 1, #(word) do
                 local char_obj = get_char_obj(word[i])
                 if char_obj then
-                    char_obj:set_color(current_color[1])
+
+                    char_obj:set_color2(Utils:unpack_color(current_color[1]))
+
                     char_obj:set_scale(self.__scale)
 
                     if char_obj:is_animated() then
@@ -746,6 +736,7 @@ function Font:printf(text, x, y, align, limit_right)
     limit_right = limit_right or love.mouse.getX() - x
 
     local current_color = { self.__default_color }
+
     local original_color = self.__default_color
 
     local current_format = self.__format
@@ -784,7 +775,6 @@ function Font:printf(text, x, y, align, limit_right)
     -- self:print(tostring(tt), 500, 10)
     -- self:print(tostring(print), 500, 10)
 
-
     local total_width = 0
     local line = {}
     local line_actions = {}
@@ -804,7 +794,8 @@ function Font:printf(text, x, y, align, limit_right)
                     local g = parse[3] or 0
                     local b = parse[4] or 0
 
-                    current_color[1] = { r, g, b, 1 }
+                    current_color[1] = Utils:get_rgba(r, g, b, 1)
+                    --{ r, g, b, 1 }
                 end
             elseif command_tag == "</color>" then
                 --- problem

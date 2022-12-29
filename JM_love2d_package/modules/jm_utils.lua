@@ -1,3 +1,5 @@
+local string_format = string.format
+
 ---@alias JM.Point {x: number, y:number}
 --- Table representing a point with x end y coordinates.
 
@@ -133,6 +135,29 @@ function Utils:create_class(...)
     end
 
     return class_
+end
+
+local colors = setmetatable({}, { __mode = 'v' })
+
+---@return JM.Color
+function Utils:get_rgba(r, g, b, a)
+    r = r or 1.0
+    g = g or 1.0
+    b = b or 1.0
+    a = a or 1.0
+
+    local key = string_format("%.15f %.15f %.15f %.15f", r, g, b, a)
+    local color = colors[key]
+    if color then return color end
+
+    color = { r, g, b, a }
+    colors[key] = color
+    return color
+end
+
+---@param color JM.Color
+function Utils:unpack_color(color)
+    return color[1], color[2], color[3], color[4]
 end
 
 return Utils

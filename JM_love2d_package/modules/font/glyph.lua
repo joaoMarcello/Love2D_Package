@@ -4,15 +4,20 @@ local Affectable
 ---@type JM.EffectManager
 local EffectManager
 
+---@type JM.Utils
+local Utils
+
 ---@class JM.Font.Glyph: JM.Template.Affectable
 ---@field __anima JM.Anima
 local Glyph = {}
 
 ---@param affectable JM.Template.Affectable
 ---@param effect_manager JM.EffectManager
-Glyph.load_dependencies = function(affectable, effect_manager)
+---@param utils JM.Utils
+Glyph.load_dependencies = function(affectable, effect_manager, utils)
     Affectable = affectable
     EffectManager = effect_manager
+    Utils = utils
 end
 
 ---@return JM.Font.Glyph
@@ -102,6 +107,13 @@ end
 function Glyph:set_color(value)
     self.__color = Affectable.set_color(self, value)
 
+    if self:is_animated() then
+        self.__anima:set_color(self.__color)
+    end
+end
+
+function Glyph:set_color2(r, g, b, a)
+    self.__color = Utils:get_rgba(r, g, b, a)
     if self:is_animated() then
         self.__anima:set_color(self.__color)
     end
