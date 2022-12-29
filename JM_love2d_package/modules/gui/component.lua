@@ -158,12 +158,14 @@ end
 
 function Component:mouse_pressed(x, y, button, istouch, presses)
     if not self.on_focus then return end
+
     local check = self:check_collision(x, y, 1, 1)
     if not check then return end
 
     ---@type JM.GUI.Event
     local evt = self.events[EVENTS.mouse_pressed]
     local r = evt and evt.action(x, y, button, istouch, presses, evt.args)
+
     self.__mouse_pressed = true
 end
 
@@ -187,6 +189,7 @@ local function mode_mouse_update(self, dt)
     else
         if self.on_focus then
             self:set_focus(false)
+            self.__mouse_pressed = false
         end
     end
 end

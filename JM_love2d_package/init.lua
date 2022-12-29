@@ -28,7 +28,7 @@ JM.Affectable = require(string.gsub(path, "init", "modules.templates.Affectable"
 ---@type JM.Utils
 JM.Utils = require(string.gsub(path, "init", "modules.jm_utils"))
 
----@type JM.Font.Module
+---@type JM.Font.Manager
 JM.Font = require(string.gsub(path, "init", "modules.jm_font"))
 
 ---@type JM.GUI

@@ -3,7 +3,7 @@ local path = ...
 
 
 
----@class JM.Font.Module
+---@class JM.Font.Manager
 local Font = {}
 
 Font.fonts = {}

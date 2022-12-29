@@ -10,7 +10,7 @@ local Utils = require(path:gsub("gui.button", "jm_utils"))
 ---@type JM.Template.Affectable
 local Affectable = require(path:gsub("gui.button", "templates.Affectable"))
 
----@type JM.Font.Module
+---@type JM.Font.Manager
 local Font = require(path:gsub("gui.button", "jm_font"))
 
 ---@enum JM.GUI.ButtonStates
@@ -50,7 +50,7 @@ function Button:__constructor__(args)
     end)
 
     self:on_event("gained_focus", function()
-        self.text = "on focus"
+        self.text = "<color, 1,0,0>on <color, 1,1,0>focus<color, 0, 0, 0>."
     end)
 
     self:on_event("lose_focus", function()

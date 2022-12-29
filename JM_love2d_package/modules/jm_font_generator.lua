@@ -473,7 +473,7 @@ end
 
 ---@param text string
 function Font:print(text, x, y, w, h, __i__, __color__, __x_origin__, __format__)
-    if not text or text == "" then return { tx = x, ty = y } end
+    if not text or text == "" then return x, y end
 
     self:push()
 
@@ -492,7 +492,10 @@ function Font:print(text, x, y, w, h, __i__, __color__, __x_origin__, __format__
     local x_origin = __x_origin__ or tx
 
     local i = __i__ or 1
-    while (i <= #(text)) do
+    local text_size = #(text)
+
+    while (i <= text_size) do
+
         local char_string = text:sub(i, i)
         local is_a_nick = self:__is_a_nickname(text, i)
 
@@ -507,10 +510,13 @@ function Font:print(text, x, y, w, h, __i__, __color__, __x_origin__, __format__
 
             local startp, endp = text:find("<.->", i)
 
-            local result = match and self:print(text:sub(i, startp - 1),
-                tx, ty, w, h, 1,
-                current_color, x_origin, current_format
-            )
+            local r_tx, r_ty
+            if match then
+                r_tx, r_ty = self:print(text:sub(i, startp - 1),
+                    tx, ty, w, h, 1,
+                    current_color, x_origin, current_format
+                )
+            end
 
             if match == "<color>" then
                 local parse = Utils:parse_csv_line(text:sub(startp - 1, endp - 1))
@@ -536,8 +542,8 @@ function Font:print(text, x, y, w, h, __i__, __color__, __x_origin__, __format__
                 if endp == #text then
                     i = i + 1
                 end
-                tx = result.tx
-                ty = result.ty
+                tx = r_tx
+                ty = r_ty
                 char_string = ""
             end
         end
@@ -588,7 +594,7 @@ function Font:print(text, x, y, w, h, __i__, __color__, __x_origin__, __format__
     end
 
     self:pop()
-    return { tx = tx, ty = ty }
+    return tx, ty
 end
 
 local get_char_obj
