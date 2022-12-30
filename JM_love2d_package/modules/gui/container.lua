@@ -1,16 +1,25 @@
 ---@type JM.GUI.Component
 local Component = require((...):gsub("container", "component"))
 
+---@enum JM.GUI.Container.InsertMode
 local INSERT_MODE = {
     normal = 1,
     left = 2,
     right = 3,
-    center = 4
+    center = 4,
+    top = 5,
+    bottom = 6
+}
+
+---@enum JM.GUI.Container.Type
+local TYPE = {
+    vertical = 1,
+    horizontal = 2
 }
 
 ---@class JM.GUI.Container: JM.GUI.Component
 ---@field components table
-local Container = setmetatable({}, Component)
+local Container = setmetatable({ TYPES = TYPE }, Component)
 
 ---@return JM.GUI.Container|JM.GUI.Component
 function Container:new(args)
@@ -32,6 +41,7 @@ function Container:__constructor__(args)
     self.space_horizontal = 15
     self.border_x = 15
     self.border_y = 15
+    self:set_type(args.type or "vertical_list", args.mode or "center")
 end
 
 function Container:set_position(x, y)
@@ -120,42 +130,41 @@ function Container:draw()
 end
 
 ---@param obj JM.GUI.Component
----@param mode string|nil
 ---@return JM.GUI.Component
-function Container:add(obj, mode)
+function Container:add(obj)
+
     self.total_width = self.total_width or 0
     self.total_height = self.total_height or 0
-
-    mode = mode or "center"
-    local insert_mode = INSERT_MODE[mode]
-
-    ---@type JM.GUI.Component
-    local prev = self.components[#self.components]
-
-    if insert_mode == INSERT_MODE.left then
-        obj:set_position(self.x + self.border_x, (prev and prev.bottom or self.y) + self.border_y)
-    elseif insert_mode == INSERT_MODE.right then
-        obj:set_position(
-            self.right - self.border_x - obj.w,
-            (prev and prev.bottom or self.y) + self.border_y
-        )
-    elseif insert_mode == INSERT_MODE.center then
-        obj:set_position(
-            self.x + self.border_x + (self.w - self.border_x * 2) / 2 - obj.w / 2,
-            (prev and prev.bottom or self.y) + self.border_y
-        )
-    end
 
     self.total_width = self.total_width + obj.w
     self.total_height = self.total_height + obj.h
 
     table.insert(self.components, obj)
 
-    self:refresh_positions()
+    -- self:refresh_positions_x()
+    self:__add_behavior__()
     return obj
 end
 
-function Container:refresh_positions()
+function Container:set_type(type_, mode)
+    mode = INSERT_MODE[mode]
+    mode = mode or INSERT_MODE.center
+
+    if type_ == "horizontal_list" then
+        ---@diagnostic disable-next-line: duplicate-set-field
+        self.__add_behavior__ = function(self)
+            self:refresh_positions_x(mode)
+        end
+    else
+        ---@diagnostic disable-next-line: duplicate-set-field
+        self.__add_behavior__ = function(self)
+            self:refresh_positions_y(mode)
+        end
+    end
+end
+
+---@param mode JM.GUI.Container.InsertMode
+function Container:refresh_positions_y(mode)
     local N = #self.components
     if N <= 0 then return end
 
@@ -172,7 +181,57 @@ function Container:refresh_positions()
         ---@type JM.GUI.Component
         local gc = self.components[i]
 
-        gc:set_position(gc.x, prev and prev.bottom + space or y)
+        local px = gc.x
+        if mode == INSERT_MODE.left then
+            px = x
+
+        elseif mode == INSERT_MODE.right then
+            px = x + w - gc.w
+
+        elseif mode == INSERT_MODE.center then
+            px = self.x + self.border_x
+                + (self.w - self.border_x * 2) / 2
+                - gc.w / 2
+        end
+
+        gc:set_position(
+            px,
+            prev and prev.bottom + space or y
+        )
+    end
+end
+
+---@param mode JM.GUI.Container.InsertMode
+function Container:refresh_positions_x(mode)
+    local N = #self.components
+    if N <= 0 then return end
+
+    local x = self.x + self.border_x
+    local y = self.y + self.border_y
+    local w = self.w - self.border_x * 2
+    local h = self.h - self.border_y * 2
+    local space = (w - self.total_width) / (N - 1)
+
+    for i = 1, N do
+        ---@type JM.GUI.Component|nil
+        local prev = self.components[i - 1]
+
+        ---@type JM.GUI.Component
+        local gc = self.components[i]
+
+        local py = gc.y
+        if mode == INSERT_MODE.center then
+            py = y + h / 2 - gc.h / 2
+        elseif mode == INSERT_MODE.top then
+            py = y
+        elseif mode == INSERT_MODE.bottom then
+            py = y + h - gc.h
+        end
+
+        gc:set_position(
+            prev and prev.right + space or x,
+            py
+        )
     end
 end
 

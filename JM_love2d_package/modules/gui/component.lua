@@ -19,6 +19,7 @@ local TYPES_ = {
     dialogueBox = 11,
     popupMenu = 12,
     checkBox = 13,
+    container = 14
 }
 
 ---@enum JM.GUI.EventOptions
