@@ -22,18 +22,22 @@ local Font = require(path:gsub("gui.button", "jm_font"))
 --     locked = 4
 -- }
 
----@class JM.GUI.Button: JM.GUI.Component
-local Button = Component:new()
+---@class JM.GUI.Button: JM.GUI.Component, JM.Template.Affectable
+local Button = Utils:create_class(Component, Affectable)
 
 ---@return JM.GUI.Button|JM.GUI.Component
 function Button:new(args)
-    ---@type JM.GUI.Button|JM.GUI.Component
-    local obj = Component:new(args)
-    self.__index = self
+    -- ---@type JM.GUI.Button|JM.GUI.Component
+    -- local obj = Component:new(args)
+    -- self.__index = self
+    -- setmetatable(obj, self)
+
+    local obj = {}
     setmetatable(obj, self)
 
-    obj:init()
-    obj:__constructor__(args)
+    Component.__constructor__(obj, args)
+    Affectable.__constructor__(obj)
+    Button.__constructor__(obj, args)
 
     return obj
 end
@@ -41,7 +45,7 @@ end
 function Button:__constructor__(args)
     self.type = self.TYPE.button
     self.text = args and args.text or "button"
-    -- self.state = STATES.on_focus
+
     self.color = { 0.3, 0.8, 0.3, 1.0 }
 
     self:on_event("mouse_pressed", function(x, y)
@@ -71,12 +75,13 @@ function Button:draw()
     love.graphics.rectangle("fill", self:rect())
     love.graphics.setColor(0, 0, 0, 1)
     love.graphics.rectangle("line", self:rect())
-    Font:print(self.text,
-        self.x + 10,
+    Font:printf(self.text,
+        self.x,
         self.y + 10,
-        self.w - 10
+        "center",
+        self.w
     )
-    love.graphics.print(self.text, self.x, self.y - 20)
+    love.graphics.print(tostring(self.__effect_manager), self.x, self.y - 20)
 end
 
 return Button

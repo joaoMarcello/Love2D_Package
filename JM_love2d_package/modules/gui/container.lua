@@ -41,7 +41,8 @@ function Container:__constructor__(args)
     self.space_horizontal = 15
     self.border_x = 15
     self.border_y = 15
-    self:set_type(args.type or "vertical_list", args.mode or "center")
+    self.type = self.TYPE.container
+    self:set_type(args.type or "", args.mode or "center")
 end
 
 function Container:set_position(x, y)
@@ -155,11 +156,14 @@ function Container:set_type(type_, mode)
         self.__add_behavior__ = function(self)
             self:refresh_positions_x(mode)
         end
-    else
+    elseif type_ == "vertical_list" then
         ---@diagnostic disable-next-line: duplicate-set-field
         self.__add_behavior__ = function(self)
             self:refresh_positions_y(mode)
         end
+    else
+        ---@diagnostic disable-next-line: duplicate-set-field
+        self.__add_behavior__ = function() end
     end
 end
 

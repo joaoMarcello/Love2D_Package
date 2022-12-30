@@ -100,6 +100,7 @@ function Component:__constructor__(args)
     self.y = args.y or self.y
     self.w = args.w or self.w
     self.h = args.h or self.h
+
     self:refresh_corners()
     self.events = {}
     self:init()

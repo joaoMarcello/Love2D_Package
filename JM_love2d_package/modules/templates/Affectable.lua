@@ -122,6 +122,10 @@ function Affectable.__set_effect_transform(object, arg)
     }
 end
 
+function Affectable:set_visible(value)
+    self.is_visible = value and true or false
+end
+
 ---@param object JM.Template.Affectable
 ---@return JM.Effect.TransformObject
 function Affectable.__get_effect_transform(object)

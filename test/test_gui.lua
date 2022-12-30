@@ -18,7 +18,7 @@ local manager = GUI.Container:new({
 })
 
 manager:add(button_1)
-manager:add(GUI.Button:new({ x = 175, y = 250, w = 140, h = 75 }))
+manager:add(GUI.Button:new({ x = 175, y = 170, w = 140, h = 75 }))
 -- manager:add(GUI.Button:new({ x = 200, y = 250, w = 150, h = 64 }))
 manager:add(GUI.Button:new({ x = 240, y = 250, w = 150, h = 100 }))
 
