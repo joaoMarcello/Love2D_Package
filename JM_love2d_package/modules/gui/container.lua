@@ -1,22 +1,37 @@
----@type string
-local path = ...
+---@type JM.GUI.Component
+local Component = require((...):gsub("container", "component"))
+
+local INSERT_MODE = {
+    normal = 1,
+    left = 2,
+    right = 3,
+    center = 4
+}
 
 ---@class JM.GUI.Container: JM.GUI.Component
 ---@field components table
-local Container = {}
+local Container = setmetatable({}, Component)
 
 ---@return JM.GUI.Container|JM.GUI.Component
 function Container:new(args)
-    ---@type JM.GUI.Component
-    local Component = require(path:gsub("container", "component"))
 
+    ---@type JM.GUI.Container|JM.GUI.Component
     local obj = Component:new(args)
     self.__index = self
     setmetatable(obj, self)
 
-    obj.components = {}
+    obj:__constructor__(args)
 
     return obj
+end
+
+function Container:__constructor__(args)
+    args = args or {}
+    self.components = {}
+    self.space_vertical = 15
+    self.space_horizontal = 15
+    self.border_x = 15
+    self.border_y = 15
 end
 
 function Container:set_position(x, y)
@@ -95,13 +110,45 @@ function Container:draw()
 
         local r = gc.is_visible and not gc.remove_ and gc:draw()
     end
+
+    love.graphics.setColor(1, 0, 0, 1)
+    love.graphics.rectangle("line", self:rect())
+
+    love.graphics.setColor(0, 1, 1, 1)
+    love.graphics.rectangle("line", self.x + self.border_x, self.y + self.border_y, self.w - self.border_x * 2,
+        self.h - self.border_y * 2)
 end
 
 ---@param obj JM.GUI.Component
+---@param mode string|nil
 ---@return JM.GUI.Component
-function Container:add(obj)
+function Container:add(obj, mode)
+    mode = mode or "center"
+    local insert_mode = INSERT_MODE[mode]
+
+    ---@type JM.GUI.Component
+    local prev = self.components[#self.components]
+
+    if insert_mode == INSERT_MODE.left then
+        obj:set_position(self.x + self.border_x, (prev and prev.bottom or self.y) + self.border_y)
+    elseif insert_mode == INSERT_MODE.right then
+        obj:set_position(
+            self.right - self.border_x - obj.w,
+            (prev and prev.bottom or self.y) + self.border_y
+        )
+    elseif insert_mode == INSERT_MODE.center then
+        obj:set_position(
+            self.x + self.border_x + (self.w - self.border_x * 2) / 2 - obj.w / 2,
+            (prev and prev.bottom or self.y) + self.border_y
+        )
+    end
+
     table.insert(self.components, obj)
     return obj
+end
+
+function Container:refresh_positions()
+
 end
 
 return Container

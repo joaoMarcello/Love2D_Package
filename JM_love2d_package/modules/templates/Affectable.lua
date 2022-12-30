@@ -1,10 +1,16 @@
+---@type JM.Utils
+local Utils = require((...):gsub("templates.Affectable", "jm_utils"))
+
+---@type JM.EffectManager
+local EffectManager = require((...):gsub("templates.Affectable", "jm_effect_manager"))
+
 local love_math_new_transform = love.math.newTransform
 local love_graphics_apply_transform = love.graphics.applyTransform
 
 ---@alias JM.Effect.TransformObject {x: number, y: number, rot: number, sx: number, sy: number, ox: number, oy: number, kx: number, ky: number}
 
 ---@class JM.Template.Affectable
----@field __effect_manager JM.EffectManager
+-- ---@field __effect_manager JM.EffectManager
 -- -@field __effect_transform JM.Effect.TransformObject|nil
 -- -@field set_color function
 -- -@field get_color function
@@ -12,9 +18,18 @@ local love_graphics_apply_transform = love.graphics.applyTransform
 local Affectable = {}
 
 function Affectable:new()
+    ---@type JM.Template.Affectable
     local obj = setmetatable({}, self)
     obj.__index = self
+
+    obj:__constructor__()
+
     return obj
+end
+
+function Affectable:__constructor__()
+    self.__color = Utils:get_rgba(1, 1, 1, 1)
+    self.__effect_manager = EffectManager:new()
 end
 
 --- Check if object implements all the needed Affectable methods and fields.
@@ -42,27 +57,39 @@ end
 ---@param object JM.Template.Affectable
 ---@param value JM.Color
 function Affectable.set_color(object, value)
-    if not value then return end
-    if not object.__color then object.__color = {} end
+    -- if not value then return end
+    -- if not object.__color then object.__color = {} end
 
-    if value.r or value.g or value.b or value.a then
-        object.__color = {
-            value.r or object.__color[1],
-            value.g or object.__color[2],
-            value.b or object.__color[3],
-            value.a or object.__color[4]
-        }
+    -- if value.r or value.g or value.b or value.a then
+    --     object.__color = {
+    --         value.r or object.__color[1],
+    --         value.g or object.__color[2],
+    --         value.b or object.__color[3],
+    --         value.a or object.__color[4]
+    --     }
 
-    else -- color is in index format
-        object.__color = {
-            value[1] or object.__color[1],
-            value[2] or object.__color[2],
-            value[3] or object.__color[3],
-            value[4] or object.__color[4]
-        }
-    end
+    -- else -- color is in index format
+    --     object.__color = {
+    --         value[1] or object.__color[1],
+    --         value[2] or object.__color[2],
+    --         value[3] or object.__color[3],
+    --         value[4] or object.__color[4]
+    --     }
+    -- end
+
+    object.__color = Utils:get_rgba(1, 1, 1, 1)
 
     return object.__color
+end
+
+---@param self JM.Template.Affectable
+function Affectable:set_color2(r, g, b, a)
+    r = r or self.__color[1] or 1.0
+    g = g or self.__color[2] or 1.0
+    b = b or self.__color[3] or 1.0
+    a = a or self.__color[4] or 1.0
+
+    self.__color = Utils:get_rgba(r, g, b, a)
 end
 
 ---@return JM.Color

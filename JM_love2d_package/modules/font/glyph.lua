@@ -113,10 +113,19 @@ function Glyph:set_color(value)
 end
 
 function Glyph:set_color2(r, g, b, a)
+    r = r or self.__color[1]
+    g = g or self.__color[2]
+    b = b or self.__color[3]
+    a = a or self.__color[4]
+
     self.__color = Utils:get_rgba(r, g, b, a)
     if self:is_animated() then
         self.__anima:set_color(self.__color)
     end
+end
+
+function Glyph:set_color3(color)
+    self.__color = color
 end
 
 function Glyph:get_color()

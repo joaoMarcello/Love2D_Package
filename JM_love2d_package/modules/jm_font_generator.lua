@@ -214,16 +214,17 @@ function Font:get_nule_character()
     return char_
 end
 
-local results_get_config = setmetatable({}, { __mode = 'k' })
+local results_get_config = setmetatable({}, { __mode = 'kv' })
 
 ---@return {font_size: number, character_space: number, color: JM.Color, line_space: number, word_space: number, tab_size: number, format: JM.Font.FormatOptions }
 function Font:__get_configuration()
     local index = "" ..
         self.__font_size ..
         self.__character_space ..
-        tostring(self.__default_color.r) ..
-        tostring(self.__default_color.g) ..
-        tostring(self.__default_color.b) ..
+        tostring(self.__default_color[1]) ..
+        tostring(self.__default_color[2]) ..
+        tostring(self.__default_color[3]) ..
+        tostring(self.__default_color[4]) ..
         self.__line_space .. self.__word_space .. self.__tab_size .. self.__format
 
     local result = results_get_config[self] and results_get_config[self][index]
@@ -559,9 +560,8 @@ function Font:print(text, x, y, w, h, __i__, __color__, __x_origin__, __format__
         end
 
         if char_obj then
-            char_obj:set_color2(Utils:unpack_color(current_color))
 
-            -- char_obj:set_color(current_color)
+            char_obj:set_color2(Utils:unpack_color(current_color))
 
             char_obj:set_scale(self.__scale)
 
@@ -624,7 +624,7 @@ do
     ---@param tx number
     ---@param ty number
     ---@param index_action table
-    ---@param current_color JM.Color
+    ---@param current_color {[1]:JM.Color}
     function(self, word_list, tx, ty, index_action, exceed_space, current_color)
         exceed_space = exceed_space or 0
 

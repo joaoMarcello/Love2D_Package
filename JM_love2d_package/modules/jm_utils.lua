@@ -3,7 +3,7 @@ local string_format = string.format
 ---@alias JM.Point {x: number, y:number}
 --- Table representing a point with x end y coordinates.
 
----@alias JM.Color {r: number, g: number, b:number, a:number}
+---@alias JM.Color {[1]: number, [2]: number, [3]:number, [4]:number}
 --- Represents a color in RGBA space
 
 ---@class JM.Utils

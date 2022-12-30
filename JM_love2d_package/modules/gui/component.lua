@@ -1,5 +1,8 @@
 local love = _G.love
 
+---@type JM.Utils
+local Utils = require((...):gsub("gui.component", "jm_utils"))
+
 ---@enum JM.GUI.TypeComponent
 local TYPES_ = {
     generic = 0,
@@ -70,13 +73,14 @@ local Component = {
     on_focus = false,
     type = TYPES_.generic,
     TYPE = TYPES_,
+    Utils = Utils,
     mode = MODES.mouse,
     MODE = MODES,
     dispatch_event = dispatch_event
 }
 
 
-
+---@param args {x:number, y:number, w:number, h:number}|nil
 ---@return JM.GUI.Component
 function Component:new(args)
     args = args or {}

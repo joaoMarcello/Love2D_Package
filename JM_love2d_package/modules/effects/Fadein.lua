@@ -24,12 +24,12 @@ function Fadein:__constructor__(args)
     self.__alpha = self.__min
     self.__dif = 1
     self.__speed = args and args.speed or 0.5
-    local r = self.__object and self.__object:set_color({ a = 0 })
+    local r = self.__object and self.__object:set_color2(nil, nil, nil, 0)
 
     if self.__id == Effect.TYPE.fadeout then
         self.__alpha = 1
         self.__speed = 0.2
-        local r = self.__object and self.__object:set_color({ a = 1 })
+        local r = self.__object and self.__object:set_color2(nil, nil, nil, 1)
     end
 end
 
@@ -44,7 +44,7 @@ end
 function Fadein:update_fadein(dt)
     if self.__alpha < 1 then
         self.__alpha = self.__alpha + self.__dif / self.__speed * dt
-        self.__object:set_color({ a = self.__alpha })
+        self.__object:set_color2(nil, nil, nil, self.__alpha)
     else
         self.__remove = true
         self.__object:set_color(self.__obj_initial_color)
@@ -56,7 +56,7 @@ function Fadein:update_fadeout(dt)
         self.__alpha = self.__alpha - self.__dif / self.__speed * dt
     end
 
-    self.__object:set_color({ a = self.__alpha })
+    self.__object:set_color2(nil, nil, nil, self.__alpha)
 end
 
 return Fadein

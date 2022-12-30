@@ -10,7 +10,11 @@ local button_1 = GUI.Button:new({
     x = 200, y = 100, w = 100, h = 50
 })
 
-local manager = GUI.Container:new()
+local manager = GUI.Container:new({
+    x = 128, y = 128,
+    w = 64 * 8, h = 500
+})
+
 manager:add(button_1)
 manager:add(GUI.Button:new({ x = 200, y = 250, w = 150, h = 75 }))
 

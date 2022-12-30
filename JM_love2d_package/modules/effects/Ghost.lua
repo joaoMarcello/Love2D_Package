@@ -34,9 +34,10 @@ function Ghost:update(dt)
     self.__rad = (self.__rad + (PI * 2) / self.__speed * dt)
         % (PI * 2)
 
-    self.__object:set_color({
-        a = self.__center + m_sin(self.__rad) * self.__range
-    })
+    self.__object:set_color2(
+        nil, nil, nil,
+        self.__center + m_sin(self.__rad) * self.__range
+    )
 end
 
 return Ghost

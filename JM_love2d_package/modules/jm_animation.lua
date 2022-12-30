@@ -6,11 +6,13 @@
 ---@type string
 local path = (...)
 
--- -@type JM.Template.Affectable|nil
+---@type JM.Template.Affectable
 local Affectable
 do
     local success, result = pcall(function() return require(path:gsub("jm_animation", "templates.Affectable")) end)
-    Affectable = success and result or nil
+    ---@type JM.Template.Affectable
+    result = result
+    Affectable = result or nil
 end
 
 
@@ -440,12 +442,13 @@ function Anima:get_color()
     return self.__color
 end
 
----
---- Set animation color.
----@overload fun(self: JM.Anima, value: {[1]: number, [2]: number, [3]: number, [4]: number})
----@param value {r: number, g: number, b: number, a: number}
+---@param value JM.Color
 function Anima:set_color(value)
     self.__color = Affectable.set_color(self, value)
+end
+
+function Anima:set_color2(r, g, b, a)
+    Affectable.set_color2(self, r, g, b, a)
 end
 
 function Anima:get_offset()

@@ -13,22 +13,21 @@ local Affectable = require(path:gsub("gui.button", "templates.Affectable"))
 ---@type JM.Font.Manager
 local Font = require(path:gsub("gui.button", "jm_font"))
 
----@enum JM.GUI.ButtonStates
-local STATES = {
-    free = 0,
-    pressed = 1,
-    released = 2,
-    on_focus = 3,
-    locked = 4
-}
-
-
+-- ---@enum JM.GUI.ButtonStates
+-- local STATES = {
+--     free = 0,
+--     pressed = 1,
+--     released = 2,
+--     on_focus = 3,
+--     locked = 4
+-- }
 
 ---@class JM.GUI.Button: JM.GUI.Component
 local Button = Component:new()
 
 ---@return JM.GUI.Button|JM.GUI.Component
 function Button:new(args)
+    ---@type JM.GUI.Button|JM.GUI.Component
     local obj = Component:new(args)
     self.__index = self
     setmetatable(obj, self)
@@ -42,7 +41,7 @@ end
 function Button:__constructor__(args)
     self.type = self.TYPE.button
     self.text = args and args.text or "button"
-    self.state = STATES.on_focus
+    -- self.state = STATES.on_focus
     self.color = { 0.3, 0.8, 0.3, 1.0 }
 
     self:on_event("mouse_pressed", function(x, y)
@@ -61,7 +60,6 @@ function Button:__constructor__(args)
         self.color = { math.random(), math.random(), math.random(), 1 }
     end)
 
-
 end
 
 function Button:init()
@@ -73,7 +71,11 @@ function Button:draw()
     love.graphics.rectangle("fill", self:rect())
     love.graphics.setColor(0, 0, 0, 1)
     love.graphics.rectangle("line", self:rect())
-    Font:printf(self.text, self.x + 10, self.y + 10, "left", self.w - 10)
+    Font:print(self.text,
+        self.x + 10,
+        self.y + 10,
+        self.w - 10
+    )
     love.graphics.print(self.text, self.x, self.y - 20)
 end
 
