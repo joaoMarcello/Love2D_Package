@@ -123,6 +123,9 @@ end
 ---@param mode string|nil
 ---@return JM.GUI.Component
 function Container:add(obj, mode)
+    self.total_width = self.total_width or 0
+    self.total_height = self.total_height or 0
+
     mode = mode or "center"
     local insert_mode = INSERT_MODE[mode]
 
@@ -143,12 +146,34 @@ function Container:add(obj, mode)
         )
     end
 
+    self.total_width = self.total_width + obj.w
+    self.total_height = self.total_height + obj.h
+
     table.insert(self.components, obj)
+
+    self:refresh_positions()
     return obj
 end
 
 function Container:refresh_positions()
+    local N = #self.components
+    if N <= 0 then return end
 
+    local x = self.x + self.border_x
+    local y = self.y + self.border_y
+    local w = self.w - self.border_x * 2
+    local h = self.h - self.border_y * 2
+    local space = (h - self.total_height) / (N - 1)
+
+    for i = 1, N do
+        ---@type JM.GUI.Component|nil
+        local prev = self.components[i - 1]
+
+        ---@type JM.GUI.Component
+        local gc = self.components[i]
+
+        gc:set_position(gc.x, prev and prev.bottom + space or y)
+    end
 end
 
 return Container
