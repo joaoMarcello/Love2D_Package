@@ -81,7 +81,8 @@ function EffectManager:update(dt)
 
     if self.__effects_list then
         for i = #self.__effects_list, 1, -1 do
-            local eff = self:__get_effect_in_list__(i)
+            ---@type JM.Effect
+            local eff = self.__effects_list[i]
             local r1 = eff:__update__(dt)
             local r2 = eff.__is_enabled and eff.update and eff:update(dt)
 
@@ -120,12 +121,12 @@ end
 
 function EffectManager:draw(...)
     if self.__effects_list then
-        -- local args = { ... }
         local args
         args = (...) and { ... } or nil
 
         for i = #self.__effects_list, 1, -1 do
-            local eff = self:__get_effect_in_list__(i)
+            ---@type JM.Effect
+            local eff = self.__effects_list[i]
             eff:draw(args and unpack(args) or nil)
         end
         args = nil

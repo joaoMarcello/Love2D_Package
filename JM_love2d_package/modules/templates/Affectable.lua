@@ -95,10 +95,6 @@ function Affectable:__set_effect_transform(arg)
     self.__effect_transform.oy = arg.oy or self.__effect_transform.oy or 0
     self.__effect_transform.kx = arg.kx or self.__effect_transform.kx or 0
     self.__effect_transform.ky = arg.ky or self.__effect_transform.ky or 0
-
-    -- self.__transform:translate(self.__effect_transform.ox, self.__effect_transform.oy)
-    -- self.__transform:rotate(self.__effect_transform.rot)
-    -- self.__transform:scale(self.__effect_transform.sx, self.__effect_transform.sy)
 end
 
 function Affectable:set_effect_transform(index, value)
