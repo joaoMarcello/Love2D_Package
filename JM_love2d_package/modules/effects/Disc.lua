@@ -39,10 +39,15 @@ function Disc:update(dt)
 
     self.__rad = self.__rad % (PI * 2)
 
-    self.__object:__set_effect_transform({
-        kx = m_sin(self.__rad) * self.__range,
-        ky = -m_sin(self.__rad + PI * 1.5) * self.__range
-    })
+    self.__object:set_effect_transform(
+        "kx",
+        m_sin(self.__rad) * self.__range
+    )
+
+    self.__object:set_effect_transform(
+        "ky",
+        -m_sin(self.__rad + PI * 1.5) * self.__range
+    )
 end
 
 return Disc

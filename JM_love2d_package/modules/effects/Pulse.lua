@@ -26,7 +26,7 @@ function Pulse:__constructor__(args)
     self.__id = args and args.__id__ or Effect.TYPE.pulse
 
     self.__acc = 0
-    self.__adjust = args and args.adjust or 0 --math.pi
+    self.__adjust = args and args.adjust or 0.0 --math.pi
     self.__speed = args and args.speed or 0.5
     self.__range = args and args.range or 0.1
     self.__max_sequence = args and args.max_sequence
@@ -39,11 +39,11 @@ function Pulse:__constructor__(args)
 
     if self.__id == Effect.TYPE.jelly then
         self.__adjust = PI * 0.7
-        self.__rad = 0
+        self.__rad = 0.0
     elseif self.__id == Effect.TYPE.stretchHorizontal then
-        self.__difY = 0
+        self.__difY = 0.0
     elseif self.__id == Effect.TYPE.stretchVertical then
-        self.__difX = 0
+        self.__difX = 0.0
     elseif self.__id == Effect.TYPE.bounce then
         self.__acc = 0.5
         self.__speed = 0.05
@@ -63,10 +63,10 @@ end
 function Pulse:update(dt)
     self.__speed = self.__speed + self.__acc / 1.0 * dt
 
-    self.__rad = (self.__rad + PI * 2 / self.__speed * dt)
+    self.__rad = (self.__rad + (PI * 2.0) / self.__speed * dt)
 
     if self.__rad >= (PI * 2) then
-        self.__rad = self.__rad % (PI * 2)
+        self.__rad = self.__rad % (PI * 2.0)
         if self.__looping then
             self:__increment_cycle()
         end
@@ -74,19 +74,21 @@ function Pulse:update(dt)
 
     if self.__difX ~= 0 then
 
-        self.__object:__set_effect_transform({
-            sx = 1 + (m_sin(self.__rad)
+        self.__object:set_effect_transform(
+            "sx",
+            1.0 + (m_sin(self.__rad)
                 * (self.__difX or self.__range))
-        })
+        )
 
     end
 
     if self.__difY ~= 0 then
 
-        self.__object:__set_effect_transform({
-            sy = 1 + (m_sin(self.__rad + self.__adjust)
+        self.__object:set_effect_transform(
+            "sy",
+            1.0 + (m_sin(self.__rad + self.__adjust)
                 * (self.__difY or self.__range))
-        })
+        )
     end
 end
 

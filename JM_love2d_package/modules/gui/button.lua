@@ -58,10 +58,10 @@ function Button:init()
     Component.init(self)
 end
 
-local transf = setmetatable({}, { __mode = 'v' })
+-- local transf = setmetatable({}, { __mode = 'v' })
 
 function Button:__draw__()
-    love.graphics.push()
+    -- love.graphics.push()
 
     -- local key = string.format("%d %d %d %d", self.x, self.y, self.w, self.h)
 
@@ -95,7 +95,7 @@ function Button:__draw__()
     --     self.w
     -- )
 
-    love.graphics.pop()
+    -- love.graphics.pop()
 end
 
 function Button:__pos_draw__()

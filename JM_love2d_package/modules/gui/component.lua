@@ -222,13 +222,15 @@ function Component:update(dt)
     return
 end
 
+local trans = setmetatable({}, { __mode = 'v' })
+
 ---@param self JM.GUI.Component
 local function draw(self)
     love.graphics.push()
 
     local eff_transf = self:__get_effect_transform()
+    local transf
     if eff_transf then
-        local transf
         transf = love.math.newTransform()
         transf:setTransformation(
             self.x + eff_transf.ox,
@@ -243,12 +245,13 @@ local function draw(self)
         )
 
         love.graphics.applyTransform(transf)
-        transf = nil
     end
 
     self:__draw__()
 
     love.graphics.pop()
+
+    if transf then transf:release(); transf = nil end
 end
 
 -- function Component:draw_center()

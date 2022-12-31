@@ -32,6 +32,7 @@ end
 function Affectable:__constructor__()
     self.color = Utils:get_rgba(1, 1, 1, 1)
     self.__effect_manager = EffectManager:new()
+    self.__effect_transform = { ox = 0, oy = 0, rot = 0, sx = 1, sy = 1, kx = 0, ky = 0 }
 end
 
 --- Check if object implements all the needed Affectable methods and fields.
@@ -80,40 +81,24 @@ function Affectable.get_color(object)
     return object.color
 end
 
----@param object JM.Template.Affectable
+---@param self JM.Template.Affectable
 ---@param arg JM.Effect.TransformObject
-function Affectable.__set_effect_transform(object, arg)
-    if not arg then
-        object.__effect_transform = nil
-        return
+function Affectable:__set_effect_transform(arg)
+    self.__effect_transform.x = arg.x or self.__effect_transform.x or 0
+    self.__effect_transform.y = arg.y or self.__effect_transform.y or 0
+    self.__effect_transform.rot = arg.rot or self.__effect_transform.rot or 0
+    self.__effect_transform.sx = arg.sx or self.__effect_transform.sx or 1
+    self.__effect_transform.sy = arg.sy or self.__effect_transform.sy or 1
+    self.__effect_transform.ox = arg.ox or self.__effect_transform.ox or 0
+    self.__effect_transform.oy = arg.oy or self.__effect_transform.oy or 0
+    self.__effect_transform.kx = arg.kx or self.__effect_transform.kx or 0
+    self.__effect_transform.ky = arg.ky or self.__effect_transform.ky or 0
+end
+
+function Affectable:set_effect_transform(index, value)
+    if self.__effect_transform[index] then
+        self.__effect_transform[index] = value
     end
-
-    if not object.__effect_transform then
-        object.__effect_transform = {}
-    end
-
-    -- object.__effect_transform = {
-    --     x = arg.x or object.__effect_transform.x or 0,
-    --     y = arg.y or object.__effect_transform.y or 0,
-    --     rot = arg.rot or object.__effect_transform.rot or 0,
-    --     sx = arg.sx or object.__effect_transform.sx or 1,
-    --     sy = arg.sy or object.__effect_transform.sy or 1,
-    --     ox = arg.ox or object.__effect_transform.ox or 0,
-    --     oy = arg.oy or object.__effect_transform.oy or 0,
-    --     kx = arg.kx or object.__effect_transform.kx or 0,
-    --     ky = arg.ky or object.__effect_transform.ky or 0
-    -- }
-
-    object.__effect_transform.x = arg.x or object.__effect_transform.x or 0
-    object.__effect_transform.y = arg.y or object.__effect_transform.y or 0
-    object.__effect_transform.rot = arg.rot or object.__effect_transform.rot or 0
-    object.__effect_transform.sx = arg.sx or object.__effect_transform.sx or 1
-    object.__effect_transform.sy = arg.sy or object.__effect_transform.sy or 1
-    object.__effect_transform.ox = arg.ox or object.__effect_transform.ox or 0
-    object.__effect_transform.oy = arg.oy or object.__effect_transform.oy or 0
-    object.__effect_transform.kx = arg.kx or object.__effect_transform.kx or 0
-    object.__effect_transform.ky = arg.ky or object.__effect_transform.ky or 0
-
 end
 
 function Affectable:set_visible(value)
