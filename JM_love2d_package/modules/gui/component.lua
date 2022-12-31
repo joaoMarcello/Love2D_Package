@@ -67,7 +67,11 @@ local function dispatch_event(gc, type_)
 end
 
 ---@class JM.GUI.Component: JM.Template.Affectable
-local Component = { __draw__ = function() end }
+local Component = {
+    __draw__ = function() end,
+    __pos_draw__ = function() end,
+    __update__ = function() end
+}
 setmetatable(Component, { __index = Affectable })
 Component.__index = Component
 
@@ -209,6 +213,8 @@ function Component:update(dt)
 
     self.__effect_manager:update(dt)
 
+    self:__update__()
+
     if self.mode == MODES.mouse then
         mode_mouse_update(self, dt)
     end
@@ -224,8 +230,8 @@ local function draw(self)
     if eff_transf then
         local transf = love.math.newTransform()
         transf:setTransformation(
-            self.x,
-            self.y,
+            self.x + eff_transf.ox,
+            self.y + eff_transf.oy,
             eff_transf.rot,
             eff_transf.sx,
             eff_transf.sy,
@@ -243,16 +249,21 @@ local function draw(self)
     love.graphics.pop()
 end
 
-function Component:draw()
+function Component:draw_center()
+    local px, py = self.x, self.y
+    self.x = self.x - self.w / 2
+    self.y = self.y - self.h / 2
+    self:__draw__()
+    self.x, self.y = px, py
+end
 
-    -- love.graphics.push()
-    -- self:apply_transform()
-    -- self:__draw__()
-    -- love.graphics.pop()
+function Component:draw()
 
     draw(self)
 
     self.__effect_manager:draw(self.x, self.y)
+
+    self:__pos_draw__()
 end
 
 do

@@ -37,7 +37,7 @@ function Container:__constructor__(args)
     self.border_x = 15
     self.border_y = 15
     self.type = self.TYPE.container
-    self:set_type(args.type or "", args.mode or "center")
+    self:set_type(args.type or "", args.mode or "center", args.grid_x, args.grid_y)
 end
 
 function Container:set_position(x, y)

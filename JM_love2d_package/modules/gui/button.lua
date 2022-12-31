@@ -59,16 +59,28 @@ function Button:init()
 end
 
 function Button:__draw__()
+    love.graphics.push()
+
+    love.graphics.applyTransform(love.math.newTransform(-self.w / 2, -self.h / 2, 0, 1, 1,
+        0, 0))
+
     love.graphics.setColor(self.color)
-    love.graphics.rectangle("fill", self:rect())
+    love.graphics.rectangle("fill", self.x, self.y, self.w, self.h)
     love.graphics.setColor(0, 0, 0, 1)
-    love.graphics.rectangle("line", self:rect())
+    love.graphics.rectangle("line", self.x, self.y, self.w, self.h)
     Font:printf(self.text,
         self.x,
         self.y + 10,
         "center",
         self.w
     )
+
+    love.graphics.pop()
+end
+
+function Button:__pos_draw__()
+    love.graphics.rectangle("line", self.x, self.y, self.w, self.h)
+    love.graphics.setColor(0, 0, 0, 1)
 end
 
 return Button
