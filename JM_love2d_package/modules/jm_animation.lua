@@ -165,6 +165,9 @@ end
 --- @field __configuration {scale: JM.Point, color: JM.Color, direction: -1|1, rotation: number, speed: number, flip: table, kx: number, ky: number, current_frame: number}
 local Anima = {}
 
+setmetatable(Anima, { __index = Affectable })
+Anima.__index = Anima
+
 ---
 --- Animation class constructor.
 ---
@@ -181,6 +184,7 @@ function Anima:new(args)
     setmetatable(animation, self)
     self.__index = self
 
+    Affectable.__constructor__(animation)
     Anima.__constructor__(animation, args)
 
     return animation

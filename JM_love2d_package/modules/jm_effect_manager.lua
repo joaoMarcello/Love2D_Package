@@ -127,7 +127,11 @@ function EffectManager:draw(...)
         for i = #self.__effects_list, 1, -1 do
             ---@type JM.Effect
             local eff = self.__effects_list[i]
-            eff:draw(args and unpack(args) or nil)
+            if args then
+                eff:draw(unpack(args))
+            else
+                eff:draw()
+            end
         end
         args = nil
     end
