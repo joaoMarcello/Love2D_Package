@@ -147,7 +147,7 @@ function Container:add(obj)
     return obj
 end
 
-function Container:set_type(type_, mode)
+function Container:set_type(type_, mode, grid_x, grid_y)
     mode = INSERT_MODE[mode]
     mode = mode or INSERT_MODE.center
 
@@ -161,7 +161,13 @@ function Container:set_type(type_, mode)
         self.__add_behavior__ = function(self)
             self:refresh_positions_y(mode)
         end
-    else
+    elseif type_ == "grid" then
+        ---@diagnostic disable-next-line: duplicate-set-field
+        self.__add_behavior__ = function(self)
+            self:refresh_pos_grid(grid_x, grid_y)
+        end
+    else -- free position
+
         ---@diagnostic disable-next-line: duplicate-set-field
         self.__add_behavior__ = function() end
     end
@@ -236,6 +242,42 @@ function Container:refresh_positions_x(mode)
             prev and prev.right + space or x,
             py
         )
+    end
+end
+
+function Container:refresh_pos_grid(row, column)
+    local N = #self.components
+    if N <= 0 then return end
+
+    row, column = row or 2, column or 3
+
+    assert(N <= row * column, "\n>>Error: Many components added to container.")
+
+    local x = self.x + self.border_x
+    local y = self.y + self.border_y
+    local w = self.w - self.border_x * 2
+    local h = self.h - self.border_y * 2
+
+    local cell_w = w / column
+    local cell_h = h / row
+
+    for i = 1, row do
+        for j = 1, column do
+            ---@type JM.GUI.Component
+            local gc = self.components[column * (i - 1) + j]
+
+            if gc then
+                local py = y + (i - 1) * cell_h
+                local px = x + (j - 1) * cell_w
+
+                gc:set_position(
+                    px + cell_w / 2 - gc.w / 2,
+                    py + cell_h / 2 - gc.h / 2
+                )
+            else
+                return
+            end
+        end
     end
 end
 

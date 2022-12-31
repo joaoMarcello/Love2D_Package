@@ -1,4 +1,4 @@
-local string_format = string.format
+local string_format, mfloor = string.format, math.floor
 
 ---@alias JM.Point {x: number, y:number}
 --- Table representing a point with x end y coordinates.
@@ -9,7 +9,6 @@ local string_format = string.format
 ---@class JM.Utils
 local Utils = {}
 
----comment
 ---@param width number|nil
 ---@param height number|nil
 ---@param ref_width number|nil
@@ -158,6 +157,15 @@ end
 ---@param color JM.Color
 function Utils:unpack_color(color)
     return color[1], color[2], color[3], color[4]
+end
+
+function Utils:round(x)
+    local f = mfloor(x + 0.5)
+    if (x == f) or (x % 2.0 == 0.5) then
+        return f
+    else
+        return mfloor(x + 0.5)
+    end
 end
 
 return Utils
