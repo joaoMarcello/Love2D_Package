@@ -37,7 +37,7 @@ function Rotate:update(dt)
         self:__increment_cycle()
     end
 
-    self.__object:__set_effect_transform({ rot = self.__rad })
+    self.__object:set_effect_transform("rot", self.__rad)
 end
 
 return Rotate

@@ -231,7 +231,7 @@ local function draw(self)
     local eff_transf = self:__get_effect_transform()
     local transf
     if eff_transf then
-        transf = love.math.newTransform()
+        transf = self.__transform --love.math.newTransform()
         transf:setTransformation(
             self.x + eff_transf.ox,
             self.y + eff_transf.oy,
@@ -250,23 +250,13 @@ local function draw(self)
     self:__draw__()
 
     love.graphics.pop()
-
-    if transf then transf:release(); transf = nil end
 end
-
--- function Component:draw_center()
---     local px, py = self.x, self.y
---     self.x = self.x - self.w / 2
---     self.y = self.y - self.h / 2
---     self:__draw__()
---     self.x, self.y = px, py
--- end
 
 function Component:draw()
 
     draw(self)
 
-    self.__effect_manager:draw(self.x, self.y)
+    self.__effect_manager:draw()
 
     self:__pos_draw__()
 end

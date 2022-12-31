@@ -58,6 +58,8 @@ function Pulse:__constructor__(args)
     self.__type_transform.sx = self.__difX ~= 0
     self.__type_transform.sy = self.__difY ~= 0
 
+
+
 end
 
 function Pulse:update(dt)
@@ -90,6 +92,9 @@ function Pulse:update(dt)
                 * (self.__difY or self.__range))
         )
     end
+
+    -- self.__object:set_effect_transform("ox", 50 * self.__object:__get_effect_transform().sx)
+    -- self.__object:set_effect_transform("oy", 50 * self.__object:__get_effect_transform().sy)
 end
 
 return Pulse

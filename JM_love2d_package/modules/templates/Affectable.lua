@@ -33,6 +33,8 @@ function Affectable:__constructor__()
     self.color = Utils:get_rgba(1, 1, 1, 1)
     self.__effect_manager = EffectManager:new()
     self.__effect_transform = { ox = 0, oy = 0, rot = 0, sx = 1, sy = 1, kx = 0, ky = 0 }
+
+    self.__transform = love.math.newTransform()
 end
 
 --- Check if object implements all the needed Affectable methods and fields.
@@ -93,6 +95,10 @@ function Affectable:__set_effect_transform(arg)
     self.__effect_transform.oy = arg.oy or self.__effect_transform.oy or 0
     self.__effect_transform.kx = arg.kx or self.__effect_transform.kx or 0
     self.__effect_transform.ky = arg.ky or self.__effect_transform.ky or 0
+
+    -- self.__transform:translate(self.__effect_transform.ox, self.__effect_transform.oy)
+    -- self.__transform:rotate(self.__effect_transform.rot)
+    -- self.__transform:scale(self.__effect_transform.sx, self.__effect_transform.sy)
 end
 
 function Affectable:set_effect_transform(index, value)

@@ -10,7 +10,7 @@ local button_1 = GUI.Button:new({
     x = 200, y = 100, w = 100, h = 100
 })
 
-button_1.__effect_manager:apply_effect(button_1, "popin", { speed = 3 })
+button_1.__effect_manager:apply_effect(button_1, "pulse", { speed = 1 })
 -- button_1.__effect_manager:apply_effect(button_1, "float")
 
 local manager = GUI.Container:new({

@@ -78,6 +78,7 @@ end
 --- Update EffectManager class.
 ---@param dt number
 function EffectManager:update(dt)
+
     if self.__effects_list then
         for i = #self.__effects_list, 1, -1 do
             local eff = self:__get_effect_in_list__(i)
@@ -119,13 +120,15 @@ end
 
 function EffectManager:draw(...)
     if self.__effects_list then
-        local args = { ... }
+        -- local args = { ... }
+        local args
+        args = (...) and { ... } or nil
 
         for i = #self.__effects_list, 1, -1 do
             local eff = self:__get_effect_in_list__(i)
-            eff:draw(unpack(args))
-            -- local r = not eff.__not_restaure and eff:restaure_object()
+            eff:draw(args and unpack(args) or nil)
         end
+        args = nil
     end
 end
 
