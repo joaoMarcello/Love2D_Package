@@ -43,7 +43,7 @@ function Button:__constructor__(args)
         self.text = "<color, 1,0,0>on <color, 1,1,0><italic>focus</italic><color, 0, 0, 0> did you hear me. " ..
             math.random(150)
     end)
-    
+
 
     self:on_event("lose_focus", function()
         self.text = "button"
@@ -89,13 +89,15 @@ function Button:__draw__()
     -- love.graphics.setColor(0, 0, 0, 1)
     -- love.graphics.rectangle("line", self.x, self.y, self.w, self.h)
 
-    -- Font:printf(self.text,
-    --     self.x,
-    --     self.y + 10,
-    --     "center",
-    --     self.w
-    -- )
+    Font:printf(self.text,
+        self.x,
+        self.y + 10,
+        "center",
+        self.w
+    )
 
+    love.graphics.setColor(0, 0, 0, 1)
+    love.graphics.printf(self.text, self.x, self.y, self.w, "center")
     -- love.graphics.pop()
 end
 
