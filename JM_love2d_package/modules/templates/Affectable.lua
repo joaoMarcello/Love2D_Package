@@ -16,19 +16,21 @@ local love_graphics_apply_transform = love.graphics.applyTransform
 -- -@field get_color function
 ---@field set_visible function
 local Affectable = {}
+Affectable.__index = Affectable
 
 function Affectable:new()
-    ---@type JM.Template.Affectable
-    local obj = setmetatable({}, self)
-    obj.__index = self
 
-    obj:__constructor__()
+    local obj = {}
+    self.__index = self
+    setmetatable(obj, self)
+
+    Affectable.__constructor__(obj)
 
     return obj
 end
 
 function Affectable:__constructor__()
-    self.__color = Utils:get_rgba(1, 1, 1, 1)
+    self.color = Utils:get_rgba(1, 1, 1, 1)
     self.__effect_manager = EffectManager:new()
 end
 
@@ -57,44 +59,25 @@ end
 ---@param object JM.Template.Affectable
 ---@param value JM.Color
 function Affectable.set_color(object, value)
-    -- if not value then return end
-    -- if not object.__color then object.__color = {} end
+    object.color = value or Utils:get_rgba(1, 1, 1, 1)
 
-    -- if value.r or value.g or value.b or value.a then
-    --     object.__color = {
-    --         value.r or object.__color[1],
-    --         value.g or object.__color[2],
-    --         value.b or object.__color[3],
-    --         value.a or object.__color[4]
-    --     }
-
-    -- else -- color is in index format
-    --     object.__color = {
-    --         value[1] or object.__color[1],
-    --         value[2] or object.__color[2],
-    --         value[3] or object.__color[3],
-    --         value[4] or object.__color[4]
-    --     }
-    -- end
-
-    object.__color = Utils:get_rgba(1, 1, 1, 1)
-
-    return object.__color
+    return object.color
 end
 
 ---@param self JM.Template.Affectable
 function Affectable:set_color2(r, g, b, a)
-    r = r or self.__color[1] or 1.0
-    g = g or self.__color[2] or 1.0
-    b = b or self.__color[3] or 1.0
-    a = a or self.__color[4] or 1.0
+    r = r or self.color[1] or 1.0
+    g = g or self.color[2] or 1.0
+    b = b or self.color[3] or 1.0
+    a = a or self.color[4] or 1.0
 
-    self.__color = Utils:get_rgba(r, g, b, a)
+    self.color = Utils:get_rgba(r, g, b, a)
 end
 
+---@param object JM.Template.Affectable
 ---@return JM.Color
 function Affectable.get_color(object)
-    return object.__color
+    return object.color
 end
 
 ---@param object JM.Template.Affectable
@@ -109,17 +92,28 @@ function Affectable.__set_effect_transform(object, arg)
         object.__effect_transform = {}
     end
 
-    object.__effect_transform = {
-        x = arg.x or object.__effect_transform.x or 0,
-        y = arg.y or object.__effect_transform.y or 0,
-        rot = arg.rot or object.__effect_transform.rot or 0,
-        sx = arg.sx or object.__effect_transform.sx or 1,
-        sy = arg.sy or object.__effect_transform.sy or 1,
-        ox = arg.ox or object.__effect_transform.ox or 0,
-        oy = arg.oy or object.__effect_transform.oy or 0,
-        kx = arg.kx or object.__effect_transform.kx or 0,
-        ky = arg.ky or object.__effect_transform.ky or 0
-    }
+    -- object.__effect_transform = {
+    --     x = arg.x or object.__effect_transform.x or 0,
+    --     y = arg.y or object.__effect_transform.y or 0,
+    --     rot = arg.rot or object.__effect_transform.rot or 0,
+    --     sx = arg.sx or object.__effect_transform.sx or 1,
+    --     sy = arg.sy or object.__effect_transform.sy or 1,
+    --     ox = arg.ox or object.__effect_transform.ox or 0,
+    --     oy = arg.oy or object.__effect_transform.oy or 0,
+    --     kx = arg.kx or object.__effect_transform.kx or 0,
+    --     ky = arg.ky or object.__effect_transform.ky or 0
+    -- }
+
+    object.__effect_transform.x = arg.x or object.__effect_transform.x or 0
+    object.__effect_transform.y = arg.y or object.__effect_transform.y or 0
+    object.__effect_transform.rot = arg.rot or object.__effect_transform.rot or 0
+    object.__effect_transform.sx = arg.sx or object.__effect_transform.sx or 1
+    object.__effect_transform.sy = arg.sy or object.__effect_transform.sy or 1
+    object.__effect_transform.ox = arg.ox or object.__effect_transform.ox or 0
+    object.__effect_transform.oy = arg.oy or object.__effect_transform.oy or 0
+    object.__effect_transform.kx = arg.kx or object.__effect_transform.kx or 0
+    object.__effect_transform.ky = arg.ky or object.__effect_transform.ky or 0
+
 end
 
 function Affectable:set_visible(value)
@@ -132,29 +126,25 @@ function Affectable.__get_effect_transform(object)
     return object.__effect_transform
 end
 
----@param x number
----@param y number
-function Affectable.__draw__(object, x, y)
-    return nil
+function Affectable:__draw__(...)
+    return
 end
 
----@param obj JM.Template.Affectable
----@param x number
----@param y number
-function Affectable.apply_transform(obj, x, y)
-    local eff_transf = obj:__get_effect_transform()
+---@param self JM.Template.Affectable
+function Affectable:apply_transform()
+    local eff_transf = self:__get_effect_transform()
 
     if eff_transf then
         local transform = love_math_new_transform()
 
         transform:setTransformation(
-            x + eff_transf.ox,
-            y + eff_transf.oy,
+            eff_transf.ox,
+            eff_transf.oy,
             eff_transf.rot,
             eff_transf.sx,
             eff_transf.sy,
-            x,
-            y,
+            0,
+            0,
             eff_transf.kx,
             eff_transf.ky
         )

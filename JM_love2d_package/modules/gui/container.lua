@@ -11,15 +11,10 @@ local INSERT_MODE = {
     bottom = 6
 }
 
----@enum JM.GUI.Container.Type
-local TYPE = {
-    vertical = 1,
-    horizontal = 2
-}
 
 ---@class JM.GUI.Container: JM.GUI.Component
 ---@field components table
-local Container = setmetatable({ TYPES = TYPE }, Component)
+local Container = setmetatable({}, Component)
 
 ---@return JM.GUI.Container|JM.GUI.Component
 function Container:new(args)
@@ -249,7 +244,7 @@ function Container:refresh_pos_grid(row, column)
     local N = #self.components
     if N <= 0 then return end
 
-    row, column = row or 2, column or 3
+    row, column = row or 3, column or 2
 
     assert(N <= row * column, "\n>>Error: Many components added to container.")
 

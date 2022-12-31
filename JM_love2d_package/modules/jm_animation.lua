@@ -439,12 +439,12 @@ end
 --- Gets the animation color field.
 ---@return table
 function Anima:get_color()
-    return self.__color
+    return self.color
 end
 
 ---@param value JM.Color
 function Anima:set_color(value)
-    self.__color = Affectable.set_color(self, value)
+    self.color = Affectable.set_color(self, value)
 end
 
 function Anima:set_color2(r, g, b, a)
@@ -764,7 +764,7 @@ function Anima:__draw_with_no_effects__(x, y)
 
     current_frame:setViewport(self.img, self.quad)
 
-    love_graphics_set_color(self.__color)
+    love_graphics_set_color(self.color)
 
     if self.__is_visible then
         love_graphics_draw(self.img, self.quad,

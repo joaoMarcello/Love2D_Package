@@ -206,7 +206,7 @@ function Word:draw(x, y, __max_char__, __character_count__)
     for i = 1, #self.__characters do
         cur_char = self:__get_char_by_index(i)
 
-        cur_char:set_color(cur_char.__color)
+        cur_char:set_color(cur_char.color)
         cur_char:set_scale(font.__scale)
 
         if not cur_char:is_animated() then

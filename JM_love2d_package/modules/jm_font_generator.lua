@@ -561,7 +561,7 @@ function Font:print(text, x, y, w, h, __i__, __color__, __x_origin__, __format__
 
         if char_obj then
 
-            char_obj:set_color2(Utils:unpack_color(current_color))
+            char_obj:set_color(current_color)
 
             char_obj:set_scale(self.__scale)
 
@@ -733,7 +733,7 @@ function Font:printf(text, x, y, align, limit_right)
     local tx = x
     local ty = y
     align = align or "left"
-    limit_right = limit_right or love.mouse.getX() - x
+    limit_right = limit_right or 500.0 --love.mouse.getX() - x
 
     local current_color = { self.__default_color }
 

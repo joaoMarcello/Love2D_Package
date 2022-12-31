@@ -3,6 +3,9 @@ local love = _G.love
 ---@type JM.Utils
 local Utils = require((...):gsub("gui.component", "jm_utils"))
 
+---@type JM.Template.Affectable
+local Affectable = require((...):gsub("gui.component", "templates.Affectable"))
+
 ---@enum JM.GUI.TypeComponent
 local TYPES_ = {
     generic = 0,
@@ -63,23 +66,10 @@ local function dispatch_event(gc, type_)
     local r = evt and evt.action(evt.args)
 end
 
----@class JM.GUI.Component
-local Component = {
-    x = 0,
-    y = 0,
-    w = 100,
-    h = 100,
-    is_visible = true,
-    is_enable = true,
-    on_focus = false,
-    type = TYPES_.generic,
-    TYPE = TYPES_,
-    Utils = Utils,
-    mode = MODES.mouse,
-    MODE = MODES,
-    dispatch_event = dispatch_event
-}
-
+---@class JM.GUI.Component: JM.Template.Affectable
+local Component = { __draw__ = function() end }
+setmetatable(Component, { __index = Affectable })
+Component.__index = Component
 
 ---@param args {x:number, y:number, w:number, h:number}|nil
 ---@return JM.GUI.Component
@@ -87,9 +77,9 @@ function Component:new(args)
     args = args or {}
 
     local obj = {}
-    self.__index = self
     setmetatable(obj, self)
 
+    Affectable.__constructor__(obj)
     Component.__constructor__(obj, args)
 
     return obj
@@ -101,9 +91,23 @@ function Component:__constructor__(args)
     self.w = args.w or self.w
     self.h = args.h or self.h
 
+    self.is_visible = true
+    self.is_enable = true
+    self.on_focus = false
+    self.type_obj = TYPES_.generic
+    self.TYPE = TYPES_
+    self.Utils = Utils
+    self.mode = MODES.mouse
+    self.MODE = MODES
+
     self:refresh_corners()
     self.events = {}
     self:init()
+end
+
+---@param type_ JM.GUI.EventOptions
+function Component:dispatch_event(type_)
+    return dispatch_event(self, type_)
 end
 
 function Component:refresh_corners()
@@ -203,6 +207,8 @@ end
 function Component:update(dt)
     dispatch_event(self, EVENTS.update)
 
+    self.__effect_manager:update(dt)
+
     if self.mode == MODES.mouse then
         mode_mouse_update(self, dt)
     end
@@ -210,9 +216,43 @@ function Component:update(dt)
     return
 end
 
+---@param self JM.GUI.Component
+local function draw(self)
+    love.graphics.push()
+
+    local eff_transf = self:__get_effect_transform()
+    if eff_transf then
+        local transf = love.math.newTransform()
+        transf:setTransformation(
+            self.x,
+            self.y,
+            eff_transf.rot,
+            eff_transf.sx,
+            eff_transf.sy,
+            self.x,
+            self.y,
+            eff_transf.kx,
+            eff_transf.ky
+        )
+
+        love.graphics.applyTransform(transf)
+    end
+
+    self:__draw__()
+
+    love.graphics.pop()
+end
+
 function Component:draw()
-    love.graphics.setColor(0.2, 0.9, 0.2, 1)
-    love.graphics.rectangle("fill", self:rect())
+
+    -- love.graphics.push()
+    -- self:apply_transform()
+    -- self:__draw__()
+    -- love.graphics.pop()
+
+    draw(self)
+
+    self.__effect_manager:draw(self.x, self.y)
 end
 
 do

@@ -117,14 +117,13 @@ function EffectManager:update(dt)
     end -- END effect list is not nil.
 end
 
---- Draw the effects.
----@param x number
----@param y number
-function EffectManager:draw(x, y)
+function EffectManager:draw(...)
     if self.__effects_list then
+        local args = { ... }
+
         for i = #self.__effects_list, 1, -1 do
             local eff = self:__get_effect_in_list__(i)
-            eff:draw(x, y)
+            eff:draw(unpack(args))
             -- local r = not eff.__not_restaure and eff:restaure_object()
         end
     end

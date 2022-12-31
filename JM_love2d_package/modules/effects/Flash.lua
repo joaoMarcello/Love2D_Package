@@ -96,13 +96,10 @@ function Flash:update(dt)
     self.__color[4] = self.__origin + (m_sin(self.__rad) * self.__range)
 end
 
---- Draw the flash effect.
----@param x number
----@param y number
-function Flash:draw(x, y)
+function Flash:draw(...)
     love.graphics.setShader(flash_shader)
     flash_shader:sendColor("flash_color", self.__color)
-    self.__object:__draw__(x, y)
+    self.__object:__draw__(unpack({ ... }))
     love.graphics.setShader()
 end
 

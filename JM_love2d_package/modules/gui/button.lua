@@ -13,47 +13,35 @@ local Affectable = require(path:gsub("gui.button", "templates.Affectable"))
 ---@type JM.Font.Manager
 local Font = require(path:gsub("gui.button", "jm_font"))
 
--- ---@enum JM.GUI.ButtonStates
--- local STATES = {
---     free = 0,
---     pressed = 1,
---     released = 2,
---     on_focus = 3,
---     locked = 4
--- }
-
 ---@class JM.GUI.Button: JM.GUI.Component, JM.Template.Affectable
-local Button = Utils:create_class(Component, Affectable)
+local Button = {}
+setmetatable(Button, { __index = Component })
+Button.__index = Button
 
----@return JM.GUI.Button|JM.GUI.Component
+---@return JM.GUI.Component
 function Button:new(args)
-    -- ---@type JM.GUI.Button|JM.GUI.Component
-    -- local obj = Component:new(args)
-    -- self.__index = self
-    -- setmetatable(obj, self)
 
-    local obj = {}
+    local obj = Component:new(args)
     setmetatable(obj, self)
 
-    Component.__constructor__(obj, args)
-    Affectable.__constructor__(obj)
     Button.__constructor__(obj, args)
 
     return obj
 end
 
 function Button:__constructor__(args)
-    self.type = self.TYPE.button
+    self.type_obj = self.TYPE.button
     self.text = args and args.text or "button"
 
-    self.color = { 0.3, 0.8, 0.3, 1.0 }
+    self:set_color2(0.3, 0.8, 0.3, 1.0)
 
     self:on_event("mouse_pressed", function(x, y)
-        self.color = { math.random(), math.random(), math.random(), 1 }
+        self:set_color2(math.random(), math.random(), math.random(), 1)
     end)
 
     self:on_event("gained_focus", function()
-        self.text = "<color, 1,0,0>on <color, 1,1,0><italic>focus</italic><color, 0, 0, 0> did you hear me."
+        self.text = "<color, 1,0,0>on <color, 1,1,0><italic>focus</italic><color, 0, 0, 0> did you hear me. " ..
+            math.random(150)
     end)
 
     self:on_event("lose_focus", function()
@@ -61,7 +49,7 @@ function Button:__constructor__(args)
     end)
 
     self:on_event("mouse_released", function()
-        self.color = { math.random(), math.random(), math.random(), 1 }
+        -- self:set_color2(math.random(), math.random(), math.random(), 1)
     end)
 
 end
@@ -70,7 +58,7 @@ function Button:init()
     Component.init(self)
 end
 
-function Button:draw()
+function Button:__draw__()
     love.graphics.setColor(self.color)
     love.graphics.rectangle("fill", self:rect())
     love.graphics.setColor(0, 0, 0, 1)
@@ -81,7 +69,6 @@ function Button:draw()
         "center",
         self.w
     )
-    love.graphics.print(tostring(self.__effect_manager), self.x, self.y - 20)
 end
 
 return Button

@@ -7,8 +7,11 @@ local GUI = package.GUI
 local Game = Scene:new()
 
 local button_1 = GUI.Button:new({
-    x = 200, y = 100, w = 100, h = 50
+    x = 200, y = 100, w = 100, h = 100
 })
+
+-- button_1.__effect_manager:generate_effect("flickering")
+button_1.__effect_manager:apply_effect(button_1, "pulse")
 
 local manager = GUI.Container:new({
     x = 128, y = 128,
@@ -18,9 +21,10 @@ local manager = GUI.Container:new({
 })
 
 manager:add(button_1)
-manager:add(GUI.Button:new({ x = 175, y = 170, w = 140, h = 75 }))
-manager:add(GUI.Button:new({ x = 200, y = 250, w = 150, h = 64 }))
-manager:add(GUI.Button:new({ x = 240, y = 250, w = 150, h = 100 }))
+manager:add(GUI.Button:new({ x = 175, y = 170, w = 100, h = 100 }))
+-- manager:add(GUI.Button:new({ x = 200, y = 250, w = 100, h = 100 }))
+-- manager:add(GUI.Button:new({ x = 240, y = 250, w = 100, h = 100 }))
+-- manager:add(GUI.Button:new({ x = 240, y = 250, w = 100, h = 100 }))
 
 Game:implements({
     draw = function()

@@ -23,8 +23,8 @@ end
 ---@return JM.Font.Glyph
 function Glyph:new(img, quad, args)
     local obj = {}
-    setmetatable(obj, self)
     self.__index = self
+    setmetatable(obj, self)
 
     Glyph.__constructor__(obj, img, quad, args)
 
@@ -105,27 +105,27 @@ function Glyph:copy()
 end
 
 function Glyph:set_color(value)
-    self.__color = Affectable.set_color(self, value)
+    self.color = Affectable.set_color(self, value)
 
     if self:is_animated() then
-        self.__anima:set_color(self.__color)
+        self.__anima:set_color(self.color)
     end
 end
 
 function Glyph:set_color2(r, g, b, a)
-    r = r or self.__color[1]
-    g = g or self.__color[2]
-    b = b or self.__color[3]
-    a = a or self.__color[4]
+    r = r or self.color[1]
+    g = g or self.color[2]
+    b = b or self.color[3]
+    a = a or self.color[4]
 
-    self.__color = Utils:get_rgba(r, g, b, a)
+    self.color = Utils:get_rgba(r, g, b, a)
     if self:is_animated() then
-        self.__anima:set_color(self.__color)
+        self.__anima:set_color(self.color)
     end
 end
 
 function Glyph:set_color3(color)
-    self.__color = color
+    self.color = color
 end
 
 function Glyph:get_color()
