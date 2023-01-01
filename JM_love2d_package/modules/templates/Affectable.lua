@@ -10,11 +10,6 @@ local love_graphics_apply_transform = love.graphics.applyTransform
 ---@alias JM.Effect.TransformObject {x: number, y: number, rot: number, sx: number, sy: number, ox: number, oy: number, kx: number, ky: number}
 
 ---@class JM.Template.Affectable
--- ---@field __effect_manager JM.EffectManager
--- -@field __effect_transform JM.Effect.TransformObject|nil
--- -@field set_color function
--- -@field get_color function
----@field set_visible function
 local Affectable = {}
 Affectable.__index = Affectable
 
@@ -31,7 +26,9 @@ end
 
 function Affectable:__constructor__()
     self.color = Utils:get_rgba(1, 1, 1, 1)
+
     self.__effect_manager = EffectManager:new()
+
     self.__effect_transform = { ox = 0, oy = 0, rot = 0, sx = 1, sy = 1, kx = 0, ky = 0 }
 
     self.__transform = love.math.newTransform()

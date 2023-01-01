@@ -1,4 +1,5 @@
-local string_format, mfloor = string.format, math.floor
+local string_format, mfloor, m_min, m_max, colorFromBytes, colorToBytes = string.format, math.floor, math.min, math.max,
+    love.math.colorFromBytes, love.math.colorToBytes
 
 ---@alias JM.Point {x: number, y:number}
 --- Table representing a point with x end y coordinates.
@@ -145,8 +146,8 @@ function Utils:get_rgba(r, g, b, a)
     b = b or 1.0
     a = a or 1.0
 
-    -- local key = string_format("%.15f %.15f %.15f %.15f", r, g, b, a)
-    local key = string_format("%d %d %d %d", r * 255.0, g * 255.0, b * 255.0, a * 255.0)
+
+    local key = string_format("%d %d %d %d", colorToBytes(r, g, b, a))
 
     local color = colors[key]
     if color then return color end
@@ -168,6 +169,19 @@ function Utils:round(x)
     else
         return mfloor(x + 0.5)
     end
+end
+
+function Utils:clamp(value, min, max)
+    return m_min(m_max(value, min), max)
+end
+
+---@param rgba string
+function Utils:color_hex_2_rgba(rgba)
+    local rb = tonumber(string.sub(rgba, 2, 3), 16)
+    local gb = tonumber(string.sub(rgba, 4, 5), 16)
+    local bb = tonumber(string.sub(rgba, 6, 7), 16)
+    local ab = tonumber(string.sub(rgba, 8, 9), 16) or nil
+    return colorFromBytes(rb, gb, bb, ab)
 end
 
 return Utils

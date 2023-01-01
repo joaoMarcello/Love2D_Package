@@ -59,45 +59,50 @@ function Button:init()
     Component.init(self)
 end
 
--- local transf = setmetatable({}, { __mode = 'v' })
+local transf = setmetatable({}, { __mode = 'v' })
 
 function Button:__draw__()
-    -- love.graphics.push()
+    local w, h = self.w / 2, self.h / 2
+    local x, y = self.x, self.y
 
-    -- local key = string.format("%d %d %d %d", self.x, self.y, self.w, self.h)
+    love.graphics.push()
 
-    -- local tr = transf[key]
-    -- if not tr then
-    --     tr = love.math.newTransform(
-    --         0,
-    --         0,
-    --         0, 1, 1,
-    --         self.w / 2,
-    --         self.h / 2
-    --     )
-    --     transf[key] = tr
-    -- end
-    -- love.graphics.applyTransform(tr)
+    local key = string.format("%d %d %d %d", self.x, self.y, self.w, self.h)
+
+    local tr = transf[key]
+    if not tr then
+        tr = love.math.newTransform(
+            0,
+            0,
+            0, 1, 1,
+            50,
+            50
+        )
+        transf[key] = tr
+    end
+    love.graphics.applyTransform(tr)
 
     love.graphics.setColor(self.color)
     love.graphics.rectangle("fill",
-        self.x,
-        self.y,
+        x,
+        y,
         self.w, self.h
     )
+
+    love.graphics.pop()
 
     -- love.graphics.setColor(0, 0, 0, 1)
     -- love.graphics.rectangle("line", self.x, self.y, self.w, self.h)
 
-    Font:printf(self.text,
-        self.x,
-        self.y + 10,
-        "center",
-        self.w
-    )
+    -- Font:printf(self.text,
+    --     self.x,
+    --     self.y + 10,
+    --     "center",
+    --     self.w
+    -- )
 
-    love.graphics.setColor(0, 0, 0, 1)
-    love.graphics.printf(self.text, self.x, self.y, self.w, "center")
+    -- love.graphics.setColor(0, 0, 0, 1)
+    -- love.graphics.printf(self.text, self.x, self.y, self.w, "center")
     -- love.graphics.pop()
 end
 
