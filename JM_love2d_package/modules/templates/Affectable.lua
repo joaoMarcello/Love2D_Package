@@ -6,6 +6,8 @@ local EffectManager = require((...):gsub("templates.Affectable", "jm_effect_mana
 
 local love_math_new_transform = love.math.newTransform
 local love_graphics_apply_transform = love.graphics.applyTransform
+local love_push = love.graphics.push
+local love_pop = love.graphics.pop
 
 ---@alias JM.Effect.TransformObject {x: number, y: number, rot: number, sx: number, sy: number, ox: number, oy: number, kx: number, ky: number}
 
@@ -113,31 +115,73 @@ function Affectable.__get_effect_transform(object)
     return object.__effect_transform
 end
 
-function Affectable:__draw__(...)
-    return
-end
+-- function Affectable:__draw__(...)
+--     return
+-- end
 
 ---@param self JM.Template.Affectable
-function Affectable:apply_transform()
+function Affectable:apply_transform(x, y)
+    x = x or 0
+    y = y or 0
 
     local eff_transf = self.__effect_transform
 
     if eff_transf then
-        local transform = self.__transform
 
-        transform:setTransformation(
-            self.ox + eff_transf.ox,
-            self.oy + eff_transf.oy,
+        self.__transform:setTransformation(
+            x + self.ox + eff_transf.ox,
+            y + self.oy + eff_transf.oy,
             eff_transf.rot,
             eff_transf.sx,
             eff_transf.sy,
-            self.ox,
-            self.oy,
+            x + self.ox,
+            y + self.oy,
             eff_transf.kx,
             eff_transf.ky
         )
 
-        love_graphics_apply_transform(transform)
+        love_graphics_apply_transform(self.__transform)
+    end
+end
+
+local function draw_with_transf(self, x, y, draw, ...)
+    love_push()
+    self:apply_transform(x, y)
+    local args = (...) and { ... }
+    if args then
+        draw(self, unpack { ... })
+    else
+        draw(self)
+    end
+    love_pop()
+end
+
+function Affectable:update(dt)
+    self.__effect_manager:update(dt)
+end
+
+function Affectable:__draw__(x, y, draw, ...)
+    love_push()
+    self:apply_transform(x, y)
+    local args = (...) and { ... }
+    if args then
+        draw(self, unpack { ... })
+    else
+        draw(self)
+    end
+    love_pop()
+end
+
+function Affectable:draw(x, y, custom_draw, ...)
+    if not custom_draw then return end
+    local args = (...) and { ... } or nil
+
+    if args then
+        self:__draw__(x, y, custom_draw, unpack(args))
+        self.__effect_manager:draw_xp(x, y, custom_draw, unpack { ... })
+    else
+        self:__draw__(x, y, custom_draw)
+        self.__effect_manager:draw_xp(x, y, custom_draw)
     end
 end
 

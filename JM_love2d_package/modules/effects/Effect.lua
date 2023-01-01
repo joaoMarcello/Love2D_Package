@@ -258,8 +258,8 @@ function Effect:restaure_object()
     })
 end
 
-function Effect:draw(x, y)
-    return false
+function Effect:draw(...)
+    return
 end
 
 --- Forca efeito em um objeto que nao era dele.

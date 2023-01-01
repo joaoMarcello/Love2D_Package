@@ -59,7 +59,7 @@ function Button:init()
     Component.init(self)
 end
 
-function Button:__draw__()
+function Button:__custom_draw__()
 
     love.graphics.setColor(self.color)
     love.graphics.rectangle("fill", self.x, self.y, self.w, self.h)

@@ -66,11 +66,13 @@ local function dispatch_event(gc, type_)
     local r = evt and evt.action(evt.args)
 end
 
+local generic_func = function(self, args) end
+
 ---@class JM.GUI.Component: JM.Template.Affectable
 local Component = {
-    __draw__ = function() end,
-    __pos_draw__ = function() end,
-    __update__ = function() end
+    __custom_draw__ = generic_func,
+    __pos_draw__ = generic_func,
+    __custom_update__ = generic_func
 }
 setmetatable(Component, { __index = Affectable })
 Component.__index = Component
@@ -216,7 +218,7 @@ function Component:update(dt)
 
     self.__effect_manager:update(dt)
 
-    self:__update__()
+    self:__custom_update__(dt)
 
     if self.mode == MODES.mouse then
         mode_mouse_update(self, dt)
@@ -225,43 +227,11 @@ function Component:update(dt)
     return
 end
 
-local trans = setmetatable({}, { __mode = 'v' })
-
----@param self JM.GUI.Component
----@param action function|any
----@param args any
-local function draw(self, action, args)
-    love.graphics.push()
-
-    local eff_transf = self:__get_effect_transform()
-    local transf
-    if eff_transf then
-        transf = self.__transform --love.math.newTransform()
-        transf:setTransformation(
-            self.x + self.ox + eff_transf.ox,
-            self.y + self.oy + eff_transf.oy,
-            eff_transf.rot,
-            eff_transf.sx,
-            eff_transf.sy,
-            self.x + self.ox,
-            self.y + self.oy,
-            eff_transf.kx,
-            eff_transf.ky
-        )
-
-        love.graphics.applyTransform(transf)
-    end
-
-    self:__draw__()
-
-    love.graphics.pop()
-end
-
 function Component:draw()
 
-    draw(self)
+    -- self.__effect_manager:draw_xp(self.x, self.y, self.__custom_draw__)
 
-    self.__effect_manager:draw()
+    Affectable.draw(self, self.x, self.y, self.__custom_draw__)
 
     self:__pos_draw__()
 end

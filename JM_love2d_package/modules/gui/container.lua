@@ -13,8 +13,8 @@ local INSERT_MODE = {
 
 
 ---@class JM.GUI.Container: JM.GUI.Component
----@field components table
 local Container = setmetatable({}, Component)
+Container.__index = Container
 
 ---@return JM.GUI.Container|JM.GUI.Component
 function Container:new(args)
@@ -114,7 +114,8 @@ function Container:draw()
         ---@type JM.GUI.Component
         local gc = self.components[i]
 
-        local r = gc.is_visible and not gc.remove_ and gc:draw()
+        local r = gc.is_visible and not gc.remove_
+            and gc:draw()
     end
 
     love.graphics.setColor(1, 0, 0, 1)

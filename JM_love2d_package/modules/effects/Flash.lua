@@ -99,7 +99,7 @@ end
 function Flash:draw(...)
     love.graphics.setShader(flash_shader)
     flash_shader:sendColor("flash_color", self.__color)
-    self.__object:__draw__(unpack({ ... }))
+    self.__object:__draw__(unpack { ... })
     love.graphics.setShader()
 end
 

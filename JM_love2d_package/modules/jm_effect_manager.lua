@@ -137,6 +137,29 @@ function EffectManager:draw(...)
     end
 end
 
+function EffectManager:draw_xp(x, y, draw, ...)
+    local args = (...) and { ... } or nil
+
+    -- if args then
+    --     self.object:__draw__(x, y, draw, unpack(args))
+    -- else
+    --     self.object:__draw__(x, y, draw)
+    -- end
+
+    for i = #(self.__effects_list), 1, -1 do
+
+        ---@type JM.Effect
+        local eff = self.__effects_list[i]
+
+        if args then
+            eff:draw(x, y, draw, unpack(args))
+        else
+            eff:draw(x, y, draw)
+        end
+    end
+
+end
+
 ---
 --- Stop all the current running effects.
 ---@return boolean
