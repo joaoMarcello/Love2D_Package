@@ -140,12 +140,6 @@ end
 function EffectManager:draw_xp(x, y, draw, ...)
     local args = (...) and { ... } or nil
 
-    -- if args then
-    --     self.object:__draw__(x, y, draw, unpack(args))
-    -- else
-    --     self.object:__draw__(x, y, draw)
-    -- end
-
     for i = #(self.__effects_list), 1, -1 do
 
         ---@type JM.Effect
@@ -167,6 +161,14 @@ function EffectManager:stop_all()
     if self.__effects_list then
         self.__effects_list = {}
         self.__effects_clear = true
+        return true
+    end
+    return false
+end
+
+function EffectManager:clear()
+    if #(self.__effects_list) > 0 then
+        self.__effects_list = {}
         return true
     end
     return false
@@ -247,6 +249,7 @@ do
     ---|"pendulum"
 end
 
+local temp = {}
 ---Applies effect in a animation.
 ---@param object JM.Template.Affectable|nil # The object to apply the effect.
 ---@param eff_type JM.Effect.id_string|JM.Effect.id_number # The type of the effect.
@@ -260,7 +263,7 @@ function EffectManager:apply_effect(object, eff_type, effect_args, __only_get__)
     local eff
 
     if not effect_args then
-        effect_args = {}
+        effect_args = temp
     end
 
     eff_type = type(eff_type) == "string" and Effect.TYPE[eff_type] or eff_type

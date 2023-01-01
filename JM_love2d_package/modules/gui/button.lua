@@ -42,11 +42,13 @@ function Button:__constructor__(args)
     self:on_event("gained_focus", function()
         self.text = "<color, 1,0,0>on <color, 1,1,0><italic>focus</italic><color, 0, 0, 0> did you hear me. " ..
             math.random(150)
+        self:apply_effect("pulse", { range = 0.03, speed = 0.5 })
     end)
 
 
     self:on_event("lose_focus", function()
         self.text = "button"
+        self.__effect_manager:clear()
     end)
 
     self:on_event("mouse_released", function()
@@ -68,12 +70,12 @@ function Button:__custom_draw__()
     love.graphics.setColor(0, 0, 0, 1)
     love.graphics.rectangle("line", self.x, self.y, self.w, self.h)
 
-    Font:printf(self.text,
-        self.x,
-        self.y + 10,
-        "center",
-        self.w
-    )
+    -- Font:printf(self.text,
+    --     self.x,
+    --     self.y + 10,
+    --     "center",
+    --     self.w
+    -- )
 
     -- love.graphics.setColor(0, 0, 0, 1)
     -- love.graphics.printf(self.text, self.x, self.y, self.w, "center")
