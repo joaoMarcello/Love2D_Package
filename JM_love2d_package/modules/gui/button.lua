@@ -59,35 +59,14 @@ function Button:init()
     Component.init(self)
 end
 
-local transf = setmetatable({}, { __mode = 'v' })
-
 function Button:__draw__()
-    -- local w, h = self.w / 2, self.h / 2
-    -- local x, y = self.x, self.y
-
-    -- love.graphics.push()
-
-    -- local key = string.format("%d %d %d %d", self.x, self.y, self.w, self.h)
-
-    -- local tr = transf[key]
-    -- if not tr then
-    --     tr = love.math.newTransform(
-    --         50,
-    --         50,
-    --         0, 1, 1,
-    --         50,
-    --         50
-    --     )
-    --     transf[key] = tr
-    -- end
-    -- love.graphics.applyTransform(tr)
 
     love.graphics.setColor(self.color)
     love.graphics.rectangle("fill", self.x, self.y, self.w, self.h)
 
 
-    -- love.graphics.setColor(0, 0, 0, 1)
-    -- love.graphics.rectangle("line", self.x, self.y, self.w, self.h)
+    love.graphics.setColor(0, 0, 0, 1)
+    love.graphics.rectangle("line", self.x, self.y, self.w, self.h)
 
     Font:printf(self.text,
         self.x,
@@ -98,12 +77,11 @@ function Button:__draw__()
 
     -- love.graphics.setColor(0, 0, 0, 1)
     -- love.graphics.printf(self.text, self.x, self.y, self.w, "center")
-    -- love.graphics.pop()
 end
 
 function Button:__pos_draw__()
-    love.graphics.setColor(0, 0, 0, 0.1)
-    love.graphics.rectangle("line", self.x, self.y, self.w, self.h)
+    -- love.graphics.setColor(0, 0, 0, 0.1)
+    -- love.graphics.rectangle("line", self.x, self.y, self.w, self.h)
 end
 
 return Button

@@ -7,11 +7,12 @@ local GUI = package.GUI
 local Game = Scene:new()
 
 local button_1 = GUI.Button:new({
-    x = 200, y = 100, w = 100, h = 100
+    x = 200, y = 100, w = 150, h = 100
 })
 
 -- button_1.__effect_manager:apply_effect(button_1, "pulse", { speed = 1, range = 0.05 })
-button_1.__effect_manager:apply_effect(button_1, "swing")
+-- button_1.__effect_manager:apply_effect(button_1, "flash")
+-- button_1.__effect_manager:apply_effect(button_1, "pulse")
 
 local manager = GUI.Container:new({
     x = 128, y = 128,

@@ -95,6 +95,9 @@ function Component:__constructor__(args)
     self.w = args.w or self.w
     self.h = args.h or self.h
 
+    self.ox = self.w / 2
+    self.oy = self.h / 2
+
     self.is_visible = true
     self.is_enable = true
     self.on_focus = false
@@ -225,7 +228,9 @@ end
 local trans = setmetatable({}, { __mode = 'v' })
 
 ---@param self JM.GUI.Component
-local function draw(self)
+---@param action function|any
+---@param args any
+local function draw(self, action, args)
     love.graphics.push()
 
     local eff_transf = self:__get_effect_transform()
@@ -233,13 +238,13 @@ local function draw(self)
     if eff_transf then
         transf = self.__transform --love.math.newTransform()
         transf:setTransformation(
-            self.x + self.w / 2 + eff_transf.ox,
-            self.y + self.h / 2 + eff_transf.oy,
+            self.x + self.ox + eff_transf.ox,
+            self.y + self.oy + eff_transf.oy,
             eff_transf.rot,
             eff_transf.sx,
             eff_transf.sy,
-            self.x + self.w / 2,
-            self.y + self.h / 2,
+            self.x + self.ox,
+            self.y + self.oy,
             eff_transf.kx,
             eff_transf.ky
         )
@@ -271,6 +276,10 @@ do
     function Component:set_dimensions(w, h)
         self.w = w or self.w
         self.h = h or self.h
+
+        self.ox = self.w / 2
+        self.oy = self.h / 2
+
         self:refresh_corners()
     end
 

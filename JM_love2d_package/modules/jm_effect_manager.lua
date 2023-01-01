@@ -50,21 +50,21 @@ local EffectManager = {}
 ---
 --- Public constructor.
 ---@return JM.EffectManager
-function EffectManager:new()
+function EffectManager:new(affectable_object)
     local obj = {}
     setmetatable(obj, self)
     self.__index = self
 
-    EffectManager.__constructor__(obj)
+    EffectManager.__constructor__(obj, affectable_object)
     return obj
 end
 
----
---- Constructor.
-function EffectManager:__constructor__()
+---@param affectable_object JM.Template.Affectable
+function EffectManager:__constructor__(affectable_object)
     self.__effects_list = {}
     self.__sort__ = false
     self.__current_id = 1
+    self.object = affectable_object
 end
 
 ---
@@ -183,45 +183,46 @@ function EffectManager:resume_all()
     end
 end
 
---- Possible values for effect names.
----@alias JM.Effect.id_string string
----|"flash" # animation blinks like a star.
----|"flickering" # animation surges in the screen.
----|"pulse"
----|"colorFlick"
----|"popin"
----|"popout"
----|"fadein"
----|"fadeout"
----|"ghost"
----|"spin"
----|"clockWise"
----|"counterClockWise"
----|"swing"
----|"pop"
----|"growth"
----|"disc"
----|"idle"
----|"echo"
----|"float"
----|"pointing"
----|"darken"
----|"brighten"
----|"shadow"
----|"line"
----|"zoomInOut"
----|"stretchHorizontal"
----|"stretchVertical"
----|"circle"
----|"eight"
----|"bounce"
----|"heartBeat"
----|"butterfly"
----|"jelly"
----|"clickHere"
----|"ufo"
----|"pendulum"
-
+do
+    --- Possible values for effect names.
+    ---@alias JM.Effect.id_string string
+    ---|"flash" # animation blinks like a star.
+    ---|"flickering" # animation surges in the screen.
+    ---|"pulse"
+    ---|"colorFlick"
+    ---|"popin"
+    ---|"popout"
+    ---|"fadein"
+    ---|"fadeout"
+    ---|"ghost"
+    ---|"spin"
+    ---|"clockWise"
+    ---|"counterClockWise"
+    ---|"swing"
+    ---|"pop"
+    ---|"growth"
+    ---|"disc"
+    ---|"idle"
+    ---|"echo"
+    ---|"float"
+    ---|"pointing"
+    ---|"darken"
+    ---|"brighten"
+    ---|"shadow"
+    ---|"line"
+    ---|"zoomInOut"
+    ---|"stretchHorizontal"
+    ---|"stretchVertical"
+    ---|"circle"
+    ---|"eight"
+    ---|"bounce"
+    ---|"heartBeat"
+    ---|"butterfly"
+    ---|"jelly"
+    ---|"clickHere"
+    ---|"ufo"
+    ---|"pendulum"
+end
 
 ---Applies effect in a animation.
 ---@param object JM.Template.Affectable|nil # The object to apply the effect.
@@ -230,7 +231,8 @@ end
 ---@param __only_get__ boolean|nil
 ---@return JM.Effect eff # The generate effect.
 function EffectManager:apply_effect(object, eff_type, effect_args, __only_get__)
-    -- if not self.__effects_list then self.__effects_list = {} end
+
+    object = object or self.object
 
     local eff
 

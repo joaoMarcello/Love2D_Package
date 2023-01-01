@@ -27,11 +27,14 @@ end
 function Affectable:__constructor__()
     self.color = Utils:get_rgba(1, 1, 1, 1)
 
-    self.__effect_manager = EffectManager:new()
+    self.__effect_manager = EffectManager:new(self)
 
     self.__effect_transform = { ox = 0, oy = 0, rot = 0, sx = 1, sy = 1, kx = 0, ky = 0 }
 
     self.__transform = love.math.newTransform()
+
+    self.ox = 0
+    self.oy = 0
 end
 
 --- Check if object implements all the needed Affectable methods and fields.
@@ -116,19 +119,20 @@ end
 
 ---@param self JM.Template.Affectable
 function Affectable:apply_transform()
-    local eff_transf = self:__get_effect_transform()
+
+    local eff_transf = self.__effect_transform
 
     if eff_transf then
-        local transform = love_math_new_transform()
+        local transform = self.__transform
 
         transform:setTransformation(
-            eff_transf.ox,
-            eff_transf.oy,
+            self.ox + eff_transf.ox,
+            self.oy + eff_transf.oy,
             eff_transf.rot,
             eff_transf.sx,
             eff_transf.sy,
-            0,
-            0,
+            self.ox,
+            self.oy,
             eff_transf.kx,
             eff_transf.ky
         )
