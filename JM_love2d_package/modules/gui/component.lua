@@ -233,13 +233,13 @@ local function draw(self)
     if eff_transf then
         transf = self.__transform --love.math.newTransform()
         transf:setTransformation(
-            self.x + eff_transf.ox,
-            self.y + eff_transf.oy,
+            self.x + self.w / 2 + eff_transf.ox,
+            self.y + self.h / 2 + eff_transf.oy,
             eff_transf.rot,
             eff_transf.sx,
             eff_transf.sy,
-            self.x,
-            self.y,
+            self.x + self.w / 2,
+            self.y + self.h / 2,
             eff_transf.kx,
             eff_transf.ky
         )

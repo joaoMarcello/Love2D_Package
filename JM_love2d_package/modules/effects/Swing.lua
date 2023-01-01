@@ -39,6 +39,7 @@ function Swing:update(dt)
     end
 
     self.__object:set_effect_transform("rot", math.sin(self.__rad) * PI * 2.0 * self.__range)
+
 end
 
 return Swing
