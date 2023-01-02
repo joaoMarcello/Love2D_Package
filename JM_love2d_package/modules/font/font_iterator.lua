@@ -1,12 +1,24 @@
 ---@class JM.Font.GlyphIterator
 local Iterator = {}
+Iterator.__index = Iterator
 
+local iterators = setmetatable({}, { __mode = 'k' })
+
+---@param text string
+---@param font JM.Font.Font
+---@return JM.Font.GlyphIterator
 function Iterator:new(text, font)
-    local obj = {}
+    local obj = iterators[font] and iterators[font][text]
+    if obj then return obj end
+
+
+    obj = {}
     setmetatable(obj, self)
-    self.__index = self
 
     Iterator.__constructor__(obj, text, font)
+
+    iterators[font] = iterators[font] or setmetatable({}, { __mode = 'v' })
+    iterators[font][text] = obj
 
     return obj
 end

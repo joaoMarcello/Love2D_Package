@@ -36,7 +36,7 @@ function Button:__constructor__(args)
     self:set_color2(0.3, 0.8, 0.3, 1.0)
 
     self:on_event("mouse_pressed", function(x, y)
-        --self:set_color2(math.random(), math.random(), math.random(), 1)
+        self:set_color2(math.random(), math.random(), math.random(), 1)
     end)
 
     self:on_event("gained_focus", function()
@@ -82,12 +82,12 @@ function Button:__custom_draw__()
     love.graphics.setColor(0, 0, 0, 1)
     love.graphics.rectangle("line", self.x, self.y, self.w, self.h)
 
-    -- Font:printf(self.text,
-    --     self.x,
-    --     self.y + 10,
-    --     "center",
-    --     self.w
-    -- )
+    Font:printf(self.text,
+        self.x,
+        self.y + 10,
+        "center",
+        self.w
+    )
 
     -- love.graphics.setColor(0, 0, 0, 1)
     -- love.graphics.printf(self.text, self.x, self.y, self.w, "center")

@@ -377,11 +377,10 @@ local result_sep_text = setmetatable({}, { __mode = 'kv' })
 
 ---@param s string
 function Font:separate_string(s, list)
-
-    local result = result_sep_text[s]
+    s = s .. " "
+    local result = not list and result_sep_text[s]
     if result then return result end
 
-    s = s .. " "
     local sep = "\n "
     local current_init = 1
     local words = list or {}
@@ -599,6 +598,7 @@ local len
 local print
 local line_width
 local next_not_command_index
+local get_words
 --- The functions below are used in the printf method
 do
     get_char_obj =
@@ -718,7 +718,54 @@ do
         if not separated[current_index] then return nil end
         return current_index
     end
+
+    local results_get_word = setmetatable({}, { __mode = 'kv' })
+    function get_words(self, separated, list)
+
+        local result = results_get_word[self]
+            and results_get_word[self][separated]
+        if result then return result end
+
+        list = list or {}
+
+        local current_format = self.__format
+        local original_format = self.__format
+        local i = 1
+
+        while (i <= #(separated)) do
+            local cur_word = separated[i] or ""
+
+            local match = self:__is_a_command_tag(cur_word)
+
+            if match == "<bold>" then
+                current_format = self.format_options.bold
+            elseif match == "</bold>" then
+                current_format = original_format
+            elseif match == "<italic>" then
+                current_format = self.format_options.italic
+            elseif match == "</italic>" then
+                current_format = original_format
+            end
+
+            self:set_format_mode(current_format)
+
+            local characters = self:get_text_iterator(cur_word)
+            characters = characters:get_characters_list()
+
+            table_insert(list, characters)
+
+            i = i + 1
+        end
+
+        results_get_word[self] = results_get_word[self] or setmetatable({}, { __mode = 'k' })
+        results_get_word[self][separated] = list
+
+        return list
+    end
 end --- End auxiliary methods for printf
+
+
+local color_pointer = {}
 
 ---@param text string
 ---@param x number
@@ -735,7 +782,8 @@ function Font:printf(text, x, y, align, limit_right)
     align = align or "left"
     limit_right = limit_right or 500.0 --love.mouse.getX() - x
 
-    local current_color = { self.__default_color }
+    local current_color = color_pointer --{ self.__default_color }
+    current_color[1] = self.__default_color
 
     local original_color = self.__default_color
 
@@ -744,36 +792,34 @@ function Font:printf(text, x, y, align, limit_right)
 
     local i = 1
     local separated = self:separate_string(text)
-    local words = {}
 
-    while (i <= #(separated)) do
-        local cur_word = separated[i] or ""
+    local words = get_words(self, separated)
 
-        local match = self:__is_a_command_tag(cur_word)
+    -- while (i <= #(separated)) do
+    --     local cur_word = separated[i] or ""
 
-        if match == "<bold>" then
-            current_format = self.format_options.bold
-        elseif match == "</bold>" then
-            current_format = original_format
-        elseif match == "<italic>" then
-            current_format = self.format_options.italic
-        elseif match == "</italic>" then
-            current_format = original_format
-        end
+    --     local match = self:__is_a_command_tag(cur_word)
 
-        self:set_format_mode(current_format)
+    --     if match == "<bold>" then
+    --         current_format = self.format_options.bold
+    --     elseif match == "</bold>" then
+    --         current_format = original_format
+    --     elseif match == "<italic>" then
+    --         current_format = self.format_options.italic
+    --     elseif match == "</italic>" then
+    --         current_format = original_format
+    --     end
 
-        local characters = self:get_text_iterator(cur_word)
-        characters = characters:get_characters_list()
+    --     self:set_format_mode(current_format)
 
-        table_insert(words, characters)
+    --     local characters = self:get_text_iterator(cur_word)
+    --     characters = characters:get_characters_list()
 
-        i = i + 1
-    end
+    --     table_insert(words, characters)
 
-    -- local tt = words[1][1].__id == "\n"
-    -- self:print(tostring(tt), 500, 10)
-    -- self:print(tostring(print), 500, 10)
+    --     i = i + 1
+    -- end
+
 
     local total_width = 0
     local line = {}
