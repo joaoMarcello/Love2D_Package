@@ -256,6 +256,14 @@ function Effect:restaure_object()
         kx = self.__type_transform.kx and 0,
         ky = self.__type_transform.ky and 0
     })
+
+    -- self.__object:set_effect_transform("rot", self.__type_transform.rot)
+    -- self.__object:set_effect_transform("sx", self.__type_transform.sx)
+    -- self.__object:set_effect_transform("sy", self.__type_transform.sy)
+    -- self.__object:set_effect_transform("ox", self.__type_transform.ox)
+    -- self.__object:set_effect_transform("oy", self.__type_transform.oy)
+    -- self.__object:set_effect_transform("kx", self.__type_transform.kx)
+    -- self.__object:set_effect_transform("ky", self.__type_transform.ky)
 end
 
 function Effect:draw(...)
@@ -269,13 +277,6 @@ function Effect:apply(object, reset)
 
     if object and object ~= self.__object then
         if self.__object then self:restaure_object() end
-
-        -- self.__obj_initial_color = {
-        --     r = object:get_color()[1],
-        --     g = object:get_color()[2],
-        --     b = object:get_color()[3],
-        --     a = object:get_color()[4]
-        -- }
 
         self.__obj_initial_color = object:get_color()
     end

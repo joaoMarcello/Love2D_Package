@@ -4,7 +4,8 @@ local Effect = require((...):gsub("Pulse", "Effect"))
 local m_sin, PI = math.sin, math.pi
 
 ---@class JM.Effect.Pulse: JM.Effect
-local Pulse = Effect:new(nil, nil)
+local Pulse = setmetatable({}, { __index = Effect }) --Effect:new(nil, nil)
+Pulse.__index = Pulse
 
 ---comment
 ---@param object JM.Template.Affectable|nil
@@ -13,7 +14,6 @@ local Pulse = Effect:new(nil, nil)
 function Pulse:new(object, args)
     local ef = Effect:new(object, args)
     setmetatable(ef, self)
-    self.__index = self
 
     Pulse.__constructor__(ef, args)
     return ef
@@ -57,9 +57,6 @@ function Pulse:__constructor__(args)
 
     self.__type_transform.sx = self.__difX ~= 0
     self.__type_transform.sy = self.__difY ~= 0
-
-
-
 end
 
 function Pulse:update(dt)

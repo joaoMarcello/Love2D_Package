@@ -144,18 +144,6 @@ function Affectable:apply_transform(x, y)
     end
 end
 
-local function draw_with_transf(self, x, y, draw, ...)
-    love_push()
-    self:apply_transform(x, y)
-    local args = (...) and { ... }
-    if args then
-        draw(self, unpack { ... })
-    else
-        draw(self)
-    end
-    love_pop()
-end
-
 function Affectable:update(dt)
     self.__effect_manager:update(dt)
 end

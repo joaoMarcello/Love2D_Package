@@ -119,13 +119,6 @@ function Component:dispatch_event(type_)
     return dispatch_event(self, type_)
 end
 
-function Component:refresh_corners()
-    self.top = self.y
-    self.bottom = self.y + self.h
-    self.left = self.x
-    self.right = self.x + self.w
-end
-
 function Component:init()
     self.is_enable = true
     self.is_visible = true
@@ -241,6 +234,13 @@ do
         self.x = Utils:round(x or self.x)
         self.y = Utils:round(y or self.y)
         self:refresh_corners()
+    end
+
+    function Component:refresh_corners()
+        self.top = self.y
+        self.bottom = self.y + self.h
+        self.left = self.x
+        self.right = self.x + self.w
     end
 
     function Component:set_dimensions(w, h)

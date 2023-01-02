@@ -1,51 +1,50 @@
-local path = (...)
+local path = (...):gsub("jm_effect_manager", "")
 
 ---@type JM.Effect
-local Effect = require(path:gsub("jm_effect_manager", "effects.Effect"))
+local Effect = require(path .. "effects.Effect")
 
 ---@type JM.Effect.Flash
-local Flash = require(path:gsub("jm_effect_manager", "effects.Flash"))
+local Flash = require(path .. "effects.Flash")
 
 ---@type JM.Effect.Flick
-local Flick = require(path:gsub("jm_effect_manager", "effects.Flick"))
+local Flick = require(path .. "effects.Flick")
 
 ---@type JM.Effect.Pulse
-local Pulse = require(path:gsub("jm_effect_manager", "effects.Pulse"))
+local Pulse = require(path .. "effects.Pulse")
 
 ---@type JM.Effect.Float
-local Float = require(path:gsub("jm_effect_manager", "effects.Float"))
+local Float = require(path .. "effects.Float")
 
 ---@type JM.Effect.Swing
-local Idle = require(path:gsub("jm_effect_manager", "effects.Idle"))
+local Idle = require(path .. "effects.Idle")
 
 ---@type JM.Effect.Rotate
-local Rotate = require(path:gsub("jm_effect_manager", "effects.Rotate"))
+local Rotate = require(path .. "effects.Rotate")
 
 ---@type JM.Effect.Swing
-local Swing = require(path:gsub("jm_effect_manager", "effects.Swing"))
+local Swing = require(path .. "effects.Swing")
 
 ---@type JM.Effect.Popin
-local Popin = require(path:gsub("jm_effect_manager", "effects.Popin"))
+local Popin = require(path .. "effects.Popin")
 
 ---@type JM.Effect.Fadein
-local Fadein = require(path:gsub("jm_effect_manager", "effects.Fadein"))
+local Fadein = require(path .. "effects.Fadein")
 
 ---@type JM.Effect.Ghost
-local Ghost = require(path:gsub("jm_effect_manager", "effects.Ghost"))
+local Ghost = require(path .. "effects.Ghost")
 
 ---@type JM.Effect.Disc
-local Disc = require(path:gsub("jm_effect_manager", "effects.Disc"))
+local Disc = require(path .. "effects.Disc")
 
-local Sample = require(path:gsub("jm_effect_manager", "effects.shader"))
+local Sample = require(path .. "effects.shader")
 
--- Global variable for control the unique id's from EffectManager class.
----
---- > WARNING: Don't ever manipulate this variable.
+-- Variable for control the unique id's from EffectManager class
 local JM_current_id_for_effect_manager__ = math.random(1000) * math.random()
 
 ---@class JM.EffectManager
 --- Manages a list of Effect.
 local EffectManager = {}
+EffectManager.__index = EffectManager
 
 ---
 --- Public constructor.
@@ -53,7 +52,6 @@ local EffectManager = {}
 function EffectManager:new(affectable_object)
     local obj = {}
     setmetatable(obj, self)
-    self.__index = self
 
     EffectManager.__constructor__(obj, affectable_object)
     return obj
@@ -63,16 +61,7 @@ end
 function EffectManager:__constructor__(affectable_object)
     self.__effects_list = {}
     self.__sort__ = false
-    self.__current_id = 1
     self.object = affectable_object
-end
-
----
---- Return a Effect element in a list of <Effect>
----@param index number
----@return JM.Effect effect
-function EffectManager:__get_effect_in_list__(index)
-    return self.__effects_list[index]
 end
 
 --- Update EffectManager class.
@@ -84,22 +73,25 @@ function EffectManager:update(dt)
             ---@type JM.Effect
             local eff = self.__effects_list[i]
             local r1 = eff:__update__(dt)
-            local r2 = eff.__is_enabled and eff.update and eff:update(dt)
+            local r2 = eff.__is_enabled and eff:update(dt)
 
             if eff.__remove then
                 if eff.__final_action then
                     eff.__final_action(eff.__args_final_action)
                 end
 
-                eff:restaure_object()
-                -- eff.__object:__set_transform(nil)
+                -- second test for remove (in cases with the final action restores the effect)
+                if eff.__remove then
+                    eff:restaure_object()
 
-                if self.__effects_clear then
-                    self.__effects_clear = nil;
-                    break
+                    if self.__effects_clear then
+                        self.__effects_clear = nil;
+                        break
+                    end
+
+                    local r2 = table.remove(self.__effects_list, i)
                 end
 
-                local r2 = table.remove(self.__effects_list, i)
             end -- END if remove effect
         end -- END FOR i in effects list
 
@@ -119,26 +111,27 @@ function EffectManager:update(dt)
     end -- END effect list is not nil.
 end
 
+--- WARNiNG: REMOVE THIS METHOD!!!
 function EffectManager:draw(...)
-    if self.__effects_list then
-        local args
-        args = (...) and { ... } or nil
+    local args
+    args = (...) and { ... } or nil
 
-        for i = #self.__effects_list, 1, -1 do
-            ---@type JM.Effect
-            local eff = self.__effects_list[i]
-            if args then
-                eff:draw(unpack(args))
-            else
-                eff:draw()
-            end
+    for i = #self.__effects_list, 1, -1 do
+        ---@type JM.Effect
+        local eff = self.__effects_list[i]
+
+        if args then
+            eff:draw(unpack(args))
+        else
+            eff:draw()
         end
-        args = nil
     end
+    args = nil
 end
 
 function EffectManager:draw_xp(x, y, draw, ...)
-    local args = (...) and { ... } or nil
+    local args
+    args = (...) and { ... } or nil
 
     for i = #(self.__effects_list), 1, -1 do
 
@@ -151,7 +144,7 @@ function EffectManager:draw_xp(x, y, draw, ...)
             eff:draw(x, y, draw)
         end
     end
-
+    args = nil
 end
 
 ---
@@ -180,7 +173,8 @@ end
 function EffectManager:stop_effect(effect_unique_id)
     for i = 1, #self.__effects_list do
 
-        local eff = self:__get_effect_in_list__(i)
+        ---@type JM.Effect
+        local eff = self.__effects_list[i]
 
         if eff:get_unique_id() == effect_unique_id then
             eff.__remove = true
@@ -193,7 +187,8 @@ end
 function EffectManager:pause_all()
     if self.__effects_list then
         for i = 1, #self.__effects_list do
-            local eff = self:__get_effect_in_list__(i)
+            ---@type JM.Effect
+            local eff = self.__effects_list[i]
             eff.__is_enabled = false
         end
     end
@@ -202,7 +197,8 @@ end
 function EffectManager:resume_all()
     if self.__effects_list then
         for i = 1, #self.__effects_list do
-            local eff = self:__get_effect_in_list__(i)
+            ---@type JM.Effect
+            local eff = self.__effects_list[i]
             eff.__is_enabled = true
         end
     end
