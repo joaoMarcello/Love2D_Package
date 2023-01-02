@@ -480,12 +480,17 @@ end
 
 ---@param obj JM.Template.Affectable
 function EffectManager:transfer(obj)
+    if #self.__effects_list <= 0 then return end
+
+    obj:__set_effect_transform(self.object.__effect_transform)
+
     for i = 1, #(self.__effects_list) do
         ---@type JM.Effect
         local eff = self.__effects_list[i]
 
         eff:apply(obj)
     end
+
 
     self.__effects_list = {}
 end

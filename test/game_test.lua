@@ -78,7 +78,7 @@ Anima:new(
         duration = 0.5,
         height = 64,
         ref_height = 64,
-        -- amount_cycle = 2
+        amount_cycle = 2
     }
 )
 
@@ -105,14 +105,11 @@ Anima:new(
     }
 )
 
-local my_effect = EffectManager:generate_effect("idle", { color = { 0.9, 0.9, 0.9, 1 } })
+
 local current_animation = monica_idle_normal
--- my_effect:apply(current_animation)
 
--- current_animation:apply_effect("clickHere")
-current_animation:apply_effect("heartBeat")
-
--- monica_idle_normal:apply_effect("pulse")
+current_animation:apply_effect("float")
+current_animation:apply_effect("flash")
 
 ---@param new_anima JM.Anima
 ---@param last_anima JM.Anima
@@ -120,29 +117,23 @@ local function change_animation(new_anima, last_anima)
     if new_anima == last_anima then
         return
     end
-
     new_anima:reset()
+    new_anima:set_flip_x(last_anima:is_flipped_in_x())
+    last_anima:transfer_effects(new_anima)
+
     current_animation = new_anima
-    current_animation:set_flip_x(last_anima:is_flipped_in_x())
-    -- my_effect:apply(new_anima, false)
-    -- my_effect:update(love.timer.getDelta())
-    last_anima:transfer(new_anima)
 end
 
 monica_idle_normal:on_event("pause",
     function()
-        -- if monica_idle_normal.time_paused > 0 then
         change_animation(monica_idle_blink, monica_idle_normal)
-        -- end
     end
 )
 
 monica_idle_blink:on_event("pause",
     function()
-        -- if monica_idle_blink.time_paused > 0 then
         monica_idle_normal:set_max_cycle(love.math.random(2, 4))
         change_animation(monica_idle_normal, monica_idle_blink)
-        -- end
     end
 )
 

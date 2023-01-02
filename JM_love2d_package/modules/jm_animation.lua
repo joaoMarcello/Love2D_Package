@@ -798,4 +798,16 @@ function Anima:reset_time_updating()
     self.time_update = 0
 end
 
+---@param current JM.Anima
+---@param new_anima JM.Anima
+function Anima.change_animation(current, new_anima)
+    if new_anima == current then
+        return current
+    end
+    new_anima:reset()
+    new_anima:set_flip_x(current:is_flipped_in_x())
+    current:transfer_effects(new_anima)
+    return new_anima
+end
+
 return Anima
