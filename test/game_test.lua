@@ -105,7 +105,7 @@ Anima:new(
     }
 )
 
-local my_effect = EffectManager:generate_effect("flash", { color = { 0.9, 0.9, 0.9, 1 } })
+local my_effect = EffectManager:generate_effect("idle", { color = { 0.9, 0.9, 0.9, 1 } })
 local current_animation = monica_idle_normal
 my_effect:apply(current_animation)
 

@@ -74,7 +74,7 @@ local Component = {
     __pos_draw__ = generic_func,
     __custom_update__ = generic_func
 }
-setmetatable(Component, { __index = Affectable })
+setmetatable(Component, Affectable)
 Component.__index = Component
 
 ---@param args {x:number, y:number, w:number, h:number}|nil
@@ -82,10 +82,9 @@ Component.__index = Component
 function Component:new(args)
     args = args or {}
 
-    local obj = {}
+    local obj = Affectable:new()
     setmetatable(obj, self)
 
-    Affectable.__constructor__(obj)
     Component.__constructor__(obj, args)
 
     return obj
@@ -221,8 +220,6 @@ function Component:update(dt)
 end
 
 function Component:draw()
-
-    -- self.__effect_manager:draw_xp(self.x, self.y, self.__custom_draw__)
 
     Affectable.draw(self, self.x, self.y, self.__custom_draw__)
 

@@ -7,15 +7,7 @@
 local path = (...)
 
 ---@type JM.Template.Affectable
-local Affectable
-do
-    local success, result = pcall(function() return require(path:gsub("jm_animation", "templates.Affectable")) end)
-    ---@type JM.Template.Affectable
-    result = result
-    Affectable = result or nil
-end
-
-
+local Affectable = require(path:gsub("jm_animation", "templates.Affectable"))
 
 ---@type JM.Utils
 local Utils = require(path:gsub("jm_animation", "jm_utils"))
@@ -164,8 +156,7 @@ end
 --- @class JM.Anima: JM.Template.Affectable
 --- @field __configuration {scale: JM.Point, color: JM.Color, direction: -1|1, rotation: number, speed: number, flip: table, kx: number, ky: number, current_frame: number}
 local Anima = {}
-
-setmetatable(Anima, { __index = Affectable })
+setmetatable(Anima, Affectable)
 Anima.__index = Anima
 
 ---
@@ -179,12 +170,8 @@ Anima.__index = Anima
 function Anima:new(args)
     assert(args, "\nError: Trying to instance a Animation without inform any parameter.")
 
-    ---@type JM.Anima
-    local animation = {}
+    local animation = Affectable:new()
     setmetatable(animation, self)
-    self.__index = self
-
-    Affectable.__constructor__(animation)
     Anima.__constructor__(animation, args)
 
     return animation
@@ -196,15 +183,6 @@ end
 --- @param args {img: love.Image|string, frames: number, frames_list: table,  speed: number, rotation: number, color: JM.Color, scale: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, stop_at_the_end: boolean, amount_cycle: number, state: JM.AnimaStates, bottom: number, kx: number, ky: number, width: number, height: number, ref_width: number, ref_height: number, duration: number, n: number}  # A table containing the follow fields:
 ---
 function Anima:__constructor__(args)
-
-    local success, result = pcall(function()
-        --- trying load the EffectManager Module
-        return require(path:gsub("jm_animation", "jm_effect_manager"))
-    end)
-
-    ---@type JM.EffectManager|nil
-    local EffectManager = success and result or nil
-
     self.args = args
 
     self:set_img(args.img)
@@ -215,7 +193,7 @@ function Anima:__constructor__(args)
     self.time_update = 0
     self.time_paused = 0
     self.cycle_count = 0
-    self.__is_visible = true
+    self.is_visible = true
     self.__is_enabled = true
     self.initial_direction = nil
 
@@ -242,7 +220,7 @@ function Anima:__constructor__(args)
     self.scale_y = 1
     self:set_scale(args.scale and args.scale.x, args.scale and args.scale.y)
 
-    self.__effect_manager = EffectManager and EffectManager:new() or nil
+    --self.__effect_manager = EffectManager and EffectManager:new() or nil
 
     self.frames_list = {}
 
@@ -504,7 +482,7 @@ function Anima:set_max_cycle(value)
 end
 
 function Anima:set_visible(value)
-    self.__is_visible = value and true or false
+    self.is_visible = value and true or false
 end
 
 ---
@@ -518,21 +496,21 @@ function Anima:reset()
     self.cycle_count = 0
     self.initial_direction = nil
     self.__is_paused = nil
-    self.__is_visible = true
+    self.is_visible = true
     self.__is_enabled = true
     -- self.__effect_manager:stop_all()
 end
 
----@param arg {x: number, y: number, rot: number, sx: number, sy: number, ox: number, oy: number, kx: number, ky: number}
-function Anima:__set_effect_transform(arg)
+-- ---@param arg {x: number, y: number, rot: number, sx: number, sy: number, ox: number, oy: number, kx: number, ky: number}
+-- function Anima:__set_effect_transform(arg)
 
-    Affectable.__set_effect_transform(self, arg)
+--     Affectable.__set_effect_transform(self, arg)
 
-end
+-- end
 
-function Anima:__get_effect_transform()
-    return Affectable.__get_effect_transform(self)
-end
+-- function Anima:__get_effect_transform()
+--     return Affectable.__get_effect_transform(self)
+-- end
 
 ---
 -- Execute the animation logic.
@@ -691,10 +669,12 @@ end -- END update function
 ---@param y number # The top-left position to draw (y-axis).
 function Anima:draw(x, y)
 
-    self:__draw_with_no_effects__(x, y)
+    -- self:__draw_with_no_effects__(x, y)
 
-    -- Drawing the effects, if some exists.
-    if self.__effect_manager then self.__effect_manager:draw(x, y) end
+    -- -- Drawing the effects, if some exists.
+    -- if self.__effect_manager then self.__effect_manager:draw(x, y) end
+
+    Affectable.draw(self, x, y, self.__draw_with_no_effects__, x, y)
 end
 
 ---@return JM.Anima.Frame
@@ -728,9 +708,9 @@ function Anima:draw_rec(x, y, w, h)
     current_frame, effect_transform = nil, nil
 end
 
-function Anima:__draw__(x, y)
-    return self:__draw_with_no_effects__(x, y)
-end
+-- function Anima:__draw__(x, y)
+--     return self:__draw_with_no_effects__(x, y)
+-- end
 
 ---
 --- Draws the animation without apply any effect.
@@ -739,29 +719,29 @@ end
 ---@param y number # The top-left position to draw (y-axis).
 function Anima:__draw_with_no_effects__(x, y)
 
-    love_graphics_push()
+    -- love_graphics_push()
 
-    local effect_transform = self:__get_effect_transform()
+    -- local effect_transform = self:__get_effect_transform()
 
-    if effect_transform then
-        local transform
-        transform = love_math_new_transform()
+    -- if effect_transform then
+    --     local transform
+    --     transform = love_math_new_transform()
 
-        transform:setTransformation(
-            x + effect_transform.ox,
-            y + effect_transform.oy,
-            effect_transform.rot,
-            effect_transform.sx,
-            effect_transform.sy,
-            x,
-            y,
-            effect_transform.kx,
-            effect_transform.ky
-        )
+    --     transform:setTransformation(
+    --         x + effect_transform.ox,
+    --         y + effect_transform.oy,
+    --         effect_transform.rot,
+    --         effect_transform.sx,
+    --         effect_transform.sy,
+    --         x,
+    --         y,
+    --         effect_transform.kx,
+    --         effect_transform.ky
+    --     )
 
-        love_graphics_apply_transform(transform)
-        transform = nil
-    end -- END if exists a effect transform.
+    --     love_graphics_apply_transform(transform)
+    --     transform = nil
+    -- end -- END if exists a effect transform.
 
     local current_frame
     current_frame = self:get_current_frame()
@@ -770,7 +750,7 @@ function Anima:__draw_with_no_effects__(x, y)
 
     love_graphics_set_color(self.color)
 
-    if self.__is_visible then
+    if self.is_visible then
         love_graphics_draw(self.img, self.quad,
             (x), (y),
             self.rotation, self.scale_x * self.flip_x,
@@ -781,7 +761,7 @@ function Anima:__draw_with_no_effects__(x, y)
         )
     end
 
-    love_graphics_pop()
+    -- love_graphics_pop()
     current_frame = nil
 end
 
