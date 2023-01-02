@@ -114,14 +114,14 @@ current_animation:apply_effect("flash")
 ---@param new_anima JM.Anima
 ---@param last_anima JM.Anima
 local function change_animation(new_anima, last_anima)
-    if new_anima == last_anima then
-        return
-    end
-    new_anima:reset()
-    new_anima:set_flip_x(last_anima:is_flipped_in_x())
-    last_anima:transfer_effects(new_anima)
+    -- if new_anima == last_anima then
+    --     return
+    -- end
+    -- new_anima:reset()
+    -- new_anima:set_flip_x(last_anima:is_flipped_in_x())
+    -- last_anima:transfer_effects(new_anima)
 
-    current_animation = new_anima
+    current_animation = Anima.change_animation(last_anima, new_anima) --new_anima
 end
 
 monica_idle_normal:on_event("pause",
