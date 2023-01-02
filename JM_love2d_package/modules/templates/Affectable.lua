@@ -88,6 +88,8 @@ end
 ---@param self JM.Template.Affectable
 ---@param arg JM.Effect.TransformObject
 function Affectable:__set_effect_transform(arg)
+    if not self.__effect_transform then self.__effect_transform = {} end
+
     self.__effect_transform.x = arg.x or self.__effect_transform.x or 0
     self.__effect_transform.y = arg.y or self.__effect_transform.y or 0
     self.__effect_transform.rot = arg.rot or self.__effect_transform.rot or 0

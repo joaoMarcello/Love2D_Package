@@ -161,6 +161,14 @@ end
 
 function EffectManager:clear()
     if #(self.__effects_list) > 0 then
+
+        for i = 1, #(self.__effects_list) do
+            ---@type JM.Effect
+            local eff = self.__effects_list[i]
+
+            eff:restaure_object()
+        end
+
         self.__effects_list = {}
         return true
     end
@@ -245,7 +253,6 @@ do
     ---|"pendulum"
 end
 
-local temp = {}
 ---Applies effect in a animation.
 ---@param object JM.Template.Affectable|nil # The object to apply the effect.
 ---@param eff_type JM.Effect.id_string|JM.Effect.id_number # The type of the effect.
@@ -259,7 +266,7 @@ function EffectManager:apply_effect(object, eff_type, effect_args, __only_get__)
     local eff
 
     if not effect_args then
-        effect_args = temp
+        -- effect_args = {}
     end
 
     eff_type = type(eff_type) == "string" and Effect.TYPE[eff_type] or eff_type

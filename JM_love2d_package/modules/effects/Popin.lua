@@ -2,7 +2,8 @@
 local Effect = require((...):gsub("Popin", "Effect"))
 
 ---@class JM.Effect.Popin: JM.Effect
-local Popin = Effect:new()
+local Popin = setmetatable({}, Effect)
+Popin.__index = Popin
 
 ---@param object JM.Template.Affectable|nil
 ---@param args any
@@ -10,7 +11,6 @@ local Popin = Effect:new()
 function Popin:new(object, args)
     local ef = Effect:new(object, args)
     setmetatable(ef, self)
-    self.__index = self
 
     Popin.__constructor__(ef, args)
     return ef

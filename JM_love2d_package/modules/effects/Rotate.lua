@@ -4,7 +4,8 @@ local Effect = require((...):gsub("Rotate", "Effect"))
 local PI = math.pi
 
 ---@class JM.Effect.Rotate: JM.Effect
-local Rotate = Effect:new()
+local Rotate = setmetatable({}, Effect)
+Rotate.__index = Rotate
 
 ---@param object JM.Template.Affectable|nil
 ---@param args any|nil
@@ -12,7 +13,6 @@ local Rotate = Effect:new()
 function Rotate:new(object, args)
     local obj = Effect:new(object, args)
     setmetatable(obj, self)
-    self.__index = self
 
     Rotate.__constructor__(obj, args)
     return obj

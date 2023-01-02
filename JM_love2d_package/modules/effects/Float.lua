@@ -1,15 +1,17 @@
+---@type JM.Effect
 local Effect = require((...):gsub("Float", "Effect"))
 
 ---@class JM.Effect.Float: JM.Effect
-local Float__ = Effect:new(nil, nil)
+local Float__ = setmetatable({}, Effect)
+Float__.__index = Float__
 
 ---@param object JM.Template.Affectable|nil
 ---@param args any|nil
 ---@return JM.Effect|JM.Effect.Float
 function Float__:new(object, args)
+
     local obj = Effect:new(object, args)
     setmetatable(obj, self)
-    self.__index = self
 
     Float__.__constructor__(obj, args)
     return obj

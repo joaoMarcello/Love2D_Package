@@ -1,12 +1,5 @@
 local m_sin, m_cos, m_min, m_max, PI = math.sin, math.cos, math.min, math.max, math.pi
 
----
----@class JM.Effect
----@field __id JM.Effect.id_number
----@field __UNIQUE_ID number
----@field __init function
-local Effect = {}
-
 local MSG_using_effect_with_no_associated_affectable = "\nError: Trying to use a 'Effect' object without associate him to a 'Affectable' object.\n\nTip: Try use the ':apply' method from the 'Effect' object."
 
 --- Check if object implements all the needed Affectable methods and fields.
@@ -77,12 +70,19 @@ local TYPE_ = {
     pendulum = 38
 }
 
+---
+---@class JM.Effect
+---@field __id JM.Effect.id_number
+---@field __UNIQUE_ID number
+---@field __init function
+local Effect = {}
+Effect.__index = Effect
 Effect.TYPE = TYPE_
 
 ---
 --- Class effect constructor.
 ---@overload fun(self: table|nil, object: nil, args: nil):JM.Effect
----@param object JM.Template.Affectable # O objeto que sera afetado pelo efeito.
+---@param object JM.Template.Affectable
 ---@param args any
 ---@return JM.Effect effect
 function Effect:new(object, args)
@@ -90,7 +90,6 @@ function Effect:new(object, args)
     ---@type JM.Effect
     local effect = {}
     setmetatable(effect, self)
-    self.__index = self
 
     Effect.__constructor__(effect, object, args)
 
@@ -121,7 +120,9 @@ function Effect:__constructor__(object, args)
 
     self.__type_transform = {}
 
-    self.__obj_initial_color = { r = 1, g = 1, b = 1, a = 1 }
+    self.__remove = false
+
+    self.__obj_initial_color = { 1, 1, 1, 1 }
     self:set_object(object)
 end
 
@@ -177,12 +178,13 @@ function Effect:set_object(object)
     self.__object = object
 
     if self.__object then
-        self.__obj_initial_color = {
-            r = self.__object:get_color()[1],
-            g = self.__object:get_color()[2],
-            b = self.__object:get_color()[3],
-            a = self.__object:get_color()[4]
-        }
+        -- self.__obj_initial_color = {
+        --     r = self.__object:get_color()[1],
+        --     g = self.__object:get_color()[2],
+        --     b = self.__object:get_color()[3],
+        --     a = self.__object:get_color()[4]
+        -- }
+        self.__obj_initial_color = self.__object:get_color()
     end
 end
 
@@ -256,6 +258,10 @@ function Effect:restaure_object()
         kx = self.__type_transform.kx and 0,
         ky = self.__type_transform.ky and 0
     })
+
+    if Effect.__id == Effect.TYPE.flickering then
+        self.__object:set_visible(true)
+    end
 
     -- self.__object:set_effect_transform("rot", self.__type_transform.rot)
     -- self.__object:set_effect_transform("sx", self.__type_transform.sx)

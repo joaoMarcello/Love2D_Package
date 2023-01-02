@@ -12,7 +12,7 @@ local button_1 = GUI.Button:new({
 
 -- button_1.__effect_manager:apply_effect(button_1, "pulse", { speed = 1, range = 0.05 })
 
--- button_1:apply_effect("pulse")
+button_1:apply_effect("swing")
 
 local manager = GUI.Container:new({
     x = 128, y = 128,

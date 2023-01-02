@@ -1,15 +1,17 @@
+---@type JM.Effect
 local Effect = require((...):gsub("Fadein", "Effect"))
 
 ---@class JM.Effect.Fadein: JM.Effect
-local Fadein = Effect:new(nil, nil)
+local Fadein = setmetatable({}, Effect)
+Fadein.__index = Fadein
 
 ---@param object JM.Template.Affectable|nil
 ---@param args any|nil
 ---@return JM.Effect|JM.Effect.Fadein
 function Fadein:new(object, args)
+
     local obj = Effect:new(object, args)
     setmetatable(obj, self)
-    self.__index = self
 
     Fadein.__constructor__(obj, args)
     return obj

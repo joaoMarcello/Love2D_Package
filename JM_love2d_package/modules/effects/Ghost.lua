@@ -1,9 +1,11 @@
+---@type JM.Effect
 local Effect = require((...):gsub("Ghost", "Effect"))
 
 local m_sin, PI = math.sin, math.pi
 
 ---@class JM.Effect.Ghost: JM.Effect
-local Ghost = Effect:new(nil, nil)
+local Ghost = setmetatable({}, Effect)
+Ghost.__index = Ghost
 
 ---@param object JM.Template.Affectable|nil
 ---@param args any|nil
@@ -11,7 +13,6 @@ local Ghost = Effect:new(nil, nil)
 function Ghost:new(object, args)
     local obj = Effect:new(object, args)
     setmetatable(obj, self)
-    self.__index = self
 
     Ghost.__constructor__(obj, args)
     return obj

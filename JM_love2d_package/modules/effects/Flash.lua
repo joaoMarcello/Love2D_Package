@@ -1,7 +1,7 @@
 ---@type JM.Effect
 local Effect = require((...):gsub("Flash", "Effect"))
 
-local m_sin, PI = math.sin, math.pi
+local m_sin, PI, love_set_shader = math.sin, math.pi, love.graphics.setShader
 
 local shader_code = [[
     extern vec4 flash_color;
@@ -49,18 +49,16 @@ local flash_shader = love.graphics.newShader(shader_code)
 ---
 ---@class JM.Effect.Flash: JM.Effect
 --- Flash is a Effect sub-class.
-local Flash = Effect:new(nil, nil)
+local Flash = setmetatable({}, Effect)
+Flash.__index = Flash
 
----
---- Class Effect constructor.
----
 ---@param object JM.Template.Affectable|nil
 ---@param args {speed: number, color: table, min: number, max: number}
 ---@return JM.Effect effect
 function Flash:new(object, args)
+
     local ef = Effect:new(object, args)
     setmetatable(ef, self)
-    self.__index = self
 
     Flash.__constructor__(ef, args)
     return ef
@@ -97,10 +95,10 @@ function Flash:update(dt)
 end
 
 function Flash:draw(...)
-    love.graphics.setShader(flash_shader)
+    love_set_shader(flash_shader)
     flash_shader:sendColor("flash_color", self.__color)
     self.__object:__draw__(unpack { ... })
-    love.graphics.setShader()
+    love_set_shader()
 end
 
 return Flash

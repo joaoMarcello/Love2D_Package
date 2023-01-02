@@ -3,7 +3,8 @@ local Effect = require((...):gsub("Disc", "Effect"))
 local m_sin, PI = math.sin, math.pi
 
 ---@class JM.Effect.Disc: JM.Effect
-local Disc = Effect:new(nil, nil)
+local Disc = setmetatable({}, Effect)
+Disc.__index = Disc
 
 ---@param object JM.Template.Affectable|nil
 ---@param args any|nil
@@ -11,7 +12,6 @@ local Disc = Effect:new(nil, nil)
 function Disc:new(object, args)
     local obj = Effect:new(object, args)
     setmetatable(obj, self)
-    self.__index = self
 
     Disc.__constructor__(obj, args)
     return obj

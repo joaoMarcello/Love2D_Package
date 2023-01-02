@@ -4,7 +4,7 @@ local Effect = require((...):gsub("Pulse", "Effect"))
 local m_sin, PI = math.sin, math.pi
 
 ---@class JM.Effect.Pulse: JM.Effect
-local Pulse = setmetatable({}, { __index = Effect }) --Effect:new(nil, nil)
+local Pulse = setmetatable({}, Effect) --Effect:new(nil, nil)
 Pulse.__index = Pulse
 
 ---comment

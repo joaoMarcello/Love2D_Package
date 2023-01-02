@@ -1,7 +1,8 @@
 local Effect = require((...):gsub("shader", "Effect"))
 
 ---@class JM.Effect.Sample:JM.Effect
-local Sample = Effect:new()
+local Sample = setmetatable({}, Effect)
+Sample.__index = Sample
 
 local shadercode = [[
     vec4 effect( vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords )
@@ -54,7 +55,6 @@ local myShader = love.graphics.newShader(negative)
 function Sample:new(object, args)
     local obj = Effect:new(object, args)
     setmetatable(obj, self)
-    self.__index = self
 
     Sample.__constructor__(obj, args)
 
@@ -81,10 +81,10 @@ function Sample:update(dt)
     self.__alpha = self.__origin + (math.sin(self.__rad) * self.__range)
 end
 
-function Sample:draw(x, y)
+function Sample:draw(...)
     love.graphics.setShader(myShader)
     myShader:send("alpha_value", self.__alpha)
-    self.__object:__draw__(x, y)
+    self.__object:__draw__(unpack { ... })
     love.graphics.setShader()
 end
 
