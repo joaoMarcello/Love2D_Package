@@ -266,7 +266,7 @@ function EffectManager:apply_effect(object, eff_type, effect_args, __only_get__)
     local eff
 
     if not effect_args then
-        -- effect_args = {}
+        effect_args = {}
     end
 
     eff_type = type(eff_type) == "string" and Effect.TYPE[eff_type] or eff_type
@@ -313,7 +313,6 @@ function EffectManager:apply_effect(object, eff_type, effect_args, __only_get__)
         eff = Idle:new(object, effect_args)
 
     elseif eff_type == Effect.TYPE.heartBeat then
-        local heartBeat = Idle:new(object, { duration = 0, __id__ = Effect.TYPE.heartBeat })
 
         local pulse = Pulse:new(object, { max_sequence = 2, speed = 0.3, range = 0.1, __id__ = Effect.TYPE.heartBeat })
         pulse.__rad = 0
@@ -322,32 +321,24 @@ function EffectManager:apply_effect(object, eff_type, effect_args, __only_get__)
 
         pulse:set_final_action(
             function()
-                idle_eff:apply(heartBeat:get_object(), true)
+                idle_eff:apply(pulse:get_object(), true)
             end
         )
 
         idle_eff:set_final_action(
             function()
-                pulse:apply(heartBeat:get_object(), true)
+                pulse:apply(idle_eff:get_object(), true)
                 pulse.__rad = 0
             end
         )
 
-        heartBeat:set_final_action(function()
-            if pulse.__object == heartBeat:get_object() then
-                pulse:apply(heartBeat:get_object(), false)
-            else
-                idle_eff:apply(heartBeat:get_object(), false)
-            end
-        end)
-
-        eff = heartBeat
+        eff = pulse
 
     elseif eff_type == Effect.TYPE.clickHere then
 
-        local bb = Swing:new(object, { range = 0.03, speed = 1 / 3, max_sequence = 2, __id__ = Effect.TYPE.clickHere })
+        local bb = Swing:new(object, { range = 0.03, speed = 1 / 3, max_sequence = 2 })
 
-        local idle = Idle:new(object, { duration = 1, __id__ = Effect.TYPE.clickHere })
+        local idle = Idle:new(object, { duration = 1 })
 
         bb:set_final_action(
             function()
@@ -416,12 +407,10 @@ function EffectManager:apply_effect(object, eff_type, effect_args, __only_get__)
         local idle = Idle:new(object, { duration = 1, __id__ = Effect.TYPE.ufo })
 
         idle:set_final_action(
-        ---@param args {idle: JM.Effect, pulse: JM.Effect, circle: JM.Effect}
-            function(args)
-                args.pulse:apply(args.idle.__object)
-                args.circle:apply(args.idle.__object)
-            end,
-            { idle = idle, pulse = pulse, circle = circle })
+            function()
+                pulse:apply(idle:get_object())
+                circle:apply(idle:get_object())
+            end)
 
         eff = idle
 
@@ -487,6 +476,18 @@ function EffectManager:__insert_effect(effect)
 
     table.insert(self.__effects_list, effect)
     self.__sort__ = true
+end
+
+---@param obj JM.Template.Affectable
+function EffectManager:transfer(obj)
+    for i = 1, #(self.__effects_list) do
+        ---@type JM.Effect
+        local eff = self.__effects_list[i]
+
+        eff:apply(obj)
+    end
+
+    self.__effects_list = {}
 end
 
 return EffectManager

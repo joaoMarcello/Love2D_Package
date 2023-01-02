@@ -181,4 +181,9 @@ function Affectable:apply_effect(eff_type, eff_args)
     self.__effect_manager:apply_effect(self, eff_type, eff_args)
 end
 
+---@param obj JM.Template.Affectable
+function Affectable:transfer(obj)
+    self.__effect_manager:transfer(obj)
+end
+
 return Affectable

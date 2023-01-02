@@ -220,8 +220,6 @@ function Anima:__constructor__(args)
     self.scale_y = 1
     self:set_scale(args.scale and args.scale.x, args.scale and args.scale.y)
 
-    --self.__effect_manager = EffectManager and EffectManager:new() or nil
-
     self.frames_list = {}
 
     if not args.frames_list then
@@ -498,7 +496,6 @@ function Anima:reset()
     self.__is_paused = nil
     self.is_visible = true
     self.__is_enabled = true
-    -- self.__effect_manager:stop_all()
 end
 
 -- ---@param arg {x: number, y: number, rot: number, sx: number, sy: number, ox: number, oy: number, kx: number, ky: number}
@@ -669,12 +666,8 @@ end -- END update function
 ---@param y number # The top-left position to draw (y-axis).
 function Anima:draw(x, y)
 
-    -- self:__draw_with_no_effects__(x, y)
-
-    -- -- Drawing the effects, if some exists.
-    -- if self.__effect_manager then self.__effect_manager:draw(x, y) end
-
     Affectable.draw(self, x, y, self.__draw_with_no_effects__, x, y)
+
 end
 
 ---@return JM.Anima.Frame
@@ -708,40 +701,12 @@ function Anima:draw_rec(x, y, w, h)
     current_frame, effect_transform = nil, nil
 end
 
--- function Anima:__draw__(x, y)
---     return self:__draw_with_no_effects__(x, y)
--- end
-
 ---
 --- Draws the animation without apply any effect.
 ---
 ---@param x number # The top-left position to draw (x-axis).
 ---@param y number # The top-left position to draw (y-axis).
 function Anima:__draw_with_no_effects__(x, y)
-
-    -- love_graphics_push()
-
-    -- local effect_transform = self:__get_effect_transform()
-
-    -- if effect_transform then
-    --     local transform
-    --     transform = love_math_new_transform()
-
-    --     transform:setTransformation(
-    --         x + effect_transform.ox,
-    --         y + effect_transform.oy,
-    --         effect_transform.rot,
-    --         effect_transform.sx,
-    --         effect_transform.sy,
-    --         x,
-    --         y,
-    --         effect_transform.kx,
-    --         effect_transform.ky
-    --     )
-
-    --     love_graphics_apply_transform(transform)
-    --     transform = nil
-    -- end -- END if exists a effect transform.
 
     local current_frame
     current_frame = self:get_current_frame()
@@ -760,29 +725,7 @@ function Anima:__draw_with_no_effects__(x, y)
             self.__ky
         )
     end
-
-    -- love_graphics_pop()
     current_frame = nil
-end
-
---- Aplica efeito na animacao.
----@param effect_type JM.Effect.id_string|JM.Effect.id_number
----@param effect_args any
----@return JM.Effect|nil effect
-function Anima:apply_effect(effect_type, effect_args)
-    if not self.__effect_manager then return end
-    return self.__effect_manager:apply_effect(self, effect_type, effect_args)
-end
-
----Stops a especific effect by his unique id.
----@param effect_id JM.Effect|number
----@return boolean
-function Anima:stop_effect(effect_id)
-    if not self.__effect_manager then return false end
-    if type(effect_id) == "number" then
-        return self.__effect_manager:stop_effect(effect_id)
-    end
-    return self.__effect_manager:stop_effect(effect_id:get_unique_id())
 end
 
 ---Tells if animation is flipped in y-axis.

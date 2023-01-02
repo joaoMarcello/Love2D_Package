@@ -107,9 +107,12 @@ Anima:new(
 
 local my_effect = EffectManager:generate_effect("idle", { color = { 0.9, 0.9, 0.9, 1 } })
 local current_animation = monica_idle_normal
-my_effect:apply(current_animation)
+-- my_effect:apply(current_animation)
 
-monica_idle_normal:apply_effect("pulse")
+-- current_animation:apply_effect("clickHere")
+current_animation:apply_effect("heartBeat")
+
+-- monica_idle_normal:apply_effect("pulse")
 
 ---@param new_anima JM.Anima
 ---@param last_anima JM.Anima
@@ -121,8 +124,9 @@ local function change_animation(new_anima, last_anima)
     new_anima:reset()
     current_animation = new_anima
     current_animation:set_flip_x(last_anima:is_flipped_in_x())
-    my_effect:apply(new_anima, false)
-    my_effect:update(love.timer.getDelta())
+    -- my_effect:apply(new_anima, false)
+    -- my_effect:update(love.timer.getDelta())
+    last_anima:transfer(new_anima)
 end
 
 monica_idle_normal:on_event("pause",

@@ -178,12 +178,6 @@ function Effect:set_object(object)
     self.__object = object
 
     if self.__object then
-        -- self.__obj_initial_color = {
-        --     r = self.__object:get_color()[1],
-        --     g = self.__object:get_color()[2],
-        --     b = self.__object:get_color()[3],
-        --     a = self.__object:get_color()[4]
-        -- }
         self.__obj_initial_color = self.__object:get_color()
     end
 end
