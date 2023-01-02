@@ -88,7 +88,7 @@ function EffectManager:update(dt)
                         self.__effects_clear = nil;
                         break
                     end
-
+                    self.__effects_list[i] = nil
                     local r2 = table.remove(self.__effects_list, i)
                 end
 
@@ -444,6 +444,7 @@ function EffectManager:apply_effect(object, eff_type, effect_args, __only_get__)
         end
     end
 
+    effect_args = nil
     return eff
 end
 

@@ -112,8 +112,7 @@ current_animation:apply_effect("float")
 current_animation:apply_effect("flash")
 
 ---@param new_anima JM.Anima
----@param last_anima JM.Anima
-local function change_animation(new_anima, last_anima)
+local function change_animation(new_anima)
     -- if new_anima == last_anima then
     --     return
     -- end
@@ -121,19 +120,19 @@ local function change_animation(new_anima, last_anima)
     -- new_anima:set_flip_x(last_anima:is_flipped_in_x())
     -- last_anima:transfer_effects(new_anima)
 
-    current_animation = Anima.change_animation(last_anima, new_anima) --new_anima
+    current_animation = Anima.change_animation(current_animation, new_anima) --new_anima
 end
 
 monica_idle_normal:on_event("pause",
     function()
-        change_animation(monica_idle_blink, monica_idle_normal)
+        change_animation(monica_idle_blink)
     end
 )
 
 monica_idle_blink:on_event("pause",
     function()
         monica_idle_normal:set_max_cycle(love.math.random(2, 4))
-        change_animation(monica_idle_normal, monica_idle_blink)
+        change_animation(monica_idle_normal)
     end
 )
 
@@ -668,7 +667,7 @@ Game:implements(
                     rec.direction = -1
                     rbody:apply_force(-rec.acc)
 
-                    change_animation(monica_run, current_animation)
+                    change_animation(monica_run)
                     current_animation:set_flip_x(true)
 
                     local col =
@@ -694,7 +693,7 @@ Game:implements(
                     rec.direction = 1
                     rbody:apply_force(rec.acc)
 
-                    change_animation(monica_run, current_animation)
+                    change_animation(monica_run)
                     current_animation:set_flip_x(false)
 
                     local col =
@@ -877,7 +876,7 @@ Game:implements(
             if key == "left" or key == "right" then
                 if current_animation == monica_run then
                     monica_idle_normal:set_flip_x(rec.direction < 0 and true)
-                    change_animation(monica_idle_normal, current_animation)
+                    change_animation(monica_idle_normal)
                 end
             end
         end,

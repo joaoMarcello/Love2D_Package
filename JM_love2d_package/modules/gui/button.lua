@@ -40,14 +40,26 @@ function Button:__constructor__(args)
     end)
 
     self:on_event("gained_focus", function()
+        self:set_color2(0.3, 0.8, 0.3, 1.0)
+
         self.text = "<color, 1,0,0>on <color, 1,1,0><italic>focus</italic><color, 0, 0, 0> did you hear me. " ..
             math.random(150)
+
+        -- self.__pulse_eff = self.__pulse_eff or self:generate_effect("pulse", { range = 0.03, speed = 0.5 })
+        -- self.__pulse_eff:apply(self, true)
+
         self:apply_effect("pulse", { range = 0.03, speed = 0.5 })
     end)
 
 
     self:on_event("lose_focus", function()
+        self:set_color2(0.3 * 0.5, 0.8 * 0.5, 0.3 * 0.5, 1.0)
+
         self.text = "button"
+
+        -- self.__pulse_eff.__remove = true
+        -- self.__pulse_eff:restaure_object()
+
         self.__effect_manager:clear()
     end)
 

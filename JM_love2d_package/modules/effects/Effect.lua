@@ -243,27 +243,27 @@ function Effect:restaure_object()
         self.__object:set_color(self.__obj_initial_color)
     end
 
-    self.__object:__set_effect_transform({
-        rot = self.__type_transform.rot and 0,
-        ox = self.__type_transform.ox and 0,
-        oy = self.__type_transform.oy and 0,
-        sx = self.__type_transform.sx and 1,
-        sy = self.__type_transform.sx and 1,
-        kx = self.__type_transform.kx and 0,
-        ky = self.__type_transform.ky and 0
-    })
+    -- self.__object:__set_effect_transform({
+    --     rot = self.__type_transform.rot and 0,
+    --     ox = self.__type_transform.ox and 0,
+    --     oy = self.__type_transform.oy and 0,
+    --     sx = self.__type_transform.sx and 1,
+    --     sy = self.__type_transform.sx and 1,
+    --     kx = self.__type_transform.kx and 0,
+    --     ky = self.__type_transform.ky and 0
+    -- })
 
     if Effect.__id == Effect.TYPE.flickering then
         self.__object:set_visible(true)
     end
 
-    -- self.__object:set_effect_transform("rot", self.__type_transform.rot)
-    -- self.__object:set_effect_transform("sx", self.__type_transform.sx)
-    -- self.__object:set_effect_transform("sy", self.__type_transform.sy)
-    -- self.__object:set_effect_transform("ox", self.__type_transform.ox)
-    -- self.__object:set_effect_transform("oy", self.__type_transform.oy)
-    -- self.__object:set_effect_transform("kx", self.__type_transform.kx)
-    -- self.__object:set_effect_transform("ky", self.__type_transform.ky)
+    self.__object:set_effect_transform("rot", self.__type_transform.rot and 0)
+    self.__object:set_effect_transform("sx", self.__type_transform.sx and 1)
+    self.__object:set_effect_transform("sy", self.__type_transform.sy and 1)
+    self.__object:set_effect_transform("ox", self.__type_transform.ox and 0)
+    self.__object:set_effect_transform("oy", self.__type_transform.oy and 0)
+    self.__object:set_effect_transform("kx", self.__type_transform.kx and 0)
+    self.__object:set_effect_transform("ky", self.__type_transform.ky and 0)
 end
 
 function Effect:draw(...)

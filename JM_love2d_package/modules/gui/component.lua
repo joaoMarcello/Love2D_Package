@@ -61,9 +61,10 @@ end
 ---@param gc JM.GUI.Component
 ---@param type_ JM.GUI.EventOptions
 local function dispatch_event(gc, type_)
-    ---@type JM.GUI.Event
+    ---@type JM.GUI.Event|nil
     local evt = gc.events[type_]
     local r = evt and evt.action(evt.args)
+    evt = nil
 end
 
 local generic_func = function(self, args) end
@@ -130,7 +131,7 @@ end
 ---@param name JM.GUI.EventNames
 ---@param action function
 ---@param args any
----@return JM.GUI.Event|nil
+-- ---@return JM.GUI.Event|nil
 function Component:on_event(name, action, args)
     local evt_type = EVENTS[name]
     if not evt_type then return end
@@ -140,7 +141,7 @@ function Component:on_event(name, action, args)
         args = args
     }
 
-    return self.events[evt_type]
+    --return self.events[evt_type]
 end
 
 function Component:rect()
@@ -170,23 +171,25 @@ end
 function Component:mouse_pressed(x, y, button, istouch, presses)
     if not self.on_focus then return end
 
-    local check = self:check_collision(x, y, 1, 1)
+    local check = self:check_collision(x, y, 0, 0)
     if not check then return end
 
-    ---@type JM.GUI.Event
+    ---@type JM.GUI.Event|nil
     local evt = self.events[EVENTS.mouse_pressed]
     local r = evt and evt.action(x, y, button, istouch, presses, evt.args)
 
     self.__mouse_pressed = true
+    evt = nil
 end
 
 function Component:mouse_released(x, y, button, istouch, presses)
     if not self.on_focus or not self.__mouse_pressed then return end
     self.__mouse_pressed = false
 
-    ---@type JM.GUI.Event
+    ---@type JM.GUI.Event|nil
     local evt = self.events[EVENTS.mouse_released]
     local r = evt and evt.action(x, y, button, istouch, presses, evt.args)
+    evt = nil
 end
 
 ---@param self JM.GUI.Component

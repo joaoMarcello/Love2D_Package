@@ -160,7 +160,7 @@ function Container:set_type(type_, mode, grid_x, grid_y)
     elseif type_ == "grid" then
         ---@diagnostic disable-next-line: duplicate-set-field
         self.__add_behavior__ = function(self)
-            self:refresh_pos_grid(grid_x, grid_y)
+            self:refresh_pos_grid(grid_y, grid_x)
         end
     else -- free position
 

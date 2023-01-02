@@ -314,7 +314,14 @@ function Scene:implements(param)
             if scene.time_pause then
                 return
             end
-            local r = callback and callback(unpack({ ... }))
+            local args
+            args = (...) and { ... } or nil
+            if args then
+                local r = callback and callback(unpack(args))
+            else
+                local r = callback and callback()
+            end
+            args = nil
         end
     end
 

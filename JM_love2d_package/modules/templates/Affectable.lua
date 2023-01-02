@@ -102,7 +102,7 @@ function Affectable:__set_effect_transform(arg)
 end
 
 function Affectable:set_effect_transform(index, value)
-    if self.__effect_transform[index] then
+    if self.__effect_transform[index] and value then
         self.__effect_transform[index] = value
     end
 end
@@ -179,6 +179,12 @@ end
 ---@param eff_args any
 function Affectable:apply_effect(eff_type, eff_args)
     self.__effect_manager:apply_effect(self, eff_type, eff_args)
+end
+
+---@param eff_type JM.Effect.id_string
+---@param eff_args any
+function Affectable:generate_effect(eff_type, eff_args)
+    return self.__effect_manager:generate_effect(eff_type, eff_args)
 end
 
 ---@param obj JM.Template.Affectable
