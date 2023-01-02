@@ -169,6 +169,9 @@ function Component:key_released(key, scancode)
 end
 
 function Component:mouse_pressed(x, y, button, istouch, presses)
+    do
+        return
+    end
     if not self.on_focus then return end
 
     local check = self:check_collision(x, y, 0, 0)

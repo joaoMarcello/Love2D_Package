@@ -75,7 +75,7 @@ function Container:mouse_pressed(x, y)
         local gc = self.components[i]
 
         local r = gc.is_enable and not gc.remove_
-            and gc.mouse_pressed and gc:mouse_pressed(x, y)
+            and gc:mouse_pressed(x, y)
     end
 end
 
@@ -85,7 +85,7 @@ function Container:mouse_released(x, y)
         local gc = self.components[i]
 
         local r = gc.is_enable and not gc.remove_
-            and gc.mouse_released and gc:mouse_released(x, y)
+            and gc:mouse_released(x, y)
     end
 end
 
@@ -95,7 +95,7 @@ function Container:key_pressed(key, scancode, isrepeat)
         local gc = self.components[i]
 
         local r = gc.is_enable and not gc.remove_
-            and gc.key_pressed and gc:key_pressed(key, scancode, isrepeat)
+            and gc:key_pressed(key, scancode, isrepeat)
     end
 end
 
@@ -105,7 +105,7 @@ function Container:key_released(key, scancode)
         local gc = self.components[i]
 
         local r = gc.is_enable and not gc.remove_
-            and gc.key_released and gc:key_released(key, scancode)
+            and gc:key_released(key, scancode)
     end
 end
 

@@ -301,6 +301,23 @@ local function frame_skip_update(self)
     return false
 end
 
+local function generic(callback)
+    ---@param scene JM.Scene
+    return function(scene, ...)
+        if scene.time_pause then
+            return
+        end
+        local args
+        args = (...) and { ... } or nil
+        if args then
+            local r = callback and callback(unpack(args))
+        else
+            local r = callback and callback()
+        end
+        args = nil
+    end
+end
+
 ---
 ---@param param {load:function, init:function, update:function, draw:function, unload:function, keypressed:function, keyreleased:function, layers:table}
 ---
@@ -308,22 +325,22 @@ function Scene:implements(param)
     assert(param, "\n>> Error: No parameter passed to method.")
     assert(type(param) == "table", "\n>> Error: The method expected a table. Was given " .. type(param) .. ".")
 
-    local function generic(callback)
-        ---@param scene JM.Scene
-        return function(scene, ...)
-            if scene.time_pause then
-                return
-            end
-            local args
-            args = (...) and { ... } or nil
-            if args then
-                local r = callback and callback(unpack(args))
-            else
-                local r = callback and callback()
-            end
-            args = nil
-        end
-    end
+    -- local function generic(callback)
+    --     ---@param scene JM.Scene
+    --     return function(scene, ...)
+    --         if scene.time_pause then
+    --             return
+    --         end
+    --         local args
+    --         args = (...) and { ... } or nil
+    --         if args then
+    --             local r = callback and callback(unpack(args))
+    --         else
+    --             local r = callback and callback()
+    --         end
+    --         args = nil
+    --     end
+    -- end
 
     local love_callbacks = {
         "displayrotated",

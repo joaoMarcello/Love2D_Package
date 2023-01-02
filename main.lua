@@ -24,7 +24,7 @@ function love.mousepressed(x, y, button, istouch, presses)
 end
 
 function love.mousereleased(x, y, button, istouch, presses)
-    scene:mousereleased(x, y, button, istouch, presses)
+    --scene:mousereleased(x, y, button, istouch, presses)
 end
 
 local km = nil
