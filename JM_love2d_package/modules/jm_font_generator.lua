@@ -9,11 +9,6 @@ local Utils = require(path:gsub("jm_font_generator", "jm_utils"))
 
 ---@type JM.Font.Glyph
 local Glyph = require(path:gsub("jm_font_generator", "font.glyph"))
-Glyph.load_dependencies(
-    require(path:gsub("jm_font_generator", "templates.Affectable")),
-    require(path:gsub("jm_font_generator", "jm_effect_manager")),
-    Utils
-)
 
 ---@type JM.Font.GlyphIterator
 local Iterator = require(path:gsub("jm_font_generator", "font.font_iterator"))

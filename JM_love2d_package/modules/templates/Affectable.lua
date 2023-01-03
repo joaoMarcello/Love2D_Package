@@ -40,6 +40,8 @@ function Affectable:__constructor__()
 
     self.ox = 0
     self.oy = 0
+
+    self.is_visible = true
 end
 
 --- Check if object implements all the needed Affectable methods and fields.
@@ -125,7 +127,7 @@ end
 -- end
 
 ---@param self JM.Template.Affectable
-function Affectable:apply_transform(x, y)
+local function apply_transform(self, x, y)
     x = x or 0
     y = y or 0
 
@@ -153,12 +155,13 @@ function Affectable:update(dt)
     self.__effect_manager:update(dt)
 end
 
----comment
 ---@param draw function
 ---@param ... unknown
 function Affectable:__draw__(draw, ...)
+    --if not draw then return end
+
     love_push()
-    self:apply_transform(self.x, self.y)
+    apply_transform(self, self.x, self.y)
     local args = (...) and { ... }
     if args then
         draw(self, unpack { ... })

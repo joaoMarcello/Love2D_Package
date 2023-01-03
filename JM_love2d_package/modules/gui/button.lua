@@ -4,12 +4,6 @@ local path = ...
 ---@type JM.GUI.Component
 local Component = require(path:gsub("button", "component"))
 
----@type JM.Utils
-local Utils = require(path:gsub("gui.button", "jm_utils"))
-
----@type JM.Template.Affectable
-local Affectable = require(path:gsub("gui.button", "templates.Affectable"))
-
 ---@type JM.Font.Manager
 local Font = require(path:gsub("gui.button", "jm_font"))
 
