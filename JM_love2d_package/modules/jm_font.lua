@@ -45,4 +45,6 @@ function Font:get_phrase(text)
     return Font.current:get_phrase(text)
 end
 
+
+
 return Font

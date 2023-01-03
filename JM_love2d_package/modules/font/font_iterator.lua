@@ -15,7 +15,7 @@ function Iterator:new(text, font)
     end
 
 
-    local obj = {}
+    obj = {}
     setmetatable(obj, self)
 
     Iterator.__constructor__(obj, text, font)

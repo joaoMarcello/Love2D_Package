@@ -35,6 +35,9 @@ function Affectable:__constructor__()
 
     self.__transform = love.math.newTransform()
 
+    self.x = 0
+    self.y = 0
+
     self.ox = 0
     self.oy = 0
 end
@@ -150,9 +153,12 @@ function Affectable:update(dt)
     self.__effect_manager:update(dt)
 end
 
-function Affectable:__draw__(x, y, draw, ...)
+---comment
+---@param draw function
+---@param ... unknown
+function Affectable:__draw__(draw, ...)
     love_push()
-    self:apply_transform(x, y)
+    self:apply_transform(self.x, self.y)
     local args = (...) and { ... }
     if args then
         draw(self, unpack { ... })
@@ -162,16 +168,18 @@ function Affectable:__draw__(x, y, draw, ...)
     love_pop()
 end
 
-function Affectable:draw(x, y, custom_draw, ...)
+---@param custom_draw function
+---@param ... unknown # the params for the custom_draw
+function Affectable:draw(custom_draw, ...)
     if not custom_draw then return end
     local args = (...) and { ... } or nil
 
     if args then
-        self:__draw__(x, y, custom_draw, unpack(args))
-        self.__effect_manager:draw_xp(x, y, custom_draw, unpack { ... })
+        self:__draw__(custom_draw, unpack(args))
+        self.__effect_manager:draw_xp(custom_draw, unpack { ... })
     else
-        self:__draw__(x, y, custom_draw)
-        self.__effect_manager:draw_xp(x, y, custom_draw)
+        self:__draw__(custom_draw)
+        self.__effect_manager:draw_xp(custom_draw)
     end
 end
 

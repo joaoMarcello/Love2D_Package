@@ -224,7 +224,7 @@ end
 
 function Component:draw()
 
-    Affectable.draw(self, self.x, self.y, self.__custom_draw__)
+    Affectable.draw(self, self.__custom_draw__)
 
     self:__pos_draw__()
 end

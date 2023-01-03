@@ -110,6 +110,7 @@ local current_animation = monica_idle_normal
 
 current_animation:apply_effect("float")
 current_animation:apply_effect("flash")
+current_animation:apply_effect("swing")
 
 ---@param new_anima JM.Anima
 local function change_animation(new_anima)

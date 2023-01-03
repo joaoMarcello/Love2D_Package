@@ -9,6 +9,7 @@ local Game = Scene:new()
 local button_1 = GUI.Button:new({
     x = 200, y = 100, w = 150, h = 100
 })
+button_1.is_button1 = true
 
 -- button_1.__effect_manager:apply_effect(button_1, "pulse", { speed = 1, range = 0.05 })
 
@@ -31,6 +32,7 @@ manager:add(GUI.Button:new({ x = 240, y = 250, w = 100, h = 100 }))
 Game:implements({
     draw = function()
         manager:draw()
+        -- Font:printx("button", 200, 100, "center", 150)
     end,
 
     mousepressed = function(x, y)

@@ -246,7 +246,7 @@ end
 local results_get_lines = setmetatable({}, { __mode = 'kv' })
 
 ---@return table
-function Phrase:get_lines(x, y)
+function Phrase:get_lines(x)
     local result = results_get_lines[self] and results_get_lines[self][x]
     if result then return result end
 
@@ -254,7 +254,6 @@ function Phrase:get_lines(x, y)
     local tx = x
     local cur_line = 1
     local word_char = Word:new({ text = " ", font = self.__font })
-
 
     for i = 1, #self.__words do
         local current_word = self:get_word_by_index(i)
@@ -315,7 +314,10 @@ function Phrase:get_lines(x, y)
         ::skip_word::
     end
 
-    table.insert(lines[cur_line], Word:new({ text = "\n", font = self.__font }))
+    table.insert(
+        lines[cur_line],
+        Word:new({ text = "\n", font = self.__font })
+    )
 
     results_get_lines[self] = results_get_lines[self]
         or setmetatable({}, { __mode = 'k' })
@@ -416,9 +418,9 @@ function Phrase:draw_lines(lines, x, y, align, threshold, __max_char__)
     end
 end
 
-function Phrase:refresh()
-    self.__last_lines__ = nil
-end
+-- function Phrase:refresh()
+--     self.__last_lines__ = nil
+-- end
 
 function Phrase:__debbug()
     local s = self.text
@@ -449,7 +451,7 @@ function Phrase:draw(x, y, align, __max_char__)
     -- local lines = self.__last_lines__.lines
 
     local result = self:draw_lines(
-        self:get_lines(x, y),
+        self:get_lines(x),
         x, y, align,
         nil, __max_char__
     )

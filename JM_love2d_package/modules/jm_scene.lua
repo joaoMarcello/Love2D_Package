@@ -532,6 +532,7 @@ function Scene:implements(param)
 
         temp = self.draw_foreground and self.draw_foreground()
     end
+
 end
 
 function Scene:set_background_draw(action)

@@ -937,7 +937,7 @@ end
 function Font:printx(text, x, y, right, align)
     align = align or "left"
 
-    self.buffer__ = self.buffer__ or setmetatable({}, { __mode = 'kv' })
+    self.buffer__ = self.buffer__ or setmetatable({}, { __mode = 'v' })
     self.buffer_time = 0.0
 
     local index = text .. x .. y .. right .. align

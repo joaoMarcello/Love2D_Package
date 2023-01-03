@@ -665,8 +665,9 @@ end -- END update function
 ---@param x number # The top-left position to draw (x-axis).
 ---@param y number # The top-left position to draw (y-axis).
 function Anima:draw(x, y)
+    self.x, self.y = x, y
 
-    Affectable.draw(self, x, y, self.__draw_with_no_effects__, x, y)
+    Affectable.draw(self, self.__draw_with_no_effects__, x, y)
 
 end
 

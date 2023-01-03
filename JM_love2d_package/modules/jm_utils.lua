@@ -147,6 +147,7 @@ function Utils:get_rgba(r, g, b, a)
     a = a or 1.0
 
     local key = string_format("%d %d %d %d", colorToBytes(r, g, b, a))
+    -- local key = string_format("%.15f %.15f %.15f %.15f", r, g, b, a)
 
     local color = colors[key]
     if color then return color end

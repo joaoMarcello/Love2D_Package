@@ -129,7 +129,9 @@ function EffectManager:draw(...)
     args = nil
 end
 
-function EffectManager:draw_xp(x, y, draw, ...)
+---@param draw function # Draw method from affectable object.
+---@param ... unknown # The param for the object draw method
+function EffectManager:draw_xp(draw, ...)
     local args
     args = (...) and { ... } or nil
 
@@ -139,9 +141,9 @@ function EffectManager:draw_xp(x, y, draw, ...)
         local eff = self.__effects_list[i]
 
         if args then
-            eff:draw(x, y, draw, unpack(args))
+            eff:draw(draw, unpack(args))
         else
-            eff:draw(x, y, draw)
+            eff:draw(draw)
         end
     end
     args = nil
