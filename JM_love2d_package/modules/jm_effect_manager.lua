@@ -131,7 +131,7 @@ end
 
 ---@param draw function # Draw method from affectable object.
 ---@param ... unknown # The param for the object draw method
-function EffectManager:draw_xp(draw, ...)
+function EffectManager:draw(draw, ...)
     local args
     args = (...) and { ... } or nil
 

@@ -179,15 +179,17 @@ function Affectable:draw(custom_draw, ...)
     custom_draw = custom_draw or self.__specific_draw__
 
     if not custom_draw then return end
-    local args = (...) and { ... } or nil
+    local args
+    args = (...) and { ... } or nil
 
     if args then
         self:__draw__(custom_draw, unpack(args))
-        self.__effect_manager:draw_xp(custom_draw, unpack(args))
+        self.__effect_manager:draw(custom_draw, unpack(args))
     else
         self:__draw__(custom_draw)
-        self.__effect_manager:draw_xp(custom_draw)
+        self.__effect_manager:draw(custom_draw)
     end
+    args = nil
 end
 
 ---@param eff_type JM.Effect.id_string
