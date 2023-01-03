@@ -486,7 +486,7 @@ function Phrase:__debbug()
     local w = self.__font:separate_string(s)
 
     for i = 1, #w do
-        self.__font:print(tostring(w[i]), 0, 50 * i)
+        self.__font:print(tostring(w[i]), 10, 50 * i)
     end
 end
 
@@ -496,9 +496,9 @@ end
 ---@param __max_char__ number|nil
 ---@return JM.Font.CharacterPosition|nil
 function Phrase:draw(x, y, align, __max_char__)
-    -- self:__debbug()
+    self:__debbug()
 
-    if x >= self.__bounds.right then return end
+    --if x >= self.__bounds.right then return end
 
     -- if not self.__last_lines__
     --     or self.__last_lines__.x ~= x

@@ -82,7 +82,7 @@ function Button:__custom_draw__()
     love.graphics.setColor(0, 0, 0, 1)
     love.graphics.rectangle("line", self.x, self.y, self.w, self.h)
 
-    Font:printf(self.text,
+    Font:printx(self.text,
         self.x,
         self.y + 10,
         "center",

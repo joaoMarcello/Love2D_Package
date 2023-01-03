@@ -820,7 +820,6 @@ function Font:printf(text, x, y, align, limit_right)
     --     i = i + 1
     -- end
 
-
     local total_width = 0
     local line = {}
     local line_actions = {}

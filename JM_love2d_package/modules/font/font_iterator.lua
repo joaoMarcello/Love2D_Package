@@ -9,10 +9,13 @@ local iterators = setmetatable({}, { __mode = 'k' })
 ---@return JM.Font.GlyphIterator
 function Iterator:new(text, font)
     local obj = iterators[font] and iterators[font][text]
-    if obj then return obj end
+    if obj then
+        obj.__current_index = 1
+        return obj
+    end
 
 
-    obj = {}
+    local obj = {}
     setmetatable(obj, self)
 
     Iterator.__constructor__(obj, text, font)
