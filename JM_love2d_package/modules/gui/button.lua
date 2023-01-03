@@ -37,7 +37,7 @@ function Button:__constructor__(args)
         self:set_color2(0.3, 0.8, 0.3, 1.0)
 
         self.text = "<color, 1,0,0>on <color, 1,1,0><italic>focus</italic><color, 0, 0, 0> did you hear me. " ..
-            150 .. " eh assim mesmo que eu vou fazer porque eu sou eh desses tá ligado mano doido???"
+            math.random(150) .. " eh assim mesmo que eu vou fazer porque eu sou eh desses tá ligado mano doido???"
 
         -- self.__pulse_eff = self.__pulse_eff or self:generate_effect("pulse", { range = 0.03, speed = 0.5 })
         -- self.__pulse_eff:apply(self, true)
