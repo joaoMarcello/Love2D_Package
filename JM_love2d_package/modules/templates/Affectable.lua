@@ -15,18 +15,19 @@ local love_pop = love.graphics.pop
 local Affectable = {}
 Affectable.__index = Affectable
 
-function Affectable:new()
+---@param obj_draw function|nil
+function Affectable:new(obj_draw)
 
     local obj = {}
     self.__index = self
     setmetatable(obj, self)
 
-    Affectable.__constructor__(obj)
+    Affectable.__constructor__(obj, obj_draw)
 
     return obj
 end
 
-function Affectable:__constructor__()
+function Affectable:__constructor__(obj_draw)
     self.color = Utils:get_rgba(1, 1, 1, 1)
 
     self.__effect_manager = EffectManager:new(self)
@@ -42,6 +43,8 @@ function Affectable:__constructor__()
     self.oy = 0
 
     self.is_visible = true
+
+    self.__specific_draw__ = obj_draw
 end
 
 --- Check if object implements all the needed Affectable methods and fields.
@@ -159,7 +162,6 @@ end
 ---@param ... unknown
 function Affectable:__draw__(draw, ...)
     --if not draw then return end
-
     love_push()
     apply_transform(self, self.x, self.y)
     local args = (...) and { ... }
@@ -171,15 +173,17 @@ function Affectable:__draw__(draw, ...)
     love_pop()
 end
 
----@param custom_draw function
+---@param custom_draw function|nil
 ---@param ... unknown # the params for the custom_draw
 function Affectable:draw(custom_draw, ...)
+    custom_draw = custom_draw or self.__specific_draw__
+
     if not custom_draw then return end
     local args = (...) and { ... } or nil
 
     if args then
         self:__draw__(custom_draw, unpack(args))
-        self.__effect_manager:draw_xp(custom_draw, unpack { ... })
+        self.__effect_manager:draw_xp(custom_draw, unpack(args))
     else
         self:__draw__(custom_draw)
         self.__effect_manager:draw_xp(custom_draw)

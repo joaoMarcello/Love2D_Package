@@ -12,7 +12,7 @@ Glyph.__index = Glyph
 
 ---@return JM.Font.Glyph
 function Glyph:new(img, quad, args)
-    local obj = Affectable:new()
+    local obj = Affectable:new(self.__glyph_draw__)
     setmetatable(obj, self)
 
     Glyph.__constructor__(obj, img, quad, args)
@@ -60,13 +60,8 @@ function Glyph:__constructor__(img, quad, args)
     self.ox = self.qx and self.qw / 2 or 0
     self.oy = self.qy and self.qh / 2 or 0
 
-    --self.__effect_manager = EffectManager:new()
-
-    --self.__visible = true
-
     self.bounds = { left = 0, top = 0, right = love.graphics.getWidth(), bottom = love.graphics.getHeight() }
 
-    --Affectable.__checks_implementation__(self)
 end
 
 function Glyph:update(dt)
@@ -104,27 +99,12 @@ function Glyph:set_color(value)
 end
 
 function Glyph:set_color2(r, g, b, a)
-    -- r = r or self.color[1]
-    -- g = g or self.color[2]
-    -- b = b or self.color[3]
-    -- a = a or self.color[4]
-
-    -- self.color = Utils:get_rgba(r, g, b, a)
-
     Affectable.set_color2(self, r, g, b, a)
 
     if self:is_animated() then
         self.__anima:set_color(self.color)
     end
 end
-
--- function Glyph:set_color3(color)
---     self.color = color
--- end
-
--- function Glyph:get_color()
---     return Affectable.get_color(self)
--- end
 
 ---@param value number
 function Glyph:set_scale(value)
@@ -134,24 +114,6 @@ function Glyph:set_scale(value)
     --     self.__anima:set_scale({ x = self.sx, y = self.sy })
     -- end
 end
-
--- ---@param value boolean|nil
--- function Glyph:set_visible(value)
---     self.__visible = value
--- end
-
--- function Glyph:__set_effect_transform(arg)
---     return Affectable.__set_effect_transform(self, arg)
--- end
-
--- function Glyph:__get_effect_transform()
---     return Affectable.__get_effect_transform(self)
--- end
-
--- ---@return {x: number, y: number}
--- function Glyph:get_origin()
---     return { x = self.ox, y = self.oy }
--- end
 
 function Glyph:is_animated()
     return self.__anima and true or false
@@ -183,7 +145,7 @@ function Glyph:draw(x, y)
 
     self.x, self.y = x, y
 
-    Affectable.draw(self, self.__glyph_draw__)
+    Affectable.draw(self)
 end
 
 function Glyph:draw_rec(x, y, w, h)

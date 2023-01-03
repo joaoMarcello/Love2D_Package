@@ -111,23 +111,23 @@ function EffectManager:update(dt)
     end -- END effect list is not nil.
 end
 
---- WARNiNG: REMOVE THIS METHOD!!!
-function EffectManager:draw(...)
-    local args
-    args = (...) and { ... } or nil
+-- --- WARNiNG: REMOVE THIS METHOD!!!
+-- function EffectManager:draw(...)
+--     local args
+--     args = (...) and { ... } or nil
 
-    for i = #self.__effects_list, 1, -1 do
-        ---@type JM.Effect
-        local eff = self.__effects_list[i]
+--     for i = #self.__effects_list, 1, -1 do
+--         ---@type JM.Effect
+--         local eff = self.__effects_list[i]
 
-        if args then
-            eff:draw(unpack(args))
-        else
-            eff:draw()
-        end
-    end
-    args = nil
-end
+--         if args then
+--             eff:draw(unpack(args))
+--         else
+--             eff:draw()
+--         end
+--     end
+--     args = nil
+-- end
 
 ---@param draw function # Draw method from affectable object.
 ---@param ... unknown # The param for the object draw method
