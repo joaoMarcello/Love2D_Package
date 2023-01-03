@@ -277,7 +277,11 @@ function Phrase:get_lines(x, y)
             -- Try remove the last added space word
             if pcall(
                 function()
-                    local last_added = self:__get_word_in_list(lines[cur_line], #lines[cur_line])
+                    -- local last_added = self:__get_word_in_list(lines[cur_line], #lines[cur_line])
+
+                    ---@type JM.Font.Word
+                    local last_added = lines[cur_line][#(lines[cur_line])]
+
 
                     if last_added.text == " " then
                         table.remove(lines[cur_line], #lines[cur_line])
@@ -320,102 +324,32 @@ function Phrase:get_lines(x, y)
     return lines
 end -- END function get_lines()
 
----@return JM.Font.Word
-function Phrase:__get_word_in_list(list, index)
-    return list[index]
-end
+-- ---@return JM.Font.Word
+-- function Phrase:__get_word_in_list(list, index)
+--     return list[index]
+-- end
 
 function Phrase:__line_length(line)
     local total_len = 0
 
     for i = 1, #line do
-        local word = self:__get_word_in_list(line, i)
+        ---@type JM.Font.Word
+        local word = line[i] --self:__get_word_in_list(line, i)
         total_len = total_len + word:get_width()
     end
 
     return total_len
 end
 
--- ---@param s string
--- function Phrase:separate_string(s, list)
---     s = s .. " "
---     local sep = "\n "
---     local current_init = 1
---     local words = list or {}
-
---     while (current_init <= #(s)) do
---         local regex = "[^[ ]]*.-[" .. sep .. "]"
---         local tag_regex = "< *[%d, .%w/]*>"
-
---         local tag = s:match(tag_regex, current_init)
---         tag = tag and self.__font:__is_a_command_tag(tag) or nil
---         local find = not tag and s:match(regex, current_init)
---         local nick = false and find and string.match(find, "%-%-%w-%-%-")
-
---         if tag then
---             local startp, endp = string.find(s, tag_regex, current_init)
---             local sub_s = s:sub(startp, endp)
---             local prev_s = s:sub(current_init, startp - 1)
-
---             if prev_s ~= "" and prev_s ~= " " then
---                 self:separate_string(prev_s, words)
---             end
-
---             table.insert(words, sub_s)
---             current_init = endp
-
---         elseif nick and nick ~= "----" then
---             local startp, endp = string.find(s, "%-%-%w-%-%-", current_init)
---             local sub_s = s:sub(startp, endp)
---             local prev_word = s:sub(current_init, startp - 1)
-
---             if prev_word and prev_word ~= "" and prev_word ~= " " then
---                 self:separate_string(prev_word, words)
---             end
-
---             if sub_s ~= "" and sub_s ~= " " then
---                 table.insert(words, sub_s)
---             end
-
---             current_init = endp
-
---         elseif find then
-
---             local startp, endp = string.find(s, regex, current_init)
---             local sub_s = s:sub(startp, endp - 1)
-
---             if sub_s ~= "" and sub_s ~= " " then
---                 table.insert(words, sub_s)
---             end
-
---             if s:sub(endp, endp) == "\n" then
---                 table.insert(words, "\n")
---             end
-
---             current_init = endp
---         else
---             break
---         end
-
---         current_init = current_init + 1
---     end
-
---     local rest = s:sub(current_init, #s)
-
---     if rest ~= "" and not rest:match(" *") then
---         table.insert(words, s:sub(current_init, #s))
---     end
-
---     return words
--- end
-
 function Phrase:update(dt)
     for i = 1, #self.__words, 1 do
-        local w = self:__get_word_in_list(self.__words, i)
+        ---@type JM.Font.Word
+        local w = self.__words[i] --self:__get_word_in_list(self.__words, i)
         w:update(dt)
     end
 end
 
+local pointer_char_count = {}
 ---
 ---@param lines table
 ---@param x number
@@ -429,7 +363,9 @@ function Phrase:draw_lines(lines, x, y, align, threshold, __max_char__)
 
     local tx, ty = x, y
     local space = 0
-    local character_count = { [1] = 0 }
+    local character_count = pointer_char_count --{ [1] = 0 }
+    character_count[1] = 0
+
     local result
 
     for i = 1, #lines do
@@ -458,7 +394,10 @@ function Phrase:draw_lines(lines, x, y, align, threshold, __max_char__)
         end
 
         for j = 1, #lines[i] do
-            local current_word = self:__get_word_in_list(lines[i], j)
+            -- local current_word = self:__get_word_in_list(lines[i], j)
+
+            ---@type JM.Font.Word
+            local current_word = lines[i][j]
             local r = current_word:get_width() + space
 
             result = current_word:draw(tx, ty, __max_char__, character_count)
@@ -496,7 +435,7 @@ end
 ---@param __max_char__ number|nil
 ---@return JM.Font.CharacterPosition|nil
 function Phrase:draw(x, y, align, __max_char__)
-    self:__debbug()
+    --self:__debbug()
 
     --if x >= self.__bounds.right then return end
 
