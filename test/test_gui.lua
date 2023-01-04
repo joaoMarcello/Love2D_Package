@@ -43,6 +43,10 @@ Game:implements({
         manager:mouse_released(x, y)
     end,
 
+    keypressed = function(key)
+        manager:key_pressed(key)
+    end,
+
     update = function(dt)
         manager:update(dt)
     end

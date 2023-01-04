@@ -307,19 +307,18 @@ local function generic(callback)
         if scene.time_pause then
             return
         end
-        local args
-        args = (...) and { ... } or nil
-        if args then
-            local r = callback and callback(unpack(args))
+
+        if (...) then
+            local r = callback and callback(unpack { ... })
         else
             local r = callback and callback()
         end
-        args = nil
+        return true
     end
 end
 
 ---
----@param param {load:function, init:function, update:function, draw:function, unload:function, keypressed:function, keyreleased:function, layers:table}
+---@param param {load:function, init:function, update:function, draw:function, unload:function, keypressed:function, keyreleased:function, mousepressed:function, mousereleased: function, layers:table}
 ---
 function Scene:implements(param)
     assert(param, "\n>> Error: No parameter passed to method.")
@@ -531,6 +530,38 @@ function Scene:implements(param)
         love.graphics.circle("fill", love.mouse.getX(), love.mouse.getY(), 5)
 
         temp = self.draw_foreground and self.draw_foreground()
+    end
+
+    self.mousepressed = function(self, x, y, button, istouch, presses)
+        if self.time_pause then
+            return
+        end
+
+        local r = param.mousepressed and param.mousepressed(x, y, button, istouch, presses)
+    end
+
+    self.mousereleased = function(self, x, y, button, istouch, presses)
+        if self.time_pause then
+            return
+        end
+
+        local r = param.mousereleased and param.mousereleased(x, y, button, istouch, presses)
+    end
+
+    self.keypressed = function(self, key, scancode, isrepeat)
+        if self.time_pause then
+            return
+        end
+
+        local r = param.keypressed and param.keypressed(key, scancode, isrepeat)
+    end
+
+    self.keyreleased = function(self, key, scancode)
+        if self.time_pause then
+            return
+        end
+
+        local r = param.keyreleased and param.keyreleased(key, scancode)
     end
 
 end

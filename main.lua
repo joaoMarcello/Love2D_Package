@@ -21,7 +21,7 @@ end
 
 function love.mousepressed(x, y, button, istouch, presses)
     scene:mousepressed(x, y, button, istouch, presses)
-    -- scene:mousepressed()
+    --scene:mousepressed()
 end
 
 function love.mousereleased(x, y, button, istouch, presses)
