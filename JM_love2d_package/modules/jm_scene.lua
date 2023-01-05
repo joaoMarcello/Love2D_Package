@@ -427,13 +427,13 @@ function Scene:implements(param)
         set_blend_mode("alpha")
         set_color_draw(1, 1, 1, 1)
 
-        -- love.graphics.setScissor(self.x, self.y, self.w, self.h)
+        love.graphics.setScissor(self.x, self.y, self.w, self.h)
         if self:get_color() then
             clear_screen(self:get_color())
         else
             draw_tile(self)
         end
-        -- love.graphics.setScissor()
+        love.graphics.setScissor()
 
         local temp = self.draw_background and self.draw_background()
 
@@ -504,7 +504,7 @@ function Scene:implements(param)
             camera = nil
         end
 
-        -- love.graphics.setScissor(self.x, 0, self.w, self.h)
+        love.graphics.setScissor(self.x, 0, self.w, self.h)
         set_canvas()
         set_color_draw(1, 1, 1, 1)
         set_shader(self.shader)
@@ -512,7 +512,7 @@ function Scene:implements(param)
         love_draw(self.canvas)
         set_shader()
         set_blend_mode("alpha")
-        -- love.graphics.setScissor()
+        love.graphics.setScissor()
 
         set_color_draw(0, 0, 1, 1)
         love.graphics.circle("fill", love.mouse.getX(), love.mouse.getY(), 5)

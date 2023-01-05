@@ -30,7 +30,7 @@ function Button:__constructor__(args)
     self:set_color2(0.3, 0.8, 0.3, 1.0)
 
     self:on_event("mouse_pressed", function(x, y)
-        --self:set_color2(math.random(), math.random(), math.random(), 1)
+        self:set_color2(math.random(), math.random(), math.random(), 1)
     end)
 
     self:on_event("gained_focus", function()
@@ -59,11 +59,11 @@ function Button:__constructor__(args)
     end)
 
     self:on_event("mouse_released", function()
-        self:set_color2(math.random(), math.random(), math.random(), 1)
+        --self:set_color2(math.random(), math.random(), math.random(), 1)
     end)
 
     self:on_event("key_pressed", function()
-        self:set_color2(math.random(), math.random(), math.random(), 1)
+        --self:set_color2(math.random(), math.random(), math.random(), 1)
     end)
 
 end

@@ -169,7 +169,7 @@ function Component:key_released(key, scancode)
 end
 
 function Component:mouse_pressed(x, y, button, istouch, presses)
-    
+
     if not self.on_focus then return end
 
     local check = self:check_collision(x, y, 0, 0)
@@ -196,6 +196,8 @@ end
 ---@param self JM.GUI.Component
 local function mode_mouse_update(self, dt)
     local x, y = love.mouse.getPosition()
+    y = y - 64
+    x = x - 32
 
     if self:check_collision(x, y, 0, 0) then
         if not self.on_focus then
