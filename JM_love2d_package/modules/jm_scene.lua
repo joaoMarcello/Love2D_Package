@@ -141,7 +141,7 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
 
             border_color = { 1, 1, 0, 1 },
 
-            scale = 1,
+            scale = 1.0,
 
             type = "",
 
@@ -509,14 +509,14 @@ function Scene:implements(param)
 
             if param.draw then
                 camera:attach()
-                r = param.draw and param.draw()
+                r = param.draw and param.draw(camera)
                 camera:detach()
             end
 
             camera = nil
         end
 
-        -- love.graphics.setScissor(self.x, self.y, self.w, self.h)
+        love.graphics.setScissor(self.x, self.y, self.w, self.h)
         set_canvas()
         set_color_draw(1, 1, 1, 1)
         set_shader(self.shader)
@@ -524,7 +524,7 @@ function Scene:implements(param)
         love_draw(self.canvas)
         set_shader()
         set_blend_mode("alpha")
-        -- love.graphics.setScissor()
+        love.graphics.setScissor()
 
         set_color_draw(0, 0, 1, 1)
         love.graphics.circle("fill", love.mouse.getX(), love.mouse.getY(), 5)

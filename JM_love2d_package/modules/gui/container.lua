@@ -1,6 +1,9 @@
 ---@type JM.GUI.Component
 local Component = require((...):gsub("container", "component"))
 
+---@type JM.Utils
+local Utils = require((...):gsub("gui.container", "jm_utils"))
+
 ---@enum JM.GUI.Container.InsertMode
 local INSERT_MODE = {
     normal = 1,
@@ -44,14 +47,28 @@ function Container:set_position(x, y)
     x = x or self.x
     y = y or self.y
 
+
     local diff_x, diff_y = x - self.x, y - self.y
 
-    self.x, self.y = x, y
+    Component.set_position(self, x, y)
 
-    for _, gc in ipairs(self.components) do
+    self:shift_objects(diff_x, diff_y)
+    -- for _, gc in ipairs(self.components) do
+    --     ---@type JM.GUI.Component
+    --     local c = gc
+    --     c:set_position(c.x + diff_x, c.y + diff_y)
+    -- end
+end
+
+function Container:shift_objects(dx, dy)
+    dx = dx or 0
+    dy = dy or 0
+
+    for i = 1, #(self.components) do
         ---@type JM.GUI.Component
-        local c = gc
-        c:set_position(c.x + diff_x, c.y + diff_y)
+        local gc = self.components[i]
+
+        gc:set_position(gc.x + dx, gc.y + dy)
     end
 end
 
@@ -109,7 +126,15 @@ function Container:key_released(key, scancode)
     end
 end
 
-function Container:draw()
+---@param camera JM.Camera.Camera
+function Container:draw(camera)
+    local sx, sy, sw, sh = love.graphics.getScissor()
+
+    local sx1, sy1, sw1, sh1 = camera:scissor_transform(self:rect())
+    -- sw1 = (sx + sw) < (sx1 + sw1) and sw or sw1
+    -- sx1 = (sx + sw) < (sx1 + sw1) and sx or sx1
+    love.graphics.setScissor(sx1, sy1, sw1, sh1)
+
     for i = 1, #(self.components) do
         ---@type JM.GUI.Component
         local gc = self.components[i]
@@ -118,12 +143,17 @@ function Container:draw()
             and gc:draw()
     end
 
-    love.graphics.setColor(1, 0, 0, 1)
-    love.graphics.rectangle("line", self:rect())
+    love.graphics.setScissor(sx, sy, sw, sh)
 
-    love.graphics.setColor(0, 1, 1, 1)
-    love.graphics.rectangle("line", self.x + self.border_x, self.y + self.border_y, self.w - self.border_x * 2,
-        self.h - self.border_y * 2)
+    do
+        love.graphics.setColor(1, 0, 0, 1)
+        love.graphics.rectangle("line", self:rect())
+
+        love.graphics.setColor(0, 1, 1, 1)
+        love.graphics.rectangle("line", self.x + self.border_x, self.y + self.border_y, self.w - self.border_x * 2,
+            self.h - self.border_y * 2)
+    end
+
 end
 
 ---@param obj JM.GUI.Component

@@ -722,7 +722,7 @@ function Camera:__constructor__(
     self.desired_canvas_w = desired_canvas_w or self.device_width
     self.desired_canvas_h = desired_canvas_h or self.device_height
 
-    self.scale = scale or 1
+    self.scale = scale or 1.0
     self.desired_scale = self.device_height / self.desired_canvas_h
 
     self.viewport_x = x or 0
@@ -804,7 +804,7 @@ function Camera:__constructor__(
     self.type = type_ or CAMERA_TYPES.SuperMarioWorld
     self:set_type(self.type)
 
-    self.debug = false
+    self.debug = true
     self.debug_msg_rad = 0
     self.debug_trgt_rad = 0
 
@@ -1502,6 +1502,13 @@ end
 function Camera:detach()
     normal_detach(self)
     -- perfect_pixel_detach(self)
+end
+
+function Camera:scissor_transform(x, y, w, h)
+    return (self.viewport_x + x) * self.scale * self.desired_scale,
+        (self.viewport_y + y) * self.scale * self.desired_scale,
+        w * self.scale * self.desired_scale,
+        h * self.scale * self.desired_scale
 end
 
 function Camera:get_state()
