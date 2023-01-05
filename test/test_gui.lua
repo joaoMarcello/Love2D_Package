@@ -5,7 +5,10 @@ local Font = package.Font
 local GUI = package.GUI
 
 -- local Game = Scene:new(64, 10, 1366 * 0.9, nil, 1366 * 0.5, 768 * 0.5)
-local Game = Scene:new(nil, nil, nil, nil, 32 * 10, 32 * 12)
+local Game = Scene:new(64, 0, 1366-64, 768 - 32
+-- ,32 * 10,
+-- 32 * 10
+)
 
 local button_1 = GUI.Button:new({
     x = 200, y = 100, w = 150, h = 100

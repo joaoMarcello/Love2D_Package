@@ -1505,10 +1505,34 @@ function Camera:detach()
 end
 
 function Camera:scissor_transform(x, y, w, h)
-    return (self.viewport_x + x) * self.scale * self.desired_scale,
+    local sx, sy, sw, sh =
+    (self.viewport_x + x) * self.scale * self.desired_scale,
         (self.viewport_y + y) * self.scale * self.desired_scale,
         w * self.scale * self.desired_scale,
         h * self.scale * self.desired_scale
+
+    -- if sx < self.viewport_x * self.desired_scale then
+    --     -- sx = self.viewport_x * self.desired_scale
+    -- end
+
+    if (sx + sw) > self.viewport_x * self.desired_scale + self.viewport_w then
+        sw = self.viewport_x * self.desired_scale + self.viewport_w - sx
+        sw = sw < 0 and 0 or sw
+    end
+
+    if sy < self.viewport_y * self.desired_scale then
+        sy = self.viewport_y * self.desired_scale
+        sh = sh - math.abs(sy - (self.viewport_y + y) * self.scale * self.desired_scale)
+        sh = sh < 0 and 0 or sh
+    end
+
+    -- if (sy + sh) > self.viewport_y * self.desired_scale + self.viewport_h then
+    --     -- sh = self.viewport_y * self.desired_scale + self.viewport_h - sy
+    --     -- sh = sh < 0 and 0 or sh
+    -- end
+
+
+    return sx, sy, sw, sh
 end
 
 function Camera:get_state()

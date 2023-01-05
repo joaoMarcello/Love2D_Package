@@ -98,6 +98,9 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
     self.w = w or self.dispositive_w
     self.h = h or self.dispositive_h
 
+    -- self.h = self.h - self.y
+    -- self.w = self.w - self.x
+
     -- the game's screen dimensions
     self.screen_w = canvas_w or self.w
     self.screen_h = canvas_h or self.h
@@ -116,8 +119,8 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
             -- camera's viewport in desired game screen coordinates
             x = self.screen_w * 0,
             y = self.y,
-            w = self.screen_w,
-            h = self.screen_h,
+            w = self.screen_w - self.x,
+            h = self.screen_h - self.y,
 
             -- world bounds
             bounds = {
@@ -211,7 +214,7 @@ function Scene:add_camera(config, name)
     self.amount_cameras = self.amount_cameras + 1
 
     camera.viewport_x = camera.viewport_x + self.x / camera.desired_scale
-    camera.viewport_y = camera.viewport_y + self.y / camera.desired_scale
+    -- camera.viewport_y = camera.viewport_y + self.y / camera.desired_scale
 
     self.cameras_list[self.amount_cameras] = camera
 
@@ -324,23 +327,6 @@ function Scene:implements(param)
     assert(param, "\n>> Error: No parameter passed to method.")
     assert(type(param) == "table", "\n>> Error: The method expected a table. Was given " .. type(param) .. ".")
 
-    -- local function generic(callback)
-    --     ---@param scene JM.Scene
-    --     return function(scene, ...)
-    --         if scene.time_pause then
-    --             return
-    --         end
-    --         local args
-    --         args = (...) and { ... } or nil
-    --         if args then
-    --             local r = callback and callback(unpack(args))
-    --         else
-    --             local r = callback and callback()
-    --         end
-    --         args = nil
-    --     end
-    -- end
-
     local love_callbacks = {
         "displayrotated",
         "draw",
@@ -441,11 +427,13 @@ function Scene:implements(param)
         set_blend_mode("alpha")
         set_color_draw(1, 1, 1, 1)
 
+        love.graphics.setScissor(self.x, self.y, self.w, self.h)
         if self:get_color() then
             clear_screen(self:get_color())
         else
             draw_tile(self)
         end
+        love.graphics.setScissor()
 
         local temp = self.draw_background and self.draw_background()
 
@@ -516,7 +504,7 @@ function Scene:implements(param)
             camera = nil
         end
 
-        love.graphics.setScissor(self.x, self.y, self.w, self.h)
+        love.graphics.setScissor(self.x, 0, self.w, self.h)
         set_canvas()
         set_color_draw(1, 1, 1, 1)
         set_shader(self.shader)

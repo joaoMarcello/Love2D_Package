@@ -131,8 +131,7 @@ function Container:draw(camera)
     local sx, sy, sw, sh = love.graphics.getScissor()
 
     local sx1, sy1, sw1, sh1 = camera:scissor_transform(self:rect())
-    -- sw1 = (sx + sw) < (sx1 + sw1) and sw or sw1
-    -- sx1 = (sx + sw) < (sx1 + sw1) and sx or sx1
+
     love.graphics.setScissor(sx1, sy1, sw1, sh1)
 
     for i = 1, #(self.components) do
