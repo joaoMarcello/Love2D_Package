@@ -195,9 +195,12 @@ end
 
 ---@param self JM.GUI.Component
 local function mode_mouse_update(self, dt)
-    local x, y = love.mouse.getPosition()
-    y = y - 64
-    x = x - 64
+    local x, y
+    if self.__holder then
+        x, y = self.__holder.Game:get_mouse_position()
+    else
+        x, y = love.mouse.getPosition()
+    end
 
     if self:check_collision(x, y, 0, 0) then
         if not self.on_focus then
@@ -276,6 +279,15 @@ do
         else
             dispatch_event(self, EVENTS.lose_focus)
         end
+    end
+
+    ---@param holder JM.GUI.Container
+    function Component:set_holder(holder)
+        self.__holder = holder
+    end
+
+    function Component:get_holder()
+        return self.__holder
     end
 end
 

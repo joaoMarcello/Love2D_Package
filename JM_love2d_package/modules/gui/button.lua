@@ -59,7 +59,7 @@ function Button:__constructor__(args)
     end)
 
     self:on_event("mouse_released", function()
-        --self:set_color2(math.random(), math.random(), math.random(), 1)
+        self:set_color2(math.random(), math.random(), math.random(), 1)
     end)
 
     self:on_event("key_pressed", function()

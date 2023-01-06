@@ -51,16 +51,13 @@ local function draw_tile(self)
     clear_screen(0.35, 0.35, 0.35, 1)
     set_color_draw(0.9, 0.9, 0.9, 0.3)
     for i = 0, qx, 2 do
-        local x
-        x = self.x + tile * i
+        local x = self.x + tile * i
 
         for j = 0, qy, 2 do
-            love.graphics.rectangle("fill", x, tile * j, tile, tile)
-            love.graphics.rectangle("fill", x + tile, tile * j + tile, tile, tile)
+            love.graphics.rectangle("fill", x, self.y + tile * j, tile, tile)
+            love.graphics.rectangle("fill", x + tile, self.y + tile * j + tile, tile, tile)
         end
-        x = nil
     end
-    tile, qx, qy = nil, nil, nil
 end
 
 ---@class JM.Scene
@@ -69,7 +66,6 @@ end
 ---@field keyreleased function
 ---@field mousepressed function
 ---@field mousereleased function
----@field mousefocus function
 local Scene = {}
 
 ---@param self JM.Scene
@@ -117,7 +113,7 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
         -- main camera's default configuration
         local config = {
             -- camera's viewport in desired game screen coordinates
-            x = self.screen_w * 0,
+            x = self.x, --self.screen_w * 0,
             y = self.y,
             w = self.screen_w - self.x,
             h = self.screen_h - self.y,
@@ -144,7 +140,7 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
 
             border_color = { 1, 1, 0, 1 },
 
-            scale = 1.0,
+            scale = 1.2,
 
             type = "",
 
@@ -159,6 +155,9 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
 
         self.camera = self:add_camera(config, "main")
     end
+
+    -- local vx, vy = self:to_camera_screen(self.x, self.y)
+    -- self.camera:set_viewport(vx, vy)
 
     self.n_layers = 0
 
@@ -213,8 +212,11 @@ function Scene:add_camera(config, name)
 
     self.amount_cameras = self.amount_cameras + 1
 
-    camera.viewport_x = camera.viewport_x + self.x / camera.desired_scale
+    --camera.viewport_x = camera.viewport_x + self.x / camera.desired_scale
     -- camera.viewport_y = camera.viewport_y + self.y / camera.desired_scale
+
+    camera.viewport_x = self.x / camera.desired_scale
+    camera.viewport_y = self.y / camera.desired_scale
 
     self.cameras_list[self.amount_cameras] = camera
 
@@ -233,6 +235,28 @@ function Scene:set_color(r, g, b, a)
     self.color_g = g or self.color_g
     self.color_b = b or self.color_b
     self.color_a = a or self.color_a
+end
+
+function Scene:get_mouse_position()
+    local x, y = love.mouse.getPosition()
+    local ds = self.camera.desired_scale
+
+    x, y = x / ds, y / ds
+    x, y = x - self.x / ds, y - self.y / ds
+
+    x, y = self.camera:screen_to_world(x, y)
+
+    return x, y
+end
+
+function Scene:to_camera_screen(x, y)
+    x, y = x or 0, y or 0
+
+    local ds = self.camera.desired_scale
+    x, y = x / ds, y / ds
+    --x, y = x - self.x, y - self.y
+
+    return x, y
 end
 
 ---@param index integer|string # Name or index of the camera.
@@ -304,9 +328,15 @@ local function frame_skip_update(self)
     return false
 end
 
+local memo = setmetatable({}, { __mode = 'k' })
+
 local function generic(callback)
+    local result = callback and memo[callback]
+    if result then return result end
+
+    result =
     ---@param scene JM.Scene
-    return function(scene, ...)
+    (function(scene, ...)
         if scene.time_pause then
             return
         end
@@ -317,7 +347,11 @@ local function generic(callback)
             local r = callback and callback()
         end
         return true
-    end
+    end)
+
+    if callback then memo[callback] = result end
+
+    return result
 end
 
 ---
@@ -525,7 +559,7 @@ function Scene:implements(param)
             return
         end
 
-        x, y = x - self.x, y - self.y
+        x, y = self:get_mouse_position()
 
         local r = param.mousepressed and param.mousepressed(x, y, button, istouch, presses)
     end
@@ -535,7 +569,7 @@ function Scene:implements(param)
             return
         end
 
-        x, y = x - self.x, y - self.y
+        x, y = self:get_mouse_position()
 
         local r = param.mousereleased and param.mousereleased(x, y, button, istouch, presses)
     end

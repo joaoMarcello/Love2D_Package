@@ -923,9 +923,9 @@ function Camera:set_viewport(x, y, w, h)
     self:set_type(self.type)
 end
 
-function Camera:screen_to_screen(x, y)
-    -- local x, y = self:
-end
+-- function Camera:screen_to_screen(x, y)
+--     -- local x, y = self:
+-- end
 
 function Camera:screen_to_world(x, y)
     local cos_r, sin_r
@@ -1505,6 +1505,10 @@ function Camera:detach()
 end
 
 function Camera:scissor_transform(x, y, w, h)
+    -- x = x / self.scale
+    -- y = y / self.scale
+    -- w = w / self.scale
+    -- h = h / self.scale
     local sx, sy, sw, sh =
     (self.viewport_x + x) * self.scale * self.desired_scale,
         (self.viewport_y + y) * self.scale * self.desired_scale,

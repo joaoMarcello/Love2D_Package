@@ -19,6 +19,7 @@ local INSERT_MODE = {
 local Container = setmetatable({}, Component)
 Container.__index = Container
 
+
 ---@return JM.GUI.Container|JM.GUI.Component
 function Container:new(args)
 
@@ -32,8 +33,10 @@ function Container:new(args)
     return obj
 end
 
+---@param args {scene: JM.Scene, type: string, mode: string, grid_x:number, grid_y: number}
 function Container:__constructor__(args)
     args = args or {}
+    self.Game = args.scene
     self.components = {}
     self.space_vertical = 15
     self.space_horizontal = 15
@@ -138,7 +141,12 @@ function Container:draw(camera)
         ---@type JM.GUI.Component
         local gc = self.components[i]
 
-        local r = gc.is_visible and not gc.remove_
+        local out_of_limits = gc.right < self.x - 20
+            or gc.x > self.right + 20
+            or gc.bottom < self.y - 20
+            or gc.y > self.bottom + 20
+
+        local r = gc.is_visible and not gc.remove_ and not out_of_limits
             and gc:draw()
     end
 
@@ -165,9 +173,10 @@ function Container:add(obj)
     self.total_width = self.total_width + obj.w
     self.total_height = self.total_height + obj.h
 
+    obj:set_holder(self)
+
     table.insert(self.components, obj)
 
-    -- self:refresh_positions_x()
     self:__add_behavior__()
     return obj
 end

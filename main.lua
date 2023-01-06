@@ -29,6 +29,7 @@ function love.mousereleased(x, y, button, istouch, presses)
 end
 
 local km = nil
+
 function love.update(dt)
     km = collectgarbage("count") / 1024.0
 

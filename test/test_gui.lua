@@ -4,11 +4,11 @@ local Physics = package.Physics
 local Font = package.Font
 local GUI = package.GUI
 
--- local Game = Scene:new(64, 10, 1366 * 0.9, nil, 1366 * 0.5, 768 * 0.5)
-local Game = Scene:new(64, 64, 1366 - 64, 768 - 64
--- , 32 * 10
--- , 32 * 10
-)
+local Game = Scene:new(32, 32, 1366, 768 - 32, 32 * 22, 32 * 14)
+-- local Game = Scene:new(32, 64, nil, 768
+--     , 32 * 12
+--     , 32 * 12
+-- )
 
 
 local button_1 = GUI.Button:new({
@@ -21,6 +21,7 @@ button_1.is_button1 = true
 -- button_1:apply_effect("swing")
 
 local manager = GUI.Container:new({
+    scene = Game,
     x = 128, y = 128,
     w = 64 * 10, h = 64 * 4,
     type = "grid",
@@ -38,6 +39,10 @@ Game:implements({
     draw = function(camera)
         manager:draw(camera)
         -- Font:printx("button", 200, 100, "center", 150)
+        love.graphics.setColor(1, 0, 0, 1)
+        local x, y = Game:get_mouse_position()
+
+        love.graphics.rectangle("fill", x, y, 32, 32)
     end,
 
     mousepressed = function(x, y)
