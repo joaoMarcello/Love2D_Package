@@ -4,7 +4,7 @@ local Physics = package.Physics
 local Font = package.Font
 local GUI = package.GUI
 
-local Game = Scene:new(32, 32, 1366, 768 - 32, 32 * 22, 32 * 14)
+local Game = Scene:new(0, 0, 1366, 768)
 -- local Game = Scene:new(32, 64, nil, 768
 --     , 32 * 12
 --     , 32 * 12
