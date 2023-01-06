@@ -140,7 +140,7 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
 
             border_color = { 1, 1, 0, 1 },
 
-            scale = 1.0,
+            scale = 0.5,
 
             type = "",
 

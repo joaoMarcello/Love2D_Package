@@ -1516,8 +1516,8 @@ function Camera:scissor_transform(x, y, w, h)
 
     --- The object scissor
     local sx, sy, sw, sh =
-    (self.viewport_x / self.scale + x) * self.scale * self.desired_scale,
-        (self.viewport_y / self.scale + y) * self.scale * self.desired_scale,
+    (self.viewport_x / self.scale - self.x + x) * self.scale * self.desired_scale,
+        (self.viewport_y / self.scale - self.y + y) * self.scale * self.desired_scale,
         w * self.scale * self.desired_scale,
         h * self.scale * self.desired_scale
 
