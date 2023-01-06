@@ -210,8 +210,8 @@ function Scene:add_camera(config, name)
 
     self.amount_cameras = self.amount_cameras + 1
 
-    camera.viewport_x = camera.viewport_x + self.x / camera.desired_scale
-    camera.viewport_y = camera.viewport_y + self.y / camera.desired_scale
+    camera.viewport_x = camera.viewport_x + (self.x) / camera.desired_scale
+    camera.viewport_y = camera.viewport_y + (self.y) / camera.desired_scale
 
     -- camera.viewport_x = self.x / camera.desired_scale
     -- camera.viewport_y = self.y / camera.desired_scale

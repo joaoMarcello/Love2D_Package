@@ -22,7 +22,7 @@ button_1.is_button1 = true
 
 local manager = GUI.Container:new({
     scene = Game,
-    x = 128, y = 128,
+    x = 0, y = 0,
     w = 64 * 10, h = 64 * 4,
     type = "grid",
     grid_y = 2

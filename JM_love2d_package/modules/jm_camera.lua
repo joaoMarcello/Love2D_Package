@@ -15,6 +15,7 @@ local love_rect = love.graphics.rectangle
 local love_line = love.graphics.line
 local sin, cos, atan2, sqrt, abs = math.sin, math.cos, math.atan2, math.sqrt, math.abs
 local mfloor, mceil = math.floor, math.ceil
+local m_min, m_max = math.min, math.max
 
 -- local function round(value)
 --     local absolute = abs(value)
@@ -1504,39 +1505,32 @@ function Camera:detach()
     -- perfect_pixel_detach(self)
 end
 
+local clamp = function(value, min, max)
+    return m_min(m_max(value, min), max)
+end
+
 function Camera:scissor_transform(x, y, w, h)
+    -- Camera's default scissor
     local cx, cy, cw, ch = self.viewport_x * self.desired_scale, self.viewport_y * self.desired_scale, self.viewport_w,
         self.viewport_h
 
-
-
+    --- The object scissor
     local sx, sy, sw, sh =
     (self.viewport_x + x) * self.scale * self.desired_scale,
         (self.viewport_y + y) * self.scale * self.desired_scale,
         w * self.scale * self.desired_scale,
         h * self.scale * self.desired_scale
 
-    -- if sx < self.viewport_x * self.desired_scale then
-    --     -- sx = self.viewport_x * self.desired_scale
-    -- end
+    local rx = clamp(sx, cx, cx + cw)
+    local ry = clamp(sy, cy, cy + ch)
 
-    if (sx + sw) > self.viewport_x * self.desired_scale + self.viewport_w then
-        sw = self.viewport_x * self.desired_scale + self.viewport_w - sx
-        sw = sw < 0 and 0 or sw
-    end
+    local rr = clamp(sx + sw, 0, cx + cw)
+    local rb = clamp(sy + sh, 0, cy + ch)
 
-    if sy < self.viewport_y * self.desired_scale then
-        sy = self.viewport_y * self.desired_scale
-        sh = sh - math.abs(sy - (self.viewport_y + y) * self.scale * self.desired_scale)
-        sh = sh < 0 and 0 or sh
-    end
+    local rw = rr - rx
+    local rh = rb - ry
 
-    -- if (sy + sh) > self.viewport_y * self.desired_scale + self.viewport_h then
-    --     -- sh = self.viewport_y * self.desired_scale + self.viewport_h - sy
-    --     -- sh = sh < 0 and 0 or sh
-    -- end
-
-    return sx, sy, sw, sh
+    return rx, ry, rw, rh
 end
 
 function Camera:get_state()
