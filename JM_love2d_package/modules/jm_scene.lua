@@ -113,8 +113,8 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
         -- main camera's default configuration
         local config = {
             -- camera's viewport in desired game screen coordinates
-            x = self.x, --self.screen_w * 0,
-            y = self.y,
+            x = 0, --self.screen_w * 0,
+            y = 0,
             w = self.screen_w - self.x,
             h = self.screen_h - self.y,
 
@@ -140,7 +140,7 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
 
             border_color = { 1, 1, 0, 1 },
 
-            scale = 1.2,
+            scale = 1.0,
 
             type = "",
 
@@ -156,8 +156,6 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
         self.camera = self:add_camera(config, "main")
     end
 
-    -- local vx, vy = self:to_camera_screen(self.x, self.y)
-    -- self.camera:set_viewport(vx, vy)
 
     self.n_layers = 0
 
@@ -212,11 +210,11 @@ function Scene:add_camera(config, name)
 
     self.amount_cameras = self.amount_cameras + 1
 
-    --camera.viewport_x = camera.viewport_x + self.x / camera.desired_scale
-    -- camera.viewport_y = camera.viewport_y + self.y / camera.desired_scale
+    camera.viewport_x = camera.viewport_x + self.x / camera.desired_scale
+    camera.viewport_y = camera.viewport_y + self.y / camera.desired_scale
 
-    camera.viewport_x = self.x / camera.desired_scale
-    camera.viewport_y = self.y / camera.desired_scale
+    -- camera.viewport_x = self.x / camera.desired_scale
+    -- camera.viewport_y = self.y / camera.desired_scale
 
     self.cameras_list[self.amount_cameras] = camera
 

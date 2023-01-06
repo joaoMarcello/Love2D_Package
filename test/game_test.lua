@@ -29,40 +29,40 @@ local function round(value)
     end
 end
 
-local Game = Screen:new(0, 0, nil, nil, 32 * 10, 32 * 12)
+local Game = Screen:new(0, 0, nil, nil, 32 * 20, 32 * 12)
 
--- Game:add_camera({
---     -- camera's viewport
---     x = Game.screen_w * 0.5,
---     y = Game.screen_h * 0,
---     w = Game.screen_w * 0.5,
---     h = Game.screen_h * 0.5,
+Game:add_camera({
+    -- camera's viewport
+    x = Game.screen_w * 0.5,
+    y = Game.screen_h * 0,
+    w = Game.screen_w * 0.5,
+    h = Game.screen_h * 0.5,
 
---     color = { 153 / 255, 217 / 255, 234 / 255, 1 },
---     scale = 0.6,
+    color = { 153 / 255, 217 / 255, 234 / 255, 1 },
+    scale = 0.6,
 
---     type = "metroid",
---     show_grid = true,
---     show_world_bounds = true
--- }, "blue")
+    type = "metroid",
+    show_grid = true,
+    show_world_bounds = true
+}, "blue")
 
--- Game:get_camera("main"):set_viewport(0, 0, Game.screen_w * 0.5, Game.screen_h)
+Game:get_camera("main"):set_viewport(0, 0, Game.screen_w * 0.5, Game.screen_h)
+Game.camera.focus_x = Game.screen_w * 0.5
+Game:add_camera({
+    -- camera's viewport
+    x = Game.screen_w * 0.5,
+    y = Game.screen_h * 0.5,
+    w = Game.screen_w * 0.5,
+    h = Game.screen_h * 0.5,
 
--- Game:add_camera({
---     -- camera's viewport
---     x = Game.screen_w * 0.5,
---     y = Game.screen_h * 0.5,
---     w = Game.screen_w * 0.5,
---     h = Game.screen_h * 0.5,
+    color = { 255 / 255, 174 / 255, 201 / 255, 1 },
+    scale = 0.5,
 
---     color = { 255 / 255, 174 / 255, 201 / 255, 1 },
---     scale = 0.5,
-
---     type = "metroid",
---     show_grid = true,
---     grid_tile_size = 32 * 4,
---     show_world_bounds = true
--- }, "pink")
+    type = "metroid",
+    show_grid = true,
+    grid_tile_size = 32 * 4,
+    show_world_bounds = true
+}, "pink")
 
 -- local temp
 -- temp = Game:get_camera("main")
@@ -334,7 +334,7 @@ Game:implements(
     {
         load = function()
             -- Game:set_shader(darken_shader)
-            Game:set_color(43 / 255, 78 / 255, 108 / 255, 1)
+            --Game:set_color(43 / 255, 78 / 255, 108 / 255, 1)
 
             local sx = 1.2
             light_eff = Anima:new(
@@ -830,7 +830,7 @@ Game:implements(
             end
 
             if cam_pink then
-                cam_pink:follow(ship:get_cx(), ship:get_cy())
+                cam_pink:follow(rec:get_cx(), rec:get_cy())
             end
 
             if cam_blue then
@@ -885,9 +885,21 @@ Game:implements(
         layers = {
             -- MOON
             {
-                draw = function()
+                ---@param camera JM.Camera.Camera
+                draw = function(self, camera)
+
+                    if camera == Game.camera then
+                        love.graphics.setColor(43 / 255, 78 / 255, 108 / 255, 1)
+                    else
+                        love.graphics.setColor(camera:get_color())
+                    end
+                    love.graphics.rectangle("fill", 0, 0, Game.w / camera.scale - 100, 500)
+
+
                     love.graphics.setColor(1, 1, 1, 1)
                     love.graphics.circle("fill", 199, 44, 28)
+
+                    -- Consolas:print(tostring(camera.viewport_x), 100, 150)
 
                     -- moon_eff:update(love.timer.getDelta())
                     -- love.graphics.setBlendMode("add")
@@ -1053,10 +1065,17 @@ Game:implements(
             }
         },
 
-        draw = function()
+        draw = function(camera)
+            -- if camera == Game:get_camera(2) then
+            --     love.graphics.setColor(43 / 255, 78 / 255, 108 / 255, 1)
+            --     love.graphics.rectangle("fill", 199, 44, 500, 500)
+            -- end
+
             Consolas:printf(text, 20, 20, "left", 300)
             goomba_anim:draw(300, 200)
             Consolas:printf("Oi eu sou o Goku.", 20, 100, "center", 200)
+            -- Consolas:print(tostring(camera.viewport_x), 100, 200)
+
             -- Consolas:print(tostring(getmetatable(goomba_anim)), 300, 200 - 35)
             -- Consolas:printf(text3, 10, 150, "left", Game.screen_w)
         end

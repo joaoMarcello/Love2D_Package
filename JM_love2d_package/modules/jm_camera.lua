@@ -1505,10 +1505,11 @@ function Camera:detach()
 end
 
 function Camera:scissor_transform(x, y, w, h)
-    -- x = x / self.scale
-    -- y = y / self.scale
-    -- w = w / self.scale
-    -- h = h / self.scale
+    local cx, cy, cw, ch = self.viewport_x * self.desired_scale, self.viewport_y * self.desired_scale, self.viewport_w,
+        self.viewport_h
+
+
+
     local sx, sy, sw, sh =
     (self.viewport_x + x) * self.scale * self.desired_scale,
         (self.viewport_y + y) * self.scale * self.desired_scale,
@@ -1534,7 +1535,6 @@ function Camera:scissor_transform(x, y, w, h)
     --     -- sh = self.viewport_y * self.desired_scale + self.viewport_h - sy
     --     -- sh = sh < 0 and 0 or sh
     -- end
-
 
     return sx, sy, sw, sh
 end

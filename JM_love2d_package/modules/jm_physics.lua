@@ -1102,12 +1102,11 @@ do
 
         if cell.count == 0 then
             self.non_empty_cells[cell] = nil
-            cell.items = nil
-            self.grid[cy][cx] = nil
+            -- cell.items = nil
+            -- self.grid[cy][cx] = nil
         end
-
-        row = nil
-        cell = nil
+        -- row = nil
+        -- cell = nil
         return true
     end
 
