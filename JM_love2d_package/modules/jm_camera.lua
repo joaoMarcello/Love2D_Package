@@ -1516,16 +1516,16 @@ function Camera:scissor_transform(x, y, w, h)
 
     --- The object scissor
     local sx, sy, sw, sh =
-    (self.viewport_x + x) * self.scale * self.desired_scale,
-        (self.viewport_y + y) * self.scale * self.desired_scale,
+    (self.viewport_x / self.scale + x) * self.scale * self.desired_scale,
+        (self.viewport_y / self.scale + y) * self.scale * self.desired_scale,
         w * self.scale * self.desired_scale,
         h * self.scale * self.desired_scale
 
     local rx = clamp(sx, cx, cx + cw)
     local ry = clamp(sy, cy, cy + ch)
 
-    local rr = clamp(sx + sw, 0, cx + cw)
-    local rb = clamp(sy + sh, 0, cy + ch)
+    local rr = clamp(sx + sw, cx, cx + cw)
+    local rb = clamp(sy + sh, cy, cy + ch)
 
     local rw = rr - rx
     local rh = rb - ry
