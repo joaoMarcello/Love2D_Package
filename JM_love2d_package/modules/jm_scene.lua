@@ -525,6 +525,8 @@ function Scene:implements(param)
             return
         end
 
+        x, y = x - self.x, y - self.y
+
         local r = param.mousepressed and param.mousepressed(x, y, button, istouch, presses)
     end
 
@@ -532,6 +534,8 @@ function Scene:implements(param)
         if self.time_pause then
             return
         end
+
+        x, y = x - self.x, y - self.y
 
         local r = param.mousereleased and param.mousereleased(x, y, button, istouch, presses)
     end

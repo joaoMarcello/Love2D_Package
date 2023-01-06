@@ -5,10 +5,11 @@ local Font = package.Font
 local GUI = package.GUI
 
 -- local Game = Scene:new(64, 10, 1366 * 0.9, nil, 1366 * 0.5, 768 * 0.5)
-local Game = Scene:new(32, 64, 1366 - 64, 768
+local Game = Scene:new(64, 64, 1366 - 64, 768 - 64
 -- , 32 * 10
 -- , 32 * 10
 )
+
 
 local button_1 = GUI.Button:new({
     x = 200, y = 100, w = 150, h = 100
@@ -40,12 +41,12 @@ Game:implements({
     end,
 
     mousepressed = function(x, y)
-        x, y = x - Game.x, y - Game.y
+        -- x, y = x - Game.x, y - Game.y
         manager:mouse_pressed(x, y)
     end,
 
     mousereleased = function(x, y)
-        x, y = x - Game.x, y - Game.y
+        -- x, y = x - Game.x, y - Game.y
         manager:mouse_released(x, y)
     end,
 

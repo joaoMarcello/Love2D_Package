@@ -197,7 +197,7 @@ end
 local function mode_mouse_update(self, dt)
     local x, y = love.mouse.getPosition()
     y = y - 64
-    x = x - 32
+    x = x - 64
 
     if self:check_collision(x, y, 0, 0) then
         if not self.on_focus then
