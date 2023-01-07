@@ -46,12 +46,10 @@ Game:implements({
     end,
 
     mousepressed = function(x, y)
-        -- x, y = x - Game.x, y - Game.y
         manager:mouse_pressed(x, y)
     end,
 
     mousereleased = function(x, y)
-        -- x, y = x - Game.x, y - Game.y
         manager:mouse_released(x, y)
     end,
 

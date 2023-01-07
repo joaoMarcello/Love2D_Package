@@ -38,13 +38,15 @@ end
 
 local results_parse = setmetatable({}, { __mode = 'kv' })
 
-function Utils:parse_csv_line(line)
+---@param line string
+---@param sep string|nil
+function Utils:parse_csv_line(line, sep)
     local result = results_parse[line]
     if result then return result end
 
     local res = {}
     local pos = 1
-    local sep = ','
+    sep = sep or ','
     while true do
         local c = string.sub(line, pos, pos)
         if (c == "") then break end

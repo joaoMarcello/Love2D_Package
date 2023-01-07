@@ -1,10 +1,12 @@
 ---@type JM.Utils
-local Utils = require((...):gsub("templates.Affectable", "jm_utils"))
+local Utils = _G.JM_Utils
+
+-- local Utils = require((...):gsub("templates.Affectable", "jm_utils"))
 
 ---@type JM.EffectManager
 local EffectManager = require((...):gsub("templates.Affectable", "jm_effect_manager"))
 
-local love_math_new_transform = love.math.newTransform
+
 local love_graphics_apply_transform = love.graphics.applyTransform
 local love_push = love.graphics.push
 local love_pop = love.graphics.pop

@@ -9,18 +9,10 @@ local path = (...)
 ---@type JM.Template.Affectable
 local Affectable = require(path:gsub("jm_animation", "templates.Affectable"))
 
----@type JM.Utils
-local Utils = require(path:gsub("jm_animation", "jm_utils"))
-
 -- Some local variables to store global modules.
 local love_graphics = love.graphics
 local love_graphics_draw = love_graphics.draw
-local love_graphics_rectangle = love_graphics.rectangle
 local love_graphics_set_color = love_graphics.setColor
-local love_graphics_push = love_graphics.push
-local love_graphics_pop = love_graphics.pop
-local love_graphics_apply_transform = love_graphics.applyTransform
-local love_math_new_transform = love.math.newTransform
 
 ---@enum JM.Anima.EventTypes
 local Event = {

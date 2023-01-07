@@ -1,8 +1,6 @@
 ---@type string
 local path = ...
 
-
-
 ---@class JM.Font.Manager
 local Font = {}
 

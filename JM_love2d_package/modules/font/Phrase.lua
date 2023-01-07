@@ -5,15 +5,14 @@ local path = ...
 local Word = require(path:gsub("Phrase", "Word"))
 
 ---@type JM.Utils
-local Utils --= require("/JM_love2d_package/utils")
+local Utils = _G.JM_Utils
 
 ---@class JM.Font.Phrase
 local Phrase = {}
 
-Phrase.load_dependencies = function(effect_manager, utils)
-    Word.load_dependencies(effect_manager)
-    Utils = utils
-end
+-- Phrase.load_dependencies = function(effect_manager)
+--     Word.load_dependencies(effect_manager)
+-- end
 
 ---@param args {text: string, font: JM.Font.Font}
 ---@return JM.Font.Phrase phrase

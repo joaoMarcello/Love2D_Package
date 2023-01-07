@@ -14,7 +14,7 @@ local test_anima = Anima:new({
     frames = 9
 })
 
-Anima2 = test_anima:copy()
+local Anima2 = test_anima:copy()
 Anima2:set_size(100, 120)
 Anima2:toggle_flip_x()
 Anima2:set_duration(5)

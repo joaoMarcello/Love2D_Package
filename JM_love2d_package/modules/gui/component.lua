@@ -1,10 +1,10 @@
 local love = _G.love
 
 ---@type JM.Utils
-local Utils = require((...):gsub("gui.component", "jm_utils"))
+local Utils = _G.JM_Utils
 
 ---@type JM.Template.Affectable
-local Affectable = require((...):gsub("gui.component", "templates.Affectable"))
+local Affectable = _G.JM_Affectable
 
 ---@enum JM.GUI.TypeComponent
 local TYPES_ = {
@@ -281,6 +281,7 @@ do
         end
     end
 
+    --- Sets the container that holds this component.
     ---@param holder JM.GUI.Container
     function Component:set_holder(holder)
         self.__holder = holder

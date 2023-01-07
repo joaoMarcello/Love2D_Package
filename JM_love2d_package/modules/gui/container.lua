@@ -1,3 +1,8 @@
+local love_get_scissor = love.graphics.getScissor
+local love_set_scissor = love.graphics.setScissor
+local love_set_color = love.graphics.setColor
+local love_rectangle = love.graphics.rectangle
+
 ---@type JM.GUI.Component
 local Component = require((...):gsub("container", "component"))
 
@@ -131,11 +136,11 @@ end
 
 ---@param camera JM.Camera.Camera
 function Container:draw(camera)
-    local sx, sy, sw, sh = love.graphics.getScissor()
+    local sx, sy, sw, sh = love_get_scissor()
 
     local sx1, sy1, sw1, sh1 = camera:scissor_transform(self:rect())
 
-    love.graphics.setScissor(sx1, sy1, sw1, sh1)
+    love_set_scissor(sx1, sy1, sw1, sh1)
 
     for i = 1, #(self.components) do
         ---@type JM.GUI.Component
@@ -150,14 +155,14 @@ function Container:draw(camera)
             and gc:draw()
     end
 
-    love.graphics.setScissor(sx, sy, sw, sh)
+    love_set_scissor(sx, sy, sw, sh)
 
     do
-        love.graphics.setColor(1, 0, 0, 1)
-        love.graphics.rectangle("line", self:rect())
+        love_set_color(1, 0, 0, 1)
+        love_rectangle("line", self:rect())
 
-        love.graphics.setColor(0, 1, 1, 1)
-        love.graphics.rectangle("line", self.x + self.border_x, self.y + self.border_y, self.w - self.border_x * 2,
+        love_set_color(0, 1, 1, 1)
+        love_rectangle("line", self.x + self.border_x, self.y + self.border_y, self.w - self.border_x * 2,
             self.h - self.border_y * 2)
     end
 

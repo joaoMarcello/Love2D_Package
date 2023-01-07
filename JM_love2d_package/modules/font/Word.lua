@@ -1,13 +1,8 @@
 ---@type JM.EffectManager
-local EffectManager
+local EffectManager = require((...):gsub("font.Word", "jm_effect_manager"))
 
 ---@class JM.Font.Word
 local Word = {}
-
----@param effect_manager JM.EffectManager
-Word.load_dependencies = function(effect_manager)
-    EffectManager = effect_manager
-end
 
 ---@param args {text: string, font: JM.Font.Font, format: JM.Font.FormatOptions}
 ---@return JM.Font.Word phrase
