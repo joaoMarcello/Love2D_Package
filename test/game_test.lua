@@ -46,7 +46,7 @@ Game:add_camera({
     show_world_bounds = true
 }, "blue")
 
-Game:get_camera("main"):set_viewport(0, 0, Game.screen_w * 0.5, Game.screen_h)
+Game:get_camera("main"):set_viewport(nil, nil, Game.screen_w * 0.5, Game.screen_h)
 Game.camera.focus_x = Game.screen_w * 0.5
 Game:add_camera({
     -- camera's viewport

@@ -4,11 +4,11 @@ local Physics = package.Physics
 local Font = package.Font
 local GUI = package.GUI
 
--- local Game = Scene:new(32, 100, 1366, 768)
-local Game = Scene:new(64, 64, 1366, 768
-    , 32 * 23
-    , 32 * 20
-)
+local Game = Scene:new(0, 0, 1366, 768)
+-- local Game = Scene:new(64, 64, 1366, 768
+--     , 32 * 23
+--     , 32 * 20
+-- )
 -- Game.camera.x = 64
 
 local world = Physics:newWorld()
@@ -37,6 +37,10 @@ local manager = GUI.Container:new({
     -- mode = "right"
 })
 
+local function stencilFunction()
+    love.graphics.rectangle("fill", 225, 200, 350, 300)
+end
+
 manager:add(button_1)
 manager:add(GUI.Button:new({ x = 175, y = 170, w = 64, h = 64 }))
 manager:add(GUI.Button:new({ x = 200, y = 250, w = 64, h = 64 }))
@@ -59,9 +63,10 @@ Game:implements({
         local cy = tile * (math.floor(y / tile))
         love.graphics.rectangle("fill", cx, cy, tile, tile)
 
-        Font:print("On Screen: <color, 1, 0, 0>" .. tostring(Game.camera:rect_is_on_view(x, y, tile, tile)), 10
-            ,
-            32 * 10)
+        Font:print("On Screen: <color, 1, 0, 0>" .. tostring(Game.camera:rect_is_on_view(x, y, tile, tile)), 10, 32 * 10)
+
+        -- love.graphics.stencil(stencilFunction, "replace", 1)
+        -- love.graphics.setStencilTest("greater", 0)
     end,
 
     mousepressed = function(x, y)
