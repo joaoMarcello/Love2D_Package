@@ -1111,10 +1111,10 @@ function Camera:set_bounds(left, right, top, bottom)
 end
 
 --- Receive the rect parameters in world coordinates.
----@param x any
----@param y any
----@param w any
----@param h any
+---@param x number
+---@param y number
+---@param w number|nil
+---@param h number|nil
 function Camera:rect_is_on_view(x, y, w, h)
     w = w or 0
     h = h or 0
@@ -1127,6 +1127,14 @@ function Camera:rect_is_on_view(x, y, w, h)
 
     return x + w > cx and x < cx + cw
         and y + h > cy and y < cy + ch
+end
+
+--- Checks if point is on screen.
+---@param x number # position in x-axis (world coordinates)
+---@param y number # position in y-axis (world coordinates)
+---@return boolean
+function Camera:point_is_on_view(x, y)
+    return self:rect_is_on_view(x, y)
 end
 
 function Camera:rect_is_on_screen(left, right, top, bottom)

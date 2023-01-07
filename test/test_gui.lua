@@ -5,9 +5,9 @@ local Font = package.Font
 local GUI = package.GUI
 
 -- local Game = Scene:new(32, 100, 1366, 768)
-local Game = Scene:new(32, 32, 1366, 768 - 32
+local Game = Scene:new(64, 32, 1366, 768
     , 32 * 23
-    , 32 * 20
+    , 32 * 19
 )
 Game.camera.x = 0
 
@@ -52,14 +52,16 @@ Game:implements({
 
         love.graphics.setColor(1, 0, 0, 0.2)
         local x, y = Game:get_mouse_position()
-        -- love.graphics.rectangle("fill", x, y, 32, 32)
+        love.graphics.rectangle("fill", x, y, 32, 32)
 
         local tile = 32
         local cx = tile * (math.floor(x / tile))
         local cy = tile * (math.floor(y / tile))
-        love.graphics.rectangle("fill", cx, cy, tile, tile)
+        -- love.graphics.rectangle("fill", cx, cy, tile, tile)
 
-        Font:print("On Screen: <color, 1, 0, 0>" .. tostring(Game.camera:rect_is_on_view(x, y)), 10, 32 * 10)
+        Font:print("On Screen: <color, 1, 0, 0>" .. tostring(Game.camera:rect_is_on_view(x, y, tile, tile)), 10
+            ,
+            32 * 10)
     end,
 
     mousepressed = function(x, y)

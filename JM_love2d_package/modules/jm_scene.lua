@@ -542,7 +542,11 @@ function Scene:implements(param)
             camera = nil
         end
 
-        love.graphics.setScissor(self.x, 0, self.w, self.h)
+        love.graphics.setScissor(self.x,
+            math.abs(self.h - self.dispositive_h),
+            self.w, self.h
+        )
+
         set_canvas()
         set_color_draw(1, 1, 1, 1)
         set_shader(self.shader)
