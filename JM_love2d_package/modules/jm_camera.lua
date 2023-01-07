@@ -922,6 +922,7 @@ function Camera:set_viewport(x, y, w, h)
     self.viewport_w = w and w * self.desired_scale or self.viewport_w
     self.viewport_h = h and h * self.desired_scale or self.viewport_h
     self:set_type(self.type)
+    self:set_bounds()
 end
 
 -- function Camera:screen_to_screen(x, y)

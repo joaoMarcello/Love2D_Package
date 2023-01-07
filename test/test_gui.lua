@@ -4,12 +4,19 @@ local Physics = package.Physics
 local Font = package.Font
 local GUI = package.GUI
 
-local Game = Scene:new(0, 0, 1366, 768)
--- local Game = Scene:new(32, 64, nil, 768
---     , 32 * 12
---     , 32 * 12
--- )
+-- local Game = Scene:new(32, 100, 1366, 768)
+local Game = Scene:new(30, 100, 1366, 768
+    , 32 * 20
+    , 32 * 12
+)
 
+local world = Physics:newWorld()
+local rects = {
+    { 64 * 2, 64 * 4, 64, 128 }
+}
+for _, rec in ipairs(rects) do
+    Physics:newBody(world, rec[1], rec[2], rec[3], rec[4], "static")
+end
 
 local button_1 = GUI.Button:new({
     x = 200, y = 100, w = 150, h = 100
@@ -39,14 +46,27 @@ Game:implements({
     draw = function(camera)
         manager:draw(camera)
         -- Font:printx("button", 200, 100, "center", 150)
+
+        world:draw()
+
         love.graphics.setColor(1, 0, 0, 1)
         local x, y = Game:get_mouse_position()
-
         love.graphics.rectangle("fill", x, y, 32, 32)
+
+        local tile = 32
+        local cx = tile * (math.floor(x / tile))
+        local cy = tile * (math.floor(y / tile))
+        love.graphics.rectangle("fill", cx, cy, tile, tile)
     end,
 
     mousepressed = function(x, y)
         manager:mouse_pressed(x, y)
+
+        local mx, my = Game:get_mouse_position()
+        local tile = 32
+        local cx = tile * math.floor(mx / tile)
+        local cy = tile * math.floor(my / tile)
+        Physics:newBody(world, cx, cy, tile, tile, "static")
     end,
 
     mousereleased = function(x, y)
@@ -58,18 +78,20 @@ Game:implements({
     end,
 
     update = function(dt)
+        world:update(dt)
+
         local speed = 128 * love.timer.getDelta()
 
         if love.keyboard.isDown("down") then
-            manager:set_position(nil, manager.y + 128 * love.timer.getDelta())
+            manager:set_position(nil, manager.y + speed)
         elseif love.keyboard.isDown("up") then
-            manager:set_position(nil, manager.y - 128 * love.timer.getDelta())
+            manager:set_position(nil, manager.y - speed)
         end
 
         if love.keyboard.isDown("left") then
-            manager:set_position(manager.x - 128 * love.timer.getDelta())
+            manager:set_position(manager.x - speed)
         elseif love.keyboard.isDown("right") then
-            manager:set_position(manager.x + 128 * love.timer.getDelta())
+            manager:set_position(manager.x + speed)
         end
 
         if love.keyboard.isDown("w") then

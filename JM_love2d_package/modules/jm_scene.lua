@@ -15,6 +15,7 @@ local set_color_draw = love.graphics.setColor
 local love_draw = love.graphics.draw
 local set_shader = love.graphics.setShader
 local get_delta_time = love.timer.getDelta
+local love_mouse_position = love.mouse.getPosition
 
 ---@alias JM.Scene.Layer {draw:function, update:function, factor_x:number, factor_y:number, name:string, fixed_on_ground:boolean, fixed_on_ceil:boolean, top:number, bottom:number, shader:love.Shader, name:string}
 
@@ -44,7 +45,7 @@ end
 local function draw_tile(self)
     local tile, qx, qy
 
-    tile = self.tile_size_x * 4
+    tile = self.tile_size_x * 4 * self.camera.scale
     qx = (self.w - self.x) / tile
     qy = (self.h - self.y) / tile
 
@@ -140,7 +141,7 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
 
             border_color = { 1, 1, 0, 1 },
 
-            scale = 1.0,
+            scale = 0.7,
 
             type = "",
 
@@ -212,6 +213,7 @@ function Scene:add_camera(config, name)
 
     camera.viewport_x = camera.viewport_x + (self.x) / camera.desired_scale
     camera.viewport_y = camera.viewport_y + (self.y) / camera.desired_scale
+    camera:set_viewport(nil, nil, nil, self.screen_h - self.y / camera.desired_scale)
 
     -- camera.viewport_x = self.x / camera.desired_scale
     -- camera.viewport_y = self.y / camera.desired_scale
@@ -235,10 +237,14 @@ function Scene:set_color(r, g, b, a)
     self.color_a = a or self.color_a
 end
 
+--- Converts the mouse position to Camera's World coordinates.
+---@return integer x Mouse position in x-axis in world coordinates.
+---@return integer y Mouse position in y-axis in world coordinates.
 function Scene:get_mouse_position()
-    local x, y = love.mouse.getPosition()
+    local x, y = love_mouse_position()
     local ds = self.camera.desired_scale
 
+    -- turning the mouse position into Camera's screen coordinates
     x, y = x / ds, y / ds
     x, y = x - self.x / ds, y - self.y / ds
 

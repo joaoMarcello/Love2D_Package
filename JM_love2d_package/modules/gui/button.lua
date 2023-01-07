@@ -39,11 +39,8 @@ function Button:__constructor__(args)
         self.text = "<color, 1,0,0>on <color, 1,1,0><italic>focus</italic><color, 0, 0, 0> did you hear me. " ..
             math.random(150) --.. " eh assim mesmo que eu vou fazer porque eu sou eh desses tá ligado mano doido???"
 
-        -- self.__pulse_eff = self.__pulse_eff or self:generate_effect("pulse", { range = 0.03, speed = 0.5 })
-        -- self.__pulse_eff:apply(self, true)
-
-        self:apply_effect("pulse", { range = 0.03, speed = 0.5 })
-        --self:apply_effect("swing")
+        self.__pulse_eff = self.__pulse_eff or self:generate_effect("pulse", { range = 0.03, speed = 0.5 })
+        self.__pulse_eff:apply(self, true)
     end)
 
 
@@ -52,10 +49,7 @@ function Button:__constructor__(args)
 
         self.text = "button"
 
-        -- self.__pulse_eff.__remove = true
-        -- self.__pulse_eff:restaure_object()
-
-        self.__effect_manager:clear()
+        self.__pulse_eff.__remove = true
     end)
 
     self:on_event("mouse_released", function()

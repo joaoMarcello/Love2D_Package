@@ -2,7 +2,7 @@
 local path = ...
 
 ---@type JM.Anima
-local Anima = require(path:gsub("jm_font_generator", "jm_animation"))
+local Anima = _G.JM_Anima
 
 ---@type JM.Utils
 local Utils = _G.JM_Utils
@@ -15,9 +15,7 @@ local Iterator = require(path:gsub("jm_font_generator", "font.font_iterator"))
 
 ---@type JM.Font.Phrase
 local Phrase = require(path:gsub("jm_font_generator", "font.Phrase"))
--- Phrase.load_dependencies(
---     require(path:gsub("jm_font_generator", "jm_effect_manager"))
--- )
+
 --====================================================================
 
 local table_insert, string_find = table.insert, string.find

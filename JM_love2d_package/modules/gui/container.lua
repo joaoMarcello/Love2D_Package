@@ -6,9 +6,6 @@ local love_rectangle = love.graphics.rectangle
 ---@type JM.GUI.Component
 local Component = require((...):gsub("container", "component"))
 
----@type JM.Utils
-local Utils = require((...):gsub("gui.container", "jm_utils"))
-
 ---@enum JM.GUI.Container.InsertMode
 local INSERT_MODE = {
     normal = 1,

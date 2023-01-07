@@ -1200,6 +1200,15 @@ do
         end
     end
 
+    function World:draw()
+        for i = 1, self.bodies_number do
+            ---@type JM.Physics.Body|JM.Physics.Slope
+            local obj = self.bodies[i]
+
+            local r = obj.draw and obj:draw()
+        end
+    end
+
     -- ---@param obj JM.Physics.Body
     -- function World:check(obj)
     --     -- local cl, ct, cw, ch = self:rect_to_cell(obj:rect())
