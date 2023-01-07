@@ -1137,23 +1137,27 @@ function Camera:point_is_on_view(x, y)
     return self:rect_is_on_view(x, y)
 end
 
-function Camera:rect_is_on_screen(left, right, top, bottom)
-    local left, top = self:screen_to_world(left, top)
-    local right, bottom = self:screen_to_world(right, bottom)
-
-    local cLeft, ctop = self:screen_to_world(self.x, self.y)
-    local cright, cbottom = self:screen_to_world(
-        self.x + (self.viewport_w / self.scale),
-        self.y + self.viewport_h / self.scale
-    )
-
-    return (right >= cLeft and left <= cright)
-        and (bottom >= ctop and top <= cbottom)
-end
-
 function Camera:point_is_on_screen(x, y)
-    return self:rect_is_on_screen(x, x, y, y)
+    return self:rect_is_on_view(x, y)
 end
+
+-- function Camera:rect_is_on_screen(left, right, top, bottom)
+--     local left, top = self:screen_to_world(left, top)
+--     local right, bottom = self:screen_to_world(right, bottom)
+
+--     local cLeft, ctop = self:screen_to_world(self.x, self.y)
+--     local cright, cbottom = self:screen_to_world(
+--         self.x + (self.viewport_w / self.scale),
+--         self.y + self.viewport_h / self.scale
+--     )
+
+--     return (right >= cLeft and left <= cright)
+--         and (bottom >= ctop and top <= cbottom)
+-- end
+
+-- function Camera:point_is_on_screen(x, y)
+--     return self:rect_is_on_screen(x, x, y, y)
+-- end
 
 function Camera:is_locked_in_x()
     return self.lock_x

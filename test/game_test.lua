@@ -975,7 +975,7 @@ Game:implements(
                                 local right = left + 32
                                 local top = Game.h - 64 + 32 * (i - 1)
                                 local bottom = top + 32
-                                local result = Game.camera:rect_is_on_screen(left, right, top, bottom) or true
+                                local result = Game.camera:rect_is_on_view(left, right, top, bottom) or true
 
                                 if j % 2 == 0 and result then
                                     tile:draw(2, 1, j * 32, 32 * 12 - 64 + 32 * (i - 1))

@@ -5,11 +5,11 @@ local Font = package.Font
 local GUI = package.GUI
 
 -- local Game = Scene:new(32, 100, 1366, 768)
-local Game = Scene:new(64, 32, 1366, 768
+local Game = Scene:new(64, 64, 1366, 768
     , 32 * 23
-    , 32 * 19
+    , 32 * 20
 )
-Game.camera.x = 0
+-- Game.camera.x = 64
 
 local world = Physics:newWorld()
 local rects = {
@@ -52,12 +52,12 @@ Game:implements({
 
         love.graphics.setColor(1, 0, 0, 0.2)
         local x, y = Game:get_mouse_position()
-        love.graphics.rectangle("fill", x, y, 32, 32)
+        -- love.graphics.rectangle("fill", x, y, 32, 32)
 
         local tile = 32
         local cx = tile * (math.floor(x / tile))
         local cy = tile * (math.floor(y / tile))
-        -- love.graphics.rectangle("fill", cx, cy, tile, tile)
+        love.graphics.rectangle("fill", cx, cy, tile, tile)
 
         Font:print("On Screen: <color, 1, 0, 0>" .. tostring(Game.camera:rect_is_on_view(x, y, tile, tile)), 10
             ,
@@ -71,7 +71,10 @@ Game:implements({
         local tile = 32
         local cx = tile * math.floor(mx / tile)
         local cy = tile * math.floor(my / tile)
-        Physics:newBody(world, cx, cy, tile, tile, "static")
+
+        if Game.camera:rect_is_on_view(cx, cy, tile, tile) then
+            Physics:newBody(world, cx, cy, tile, tile, "static")
+        end
     end,
 
     mousereleased = function(x, y)
@@ -94,8 +97,10 @@ Game:implements({
         end
 
         if love.keyboard.isDown("left") then
+            -- Game.camera:set_position(Game.camera.x - speed)
             manager:set_position(manager.x - speed)
         elseif love.keyboard.isDown("right") then
+            -- Game.camera:set_position(Game.camera.x + speed)
             manager:set_position(manager.x + speed)
         end
 
