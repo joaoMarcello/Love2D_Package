@@ -724,8 +724,9 @@ function Camera:__constructor__(
     self.desired_canvas_h = desired_canvas_h or self.device_height
 
     self.scale = scale or 1.0
-    self.desired_scale = self.device_height / self.desired_canvas_h
+    self.desired_scale = (self.device_height) / self.desired_canvas_h
 
+    --- Viewport in real-screen coordinates
     self.viewport_x = x or 0
     self.viewport_y = y or 0
 
@@ -1107,6 +1108,25 @@ function Camera:set_bounds(left, right, top, bottom)
         self.bounds_bottom = self.bounds_top + self.viewport_h / self.scale / self.desired_scale
         -- self.bounds_top = self.bounds_bottom - self.viewport_h / self.scale / self.desired_scale
     end
+end
+
+--- Receive the rect parameters in world coordinates.
+---@param x any
+---@param y any
+---@param w any
+---@param h any
+function Camera:rect_is_on_view(x, y, w, h)
+    w = w or 0
+    h = h or 0
+    x, y = self:world_to_screen(x, y)
+    w, h = w * self.scale, h * self.scale
+
+    local cx, cy = self:world_to_screen(self.x, self.y)
+    local cw, ch = self.desired_canvas_w,
+        self.desired_canvas_h
+
+    return x + w > cx and x < cx + cw
+        and y + h > cy and y < cy + ch
 end
 
 function Camera:rect_is_on_screen(left, right, top, bottom)

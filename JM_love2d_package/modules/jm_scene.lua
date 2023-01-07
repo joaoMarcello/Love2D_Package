@@ -45,7 +45,7 @@ end
 local function draw_tile(self)
     local tile, qx, qy
 
-    tile = self.tile_size_x * 4 * self.camera.scale
+    tile = self.tile_size_x * 4 * self.camera.scale * self.camera.desired_scale
     qx = (self.w - self.x) / tile
     qy = (self.h - self.y) / tile
 
@@ -108,7 +108,7 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
     self.world_left = -32 * 0
     self.world_right = 32 * 60
     self.world_top = -32 * 0
-    self.world_bottom = 32 * 12
+    self.world_bottom = 32 * 50
 
     do
         -- main camera's default configuration
@@ -116,8 +116,8 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
             -- camera's viewport in desired game screen coordinates
             x = 0, --self.screen_w * 0,
             y = 0,
-            w = self.screen_w - self.x,
-            h = self.screen_h - self.y,
+            w = self.screen_w - self.x * 0,
+            h = self.screen_h - self.y * 0,
 
             -- world bounds
             bounds = {
@@ -129,7 +129,7 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
 
             -- Device screen's dimensions
             device_width = self.dispositive_w,
-            device_height = self.dispositive_h - math.abs(self.dispositive_h - self.h),
+            device_height = self.dispositive_h - math.abs(self.dispositive_h - self.h + self.y),
 
             -- The in-game screen's dimensions
             desired_canvas_w = self.screen_w,
@@ -141,7 +141,7 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
 
             border_color = { 1, 1, 0, 1 },
 
-            scale = 0.7,
+            scale = 1.0,
 
             type = "",
 
@@ -213,7 +213,7 @@ function Scene:add_camera(config, name)
 
     camera.viewport_x = camera.viewport_x + (self.x) / camera.desired_scale
     camera.viewport_y = camera.viewport_y + (self.y) / camera.desired_scale
-    camera:set_viewport(nil, nil, nil, self.screen_h - self.y / camera.desired_scale)
+    --camera:set_viewport(nil, nil, nil, self.screen_h - self.y / camera.desired_scale)
 
     -- camera.viewport_x = self.x / camera.desired_scale
     -- camera.viewport_y = self.y / camera.desired_scale
@@ -552,8 +552,8 @@ function Scene:implements(param)
         set_blend_mode("alpha")
         love.graphics.setScissor()
 
-        set_color_draw(0, 0, 1, 1)
-        love.graphics.circle("fill", love.mouse.getX(), love.mouse.getY(), 5)
+        -- set_color_draw(0, 0, 1, 1)
+        -- love.graphics.circle("fill", love.mouse.getX(), love.mouse.getY(), 5)
 
         temp = self.draw_foreground and self.draw_foreground()
     end

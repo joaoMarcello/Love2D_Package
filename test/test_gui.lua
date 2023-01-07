@@ -5,10 +5,11 @@ local Font = package.Font
 local GUI = package.GUI
 
 -- local Game = Scene:new(32, 100, 1366, 768)
-local Game = Scene:new(30, 100, 1366, 768
+local Game = Scene:new(32, 32, 1366, 768 - 32
+    , 32 * 23
     , 32 * 20
-    , 32 * 12
 )
+Game.camera.x = 0
 
 local world = Physics:newWorld()
 local rects = {
@@ -30,16 +31,16 @@ button_1.is_button1 = true
 local manager = GUI.Container:new({
     scene = Game,
     x = 0, y = 0,
-    w = 64 * 10, h = 64 * 4,
+    w = 64 * 10, h = 32 * 8,
     type = "grid",
     grid_y = 2
     -- mode = "right"
 })
 
 manager:add(button_1)
-manager:add(GUI.Button:new({ x = 175, y = 170, w = 100, h = 100 }))
-manager:add(GUI.Button:new({ x = 200, y = 250, w = 100, h = 100 }))
-manager:add(GUI.Button:new({ x = 240, y = 250, w = 100, h = 100 }))
+manager:add(GUI.Button:new({ x = 175, y = 170, w = 64, h = 64 }))
+manager:add(GUI.Button:new({ x = 200, y = 250, w = 64, h = 64 }))
+manager:add(GUI.Button:new({ x = 240, y = 250, w = 64, h = 64 }))
 -- manager:add(GUI.Button:new({ x = 240, y = 250, w = 100, h = 100 }))
 
 Game:implements({
@@ -49,14 +50,16 @@ Game:implements({
 
         world:draw()
 
-        love.graphics.setColor(1, 0, 0, 1)
+        love.graphics.setColor(1, 0, 0, 0.2)
         local x, y = Game:get_mouse_position()
-        love.graphics.rectangle("fill", x, y, 32, 32)
+        -- love.graphics.rectangle("fill", x, y, 32, 32)
 
         local tile = 32
         local cx = tile * (math.floor(x / tile))
         local cy = tile * (math.floor(y / tile))
         love.graphics.rectangle("fill", cx, cy, tile, tile)
+
+        Font:print("On Screen: <color, 1, 0, 0>" .. tostring(Game.camera:rect_is_on_view(x, y)), 10, 32 * 10)
     end,
 
     mousepressed = function(x, y)
