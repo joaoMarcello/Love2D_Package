@@ -31,13 +31,6 @@ Game:implements({
         end
     end,
     draw = function(camera)
-        -- t1:draw(32, 64)
-
-        -- local t = set:get_tile("9")
-        -- local r = t and t:draw(32, 64 * 2)
-
-
-        --map:draw(camera)
 
         love.graphics.setColor(1, 0, 0, 1)
 

@@ -2,8 +2,16 @@ local love_set_color = love.graphics.setColor
 local love_draw = love.graphics.draw
 local math_floor, math_min, math_max = math.floor, math.min, math.max
 
+local Font = _G.JM_Font
+
 ---@type JM.TileSet
 local TileSet = require((...):gsub("tile_map", "tile_set"))
+
+local function clamp(value, A, B)
+    return math_min(math_max(value, A), B)
+end
+
+--==========================================================================
 
 ---@class JM.TileMap
 local TileMap = {}
@@ -28,6 +36,7 @@ function TileMap:__constructor__(path_map, path_tileset, tile_size)
     self.tile_set = TileSet:new(path_tileset, self.tile_size)
     self.sprite_batch = love.graphics.newSpriteBatch(self.tile_set.img)
 
+    -- will store each tile
     self.map = {}
     self.indexes = {}
 
@@ -79,12 +88,8 @@ function TileMap:__constructor__(path_map, path_tileset, tile_size)
         self.max_x = cell.x > self.max_x and cell.x or self.max_x
         self.max_y = cell.y > self.max_y and cell.y or self.max_y
     end
-end
 
-local Font = _G.JM_Font
-
-local function clamp(value, A, B)
-    return math_min(math_max(value, A), B)
+    collectgarbage()
 end
 
 ---@param self JM.TileMap
@@ -93,11 +98,10 @@ local function draw_with_camera(self, camera)
     self.sprite_batch:clear()
 
     local cx, cy = 32 * 2, 32 * 3
-    local use_map_1 = false
 
     self.operations = 0
 
-    if use_map_1 then
+    if false then
         for i = 1, #(self.map) do
 
             ---@type JM.TileMap.Cell
@@ -135,11 +139,7 @@ local function draw_with_camera(self, camera)
 
             if cx > self.max_x or cy > self.max_y then break end
 
-            local right = camera:x_screen_to_world(camera.desired_canvas_w - 32)
-
-            --cx + camera.desired_canvas_w / camera.scale
-            for i = cx, right, self.tile_size do
-
+            for i = cx, camera:x_screen_to_world(camera.desired_canvas_w - 32), self.tile_size do
 
                 ---@type JM.TileMap.Cell
                 local cell = self.indexes[j] and self.indexes[j][i]
@@ -156,6 +156,7 @@ local function draw_with_camera(self, camera)
 
                     self.sprite_batch:add(tile.quad, cell.x, cell.y)
                 end
+
             end
         end
 
