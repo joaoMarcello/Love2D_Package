@@ -4,6 +4,8 @@ local math_floor, math_min, math_max = math.floor, math.min, math.max
 
 local Font = _G.JM_Font
 
+---@alias JM.TileMap.Cell {x:number, y:number, id:number}
+
 ---@type JM.TileSet
 local TileSet = require((...):gsub("tile_map", "tile_set"))
 
@@ -26,8 +28,6 @@ function TileMap:new(path_map, path_tileset, tile_size)
     return obj
 end
 
----@alias JM.TileMap.Cell {x:number, y:number, id:string}
-
 ---@param path_map string
 ---@param path_tileset string
 ---@param tile_size number
@@ -40,7 +40,7 @@ function TileMap:__constructor__(path_map, path_tileset, tile_size)
     self.map = {}
 
     -- also will store the cells but indexed by cell position
-    self.map_2 = {}
+    self.cells_by_pos = {}
 
     for j = 1, 400 do
         for i = 1, 400 do
@@ -68,7 +68,7 @@ function TileMap:__constructor__(path_map, path_tileset, tile_size)
             return wa < wb
         end)
 
-    self.map_2 = {}
+    self.cells_by_pos = {}
     self.min_x = math.huge
     self.min_y = math.huge
     self.max_x = -math.huge
@@ -79,8 +79,8 @@ function TileMap:__constructor__(path_map, path_tileset, tile_size)
         ---@type JM.TileMap.Cell
         local cell = self.map[i]
 
-        self.map_2[cell.y] = self.map_2[cell.y] or {}
-        local row = self.map_2[cell.y]
+        self.cells_by_pos[cell.y] = self.cells_by_pos[cell.y] or {}
+        local row = self.cells_by_pos[cell.y]
         row[cell.x] = cell
 
         self.min_x = cell.x < self.min_x and cell.x or self.min_x
@@ -115,7 +115,7 @@ local function draw_with_bounds(self, left, top, right, bottom)
         for i = cx, right, self.tile_size do
 
             ---@type JM.TileMap.Cell
-            local cell = self.map_2[j] and self.map_2[j][i]
+            local cell = self.cells_by_pos[j] and self.cells_by_pos[j][i]
 
             if cell
             -- and camera:rect_is_on_view(
@@ -139,7 +139,7 @@ local function draw_with_bounds(self, left, top, right, bottom)
     love_set_color(1, 1, 1, 1)
     love_draw(self.sprite_batch)
 
-    -- Font:print("" .. cx .. "-" .. cy, 32 * 15, 32 * 8)
+    Font:print("" .. #(self.tile_set.tiles), 32 * 15, 32 * 8)
 end
 
 ---@param self JM.TileMap

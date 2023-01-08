@@ -34,17 +34,14 @@ Game:implements({
 
         love.graphics.setColor(1, 0, 0, 1)
 
-        do
-            if not map.map then return end
-        end
         ---@type JM.TileMap.Cell
-        local cell = map.map[#map.map]
+        local cell = map.cells_by_pos[map.min_y][map.min_x]
 
         ---@type JM.TileMap.Cell
-        local cell_1 = map.map[1]
+        -- local cell_1 = map.map[1]
 
-        love.graphics.rectangle("fill", cell_1.x, cell_1.y, 32, 32)
-        love.graphics.rectangle("fill", cell_1.x, cell.y, 32, 32)
+        -- love.graphics.rectangle("fill", cell_1.x, cell_1.y, 32, 32)
+        love.graphics.rectangle("fill", cell.x, cell.y, 32, 32)
     end,
     layers = {
         {
@@ -55,7 +52,7 @@ Game:implements({
 
         {
             draw = function(self, camera)
-                Font:print(tostring(map.operations), 300, 330)
+                --Font:print(tostring(map.operations), 300, 330)
             end,
             factor_x = -1, factor_y = -1
         }

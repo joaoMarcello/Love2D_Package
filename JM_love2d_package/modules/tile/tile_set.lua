@@ -83,7 +83,7 @@ function TileSet:__constructor__(path, tile_size)
     img_data:release()
 end
 
----@param id string
+---@param id number
 ---@return JM.Tile
 function TileSet:get_tile(id)
     return self.id_to_tile[id]
