@@ -83,7 +83,7 @@ function TileSet:__constructor__(path, tile_size)
 end
 
 ---@param id string
----@return JM.Tile|nil
+---@return JM.Tile
 function TileSet:get_tile(id)
     return self.id_to_tile[id]
 end

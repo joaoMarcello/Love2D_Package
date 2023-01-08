@@ -30,7 +30,7 @@ function TileMap:__constructor__(path_map, path_tileset, tile_size)
     self.map = {}
     self.map_width = 15
     self.map_height = 10
-    
+
     for j = 1, 10 do
         self.map[j] = {}
         for i = 1, 15 do
@@ -39,24 +39,49 @@ function TileMap:__constructor__(path_map, path_tileset, tile_size)
                 y = j * self.tile_size,
                 id = tostring(math.random(9))
             }
+
+            -- local cell = self.map[j][i]
+            -- local tile = self.tile_set:get_tile(cell.id)
+            -- self.sprite_batch:add(tile.quad, cell.x, cell.y)
         end
     end
+
+    -- local sort_func = function (a, b)
+    --     return a.x
+    -- end
+    -- for j = 1, #(self.map) do
+    --     for i = 1, #(self.map[j]) do
+    --         table.sort()
+    --     end
+    -- end
+
 end
 
-function TileMap:draw()
+---@param camera JM.Camera.Camera|nil
+function TileMap:draw(camera)
+
     self.sprite_batch:clear()
 
-    for j = 1, 10 do
-        for i = 1, 15 do
+    for j = 1, #(self.map) do
+
+        for i = 1, #(self.map[j]) do
+
             ---@type JM.TileMap.Cell
             local cell = self.map[j][i]
-            local tile = self.tile_set:get_tile(cell.id)
 
-            if tile then
-                -- self.sprite_batch:setColor(1, 1, 1, 1)
+            if (camera
+                and camera:rect_is_on_view(
+                    cell.x, cell.y,
+                    self.tile_size, self.tile_size
+                ))
+                or not camera
+            then
+
+                local tile = self.tile_set:get_tile(cell.id)
+
                 self.sprite_batch:add(tile.quad, cell.x, cell.y)
             end
-            -- local r = tile and tile:draw(cell.x, cell.y)
+
         end
     end
 

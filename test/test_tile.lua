@@ -28,7 +28,7 @@ Game:implements({
         Font:print(tostring(#set.tiles), 300, 300)
         Font:print(tostring(camera), 300, 330)
 
-        -- map:draw()
+        map:draw(camera)
     end
 })
 
