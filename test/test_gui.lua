@@ -93,7 +93,7 @@ Game:implements({
     update = function(dt)
         world:update(dt)
 
-        local speed = 128 * love.timer.getDelta()
+        local speed = 128 * dt
 
         if love.keyboard.isDown("down") then
             manager:set_position(nil, manager.y + speed)

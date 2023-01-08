@@ -1125,6 +1125,13 @@ function Camera:rect_is_on_view(x, y, w, h)
     local cw, ch = self.desired_canvas_w,
         self.desired_canvas_h
 
+    -- do
+    --     -- cx = cx + 32
+    --     -- cy = cy + 32
+    --     -- cw = cw - 32
+    --     -- ch = ch - 32
+    -- end
+
     return x + w > cx and x < cx + cw
         and y + h > cy and y < cy + ch
 end

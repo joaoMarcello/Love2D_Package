@@ -28,6 +28,7 @@ function Font:set_font(font)
 end
 
 function Font:print(text, x, y, w, h)
+    text = tostring(text)
     Font.current:print(text, x, y, w, h)
 end
 
@@ -42,7 +43,5 @@ end
 function Font:get_phrase(text)
     return Font.current:get_phrase(text)
 end
-
-
 
 return Font

@@ -53,8 +53,7 @@ local function load_tiles(self, img_data)
             end
         end
     end
-
-    img_data:release()
+    -- img_data:release()
 end
 
 ---@class JM.TileSet
@@ -79,7 +78,9 @@ function TileSet:__constructor__(path, tile_size)
     self.img_width, self.img_height = self.img:getDimensions()
     self.tiles = {}
     self.id_to_tile = {}
+
     load_tiles(self, img_data)
+    img_data:release()
 end
 
 ---@param id string

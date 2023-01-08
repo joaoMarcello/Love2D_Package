@@ -106,9 +106,9 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
     self.tile_size_y = 32
 
     self.world_left = -32 * 0
-    self.world_right = 32 * 60
+    self.world_right = 32 * 200
     self.world_top = -32 * 0
-    self.world_bottom = 32 * 50
+    self.world_bottom = 32 * 200
 
     do
         -- main camera's default configuration
@@ -141,7 +141,7 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
 
             border_color = { 1, 1, 0, 1 },
 
-            scale = 1.0,
+            scale = 0.7,
 
             type = "",
 
@@ -214,6 +214,7 @@ function Scene:add_camera(config, name)
     camera.viewport_x = camera.viewport_x + (self.x) / camera.desired_scale
     camera.viewport_y = camera.viewport_y + (self.y) / camera.desired_scale
     --camera:set_viewport(nil, nil, nil, self.screen_h - self.y / camera.desired_scale)
+    -- camera:set_viewport(nil, nil, self.screen_w / camera.desired_scale, nil)
 
     -- camera.viewport_x = self.x / camera.desired_scale
     -- camera.viewport_y = self.y / camera.desired_scale
