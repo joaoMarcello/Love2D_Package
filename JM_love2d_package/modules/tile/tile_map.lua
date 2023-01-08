@@ -42,22 +42,24 @@ function TileMap:__constructor__(path_map, path_tileset, tile_size)
     -- also will store the cells but indexed by cell position
     self.cells_by_pos = {}
 
-    for j = 1, 20 do
-        for i = 1, 256 do
-            local cell = {
-                x = 32 * 30 + (i - 1) * self.tile_size,
-                y = 32 * 10 + (j - 1) * self.tile_size,
-                id = (math.random(9))
-            }
+    -- for j = 1, 20 do
+    --     for i = 1, 256 do
+    --         local cell = {
+    --             x = 32 * 30 + (i - 1) * self.tile_size,
+    --             y = 32 * 10 + (j - 1) * self.tile_size,
+    --             id = (math.random(9))
+    --         }
 
-            if cell.x > 32 * 40 and cell.x < 32 * 43 then
-                goto continue
-            end
+    --         if cell.x > 32 * 40 and cell.x < 32 * 43 then
+    --             goto continue
+    --         end
 
-            table.insert(self.map, cell)
-            ::continue::
-        end
-    end
+    --         table.insert(self.map, cell)
+    --         ::continue::
+    --     end
+    -- end
+
+    self.map = dofile("test/my_map_data.lua")
 
     table.sort(self.map,
         ---@param a JM.TileMap.Cell

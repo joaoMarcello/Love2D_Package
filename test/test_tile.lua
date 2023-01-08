@@ -32,14 +32,14 @@ Game:implements({
     end,
     draw = function(camera)
 
-        love.graphics.setColor(1, 0, 0, 1)
+        -- love.graphics.setColor(1, 0, 0, 1)
 
-        ---@type JM.TileMap.Cell
-        local cell = map.cells_by_pos[map.min_y][map.min_x]
+        -- ---@type JM.TileMap.Cell
+        -- local cell = map.cells_by_pos[map.min_y][map.min_x]
 
-        if cell then
-            love.graphics.rectangle("fill", cell.x, cell.y, 32, 32)
-        end
+        -- if cell then
+        --     love.graphics.rectangle("fill", cell.x, cell.y, 32, 32)
+        -- end
     end,
     layers = {
         {
