@@ -39,7 +39,7 @@ local function load_tiles(self, img_data)
 
             if not is_empty then
                 local tile = Tile:new(
-                    tostring(current_id),
+                    (current_id),
                     self.img,
                     self.tile_size * (i - 1),
                     self.tile_size * (j - 1),

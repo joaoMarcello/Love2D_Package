@@ -36,16 +36,18 @@ function TileMap:__constructor__(path_map, path_tileset, tile_size)
     self.tile_set = TileSet:new(path_tileset, self.tile_size)
     self.sprite_batch = love.graphics.newSpriteBatch(self.tile_set.img)
 
-    -- will store each tile
+    -- will store each cell in path_map
     self.map = {}
-    self.indexes = {}
 
-    for j = 1, 300 do
-        for i = 1, 300 do
+    -- also will store the cells but indexed by cell position
+    self.map_2 = {}
+
+    for j = 1, 400 do
+        for i = 1, 400 do
             local cell = {
                 x = 32 * 30 + (i - 1) * self.tile_size,
                 y = 32 * 10 + (j - 1) * self.tile_size,
-                id = tostring(math.random(9))
+                id = (math.random(9))
             }
 
             if cell.x > 32 * 40 and cell.x < 32 * 43 then
@@ -66,20 +68,19 @@ function TileMap:__constructor__(path_map, path_tileset, tile_size)
             return wa < wb
         end)
 
-    self.indexes = {}
+    self.map_2 = {}
     self.min_x = math.huge
     self.min_y = math.huge
     self.max_x = -math.huge
     self.max_y = -math.huge
+    self.n_cells = #self.map
 
-    for i = 1, #(self.map) do
+    for i = 1, self.n_cells do
         ---@type JM.TileMap.Cell
         local cell = self.map[i]
 
-        self.indexes[cell.y] = self.indexes[cell.y] or {}
-
-        local row = self.indexes[cell.y]
-
+        self.map_2[cell.y] = self.map_2[cell.y] or {}
+        local row = self.map_2[cell.y]
         row[cell.x] = cell
 
         self.min_x = cell.x < self.min_x and cell.x or self.min_x
@@ -89,75 +90,47 @@ function TileMap:__constructor__(path_map, path_tileset, tile_size)
         self.max_y = cell.y > self.max_y and cell.y or self.max_y
     end
 
+    self.map = nil
     collectgarbage()
 end
 
 ---@param self JM.TileMap
----@param camera JM.Camera.Camera
-local function draw_with_camera(self, camera)
+local function draw_with_bounds(self, left, top, right, bottom)
     self.sprite_batch:clear()
-
-    local cx, cy = 32 * 2, 32 * 3
 
     self.operations = 0
 
-    if false then
-        for i = 1, #(self.map) do
+    local cx, cy = left, top
+
+    cy = math_floor(cy / self.tile_size) * self.tile_size
+    cy = clamp(cy, self.min_y, cy)
+
+    cx = math_floor(cx / self.tile_size) * self.tile_size
+    cx = clamp(cx, self.min_x, cx)
+
+    for j = cy, bottom, self.tile_size do
+
+        if cx > self.max_x or cy > self.max_y then break end
+
+        for i = cx, right, self.tile_size do
 
             ---@type JM.TileMap.Cell
-            local cell = self.map[i]
+            local cell = self.map_2[j] and self.map_2[j][i]
 
-            local x, y = camera:world_to_screen(cell.x, cell.y)
-            if y > camera.desired_canvas_h then
-                break
-            end
-
-            self.operations = self.operations + 1
-
-            if camera:rect_is_on_view(
-                cell.x, cell.y,
-                self.tile_size, self.tile_size
-            )
+            if cell
+            -- and camera:rect_is_on_view(
+            --     cell.x, cell.y,
+            --     self.tile_size, self.tile_size
+            -- )
             then
+
+                self.operations = self.operations + 1
+
                 local tile = self.tile_set:get_tile(cell.id)
 
                 self.sprite_batch:add(tile.quad, cell.x, cell.y)
             end
 
-        end
-    else
-
-        cx, cy = camera.x + 32 * 1, camera.y + 32 * 1
-
-        cy = math_floor(cy / self.tile_size) * self.tile_size
-        cy = clamp(cy, self.min_y, cy)
-
-        cx = math_floor(cx / self.tile_size) * self.tile_size
-        -- cx = clamp(cx, self.min_x, cx)
-
-        for j = cy, camera:y_screen_to_world(camera.desired_canvas_h - 32), self.tile_size do
-
-            if cx > self.max_x or cy > self.max_y then break end
-
-            for i = cx, camera:x_screen_to_world(camera.desired_canvas_w - 32), self.tile_size do
-
-                ---@type JM.TileMap.Cell
-                local cell = self.indexes[j] and self.indexes[j][i]
-
-                if cell and camera:rect_is_on_view(
-                    cell.x, cell.y,
-                    self.tile_size, self.tile_size
-                )
-                then
-
-                    self.operations = self.operations + 1
-
-                    local tile = self.tile_set:get_tile(cell.id)
-
-                    self.sprite_batch:add(tile.quad, cell.x, cell.y)
-                end
-
-            end
         end
 
     end
@@ -166,7 +139,7 @@ local function draw_with_camera(self, camera)
     love_set_color(1, 1, 1, 1)
     love_draw(self.sprite_batch)
 
-    Font:print("" .. cx .. "-" .. cy, 32 * 15, 32 * 8)
+    -- Font:print("" .. cx .. "-" .. cy, 32 * 15, 32 * 8)
 end
 
 ---@param self JM.TileMap
@@ -191,7 +164,12 @@ end
 function TileMap:draw(camera)
 
     if camera then
-        draw_with_camera(self, camera)
+        draw_with_bounds(self,
+            camera.x,
+            camera.y,
+            camera:x_screen_to_world(camera.desired_canvas_w),
+            camera:y_screen_to_world(camera.desired_canvas_h)
+        )
     else
         draw_without_camera(self)
     end

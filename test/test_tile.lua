@@ -34,6 +34,9 @@ Game:implements({
 
         love.graphics.setColor(1, 0, 0, 1)
 
+        do
+            if not map.map then return end
+        end
         ---@type JM.TileMap.Cell
         local cell = map.map[#map.map]
 
