@@ -42,8 +42,8 @@ function TileMap:__constructor__(path_map, path_tileset, tile_size)
     -- also will store the cells but indexed by cell position
     self.cells_by_pos = {}
 
-    for j = 1, 400 do
-        for i = 1, 400 do
+    for j = 1, 20 do
+        for i = 1, 256 do
             local cell = {
                 x = 32 * 30 + (i - 1) * self.tile_size,
                 y = 32 * 10 + (j - 1) * self.tile_size,
@@ -98,37 +98,30 @@ end
 local function draw_with_bounds(self, left, top, right, bottom)
     self.sprite_batch:clear()
 
-    self.operations = 0
+    --local cx, cy = left, top
 
-    local cx, cy = left, top
+    top = math_floor(top / self.tile_size) * self.tile_size
+    top = clamp(top, self.min_y, top)
 
-    cy = math_floor(cy / self.tile_size) * self.tile_size
-    cy = clamp(cy, self.min_y, cy)
+    left = math_floor(left / self.tile_size) * self.tile_size
+    left = clamp(left, self.min_x, left)
 
-    cx = math_floor(cx / self.tile_size) * self.tile_size
-    cx = clamp(cx, self.min_x, cx)
+    for j = top, bottom, self.tile_size do
 
-    for j = cy, bottom, self.tile_size do
+        if left > self.max_x or top > self.max_y then break end
 
-        if cx > self.max_x or cy > self.max_y then break end
-
-        for i = cx, right, self.tile_size do
+        for i = left, right, self.tile_size do
 
             ---@type JM.TileMap.Cell
             local cell = self.cells_by_pos[j] and self.cells_by_pos[j][i]
 
-            if cell
-            -- and camera:rect_is_on_view(
-            --     cell.x, cell.y,
-            --     self.tile_size, self.tile_size
-            -- )
-            then
-
-                self.operations = self.operations + 1
+            if cell then
 
                 local tile = self.tile_set:get_tile(cell.id)
 
-                self.sprite_batch:add(tile.quad, cell.x, cell.y)
+                if tile then
+                    self.sprite_batch:add(tile.quad, cell.x, cell.y)
+                end
             end
 
         end
@@ -143,7 +136,7 @@ local function draw_with_bounds(self, left, top, right, bottom)
 end
 
 ---@param self JM.TileMap
-local function draw_without_camera(self)
+local function draw_without_bounds(self)
     self.sprite_batch:clear()
 
     for i = 1, #(self.map) do
@@ -153,7 +146,9 @@ local function draw_without_camera(self)
 
         local tile = self.tile_set:get_tile(cell.id)
 
-        self.sprite_batch:add(tile.quad, cell.x, cell.y)
+        if tile then
+            self.sprite_batch:add(tile.quad, cell.x, cell.y)
+        end
     end
 
     love_set_color(1, 1, 1, 1)
@@ -165,14 +160,18 @@ function TileMap:draw(camera)
 
     if camera then
         draw_with_bounds(self,
-            camera.x,
-            camera.y,
-            camera:x_screen_to_world(camera.desired_canvas_w),
-            camera:y_screen_to_world(camera.desired_canvas_h)
+            camera.x + 32,
+            camera.y + 32,
+            camera:x_screen_to_world(camera.desired_canvas_w - 32),
+            camera:y_screen_to_world(camera.desired_canvas_h - 32)
         )
     else
-        draw_without_camera(self)
+        draw_without_bounds(self)
     end
+end
+
+function TileMap:draw_with_bounds(left, top, right, bottom)
+    return draw_with_bounds(self, left, top, right, bottom)
 end
 
 return TileMap

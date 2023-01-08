@@ -37,11 +37,9 @@ Game:implements({
         ---@type JM.TileMap.Cell
         local cell = map.cells_by_pos[map.min_y][map.min_x]
 
-        ---@type JM.TileMap.Cell
-        -- local cell_1 = map.map[1]
-
-        -- love.graphics.rectangle("fill", cell_1.x, cell_1.y, 32, 32)
-        love.graphics.rectangle("fill", cell.x, cell.y, 32, 32)
+        if cell then
+            love.graphics.rectangle("fill", cell.x, cell.y, 32, 32)
+        end
     end,
     layers = {
         {
