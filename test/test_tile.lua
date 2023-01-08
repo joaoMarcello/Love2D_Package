@@ -5,7 +5,7 @@ local Tile = require("/JM_love2d_package/modules/tile/tile")
 local TileSet = require("/JM_love2d_package/modules/tile/tile_set")
 local TileMap = require("/JM_love2d_package/modules/tile/tile_map")
 
-local Game = package.Scene:new(nil, nil, nil, nil, 32 * 22, 32 * 12)
+local Game = package.Scene:new(32, 64, 1366, nil, 32 * 22, 32 * 12)
 
 local tile_img = love.graphics.newImage("/data/tileset_01.png")
 
