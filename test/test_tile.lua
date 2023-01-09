@@ -11,9 +11,12 @@ local tile_img = love.graphics.newImage("/data/tileset_01.png")
 
 local t1 = Tile:new("1", tile_img, 32 * 1, 32 * 1, 32)
 
-local set = TileSet:new("/data/tileset_01.png", 32)
+local set = TileSet:new("data/tileset_01.png", 32)
 
-local map = TileMap:new("", "/data/tileset_01.png", 32)
+local map = TileMap:new("test/my_map_data.lua",
+    "data/tileset_01.png", 32,
+    function(x, y, id) return x < 1500 and y < 1500 end
+)
 
 Game:implements({
     update = function(dt)
@@ -33,12 +36,12 @@ Game:implements({
         local camera = Game.camera
 
         if camera.x + (camera.desired_canvas_w) / camera.scale > map.max_x then
-            map:load_map(nil, function(x, y, id)
-                return x >= map.min_x
-                    and
-                    x < map.max_x + (camera.desired_canvas_w) / camera.scale * 0.1
-                    and y < 1500
-            end)
+            -- map:load_map(nil, function(x, y, id)
+            --     return x >= map.min_x
+            --         and
+            --         x < map.max_x + (camera.desired_canvas_w) / camera.scale * 0.1
+            --         and y < 1500
+            -- end)
         elseif map.min_x < camera.x then
             -- for j = 1, #map.cells_by_pos, 32 do
             --     local row = map.cells_by_pos[j]
@@ -51,14 +54,14 @@ Game:implements({
     end,
     draw = function(camera)
 
-        -- love.graphics.setColor(1, 0, 0, 1)
+        love.graphics.setColor(1, 0, 0, 1)
 
-        -- ---@type JM.TileMap.Cell
-        -- local cell = map.cells_by_pos[map.min_y][map.min_x]
+        ---@type JM.TileMap.Cell
+        local cell = map.cells_by_pos[map.min_y] and map.cells_by_pos[map.min_y][map.min_x]
 
-        -- if cell then
-        --     love.graphics.rectangle("fill", cell.x, cell.y, 32, 32)
-        -- end
+        if cell then
+            love.graphics.rectangle("fill", cell.x, cell.y, 32, 32)
+        end
     end,
     layers = {
         {

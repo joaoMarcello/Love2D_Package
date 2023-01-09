@@ -22,21 +22,24 @@ TileMap.__index = TileMap
 ---@param path_map string
 ---@param path_tileset string
 ---@param tile_size number
-function TileMap:new(path_map, path_tileset, tile_size)
+---@param filter function|nil
+---@return JM.TileMap
+function TileMap:new(path_map, path_tileset, tile_size, filter)
     local obj = setmetatable({}, self)
-    TileMap.__constructor__(obj, path_map, path_tileset, tile_size)
+    TileMap.__constructor__(obj, path_map, path_tileset, tile_size, filter)
     return obj
 end
 
 ---@param path_map string
 ---@param path_tileset string
 ---@param tile_size number
-function TileMap:__constructor__(path_map, path_tileset, tile_size)
+---@param filter function|nil
+function TileMap:__constructor__(path_map, path_tileset, tile_size, filter)
     self.tile_size = tile_size or 32
     self.tile_set = TileSet:new(path_tileset, self.tile_size)
     self.sprite_batch = love.graphics.newSpriteBatch(self.tile_set.img)
 
-    self:load_map(path_map, function(x, y) return x < 1500 and y < 1500 end)
+    self:load_map(path_map, filter)
 
     self.__bound_left = -math.huge
     self.__bound_top = -math.huge
@@ -53,8 +56,8 @@ function TileMap:load_map(path, filter)
     self.cells_by_pos = {}
 
     JM_Map_Filter = filter
-    map = dofile("test/my_map_data.lua")
-    JM_Map_Filter = nil
+    --JM_World_Region = "desert"
+    map = dofile(path)
 
     self.cells_by_pos = {}
     self.min_x = math.huge
