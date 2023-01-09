@@ -5,7 +5,7 @@ local Tile = require("/JM_love2d_package/modules/tile/tile")
 local TileSet = require("/JM_love2d_package/modules/tile/tile_set")
 local TileMap = require("/JM_love2d_package/modules/tile/tile_map")
 
-local Game = package.Scene:new(0, 0, 1366, nil, 32 * 29, 32 * 20)
+local Game = package.Scene:new(0, 0, 1366, nil, 32 * 20, 32 * 12)
 
 local tile_img = love.graphics.newImage("/data/tileset_01.png")
 
@@ -44,6 +44,22 @@ Game:implements({
     layers = {
         {
             draw = function(self, camera)
+                map:draw(camera)
+                map:draw(camera)
+                map:draw(camera)
+                map:draw(camera)
+                map:draw(camera)
+
+                map:draw(camera)
+                map:draw(camera)
+                map:draw(camera)
+                map:draw(camera)
+                map:draw(camera)
+
+                map:draw(camera)
+                map:draw(camera)
+                map:draw(camera)
+                map:draw(camera)
                 map:draw(camera)
             end
         },

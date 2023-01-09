@@ -9,16 +9,16 @@ if file then
 local map = {}
 local insert = table.insert
 
-local function Entry(cell)
-    insert(map, cell)
+local function Entry(x, y, id)
+    insert(map, {x=x, y=y, id=id})
 end
 
 ]]
     )
 
-    for j = 1, 20 do
-        for i = 1, 34 do
-            file:write(string.format("Entry {\n   x = %d,\n   y = %d,\n   id = %d\n}\n\n",
+    for j = 1, 256 do
+        for i = 1, 256 do
+            file:write(string.format("Entry(%d,%d,%d)\n",
                 32 * 30 + (i - 1) * tile_size,
                 32 * 10 + (j - 1) * tile_size,
                 math.random(9)
@@ -26,7 +26,7 @@ end
         end
     end
 
-    file:write("\nreturn map")
+    file:write("return map")
 
     file:close()
     print(">>> Done.\n")

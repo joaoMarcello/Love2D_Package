@@ -134,7 +134,7 @@ local function draw_with_bounds(self, left, top, right, bottom)
     love_set_color(1, 1, 1, 1)
     love_draw(self.sprite_batch)
 
-    Font:print("" .. #(self.tile_set.tiles), 32 * 15, 32 * 8)
+    Font:print("" .. (self.n_cells), 32 * 15, 32 * 8)
 end
 
 ---@param self JM.TileMap
@@ -162,13 +162,13 @@ function TileMap:draw(camera)
 
     if camera then
         draw_with_bounds(self,
-            camera.x + 32,
-            camera.y + 32,
-            camera:x_screen_to_world(camera.desired_canvas_w - 32),
-            camera:y_screen_to_world(camera.desired_canvas_h - 32)
+            camera.x,
+            camera.y,
+            camera:x_screen_to_world(camera.desired_canvas_w),
+            camera:y_screen_to_world(camera.desired_canvas_h)
         )
     else
-        draw_without_bounds(self)
+        --draw_without_bounds(self)
     end
 end
 
