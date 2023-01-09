@@ -56,7 +56,7 @@ function TileMap:load_map(path, filter)
     self.cells_by_pos = {}
 
     JM_Map_Filter = filter
-    --JM_World_Region = "desert"
+    JM_World_Region = { "beach", "desert" }
     map = dofile(path)
 
     self.cells_by_pos = {}

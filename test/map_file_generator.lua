@@ -4,7 +4,9 @@ local file = io.open("test/my_map_data.lua", "w")
 local tile_size = 32
 
 local world = {
-    { name = "desert", left = 32 * 30, top = 32 * 10, right = 32 * 30 + 32 * 10, bottom = 32 * 10 + 32 * 15, cells = {} }
+    { name = "desert", left = 32 * 30, top = 32 * 10, right = 32 * 30 + 32 * 10, bottom = 32 * 10 + 32 * 15, cells = {} },
+    { name = "beach", left = 32 * 30 + 32 * 10, top = 32 * 10, right = 32 * 30 + 32 * 10 + 32 * 20,
+        bottom = 32 * 10 + 32 * 15, cells = {} }
 }
 
 local function in_bounds(cell, region)
@@ -55,8 +57,8 @@ end
     local max_x = -math.huge
     local max_y = -math.huge
 
-    for j = 1, 40, 1 do
-        for i = 1, 40, 1 do
+    for j = 1, 256, 1 do
+        for i = 1, 256, 1 do
             local x = 32 * 30 + (i - 1) * tile_size
             local y = 32 * 10 + (j - 1) * tile_size
             local id = math.random(9)
@@ -88,19 +90,23 @@ end
         end
     end
 
-    -- for i = 1, #(cells) do
-    --     local cell = cells[i]
 
-    --     file:write(string.format("Entry(%d,%d,%d)\n", cell.x, cell.y, cell.id))
-    -- end
+    local max_chunks = 5000
 
     for _, region in ipairs(world) do
-        file:write(string.format('if select_region("%s") then\n', region.name))
 
         local N = #region.cells
 
         if N > 0 then
+
             for i = 1, N do
+                if (i - 1) % max_chunks == 0 then
+                    if i ~= 1 then
+                        file:write("\nend")
+                    end
+                    file:write(string.format('\nif select_region("%s") then\n', region.name))
+                end
+
                 local cell = region.cells[i]
                 file:write(string.format("    Entry(%d,%d,%d)\n", cell.x, cell.y, cell.id))
             end
@@ -109,8 +115,14 @@ end
     end
 
     if #no_region_cells > 0 then
-        file:write('\nif not region then\n')
-        for _, cell in ipairs(no_region_cells) do
+        for i = 1, #no_region_cells do
+            if (i - 1) % max_chunks == 0 then
+                if i ~= 1 then
+                    file:write("\nend")
+                end
+                file:write('\nif not region then\n')
+            end
+            local cell = no_region_cells[i]
             file:write(string.format("    Entry(%d,%d,%d)\n", cell.x, cell.y, cell.id))
         end
         file:write("end")

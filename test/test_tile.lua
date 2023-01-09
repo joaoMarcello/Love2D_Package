@@ -14,8 +14,8 @@ local t1 = Tile:new("1", tile_img, 32 * 1, 32 * 1, 32)
 local set = TileSet:new("data/tileset_01.png", 32)
 
 local map = TileMap:new("test/my_map_data.lua",
-    "data/tileset_01.png", 32,
-    function(x, y, id) return x < 1500 and y < 1500 end
+    "data/tileset_01.png", 32
+-- function(x, y, id) return x < 1500 and y < 1500 end
 )
 
 Game:implements({
@@ -60,7 +60,7 @@ Game:implements({
         local cell = map.cells_by_pos[map.min_y] and map.cells_by_pos[map.min_y][map.min_x]
 
         if cell then
-            love.graphics.rectangle("fill", cell.x, cell.y, 32, 32)
+            love.graphics.rectangle("fill", 32 * 30, 32 * 10, 32, 32)
         end
     end,
     layers = {
