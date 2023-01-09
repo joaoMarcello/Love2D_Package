@@ -3,6 +3,9 @@ local file = io.open("test/my_map_data.lua", "w")
 
 local tile_size = 32
 
+local block_w = 10
+local block_h = 10
+
 if file then
     file:write(
         [[
