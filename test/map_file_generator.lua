@@ -5,8 +5,8 @@ local tile_size = 32
 
 local world = {
     { name = "desert", left = 32 * 30, top = 32 * 10, right = 32 * 30 + 32 * 10, bottom = 32 * 10 + 32 * 15, cells = {} },
-    { name = "beach", left = 32 * 30 + 32 * 10, top = 32 * 10, right = 32 * 30 + 32 * 10 + 32 * 20,
-        bottom = 32 * 10 + 32 * 15, cells = {} }
+    { name = "beach", left = 32 * 30 + 32 * 10, top = 32 * 10, right = 32 * 30 + 32 * 10 + 32 * 150,
+        bottom = 32 * 10 + 32 * 150, cells = {} }
 }
 
 local function in_bounds(cell, region)

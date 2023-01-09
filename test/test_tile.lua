@@ -62,6 +62,8 @@ Game:implements({
         if cell then
             love.graphics.rectangle("fill", 32 * 30, 32 * 10, 32, 32)
         end
+
+        love.graphics.rectangle("fill", 1280, 320, 32, 32)
     end,
     layers = {
         {
