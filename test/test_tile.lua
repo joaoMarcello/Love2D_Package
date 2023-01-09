@@ -29,6 +29,25 @@ Game:implements({
         elseif love.keyboard.isDown("up") then
             Game.camera:move(nil, -speed)
         end
+
+        local camera = Game.camera
+
+        if camera.x > map.max_x then
+            map:load_map(function(x, y, id)
+                return x > camera.x
+                    and
+                    x < camera.x + 32 * 3
+                    and y < 1500
+            end)
+        elseif map.min_x < camera.x then
+            -- for j = 1, #map.cells_by_pos, 32 do
+            --     local row = map.cells_by_pos[j]
+            --     if not row then break end
+            --     for i = 1, #row, 32 do
+            --         map.cells_by_pos[j][i] = nil
+            --     end
+            -- end
+        end
     end,
     draw = function(camera)
 
@@ -78,7 +97,7 @@ Game:implements({
 
         {
             draw = function(self, camera)
-                --Font:print(tostring(map.operations), 300, 330)
+                Font:print(tostring(map.n_cells), 300, 330)
             end,
             factor_x = -1, factor_y = -1
         }

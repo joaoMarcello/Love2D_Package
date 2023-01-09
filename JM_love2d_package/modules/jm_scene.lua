@@ -16,6 +16,7 @@ local love_draw = love.graphics.draw
 local set_shader = love.graphics.setShader
 local get_delta_time = love.timer.getDelta
 local love_mouse_position = love.mouse.getPosition
+local math_abs = math.abs
 
 ---@alias JM.Scene.Layer {draw:function, update:function, factor_x:number, factor_y:number, name:string, fixed_on_ground:boolean, fixed_on_ceil:boolean, top:number, bottom:number, shader:love.Shader, name:string}
 
@@ -544,7 +545,7 @@ function Scene:implements(param)
         end
 
         love.graphics.setScissor(self.x,
-            math.abs(self.h - self.dispositive_h),
+            math_abs(self.h - self.dispositive_h),
             self.w, self.h
         )
 
@@ -556,9 +557,6 @@ function Scene:implements(param)
         set_shader()
         set_blend_mode("alpha")
         love.graphics.setScissor()
-
-        -- set_color_draw(0, 0, 1, 1)
-        -- love.graphics.circle("fill", love.mouse.getX(), love.mouse.getY(), 5)
 
         temp = self.draw_foreground and self.draw_foreground()
     end

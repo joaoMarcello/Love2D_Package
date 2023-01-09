@@ -36,55 +36,36 @@ function TileMap:__constructor__(path_map, path_tileset, tile_size)
     self.tile_set = TileSet:new(path_tileset, self.tile_size)
     self.sprite_batch = love.graphics.newSpriteBatch(self.tile_set.img)
 
+    self:load_map(path_map, function(x, y) return x < 1500 and y < 1500 end)
+
+    self.__bound_left = -math.huge
+    self.__bound_top = -math.huge
+    self.__bound_right = math.huge
+    self.__bound_bottom = math.huge
+end
+
+---@param filter function|nil
+function TileMap:load_map(path, filter)
     -- will store each cell in path_map
-    self.map = {}
+    local map = {}
 
     -- also will store the cells but indexed by cell position
     self.cells_by_pos = {}
 
-    -- for j = 1, 20 do
-    --     for i = 1, 256 do
-    --         local cell = {
-    --             x = 32 * 30 + (i - 1) * self.tile_size,
-    --             y = 32 * 10 + (j - 1) * self.tile_size,
-    --             id = (math.random(9))
-    --         }
-
-    --         if cell.x > 32 * 40 and cell.x < 32 * 43 then
-    --             goto continue
-    --         end
-
-    --         table.insert(self.map, cell)
-    --         ::continue::
-    --     end
-    -- end
-
-    -- local f = assert(loadfile("test/my_map_data.lua"))
-    -- if f then
-    --     self.map = f()
-    -- end
-
-    self.map = dofile("test/my_map_data.lua")
-
-    -- table.sort(self.map,
-    --     ---@param a JM.TileMap.Cell
-    --     ---@param b JM.TileMap.Cell
-    --     function(a, b)
-    --         local wa = a.y * 5000 + a.x * 10
-    --         local wb = b.y * 5000 + b.x * 10
-    --         return wa < wb
-    --     end)
+    JM_Map_Filter = filter
+    map = dofile("test/my_map_data.lua")
+    JM_Map_Filter = nil
 
     self.cells_by_pos = {}
     self.min_x = math.huge
     self.min_y = math.huge
     self.max_x = -math.huge
     self.max_y = -math.huge
-    self.n_cells = #self.map
+    self.n_cells = #(map)
 
     for i = 1, self.n_cells do
         ---@type JM.TileMap.Cell
-        local cell = self.map[i]
+        local cell = map[i]
 
         self.cells_by_pos[cell.y] = self.cells_by_pos[cell.y] or {}
         local row = self.cells_by_pos[cell.y]
@@ -97,13 +78,8 @@ function TileMap:__constructor__(path_map, path_tileset, tile_size)
         self.max_y = cell.y > self.max_y and cell.y or self.max_y
     end
 
-    self.map = nil
+    map = nil
     collectgarbage()
-
-    self.__bound_left = -math.huge
-    self.__bound_top = -math.huge
-    self.__bound_right = math.huge
-    self.__bound_bottom = math.huge
 end
 
 ---@param self JM.TileMap
@@ -152,25 +128,25 @@ local function draw_with_bounds(self, left, top, right, bottom)
     -- Font:print("" .. (self.n_cells), 32 * 15, 32 * 8)
 end
 
----@param self JM.TileMap
-local function draw_without_bounds(self)
-    self.sprite_batch:clear()
+-- ---@param self JM.TileMap
+-- local function draw_without_bounds(self)
+--     self.sprite_batch:clear()
 
-    for i = 1, #(self.map) do
+--     for i = 1, #(self.map) do
 
-        ---@type JM.TileMap.Cell
-        local cell = self.map[i]
+--         ---@type JM.TileMap.Cell
+--         local cell = self.map[i]
 
-        local tile = self.tile_set:get_tile(cell.id)
+--         local tile = self.tile_set:get_tile(cell.id)
 
-        if tile then
-            self.sprite_batch:add(tile.quad, cell.x, cell.y)
-        end
-    end
+--         if tile then
+--             self.sprite_batch:add(tile.quad, cell.x, cell.y)
+--         end
+--     end
 
-    love_set_color(1, 1, 1, 1)
-    love_draw(self.sprite_batch)
-end
+--     love_set_color(1, 1, 1, 1)
+--     love_draw(self.sprite_batch)
+-- end
 
 ---@param self JM.TileMap
 local function bounds_changed(self, left, top, right, bottom)
