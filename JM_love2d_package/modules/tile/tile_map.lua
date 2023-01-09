@@ -59,7 +59,14 @@ function TileMap:__constructor__(path_map, path_tileset, tile_size)
     --     end
     -- end
 
+    -- local f = assert(loadfile("test/my_map_data.lua"))
+    -- if f then
+    --     self.map = f()
+    -- end
+
     self.map = dofile("test/my_map_data.lua")
+
+
 
     table.sort(self.map,
         ---@param a JM.TileMap.Cell

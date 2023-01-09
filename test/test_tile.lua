@@ -45,22 +45,28 @@ Game:implements({
         {
             draw = function(self, camera)
                 map:draw(camera)
-                map:draw(camera)
-                map:draw(camera)
-                map:draw(camera)
-                map:draw(camera)
+                -- map:draw(camera)
+                -- map:draw(camera)
+                -- map:draw(camera)
+                -- map:draw(camera)
 
-                map:draw(camera)
-                map:draw(camera)
-                map:draw(camera)
-                map:draw(camera)
-                map:draw(camera)
+                -- map:draw(camera)
+                -- map:draw(camera)
+                -- map:draw(camera)
+                -- map:draw(camera)
+                -- map:draw(camera)
 
-                map:draw(camera)
-                map:draw(camera)
-                map:draw(camera)
-                map:draw(camera)
-                map:draw(camera)
+                -- map:draw(camera)
+                -- map:draw(camera)
+                -- map:draw(camera)
+                -- map:draw(camera)
+                -- map:draw(camera)
+
+                -- map:draw(camera)
+                -- map:draw(camera)
+                -- map:draw(camera)
+                -- map:draw(camera)
+                -- map:draw(camera)
             end
         },
 
