@@ -16,8 +16,8 @@ end
 ]]
     )
 
-    for j = 1, 256 do
-        for i = 1, 256 do
+    for j = 300, 1, -1 do
+        for i = 300, 1, -1 do
             file:write(string.format("Entry(%d,%d,%d)\n",
                 32 * 30 + (i - 1) * tile_size,
                 32 * 10 + (j - 1) * tile_size,

@@ -19,9 +19,9 @@ Game:implements({
     update = function(dt)
         local speed = 32 * 7 * dt / Game.camera.scale
         if love.keyboard.isDown("left") then
-            Game.camera:set_position(Game.camera.x - speed)
+            Game.camera:move(-speed)
         elseif love.keyboard.isDown("right") then
-            Game.camera:set_position(Game.camera.x + speed)
+            Game.camera:move(speed)
         end
 
         if love.keyboard.isDown("down") then
@@ -45,6 +45,12 @@ Game:implements({
         {
             draw = function(self, camera)
                 map:draw(camera)
+                -- map:draw(camera)
+                -- map:draw(camera)
+                -- map:draw(camera)
+                -- map:draw(camera)
+
+                -- map:draw(camera)
                 -- map:draw(camera)
                 -- map:draw(camera)
                 -- map:draw(camera)

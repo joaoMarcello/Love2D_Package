@@ -66,16 +66,14 @@ function TileMap:__constructor__(path_map, path_tileset, tile_size)
 
     self.map = dofile("test/my_map_data.lua")
 
-
-
-    table.sort(self.map,
-        ---@param a JM.TileMap.Cell
-        ---@param b JM.TileMap.Cell
-        function(a, b)
-            local wa = a.y * 5000 + a.x * 10
-            local wb = b.y * 5000 + b.x * 10
-            return wa < wb
-        end)
+    -- table.sort(self.map,
+    --     ---@param a JM.TileMap.Cell
+    --     ---@param b JM.TileMap.Cell
+    --     function(a, b)
+    --         local wa = a.y * 5000 + a.x * 10
+    --         local wb = b.y * 5000 + b.x * 10
+    --         return wa < wb
+    --     end)
 
     self.cells_by_pos = {}
     self.min_x = math.huge
@@ -101,13 +99,22 @@ function TileMap:__constructor__(path_map, path_tileset, tile_size)
 
     self.map = nil
     collectgarbage()
+
+    self.__bound_left = -math.huge
+    self.__bound_top = -math.huge
+    self.__bound_right = math.huge
+    self.__bound_bottom = math.huge
 end
 
 ---@param self JM.TileMap
 local function draw_with_bounds(self, left, top, right, bottom)
-    self.sprite_batch:clear()
 
-    --local cx, cy = left, top
+    self.__bound_left = left
+    self.__bound_top = top
+    self.__bound_right = right
+    self.__bound_bottom = bottom
+
+    self.sprite_batch:clear()
 
     top = math_floor(top / self.tile_size) * self.tile_size
     top = clamp(top, self.min_y, top)
@@ -117,7 +124,7 @@ local function draw_with_bounds(self, left, top, right, bottom)
 
     for j = top, bottom, self.tile_size do
 
-        if left > self.max_x or top > self.max_y then break end
+        if left > self.max_x or top > self.max_y then goto end_function end
 
         for i = left, right, self.tile_size do
 
@@ -141,7 +148,8 @@ local function draw_with_bounds(self, left, top, right, bottom)
     love_set_color(1, 1, 1, 1)
     love_draw(self.sprite_batch)
 
-    Font:print("" .. (self.n_cells), 32 * 15, 32 * 8)
+    ::end_function::
+    -- Font:print("" .. (self.n_cells), 32 * 15, 32 * 8)
 end
 
 ---@param self JM.TileMap
@@ -164,16 +172,29 @@ local function draw_without_bounds(self)
     love_draw(self.sprite_batch)
 end
 
+---@param self JM.TileMap
+local function bounds_changed(self, left, top, right, bottom)
+    return left ~= self.__bound_left
+        or top ~= self.__bound_top
+        or right ~= self.__bound_right
+        or bottom ~= self.__bound_bottom
+end
+
 ---@param camera JM.Camera.Camera|nil
 function TileMap:draw(camera)
 
     if camera then
-        draw_with_bounds(self,
-            camera.x,
-            camera.y,
-            camera:x_screen_to_world(camera.desired_canvas_w),
-            camera:y_screen_to_world(camera.desired_canvas_h)
-        )
+        local left = camera.x + 32
+        local top = camera.y + 32
+        local right = camera:x_screen_to_world(camera.desired_canvas_w) - 32
+        local bottom = camera:y_screen_to_world(camera.desired_canvas_h) - 32
+
+        if bounds_changed(self, left, top, right, bottom) then
+            draw_with_bounds(self, left, top, right, bottom)
+        else
+            love_set_color(1, 1, 1, 1)
+            love_draw(self.sprite_batch)
+        end
     else
         --draw_without_bounds(self)
     end
