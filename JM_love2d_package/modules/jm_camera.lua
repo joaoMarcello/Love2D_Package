@@ -38,6 +38,10 @@ local function round(x)
     end
 end
 
+local function clamp(value, min, max)
+    return m_min(m_max(value, min), max)
+end
+
 local function rad2degr(value)
     return value * 180 / math.pi
 end
@@ -468,17 +472,17 @@ end
 
 ---@param self JM.Camera.Camera
 local function show_focus(self)
-    -- -- Focus guide lines
-    -- love_set_color(0, 0, 0, 0.2)
-    -- love_rect("fill",
-    --     self.viewport_x + self.focus_x / self.desired_scale,
-    --     self.viewport_y / self.desired_scale, 2, self.viewport_h
-    -- )
-    -- love_rect("fill", self.viewport_x / self.desired_scale,
-    --     self.viewport_y + self.focus_y / self.desired_scale,
-    --     self.viewport_w,
-    --     2
-    -- )
+    -- Focus guide lines
+    love_set_color(0, 0, 0, 0.02)
+    love_rect("fill",
+        self.viewport_x + self.focus_x,
+        self.viewport_y, 2, self.viewport_h
+    )
+    love_rect("fill", self.viewport_x,
+        self.viewport_y + self.focus_y,
+        self.viewport_w,
+        2
+    )
     --=============================================================
 
     if self.target then
@@ -488,7 +492,7 @@ local function show_focus(self)
             love_set_color(0, 0.8, 0, 1)
         else
             love_set_color(0, 0.8, 0,
-                0.7 + 0.5 * cos(self.debug_trgt_rad)
+                0.7 + 0.7 * cos(self.debug_trgt_rad)
             )
         end
 
@@ -519,9 +523,8 @@ local function show_focus(self)
     )
 
     local scl = self.scale
-    --local des_scl = 1 --self.desired_scale
-    local corner_esp = 4 --/ des_scl --espessura
-    local corner_length = 16 --/ des_scl
+    local corner_esp = 4
+    local corner_length = 16
 
     if self:target_on_focus() then
         love_set_color(1, 1, 1, 1)
@@ -825,6 +828,7 @@ function Camera:__constructor__(
     self.debug = true
     self.debug_msg_rad = 0
     self.debug_trgt_rad = 0
+    self.debug_color = {}
 
     -- only used if showing the grid
     self.grid_desired_tile = nil
@@ -1306,7 +1310,7 @@ end
 
 ---@param self JM.Camera.Camera
 local function debbug(self)
-    if not self.debug then return end
+    --if not self.debug then return end
 
     -- -- printing some useful information
     -- do
@@ -1340,176 +1344,99 @@ local function debbug(self)
     -- end
     --===================================================================
 
-    -- --Drawing a yellow rectangle
-    -- if not self:hit_border() then
-    --     love_set_color(1, 1, 0, 1)
-    -- else
-    --     love_set_color(1, 1, 0, 0.3)
-    -- end
-    -- local border_len = self.tile_size * self.scale
-    -- local vx, vy, vw, vh = self:get_viewport_in_real_coord()
-    -- do
-    --     love.graphics.rectangle("line",
-    --         self.viewport_x + border_len,
-    --         self.viewport_y + border_len,
-    --         self.viewport_w / self.desired_scale - border_len * 2,
-    --         self.viewport_h / self.desired_scale - border_len * 2
-    --     )
+    --Drawing a yellow rectangle
+    if not self:hit_border() then
+        love_set_color(1, 1, 0, 1)
+    else
+        love_set_color(1, 1, 0, 0.3)
+    end
+    local border_len = self.tile_size * self.scale * self.desired_scale
+    do
+        love.graphics.rectangle("line",
+            self.viewport_x + border_len,
+            self.viewport_y + border_len,
+            self.viewport_w - border_len * 2,
+            self.viewport_h - border_len * 2
+        )
 
-    --     -- Top-Middle
-    --     love.graphics.line(
-    --         self.viewport_x + self.viewport_w / 2 / self.desired_scale,
-    --         self.viewport_y,
-    --         self.viewport_x + self.viewport_w / 2 / self.desired_scale,
-    --         self.viewport_y + border_len
-    --     )
+        -- Top-Middle
+        love.graphics.line(
+            self.viewport_x + self.viewport_w / 2,
+            self.viewport_y,
+            self.viewport_x + self.viewport_w / 2,
+            self.viewport_y + border_len
+        )
 
-    --     --Bottom-Middle
-    --     love.graphics.line(
-    --         self.viewport_x + self.viewport_w / 2 / self.desired_scale,
-    --         self.viewport_y + self.viewport_h / self.desired_scale - border_len,
-    --         self.viewport_x + self.viewport_w / 2 / self.desired_scale,
-    --         self.viewport_y + self.viewport_h / self.desired_scale
-    --     )
+        --Bottom-Middle
+        love.graphics.line(
+            self.viewport_x + self.viewport_w / 2,
+            self.viewport_y + self.viewport_h - border_len,
+            self.viewport_x + self.viewport_w / 2,
+            self.viewport_y + self.viewport_h
+        )
 
-    --     --Left-Middle
-    --     love.graphics.line(
-    --         self.viewport_x,
-    --         self.viewport_y + self.viewport_h / 2 / self.desired_scale,
-    --         self.viewport_x + border_len,
-    --         self.viewport_y + self.viewport_h / 2 / self.desired_scale
-    --     )
+        --Left-Middle
+        love.graphics.line(
+            self.viewport_x,
+            self.viewport_y + self.viewport_h / 2,
+            self.viewport_x + border_len,
+            self.viewport_y + self.viewport_h / 2
+        )
 
-    --     love.graphics.line(
-    --         self.viewport_x + self.viewport_w / self.desired_scale - border_len,
-    --         self.viewport_y + self.viewport_h / 2 / self.desired_scale,
-    --         self.viewport_x + self.viewport_w / self.desired_scale,
-    --         self.viewport_y + self.viewport_h / 2 / self.desired_scale
-    --     )
-    -- end
-    -- --===========================================================
+        love.graphics.line(
+            self.viewport_x + self.viewport_w - border_len,
+            self.viewport_y + self.viewport_h / 2,
+            self.viewport_x + self.viewport_w,
+            self.viewport_y + self.viewport_h / 2
+        )
+    end
+    --===========================================================
 
-    -- -- Showing the current state
-    -- local r, g, b, a
-    -- r, g, b, a = 1, 0, 0, 1
+    -- Showing the current state
+    local r, g, b, a
+    r, g, b, a = 1, 0, 0, 1
 
-    -- love_set_color(r, g, b, a)
-    -- love_push()
-    -- love_translate(self.viewport_x / self.desired_scale, self.viewport_y / self.desired_scale)
-    -- love_scale(0.5, 0.5)
-    -- love.graphics.print(self:get_state(),
-    --     (self.viewport_x + (border_len + 5) * self.desired_scale),
-    --     self.viewport_y + (border_len + 25) * self.desired_scale
-    -- )
-    -- love_pop()
+    local Font = _G.JM_Font
 
-    -- -- Showing the message DEBUG MODE
-    -- self.debug_msg_rad = self.debug_msg_rad
-    --     + (math.pi * 2) / 0.5
-    --     * love.timer.getDelta()
-    -- love_set_color(1, 0, 0, 0.7 + 0.5 * cos(self.debug_msg_rad))
-    -- love.graphics.print("DEBUG MODE",
-    --     self.viewport_x + border_len + 5,
-    --     self.viewport_y + border_len + 5
-    -- )
+    love_set_color(r, g, b, a)
+
+    if Font then
+        Font.current:push()
+        Font.current:set_font_size(clamp(round(12 * self.scale), 10, 14))
+        Font:printf(("<color, %f, %f, %f, %f>"):format(r, g, b, a) .. self:get_state(),
+            self.viewport_x + border_len + 2,
+            self.viewport_y + self.viewport_h - border_len - 20)
+        Font.current:pop()
+
+        -- Showing the message DEBUG MODE
+        self.debug_msg_rad = self.debug_msg_rad
+            + (math.pi * 2) / 3
+            * love.timer.getDelta()
+
+        local alfa = 0.7 + 0.8 * math.cos(self.debug_msg_rad)
+
+        Font.current:push()
+        self.debug_color[1] = 1
+        self.debug_color[2] = 0
+        self.debug_color[3] = 0
+        self.debug_color[4] = alfa
+        Font.current:set_color(self.debug_color)
+        Font:print("DEBUG MODE",
+            self.viewport_x + self.viewport_w - border_len - 100,
+            self.viewport_y + border_len + 10
+        )
+        Font.current:pop()
+    end
+
 
     -- r, g, b, a = nil, nil, nil, nil
 end
-
--- local function perfect_pixel_attach(self)
---     self.last_canvas = love_get_canvas()
---     self.last_blend_mode = love_get_blend_mode()
---     self.last_scissor = { love.graphics.getScissor() }
-
---     love_set_canvas(self.canvas)
---     love_set_blend_mode("alpha")
---     love_set_color(1, 1, 1, 1)
---     love_clear(0, 0, 0, 0)
-
---     local r
-
---     -- r = self.color and love_clear(self:get_color())
-
---     love_push()
---     local s = 1 --(self.scale < 1 and 2) or 1
---     love_scale(s, s)
-
---     love_translate(
---         -self.x + ((self.shaking_in_x and self.shake_offset_x or 0)),
---         -self.y + ((self.shaking_in_y and self.shake_offset_y or 0))
---     )
-
---     r = nil
--- end
 
 function Camera:set_shader(shader)
     self.shader = shader
 end
 
--- ---@param self JM.Camera.Camera
--- local function perfect_pixel_detach(self)
---     local r
---     -- r = self.is_showing_grid and draw_grid(self)
---     r = self.show_world_boundary and draw_world_boundary(self)
-
---     love_pop()
-
---     love_set_canvas(self.last_canvas)
-
---     love.graphics.setShader(self.shader)
-
---     love_set_scissor(
---         self.viewport_x * self.desired_scale,
---         self.viewport_y * self.desired_scale,
---         self.viewport_w,
---         self.viewport_h
---     )
-
-
---     local s = 1 --(self.scale < 1 and 2) or 1
---     love_set_color(1, 1, 1, 1)
---     love_set_blend_mode("alpha", "premultiplied")
---     love_push()
-
-
---     love_translate(
---         self.viewport_x * self.desired_scale,
---         self.viewport_y * self.desired_scale
---     )
-
---     love_scale(self.scale / s, self.scale / s)
---     -- love.graphics.rotate(self.angle)
---     love_draw(self.canvas, 0, 0, 0,
---         self.desired_scale, self.desired_scale
---     )
-
---     love_pop()
-
---     love.graphics.setShader()
-
---     -- love_push()
---     -- love_scale(self.desired_scale, self.desired_scale)
---     -- love_set_blend_mode("alpha")
---     -- love_set_color(1, 1, 1, 1)
---     -- r = self.show_focus and show_focus(self)
---     -- debbug(self)
---     -- r = self.border_color and show_border(self)
---     -- love_pop()
-
---     love_set_scissor()
---     --========================================================================
-
---     love_set_blend_mode(self.last_blend_mode)
---     -- love_set_canvas(self.last_canvas)
---     love_set_scissor(unpack(self.last_scissor))
-
---     self.last_blend_mode, self.last_canvas, self.last_scissor = nil, nil, nil
-
---     r = nil
--- end
-
----@param self JM.Camera.Camera
-local function normal_attach(self)
+function Camera:attach()
     love_set_scissor(
         round(self.viewport_x),
         round(self.viewport_y),
@@ -1527,39 +1454,20 @@ local function normal_attach(self)
         -self.y + (self.viewport_y / self.desired_scale / self.scale)
         + ((self.shaking_in_y and self.shake_offset_y or 0))
     )
-
 end
 
----@param self JM.Camera.Camera
-local function normal_detach(self)
+function Camera:detach()
     local r
     -- r = self.is_showing_grid and draw_grid(self)
     r = self.show_world_boundary and draw_world_boundary(self)
     love_pop()
 
 
-    love_push()
-    --love_scale(self.desired_scale, self.desired_scale)
-    -- debbug(self)
+    if self.debug then debbug(self) end
     r = self.show_focus and show_focus(self)
     r = self.border_color and show_border(self)
-    love_pop()
 
     love_set_scissor()
-end
-
-function Camera:attach()
-    normal_attach(self)
-    -- perfect_pixel_attach(self)
-end
-
-function Camera:detach()
-    normal_detach(self)
-    -- perfect_pixel_detach(self)
-end
-
-local clamp = function(value, min, max)
-    return m_min(m_max(value, min), max)
 end
 
 function Camera:scissor_transform(x, y, w, h)
