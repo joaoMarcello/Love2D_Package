@@ -6,6 +6,40 @@ local TileSet = require("/JM_love2d_package/modules/tile/tile_set")
 local TileMap = require("/JM_love2d_package/modules/tile/tile_map")
 
 local Game = package.Scene:new(0, 0, 1366, nil, 32 * 20, 32 * 12)
+do
+    Game:add_camera({
+        -- camera's viewport
+        x = Game.screen_w * 0.5,
+        y = Game.screen_h * 0,
+        w = Game.screen_w * 0.5,
+        h = Game.screen_h * 0.5,
+
+        color = { 153 / 255, 217 / 255, 234 / 255, 1 },
+        scale = 0.6,
+
+        type = "metroid",
+        show_grid = true,
+        show_world_bounds = true
+    }, "blue")
+    Game:get_camera("main"):set_viewport(nil, nil, Game.screen_w * 0.5, Game.screen_h)
+    Game.camera.focus_x = Game.screen_w * 0.5
+    Game:add_camera({
+        -- camera's viewport
+        x = Game.screen_w * 0.5,
+        y = Game.screen_h * 0.5,
+        w = Game.screen_w * 0.5,
+        h = Game.screen_h * 0.5,
+
+        color = { 255 / 255, 174 / 255, 201 / 255, 1 },
+        scale = 0.5,
+
+        type = "metroid",
+        show_grid = true,
+        grid_tile_size = 32 * 4,
+        show_world_bounds = true
+    }, "pink")
+end
+
 
 local tile_img = love.graphics.newImage("/data/tileset_01.png")
 
@@ -18,20 +52,27 @@ local map = TileMap:new("test/my_map_data.lua",
 -- function(x, y, id) return x < 1500 and y < 1500 end
 )
 
+
 Game:implements({
     update = function(dt)
-        local speed = 32 * 7 * dt / Game.camera.scale
-        if love.keyboard.isDown("left") then
-            Game.camera:move(-speed)
-        elseif love.keyboard.isDown("right") then
-            Game.camera:move(speed)
+
+        for _, camera in ipairs(Game.cameras_list) do
+
+            local speed = 32 * 7 * dt / camera.scale
+
+            if love.keyboard.isDown("left") then
+                camera:move(-speed)
+            elseif love.keyboard.isDown("right") then
+                camera:move(speed)
+            end
+
+            if love.keyboard.isDown("down") then
+                camera:move(nil, speed)
+            elseif love.keyboard.isDown("up") then
+                camera:move(nil, -speed)
+            end
         end
 
-        if love.keyboard.isDown("down") then
-            Game.camera:move(nil, speed)
-        elseif love.keyboard.isDown("up") then
-            Game.camera:move(nil, -speed)
-        end
 
         local camera = Game.camera
 
@@ -47,13 +88,7 @@ Game:implements({
         if map.min_x < camera.x and not Game.__load_beach then
             map:load_map(nil, "beach", true)
             Game.__load_beach = true
-            -- for j = 1, #map.cells_by_pos, 32 do
-            --     local row = map.cells_by_pos[j]
-            --     if not row then break end
-            --     for i = 1, #row, 32 do
-            --         map.cells_by_pos[j][i] = nil
-            --     end
-            -- end
+
         end
     end,
     draw = function(camera)
@@ -70,6 +105,15 @@ Game:implements({
         love.graphics.rectangle("fill", 1280, 320, 32, 32)
     end,
     layers = {
+        {
+            draw = function(self, camera)
+                love.graphics.setColor(0.4, 0.4, 0.4, 1)
+                love.graphics.rectangle("fill", 0, 0, camera.viewport_w,
+                    camera.viewport_h)
+            end,
+            factor_x = -1,
+            factor_y = -1
+        },
         {
             draw = function(self, camera)
                 map:draw(camera)

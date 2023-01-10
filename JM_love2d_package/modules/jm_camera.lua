@@ -382,6 +382,9 @@ end
 
 ---@param self JM.Camera.Camera
 local function draw_world_boundary(self)
+    do
+        return
+    end
     local tile = self.tile_size
     local qx = (self.bounds_right - self.bounds_left) / self.tile_size
     local qy = (self.bounds_bottom - self.bounds_top) / self.tile_size
@@ -423,33 +426,44 @@ local function draw_world_boundary(self)
         )
     end
 
-    -- Drawing bottom limit
-    love_line(self.bounds_left,
-        self.bounds_bottom,
-        self.bounds_right,
-        self.bounds_bottom
-    )
+    do
+        return
+    end
+    do
+        -- Drawing bottom limit
+        love_line(self.bounds_left,
+            self.bounds_bottom,
+            self.bounds_right,
+            self.bounds_bottom
+        )
 
-    -- Draw top limit
-    love_line(self.bounds_left,
-        self.bounds_top,
-        self.bounds_right,
-        self.bounds_top
-    )
+        -- Draw top limit
+        love_line(self.bounds_left,
+            self.bounds_top,
+            self.bounds_right,
+            self.bounds_top
+        )
 
-    -- Draw left limit
-    love_line(self.bounds_left,
-        self.bounds_top,
-        self.bounds_left,
-        self.bounds_bottom
-    )
+        -- Draw left limit
+        love_line(self.bounds_left,
+            self.bounds_top,
+            self.bounds_left,
+            self.bounds_bottom
+        )
 
-    -- Draw right limit
-    love_line(self.bounds_right,
-        self.bounds_top,
-        self.bounds_right,
-        self.bounds_bottom
-    )
+        -- Draw right limit
+        love_line(self.bounds_right,
+            self.bounds_top,
+            self.bounds_right,
+            self.bounds_bottom
+        )
+    end
+end
+
+---@param self JM.Camera.Camera
+local function draw_bounds(self)
+    local tile = self.tile_size
+    local qx = 2
 end
 
 ---@param self JM.Camera.Camera
@@ -1520,7 +1534,7 @@ end
 local function normal_detach(self)
     local r
     -- r = self.is_showing_grid and draw_grid(self)
-    --r = self.show_world_boundary and draw_world_boundary(self)
+    r = self.show_world_boundary and draw_world_boundary(self)
     love_pop()
 
     love_push()

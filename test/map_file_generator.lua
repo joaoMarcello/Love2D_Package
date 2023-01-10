@@ -72,8 +72,8 @@ end
     local max_x = -math.huge
     local max_y = -math.huge
 
-    for j = 1, 20, 1 do
-        for i = 1, 20, 1 do
+    for j = 1, 256, 1 do
+        for i = 1, 256, 1 do
             local x = 32 * 30 + (i - 1) * tile_size
             local y = 32 * 10 + (j - 1) * tile_size
             local id = math.random(9)
@@ -106,7 +106,7 @@ end
     end
 
 
-    local max_chunks = 7000
+    local max_chunks = 6500
 
     for _, region in ipairs(world) do
 

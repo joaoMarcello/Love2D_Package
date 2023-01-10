@@ -107,9 +107,9 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
     self.tile_size_y = 32
 
     self.world_left = -32 * 0
-    self.world_right = 32 * 50
+    self.world_right = 32 * 200
     self.world_top = -32 * 0
-    self.world_bottom = 32 * 25
+    self.world_bottom = 32 * 200
 
     do
         -- main camera's default configuration
@@ -142,7 +142,7 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
 
             border_color = { 1, 1, 0, 1 },
 
-            scale = 1.0,
+            scale = 0.6,
 
             type = "",
 

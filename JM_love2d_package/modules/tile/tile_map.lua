@@ -146,8 +146,9 @@ function TileMap:draw(camera)
     if camera then
         local left = camera.x + 32
         local top = camera.y + 32
-        local right = camera:x_screen_to_world(camera.desired_canvas_w) - 32
-        local bottom = camera:y_screen_to_world(camera.desired_canvas_h) - 32
+        -- local right = camera:x_screen_to_world(camera.desired_canvas_w)- 32
+        local right = camera:x_screen_to_world(camera.viewport_w / camera.desired_scale) - 32
+        local bottom = camera:y_screen_to_world(camera.viewport_h / camera.desired_scale) - 32
 
         if bounds_changed(self, left, top, right, bottom) then
             draw_with_bounds(self, left, top, right, bottom)
