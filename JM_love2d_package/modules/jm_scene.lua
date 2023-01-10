@@ -142,7 +142,7 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
 
             border_color = { 1, 1, 0, 1 },
 
-            scale = 1.0,
+            scale = 1,
 
             type = "",
 
@@ -214,6 +214,8 @@ function Scene:add_camera(config, name)
 
     camera.viewport_x = camera.viewport_x + (self.x) / camera.desired_scale
     camera.viewport_y = camera.viewport_y + (self.y) / camera.desired_scale
+    camera:set_bounds()
+
     --camera:set_viewport(nil, nil, nil, self.screen_h - self.y / camera.desired_scale)
     -- camera:set_viewport(nil, nil, self.screen_w / camera.desired_scale, nil)
 

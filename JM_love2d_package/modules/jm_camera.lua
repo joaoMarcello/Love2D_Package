@@ -618,21 +618,20 @@ end
 local function show_border(self)
     -- Drawind a border in the camera's viewport
     love_set_color(self.border_color)
-    love_rect("fill",
-        self.viewport_x,
-        self.viewport_y,
-        2,
-        self.viewport_h * self.scale)
 
-    love_rect("fill", self.viewport_x + self.viewport_w / self.desired_scale - 2, self.viewport_y, 2,
-        self.viewport_h * self.scale)
+    local vx, vy, vw, vh = self:get_viewport_in_real_coord()
 
-    love_rect("fill", self.viewport_x, self.viewport_y, self.viewport_w * self.scale, 2)
+    -- left
+    love_rect("fill", vx, vy, 2, vh)
 
-    love_rect("fill", self.viewport_x,
-        self.viewport_y + self.viewport_h / self.desired_scale - 2,
-        self.viewport_w * self.scale,
-        2)
+    -- Right
+    love_rect("fill", vx + vw - 2, self.viewport_y, 2, vh)
+
+    -- Top
+    love_rect("fill", vx, vy, vw, 2)
+
+    -- Bottom
+    love_rect("fill", vx, vy + vh * self.scale - 10, vw, 10)
 end
 
 ---@param self JM.Camera.Camera
@@ -944,6 +943,13 @@ function Camera:get_viewport_in_world_coord()
     local vw, vh = self:screen_to_world(self.viewport_w / self.desired_scale, self.viewport_h / self.desired_scale)
 
     return self.x, self.y, vw, vh
+end
+
+function Camera:get_viewport_in_real_coord()
+    local vx, vy = self.viewport_x * self.scale,
+        self.viewport_y * self.scale
+
+    return vx, vy, self.desired_canvas_w, self.desired_canvas_h
 end
 
 -- function Camera:screen_to_screen(x, y)
@@ -1345,6 +1351,7 @@ local function debbug(self)
     --     love_set_color(1, 1, 0, 0.3)
     -- end
     -- local border_len = self.tile_size * self.scale
+    -- local vx, vy, vw, vh = self:get_viewport_in_real_coord()
     -- do
     --     love.graphics.rectangle("line",
     --         self.viewport_x + border_len,
@@ -1534,12 +1541,11 @@ local function normal_detach(self)
     r = self.show_world_boundary and draw_world_boundary(self)
     love_pop()
 
+
     love_push()
     love_scale(self.desired_scale, self.desired_scale)
-    -- love_set_blend_mode("alpha")
-    -- love_set_color(1, 1, 1, 1)
-    r = self.show_focus and show_focus(self)
-    debbug(self)
+    -- r = self.show_focus and show_focus(self)
+    -- debbug(self)
     r = self.border_color and show_border(self)
     love_pop()
 

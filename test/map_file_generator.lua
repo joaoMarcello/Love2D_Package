@@ -72,8 +72,8 @@ end
     local max_x = -math.huge
     local max_y = -math.huge
 
-    for j = 1, 16 * 16, 1 do
-        for i = 1, 16 * 16, 1 do
+    for j = 1, 16 * 5, 1 do
+        for i = 1, 16 * 5, 1 do
             local x = 32 * 30 + (i - 1) * tile_size
             local y = 32 * 10 + (j - 1) * tile_size
             local id = math.random(9)

@@ -7,39 +7,39 @@ local TileMap = require("/JM_love2d_package/modules/tile/tile_map")
 
 local Game = package.Scene:new(0, 0, 1366, 768, 32 * 24, 32 * 16)
 
--- do
---     Game:add_camera({
---         -- camera's viewport
---         x = Game.screen_w * 0.5,
---         y = Game.screen_h * 0,
---         w = Game.screen_w * 0.5,
---         h = Game.screen_h * 0.5,
+do
+    Game:add_camera({
+        -- camera's viewport
+        x = Game.screen_w * 0.5,
+        y = Game.screen_h * 0,
+        w = Game.screen_w * 0.5,
+        h = Game.screen_h * 0.5,
 
---         color = { 153 / 255, 217 / 255, 234 / 255, 1 },
---         scale = 0.6,
+        color = { 153 / 255, 217 / 255, 234 / 255, 1 },
+        scale = 0.6,
 
---         type = "metroid",
---         show_grid = true,
---         show_world_bounds = true
---     }, "blue")
---     Game:get_camera("main"):set_viewport(nil, nil, Game.screen_w * 0.5, Game.screen_h)
---     Game.camera.focus_x = Game.screen_w * 0.5
---     Game:add_camera({
---         -- camera's viewport
---         x = Game.screen_w * 0.5,
---         y = Game.screen_h * 0.5,
---         w = Game.screen_w * 0.5,
---         h = Game.screen_h * 0.5,
+        type = "metroid",
+        show_grid = true,
+        show_world_bounds = true
+    }, "blue")
+    Game:get_camera("main"):set_viewport(nil, nil, Game.screen_w * 0.5, Game.screen_h)
+    Game.camera.focus_x = Game.screen_w * 0.5
+    Game:add_camera({
+        -- camera's viewport
+        x = Game.screen_w * 0.5,
+        y = Game.screen_h * 0.5,
+        w = Game.screen_w * 0.5,
+        h = Game.screen_h * 0.5,
 
---         color = { 255 / 255, 174 / 255, 201 / 255, 1 },
---         scale = 0.5,
+        color = { 255 / 255, 174 / 255, 201 / 255, 1 },
+        scale = 0.5,
 
---         type = "metroid",
---         show_grid = true,
---         grid_tile_size = 32 * 4,
---         show_world_bounds = true
---     }, "pink")
--- end
+        type = "metroid",
+        show_grid = true,
+        grid_tile_size = 32 * 4,
+        show_world_bounds = true
+    }, "pink")
+end
 
 
 local tile_img = love.graphics.newImage("/data/tileset_01.png")
