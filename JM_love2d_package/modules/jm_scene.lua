@@ -142,7 +142,7 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
 
             border_color = { 1, 1, 0, 1 },
 
-            scale = 0.5,
+            scale = 1.0,
 
             type = "",
 
@@ -463,9 +463,9 @@ function Scene:implements(param)
     end
 
     self.draw = function(self)
-        set_canvas(self.canvas)
-        set_blend_mode("alpha")
-        set_color_draw(1, 1, 1, 1)
+        -- set_canvas(self.canvas)
+        -- set_blend_mode("alpha")
+        -- set_color_draw(1, 1, 1, 1)
 
         love.graphics.setScissor(self.x, self.y, self.w, self.h)
         if self:get_color() then
@@ -548,7 +548,6 @@ function Scene:implements(param)
             math_abs(self.h - self.dispositive_h),
             self.w, self.h
         )
-
         set_canvas()
         set_color_draw(1, 1, 1, 1)
         set_shader(self.shader)

@@ -1039,6 +1039,8 @@ do
 
     function World:__constructor__(args)
         self.tile = 32
+        self.cellsize = 32
+
         self.meter = self.tile * 3.5
         self.gravity = 9.8 * self.meter
         self.max_speed_y = self.meter * 15.0
