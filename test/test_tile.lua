@@ -36,13 +36,17 @@ Game:implements({
         local camera = Game.camera
 
         if camera.x + (camera.desired_canvas_w) / camera.scale > map.max_x then
+
             -- map:load_map(nil, function(x, y, id)
             --     return x >= map.min_x
             --         and
             --         x < map.max_x + (camera.desired_canvas_w) / camera.scale * 0.1
             --         and y < 1500
             -- end)
-        elseif map.min_x < camera.x then
+        end
+        if map.min_x < camera.x and not Game.__load_beach then
+            map:load_map(nil, "beach", true)
+            Game.__load_beach = true
             -- for j = 1, #map.cells_by_pos, 32 do
             --     local row = map.cells_by_pos[j]
             --     if not row then break end

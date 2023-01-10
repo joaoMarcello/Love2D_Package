@@ -34,12 +34,13 @@ end
 ---@param path_tileset string
 ---@param tile_size number
 ---@param filter function|nil
-function TileMap:__constructor__(path_map, path_tileset, tile_size, filter)
+function TileMap:__constructor__(path_map, path_tileset, tile_size, filter, regions)
+    self.path = path_map
     self.tile_size = tile_size or 32
     self.tile_set = TileSet:new(path_tileset, self.tile_size)
     self.sprite_batch = love.graphics.newSpriteBatch(self.tile_set.img)
 
-    self:load_map(path_map, filter)
+    self:load_map(filter, regions)
 
     self.__bound_left = -math.huge
     self.__bound_top = -math.huge
@@ -48,41 +49,21 @@ function TileMap:__constructor__(path_map, path_tileset, tile_size, filter)
 end
 
 ---@param filter function|nil
-function TileMap:load_map(path, filter)
-    -- will store each cell in path_map
-    local map = {}
+function TileMap:load_map(filter, regions, keep)
 
-    -- also will store the cells but indexed by cell position
-    self.cells_by_pos = {}
-
+    JM_Map_Cells = keep and self.cells_by_pos or nil
     JM_Map_Filter = filter
-    JM_World_Region = { "beach", "desert" }
-    map = dofile(path)
+    JM_World_Region = regions or { "desert" }
+    local data = dofile(self.path)
 
-    self.cells_by_pos = {}
-    self.min_x = math.huge
-    self.min_y = math.huge
-    self.max_x = -math.huge
-    self.max_y = -math.huge
-    self.n_cells = #(map)
+    -- will store the cells indexed by cell position
+    self.cells_by_pos = data.cells
 
-    for i = 1, self.n_cells do
-        ---@type JM.TileMap.Cell
-        local cell = map[i]
-
-        self.cells_by_pos[cell.y] = self.cells_by_pos[cell.y] or {}
-        local row = self.cells_by_pos[cell.y]
-        row[cell.x] = cell
-
-        self.min_x = cell.x < self.min_x and cell.x or self.min_x
-        self.min_y = cell.y < self.min_y and cell.y or self.min_y
-
-        self.max_x = cell.x > self.max_x and cell.x or self.max_x
-        self.max_y = cell.y > self.max_y and cell.y or self.max_y
-    end
-
-    map = nil
-    collectgarbage()
+    self.min_x = data.min_x
+    self.min_y = data.min_y
+    self.max_x = data.max_x
+    self.max_y = data.max_y
+    self.n_cells = data.n_cells
 end
 
 ---@param self JM.TileMap

@@ -1,12 +1,12 @@
-math.randomseed(os.time())
+--math.randomseed(os.time())
 local file = io.open("test/my_map_data.lua", "w")
 
 local tile_size = 32
 
 local world = {
     { name = "desert", left = 32 * 30, top = 32 * 10, right = 32 * 30 + 32 * 10, bottom = 32 * 10 + 32 * 15, cells = {} },
-    { name = "beach", left = 32 * 30 + 32 * 10, top = 32 * 10, right = 32 * 30 + 32 * 10 + 32 * 150,
-        bottom = 32 * 10 + 32 * 150, cells = {} }
+    { name = "beach", left = 32 * 30 + 32 * 10, top = 32 * 10, right = 32 * 30 + 32 * 10 + 32 * 20,
+        bottom = 32 * 10 + 32 * 20, cells = {} }
 }
 
 local function in_bounds(cell, region)
@@ -19,18 +19,33 @@ end
 if file then
     file:write(
         [[
-local map = {}
-local insert = table.insert
-
 _G.JM_Map_Filter = _G.JM_Map_Filter or nil
-local filter = _G.JM_Map_Filter or function(x,y,id) return true end
+local filter = _G.JM_Map_Filter or function(x, y, id) return true end
 
 _G.JM_World_Region = _G.JM_World_Region or nil
 local region = _G.JM_World_Region
 
+_G.JM_Map_Cells = _G.JM_Map_Cells or {}
+local cells = _G.JM_Map_Cells or {}
+
+local min_x = math.huge
+local min_y = min_x
+local max_x = -min_x
+local max_y = -min_x
+local n_cells = 0
+
 local function Entry(x,y,id)
     if filter(x,y,id) then
-        insert(map,{x=x,y=y,id=id})
+        n_cells = n_cells + 1
+
+        cells[y] = cells[y] or {}
+        cells[y][x] = { x = x, y = y, id = id }
+
+        min_x = x < min_x and x or min_x
+        min_y = y < min_y and y or min_y
+
+        max_x = x > max_x and x or max_x
+        max_y = y > max_y and y or max_y
     end
 end
 
@@ -130,7 +145,8 @@ end
 
     file:write("\n_G.JM_Map_Filter = nil")
     file:write("\n_G.JM_World_Region = nil")
-    file:write("\nreturn map")
+    file:write("\n_G.JM_Map_Cells = nil")
+    file:write("\nreturn { cells = cells, min_x = min_x, min_y = min_y, max_x = max_x, max_y = max_y, n_cells = n_cells }")
 
     file:close()
     print(">>> Done.\n")
