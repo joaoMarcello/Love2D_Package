@@ -322,12 +322,15 @@ local function draw_grid(self)
     local qy = mceil(vh / tile)
 
     love_set_color(0, 0, 0, 0.05)
-    for x = mfloor(vx / tile), qx * tile, tile do
+    for x = mfloor(self.x / tile) + 32 * 4, (qx) * tile, tile do
+        -- if (x) / (tile) == 0 then love_set_color(0, 0, 0, 1)
+        -- else love_set_color(0, 0, 0, 0.05) end
+
         love_line(x, vy, x, vy + vh)
     end
 
     for y = mfloor(vy / tile), qy * tile, tile do
-        love_line(vx, y, vx + vw, y)
+        --love_line(vx, y, vx + vw, y)
     end
 end
 
@@ -1362,8 +1365,8 @@ function Camera:detach()
     love_pop()
 
 
-    --if self.debug then debbug(self) end
-    --r = self.show_focus and show_focus(self)
+    if self.debug then debbug(self) end
+    r = self.show_focus and show_focus(self)
     r = self.border_color and show_border(self)
 
     love_set_scissor()

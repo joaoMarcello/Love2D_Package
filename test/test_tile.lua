@@ -62,9 +62,9 @@ Game:implements({
             local speed = 32 * 7 * dt / camera.scale
 
             if love.keyboard.isDown("left") then
-                camera:move(-speed)
+                camera:move(-3)
             elseif love.keyboard.isDown("right") then
-                camera:move(speed)
+                camera:move(3)
             end
 
             if love.keyboard.isDown("down") then
@@ -87,7 +87,7 @@ Game:implements({
             -- end)
         end
         if map.min_x < camera.x and not Game.__load_beach then
-            map:load_map(nil, { "desert", "beach" }, nil)
+            --map:load_map(nil, { "desert", "beach" }, nil)
             Game.__load_beach = true
 
         end
