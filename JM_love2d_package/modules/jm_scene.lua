@@ -107,9 +107,9 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
     self.tile_size_y = 32
 
     self.world_left = -32 * 0
-    self.world_right = 32 * 60
+    self.world_right = 32 * 500
     self.world_top = -32 * 0
-    self.world_bottom = 32 * 60
+    self.world_bottom = 32 * 500
 
     do
         -- main camera's default configuration
@@ -465,11 +465,11 @@ function Scene:implements(param)
     end
 
     self.draw = function(self)
-        set_canvas(self.canvas)
-        set_blend_mode("alpha")
-        set_color_draw(1, 1, 1, 1)
+        -- set_canvas(self.canvas)
+        -- set_blend_mode("alpha")
+        -- set_color_draw(1, 1, 1, 1)
 
-        love.graphics.setScissor(self.x, self.y, self.w, self.h)
+        love.graphics.setScissor(self.x, self.y, self.w, self.h - math_abs(self.h - self.dispositive_h))
         if self:get_color() then
             clear_screen(self:get_color())
         else
@@ -546,18 +546,18 @@ function Scene:implements(param)
             camera = nil
         end
 
-        love.graphics.setScissor(self.x,
-            math_abs(self.h - self.dispositive_h),
-            self.w, self.h
-        )
-        set_canvas()
-        set_color_draw(1, 1, 1, 1)
-        set_shader(self.shader)
-        set_blend_mode("alpha", "premultiplied")
-        love_draw(self.canvas)
-        set_shader()
-        set_blend_mode("alpha")
-        love.graphics.setScissor()
+        -- love.graphics.setScissor(self.x,
+        --     math_abs(self.h - self.dispositive_h),
+        --     self.w, self.h
+        -- )
+        -- set_canvas()
+        -- set_color_draw(1, 1, 1, 1)
+        -- set_shader(self.shader)
+        -- set_blend_mode("alpha", "premultiplied")
+        -- love_draw(self.canvas)
+        -- set_shader()
+        -- set_blend_mode("alpha")
+        -- love.graphics.setScissor()
 
         temp = self.draw_foreground and self.draw_foreground()
     end

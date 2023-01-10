@@ -30,7 +30,7 @@ local function round(value)
 end
 
 local m = 250
-local Game = Screen:new(32, 32, 1366 - 32, 768 - 32, 32 * 20, 32 * 12)
+local Game = Screen:new(32, 32, 1366 - 64, 768 - 32, 32 * 20, 32 * 12)
 
 Game:add_camera({
     -- camera's viewport

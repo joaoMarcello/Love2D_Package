@@ -317,71 +317,18 @@ end
 ---@param self JM.Camera.Camera
 local function draw_grid(self)
     local tile = self.grid_desired_tile
-    local jump = mfloor(self.grid_desired_tile / self.tile_size)
-    local qx = (self.bounds_right - self.bounds_left) / tile * jump
-    local qy = (self.bounds_bottom - self.bounds_top) / tile * jump
+    local vx, vy, vw, vh = self:get_viewport_in_world_coord()
+    local qx = mceil(vw / tile)
+    local qy = mceil(vh / tile)
 
-    love_set_color(1, 1, 1, 0.3)
-    for i = 0, qx - 1, jump do
-        love_line(
-            self.tile_size * (i),
-            self.bounds_top,
-            self.tile_size * (i),
-            self.bounds_bottom
-        )
-    end
-    for i = 0, qy - 1, jump do
-        love_line(
-            self.bounds_left,
-            self.bounds_top + self.tile_size * (i),
-            self.bounds_right,
-            self.bounds_top + self.tile_size * (i)
-        )
+    love_set_color(0, 0, 0, 0.05)
+    for x = mfloor(vx / tile), qx * tile, tile do
+        love_line(x, vy, x, vy + vh)
     end
 
-    love_set_color(0, 0, 0, 1)
-
-    -- Drawing x-axis
-    love_line(self.bounds_left,
-        0,
-        self.bounds_right - self.bounds_left,
-        0
-    )
-
-end
-
-local function capture_grid(self, tile)
-    self.is_showing_grid = true
-    self.grid_desired_tile = tile or self.tile_size
-
-    -- self.grid_canvas = love.graphics.newCanvas(
-    --     self.bounds_right - self.bounds_left,
-    --     self.bounds_bottom - self.bounds_top
-    -- )
-
-    -- local mode
-    -- mode = love.graphics.getBlendMode()
-    -- love.graphics.setCanvas(self.grid_canvas)
-    -- love.graphics.setBlendMode("alpha")
-    -- draw_grid(self)
-    -- love_set_color(0, 0, 0, 1)
-
-    -- -- Drawing x-axis
-    -- love_line(self.bounds_left,
-    --     -self.bounds_top,
-    --     self.bounds_right - self.bounds_left,
-    --     -self.bounds_top
-    -- )
-    -- -- Drawing y-axis
-    -- love_line(-self.bounds_left,
-    --     self.bounds_top,
-    --     -self.bounds_left,
-    --     self.bounds_bottom - self.bounds_top
-    -- )
-
-    -- love.graphics.setCanvas()
-    -- love.graphics.setBlendMode(mode)
-    -- mode = nil
+    for y = mfloor(vy / tile), qy * tile, tile do
+        love_line(vx, y, vx + vw, y)
+    end
 end
 
 ---@param self JM.Camera.Camera
@@ -787,15 +734,13 @@ function Camera:__constructor__(
     self.debug_trgt_rad = 0
     self.debug_color = {}
 
-    -- only used if showing the grid
-    self.grid_desired_tile = nil
-    self.is_showing_grid = nil
-    self.grid_canvas = nil
-    if allow_grid then capture_grid(self, grid_tile_size or self.tile_size) end
 
     self.show_world_boundary = show_world_bounds or self.debug
     self.show_focus = false or self.debug
     self.border_color = border_color or { 1, 0, 0, 1 }
+    self.is_showing_grid = self.debug
+    -- only used if showing the grid
+    self.grid_desired_tile = self.tile_size * 1
 
 
     -- self:shake_in_x(nil, self.tile_size * 2 / 4, nil, 7.587)
@@ -1412,8 +1357,8 @@ end
 
 function Camera:detach()
     local r
-    -- r = self.is_showing_grid and draw_grid(self)
-    r = self.show_world_boundary and draw_bounds(self)
+    r = (self.is_showing_grid or true) and draw_grid(self)
+    r = (self.show_world_boundary or true) and draw_bounds(self)
     love_pop()
 
 
