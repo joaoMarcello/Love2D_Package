@@ -72,8 +72,8 @@ end
     local max_x = -math.huge
     local max_y = -math.huge
 
-    for j = 1, 256, 1 do
-        for i = 1, 256, 1 do
+    for j = 1, 20, 1 do
+        for i = 1, 20, 1 do
             local x = 32 * 30 + (i - 1) * tile_size
             local y = 32 * 10 + (j - 1) * tile_size
             local id = math.random(9)
@@ -106,7 +106,7 @@ end
     end
 
 
-    local max_chunks = 5000
+    local max_chunks = 7000
 
     for _, region in ipairs(world) do
 
@@ -123,7 +123,7 @@ end
                 end
 
                 local cell = region.cells[i]
-                file:write(string.format("    Entry(%d,%d,%d)\n", cell.x, cell.y, cell.id))
+                file:write(string.format("Entry(%d,%d,%d)\n", cell.x, cell.y, cell.id))
             end
             file:write("end")
         end
@@ -138,7 +138,7 @@ end
                 file:write('\nif not region then\n')
             end
             local cell = no_region_cells[i]
-            file:write(string.format("    Entry(%d,%d,%d)\n", cell.x, cell.y, cell.id))
+            file:write(string.format("Entry(%d,%d,%d)\n", cell.x, cell.y, cell.id))
         end
         file:write("end")
     end

@@ -1520,7 +1520,7 @@ end
 local function normal_detach(self)
     local r
     -- r = self.is_showing_grid and draw_grid(self)
-    r = self.show_world_boundary and draw_world_boundary(self)
+    --r = self.show_world_boundary and draw_world_boundary(self)
     love_pop()
 
     love_push()

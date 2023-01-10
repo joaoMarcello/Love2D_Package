@@ -107,9 +107,9 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
     self.tile_size_y = 32
 
     self.world_left = -32 * 0
-    self.world_right = 32 * 200
+    self.world_right = 32 * 50
     self.world_top = -32 * 0
-    self.world_bottom = 32 * 200
+    self.world_bottom = 32 * 25
 
     do
         -- main camera's default configuration
@@ -463,9 +463,9 @@ function Scene:implements(param)
     end
 
     self.draw = function(self)
-        -- set_canvas(self.canvas)
-        -- set_blend_mode("alpha")
-        -- set_color_draw(1, 1, 1, 1)
+        set_canvas(self.canvas)
+        set_blend_mode("alpha")
+        set_color_draw(1, 1, 1, 1)
 
         love.graphics.setScissor(self.x, self.y, self.w, self.h)
         if self:get_color() then

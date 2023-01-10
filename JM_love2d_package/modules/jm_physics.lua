@@ -1039,7 +1039,7 @@ do
 
     function World:__constructor__(args)
         self.tile = 32
-        self.cellsize = 32
+        self.cellsize = self.tile * 1
 
         self.meter = self.tile * 3.5
         self.gravity = 9.8 * self.meter
@@ -1056,7 +1056,7 @@ do
     end
 
     function World:to_cell(x, y)
-        return mfloor(x / self.tile) + 1, mfloor(y / self.tile) + 1
+        return mfloor(x / self.cellsize) + 1, mfloor(y / self.cellsize) + 1
     end
 
     function World:count_Cells()
@@ -1071,8 +1071,8 @@ do
 
     function World:rect_to_cell(x, y, w, h)
         local cleft, ctop = self:to_cell(x, y)
-        local cright = mceil((x + w) / self.tile)
-        local cbottom = mceil((y + h) / self.tile)
+        local cright = mceil((x + w) / self.cellsize)
+        local cbottom = mceil((y + h) / self.cellsize)
 
         return cleft, ctop, cright - cleft + 1, cbottom - ctop + 1
     end
