@@ -1039,7 +1039,7 @@ do
 
     function World:__constructor__(args)
         self.tile = 32
-        self.cellsize = self.tile * 1
+        self.cellsize = self.tile * 2
 
         self.meter = self.tile * 3.5
         self.gravity = 9.8 * self.meter
