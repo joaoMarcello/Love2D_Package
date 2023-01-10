@@ -24,9 +24,9 @@ TileMap.__index = TileMap
 ---@param tile_size number
 ---@param filter function|nil
 ---@return JM.TileMap
-function TileMap:new(path_map, path_tileset, tile_size, filter)
+function TileMap:new(path_map, path_tileset, tile_size, filter, regions)
     local obj = setmetatable({}, self)
-    TileMap.__constructor__(obj, path_map, path_tileset, tile_size, filter)
+    TileMap.__constructor__(obj, path_map, path_tileset, tile_size, filter, regions)
     return obj
 end
 
@@ -53,7 +53,7 @@ function TileMap:load_map(filter, regions, keep)
 
     JM_Map_Cells = keep and self.cells_by_pos or nil
     JM_Map_Filter = filter
-    JM_World_Region = regions or { "desert" }
+    JM_World_Region = regions --or { "desert" }
     local data = dofile(self.path)
 
     -- will store the cells indexed by cell position
@@ -144,11 +144,14 @@ end
 function TileMap:draw(camera)
 
     if camera then
-        local left = camera.x + 32
-        local top = camera.y + 32
-        -- local right = camera:x_screen_to_world(camera.desired_canvas_w)- 32
-        local right = camera:x_screen_to_world(camera.viewport_w / camera.desired_scale) - 32
-        local bottom = camera:y_screen_to_world(camera.viewport_h / camera.desired_scale) - 32
+        -- local left = camera.x + 32
+        -- local top = camera.y + 32
+        -- local right = camera:x_screen_to_world(camera.viewport_w / camera.desired_scale) - 32
+        -- local bottom = camera:y_screen_to_world(camera.viewport_h / camera.desired_scale) - 32
+
+        local left, top, right, bottom = camera:get_viewport_in_world_coord()
+        left, top = left + 32, top + 32
+        right, bottom = right - 32, bottom - 32
 
         if bounds_changed(self, left, top, right, bottom) then
             draw_with_bounds(self, left, top, right, bottom)
