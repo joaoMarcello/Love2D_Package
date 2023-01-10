@@ -7,39 +7,39 @@ local TileMap = require("/JM_love2d_package/modules/tile/tile_map")
 
 local Game = package.Scene:new(0, 0, 1366, 768, 32 * 24, 32 * 16)
 
-do
-    Game:add_camera({
-        -- camera's viewport
-        x = Game.screen_w * 0.5,
-        y = Game.screen_h * 0,
-        w = Game.screen_w * 0.5,
-        h = Game.screen_h * 0.5,
+-- do
+--     Game:add_camera({
+--         -- camera's viewport
+--         x = Game.screen_w * 0.5,
+--         y = Game.screen_h * 0,
+--         w = Game.screen_w * 0.5,
+--         h = Game.screen_h * 0.5,
 
-        color = { 153 / 255, 217 / 255, 234 / 255, 1 },
-        scale = 0.6,
+--         color = { 153 / 255, 217 / 255, 234 / 255, 1 },
+--         scale = 0.6,
 
-        type = "metroid",
-        show_grid = true,
-        show_world_bounds = true
-    }, "blue")
-    Game:get_camera("main"):set_viewport(nil, nil, Game.screen_w * 0.5, Game.screen_h)
-    Game.camera.focus_x = Game.screen_w * 0.5
-    Game:add_camera({
-        -- camera's viewport
-        x = Game.screen_w * 0.5,
-        y = Game.screen_h * 0.5,
-        w = Game.screen_w * 0.5,
-        h = Game.screen_h * 0.5,
+--         type = "metroid",
+--         show_grid = true,
+--         show_world_bounds = true
+--     }, "blue")
+--     Game:get_camera("main"):set_viewport(nil, nil, Game.screen_w * 0.5, Game.screen_h)
+--     Game.camera.focus_x = Game.screen_w * 0.5
+--     Game:add_camera({
+--         -- camera's viewport
+--         x = Game.screen_w * 0.5,
+--         y = Game.screen_h * 0.5,
+--         w = Game.screen_w * 0.5,
+--         h = Game.screen_h * 0.5,
 
-        color = { 255 / 255, 174 / 255, 201 / 255, 1 },
-        scale = 0.5,
+--         color = { 255 / 255, 174 / 255, 201 / 255, 1 },
+--         scale = 0.5,
 
-        type = "metroid",
-        show_grid = true,
-        grid_tile_size = 32 * 4,
-        show_world_bounds = true
-    }, "pink")
-end
+--         type = "metroid",
+--         show_grid = true,
+--         grid_tile_size = 32 * 4,
+--         show_world_bounds = true
+--     }, "pink")
+-- end
 
 
 local tile_img = love.graphics.newImage("/data/tileset_01.png")
@@ -49,7 +49,7 @@ local t1 = Tile:new("1", tile_img, 32 * 1, 32 * 1, 32)
 local set = TileSet:new("data/tileset_01.png", 32)
 
 local map = TileMap:new("test/my_map_data.lua",
-    "data/tileset_01.png", 32, nil, "desert"
+    "data/tileset_01.png", 32, nil, nil
 -- function(x, y, id) return x < 1500 and y < 1500 end
 )
 
@@ -87,7 +87,7 @@ Game:implements({
             -- end)
         end
         if map.min_x < camera.x and not Game.__load_beach then
-            map:load_map(nil, "beach", true)
+            map:load_map(nil, { "desert", "beach" }, nil)
             Game.__load_beach = true
 
         end

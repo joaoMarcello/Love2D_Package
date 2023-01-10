@@ -831,7 +831,7 @@ Game:implements(
             end
 
             if cam_pink then
-                cam_pink:follow(rec:get_cx(), rec:get_cy())
+                cam_pink:follow(ship:get_cx(), ship:get_cy())
             end
 
             if cam_blue then

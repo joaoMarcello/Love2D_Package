@@ -385,89 +385,46 @@ local function capture_grid(self, tile)
 end
 
 ---@param self JM.Camera.Camera
-local function draw_world_boundary(self)
-    -- do
-    --     return
-    -- end
-    -- local tile = self.tile_size
-    -- local qx = (self.bounds_right - self.bounds_left) / self.tile_size
-    -- local qy = (self.bounds_bottom - self.bounds_top) / self.tile_size
-
-    -- love_set_color(0, 0, 0, 1)
-    -- for i = 1, qx - 2 do
-    --     -- Top
-    --     love_line(
-    --         self.bounds_left + tile * i + tile * 0.25,
-    --         self.bounds_top + tile,
-    --         self.bounds_left + tile * i + tile * 0.75,
-    --         self.bounds_top + tile
-    --     )
-
-    --     -- Bottom
-    --     love_line(
-    --         self.bounds_left + tile * i + tile * 0.25,
-    --         self.bounds_bottom - tile,
-    --         self.bounds_left + tile * i + tile * 0.75,
-    --         self.bounds_bottom - tile
-    --     )
-    -- end
-
-    -- for i = 1, qy - 2 do
-    --     -- Left
-    --     love_line(
-    --         self.bounds_left + tile,
-    --         self.bounds_top + tile * i,
-    --         self.bounds_left + tile,
-    --         self.bounds_top + tile * i + tile * 0.5
-    --     )
-
-    --     -- Right
-    --     love_line(
-    --         self.bounds_right - tile,
-    --         self.bounds_top + tile * i,
-    --         self.bounds_right - tile,
-    --         self.bounds_top + tile * i + tile * 0.5
-    --     )
-    -- end
-
-    -- do
-    --     return
-    -- end
-    -- do
-    --     -- Drawing bottom limit
-    --     love_line(self.bounds_left,
-    --         self.bounds_bottom,
-    --         self.bounds_right,
-    --         self.bounds_bottom
-    --     )
-
-    --     -- Draw top limit
-    --     love_line(self.bounds_left,
-    --         self.bounds_top,
-    --         self.bounds_right,
-    --         self.bounds_top
-    --     )
-
-    --     -- Draw left limit
-    --     love_line(self.bounds_left,
-    --         self.bounds_top,
-    --         self.bounds_left,
-    --         self.bounds_bottom
-    --     )
-
-    --     -- Draw right limit
-    --     love_line(self.bounds_right,
-    --         self.bounds_top,
-    --         self.bounds_right,
-    --         self.bounds_bottom
-    --     )
-    -- end
-end
-
----@param self JM.Camera.Camera
 local function draw_bounds(self)
     local tile = self.tile_size
-    local qx = 2
+    local vx, vy, vw, vh = self:get_viewport_in_world_coord()
+    local qx = mceil(vw / tile)
+    local qy = mceil(vh / tile)
+
+    love_set_color(0, 0, 0, 1)
+    for i = mfloor(vx / tile) + tile, (qx) * tile, tile do
+        -- TOP
+        love_line(
+            i,
+            self.bounds_top + tile,
+            i + tile * 0.5,
+            self.bounds_top + tile
+        )
+
+        -- BOTTOM
+        love_line(
+            i,
+            self.bounds_bottom - tile,
+            i + tile * 0.5,
+            self.bounds_bottom - tile
+        )
+    end
+
+    for j = mfloor(vy / tile) + tile, (qy) * tile, tile do
+        love_line(
+            self.bounds_left + tile,
+            j,
+            self.bounds_left + tile,
+            j + tile * 0.5
+        )
+
+        love_line(
+            self.bounds_right - tile,
+            j,
+            self.bounds_right - tile,
+            j + tile * 0.5
+        )
+    end
 end
 
 ---@param self JM.Camera.Camera
@@ -1348,7 +1305,7 @@ local function debbug(self)
     if not self:hit_border() then
         love_set_color(1, 1, 0, 1)
     else
-        love_set_color(1, 1, 0, 0.3)
+        love_set_color(1, 1, 0, 0.2)
     end
     local border_len = self.tile_size * self.scale * self.desired_scale
     do
@@ -1403,7 +1360,7 @@ local function debbug(self)
     if Font then
         Font.current:push()
         Font.current:set_font_size(clamp(round(12 * self.scale), 10, 14))
-        Font:printf(("<color, %f, %f, %f, %f>"):format(r, g, b, a) .. self:get_state(),
+        Font:print(("<color, %f, %f, %f, %f>"):format(r, g, b, a) .. self:get_state(),
             self.viewport_x + border_len + 2,
             self.viewport_y + self.viewport_h - border_len - 20)
         Font.current:pop()
@@ -1416,20 +1373,17 @@ local function debbug(self)
         local alfa = 0.7 + 0.8 * math.cos(self.debug_msg_rad)
 
         Font.current:push()
-        self.debug_color[1] = 1
-        self.debug_color[2] = 0
-        self.debug_color[3] = 0
-        self.debug_color[4] = alfa
-        Font.current:set_color(self.debug_color)
+        -- self.debug_color[1] = 1
+        -- self.debug_color[2] = 0
+        -- self.debug_color[3] = 0
+        -- self.debug_color[4] = alfa
+        Font.current:set_color({ 1, 0, 0, alfa })
         Font:print("DEBUG MODE",
             self.viewport_x + self.viewport_w - border_len - 100,
             self.viewport_y + border_len + 10
         )
         Font.current:pop()
     end
-
-
-    -- r, g, b, a = nil, nil, nil, nil
 end
 
 function Camera:set_shader(shader)
@@ -1459,12 +1413,12 @@ end
 function Camera:detach()
     local r
     -- r = self.is_showing_grid and draw_grid(self)
-    r = self.show_world_boundary and draw_world_boundary(self)
+    r = self.show_world_boundary and draw_bounds(self)
     love_pop()
 
 
-    if self.debug then debbug(self) end
-    r = self.show_focus and show_focus(self)
+    --if self.debug then debbug(self) end
+    --r = self.show_focus and show_focus(self)
     r = self.border_color and show_border(self)
 
     love_set_scissor()
