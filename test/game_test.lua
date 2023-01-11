@@ -266,8 +266,8 @@ local rects = {
     { x = 32 * 16, y = 32 * 7, w = 32 * 4, h = 32 * 3 },
     { x = 32 * 20, y = 32 * 4, w = 32 * 4, h = 32 * 3 },
     { x = 32 * 24, y = 32 * 1, w = 32 * 4, h = 32 * 3 },
-    { x = -2, y = Game.world_top, w = 1, h = Game.world_bottom - Game.world_top },
-    { x = 0, y = Game.world_bottom, w = Game.world_right - Game.world_left, h = 2 }
+    -- { x = -2, y = Game.world_top, w = 1, h = Game.world_bottom - Game.world_top },
+    -- { x = 0, y = Game.world_bottom, w = Game.world_right - Game.world_left, h = 2 }
 }
 
 local function check_collision(x, y, w, h)

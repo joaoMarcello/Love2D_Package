@@ -74,8 +74,8 @@ end
 
     for j = 1, 16 * 5, 1 do
         for i = 1, 16 * 5, 1 do
-            local x = 0 + (i - 1) * tile_size
-            local y = 0 + (j - 1) * tile_size
+            local x = 32 * 20 + (i - 1) * tile_size
+            local y = 32 * 10 + (j - 1) * tile_size
             local id = math.random(9)
             local cell = { x = x, y = y, id = id }
 

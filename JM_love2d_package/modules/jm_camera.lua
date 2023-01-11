@@ -318,19 +318,20 @@ end
 local function draw_grid(self)
     local tile = self.grid_desired_tile
     local vx, vy, vw, vh = self:get_viewport_in_world_coord()
-    local qx = mceil(vw / tile)
-    local qy = mceil(vh / tile)
+    local qx = mceil((self.bounds_right - self.bounds_left) / tile)
+    local qy = mceil((self.bounds_bottom - self.bounds_top) / tile)
 
     love_set_color(0, 0, 0, 0.05)
-    for x = mfloor(self.x / tile) + 32 * 4, (qx) * tile, tile do
-        -- if (x) / (tile) == 0 then love_set_color(0, 0, 0, 1)
-        -- else love_set_color(0, 0, 0, 0.05) end
-
-        love_line(x, vy, x, vy + vh)
+    for i = mfloor(self.x / tile) + 2, qx do
+        local px = tile * i
+        if px > self.x + self.viewport_w / self.desired_scale / self.scale - 32 then break end
+        love_line(px, self.y + 32, px, self.y + self.viewport_h / self.desired_scale / self.scale - 32)
     end
 
-    for y = mfloor(vy / tile), qy * tile, tile do
-        --love_line(vx, y, vx + vw, y)
+    for j = mfloor(self.y / tile) + 2, qy do
+        local py = tile * j
+        if py > self.y + self.viewport_h / self.desired_scale / self.scale - 32 then break end
+        love_line(self.x + 32, py, self.x + self.viewport_w / self.desired_scale / self.scale - 32, py)
     end
 end
 
@@ -851,6 +852,7 @@ function Camera:set_viewport(x, y, w, h)
     self:set_bounds()
 end
 
+--- Returns left, top, right and bottom!!!
 function Camera:get_viewport_in_world_coord()
     local vw, vh = self:screen_to_world(self.viewport_w / self.desired_scale, self.viewport_h / self.desired_scale)
 
@@ -1035,7 +1037,7 @@ function Camera:set_bounds(left, right, top, bottom)
         self.bounds_right = self.bounds_left + self.viewport_w / self.scale
     end
 
-    if self.bounds_bottom - self.bounds_top < self.viewport_h / self.scale then
+    if self.bounds_bottom - self.bounds_top < self.viewport_h / self.desired_scale / self.scale then
         self.bounds_bottom = self.bounds_top + self.viewport_h / self.scale / self.desired_scale
         -- self.bounds_top = self.bounds_bottom - self.viewport_h / self.scale / self.desired_scale
     end
