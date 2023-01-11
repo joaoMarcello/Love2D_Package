@@ -327,9 +327,9 @@ local function draw_grid(self)
         if px > vx + vw then break end
 
         if px % (tile * 4) == 0 then
-            love_set_color(0, 0, 0, 0.15)
+            love_set_color(0, 0, 0, 0.3)
         else
-            love_set_color(0, 0, 0, 0.05)
+            love_set_color(0, 0, 0, 0.1)
         end
 
         love_line(px, vy, px, vy + vh)
@@ -339,7 +339,7 @@ local function draw_grid(self)
         local py = tile * j
         if py > vy + vh then break end
         if py % (tile * 4) == 0 then
-            love_set_color(0, 0, 0, 0.2)
+            love_set_color(0, 0, 0, 0.3)
         else
             love_set_color(0, 0, 0, 0.1)
         end
@@ -1401,13 +1401,13 @@ end
 function Camera:detach()
     local r
     r = (self.is_showing_grid or true) and draw_grid(self)
-    r = (self.show_world_boundary or true) and draw_bounds(self)
+    --r = (self.show_world_boundary or true) and draw_bounds(self)
     love_pop()
 
 
-    if self.debug then debbug(self) end
-    r = self.show_focus and show_focus(self)
-    r = self.border_color and show_border(self)
+    --if self.debug then debbug(self) end
+    --r = self.show_focus and show_focus(self)
+    --r = self.border_color and show_border(self)
 
     love_set_scissor()
 end

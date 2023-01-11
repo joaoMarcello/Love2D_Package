@@ -465,9 +465,9 @@ function Scene:implements(param)
     end
 
     self.draw = function(self)
-        -- set_canvas(self.canvas)
-        -- set_blend_mode("alpha")
-        -- set_color_draw(1, 1, 1, 1)
+        --set_canvas(self.canvas)
+        set_blend_mode("alpha")
+        set_color_draw(1, 1, 1, 1)
 
         love.graphics.setScissor(self.x, self.y, self.w, self.h - math_abs(self.h - self.dispositive_h))
         if self:get_color() then
@@ -486,14 +486,6 @@ function Scene:implements(param)
 
             ---@type JM.Camera.Camera
             camera = self.cameras_list[i]
-
-            -- set_color_draw(camera:get_color())
-            -- love.graphics.rectangle("fill",
-            --     camera.viewport_x * camera.desired_scale,
-            --     camera.viewport_y * camera.desired_scale,
-            --     camera.viewport_w,
-            --     camera.viewport_h
-            -- )
 
             if param.layers then
                 for i = 1, self.n_layers, 1 do
@@ -538,6 +530,9 @@ function Scene:implements(param)
             end
 
             if param.draw then
+                -- set_blend_mode("alpha")
+                -- set_color_draw(1, 1, 1, 1)
+
                 camera:attach()
                 r = param.draw and param.draw(camera)
                 camera:detach()
