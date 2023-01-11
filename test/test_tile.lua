@@ -112,6 +112,7 @@ Game:implements({
                 -- love.graphics.rectangle("fill", 0, 0,
                 --     (camera.viewport_w) / camera.desired_scale / camera.scale,
                 --     (camera.viewport_h) / camera.desired_scale / camera.scale)
+                Font:printf("Hello World!", 32 * 3, 32 * 5, "left")
             end,
             factor_x = -1,
             factor_y = -1

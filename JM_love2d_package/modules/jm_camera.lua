@@ -773,7 +773,7 @@ function Camera:__constructor__(
     self.type = type_ or CAMERA_TYPES.SuperMarioWorld
     self:set_type(self.type)
 
-    self.debug = true
+    self.debug = false
     self.debug_msg_rad = 0
     self.debug_trgt_rad = 0
     self.debug_color = {}
@@ -1352,7 +1352,7 @@ local function debbug(self)
     if Font then
         Font.current:push()
         Font.current:set_font_size(clamp(round(12 * self.scale), 10, 14))
-        Font:print(("<color, %f, %f, %f, %f>"):format(r, g, b, a) .. self:get_state(),
+        Font:print(("<color, %.1f, %.1f, %.1f, %.1f>"):format(r, g, b, a) .. self:get_state(),
             self.viewport_x + border_len + 2,
             self.viewport_y + self.viewport_h - border_len - 20)
         Font.current:pop()

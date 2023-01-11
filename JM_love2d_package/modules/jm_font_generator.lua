@@ -210,20 +210,20 @@ local results_get_config = setmetatable({}, { __mode = 'kv' })
 
 ---@return {font_size: number, character_space: number, color: JM.Color, line_space: number, word_space: number, tab_size: number, format: JM.Font.FormatOptions }
 function Font:__get_configuration()
-    local index = "" ..
-        self.__font_size ..
-        self.__character_space
-        .. (self.__default_color[1])
-        .. (self.__default_color[2])
-        .. (self.__default_color[3])
-        -- .. (self.__default_color[4])
-        .. self.__line_space
-        --.. self.__word_space
-        --.. self.__tab_size
-        .. self.__format
+    -- local index = "" ..
+    --     self.__font_size ..
+    --     self.__character_space
+    --     .. (self.__default_color[1])
+    --     .. (self.__default_color[2])
+    --     .. (self.__default_color[3])
+    --     -- .. (self.__default_color[4])
+    --     .. self.__line_space
+    --     --.. self.__word_space
+    --     --.. self.__tab_size
+    --     .. self.__format
 
-    local result = results_get_config[self] and results_get_config[self][index]
-    if result then return result end
+    -- local result = results_get_config[self] and results_get_config[self][index]
+    -- if result then return result end
 
     local config = {}
     config.font_size = self.__font_size
@@ -234,8 +234,8 @@ function Font:__get_configuration()
     config.tab_size = self.__tab_size
     config.format = self.__format
 
-    results_get_config[self] = results_get_config[self] or setmetatable({}, { __mode = 'v' })
-    results_get_config[self][index] = config
+    -- results_get_config[self] = results_get_config[self] or setmetatable({}, { __mode = 'v' })
+    -- results_get_config[self][index] = config
 
     return config
 end

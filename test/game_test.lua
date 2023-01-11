@@ -266,7 +266,7 @@ local rects = {
     { x = 32 * 16, y = 32 * 7, w = 32 * 4, h = 32 * 3 },
     { x = 32 * 20, y = 32 * 4, w = 32 * 4, h = 32 * 3 },
     { x = 32 * 24, y = 32 * 1, w = 32 * 4, h = 32 * 3 },
-    -- { x = -2, y = Game.world_top, w = 1, h = Game.world_bottom - Game.world_top },
+    { x = -2, y = Game.world_top, w = 1, h = Game.world_bottom - Game.world_top },
     -- { x = 0, y = Game.world_bottom, w = Game.world_right - Game.world_left, h = 2 }
 }
 
@@ -367,12 +367,12 @@ Game:implements(
                 img = "/data/light_line.png",
                 scale = { x = 1.8, y = 1.8 }
             })
-            light_lines:set_color({ a = 0.6 })
+            light_lines:set_color2(nil, nil, nil, 0.6)
             light_lines:apply_effect("clockWise", { speed = 20 })
 
             light_lines2 = light_lines:copy()
             light_lines2:set_scale(2.2, 2.2)
-            light_lines2:set_color({ a = 0.2 })
+            light_lines2:set_color2(nil, nil, nil, 0.2)
             light_lines2:apply_effect("clockWise", { speed = 40 })
 
             Game:set_foreground_draw(
@@ -1040,11 +1040,11 @@ Game:implements(
                     ---@type JM.Anima
                     local anim = light_eff
 
-                    -- love.graphics.setBlendMode("add")
-                    -- light_lines2:draw(rec:get_cx(), rec:get_cy())
-                    -- light_lines:draw(rec:get_cx(), rec:get_cy())
-                    -- anim:draw(rec:get_cx(), rec:get_cy())
-                    -- love.graphics.setBlendMode("alpha")
+                    love.graphics.setBlendMode("add")
+                    light_lines2:draw(rec:get_cx(), rec:get_cy())
+                    light_lines:draw(rec:get_cx(), rec:get_cy())
+                    anim:draw(rec:get_cx(), rec:get_cy())
+                    love.graphics.setBlendMode("alpha")
 
                 end
             },

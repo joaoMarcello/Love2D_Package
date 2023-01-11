@@ -6,6 +6,9 @@ local love_graphics_set_color = love_graphics.setColor
 ---@type JM.Template.Affectable
 local Affectable = require((...):gsub("font.glyph", "templates.Affectable"))
 
+local Images = setmetatable({}, { __mode = 'k' })
+local Quads = setmetatable({}, { __mode = 'k' })
+
 ---@class JM.Font.Glyph: JM.Template.Affectable
 local Glyph = setmetatable({}, Affectable)
 Glyph.__index = Glyph
@@ -21,8 +24,7 @@ function Glyph:new(img, quad, args)
 end
 
 function Glyph:__constructor__(img, quad, args)
-    --assert(Affectable, "\n> Class Affectable not initialized!")
-    --assert(EffectManager, "\n> Class EffectManager not initialized!")
+
 
     self.__img = img
     self.__quad = quad
@@ -153,6 +155,8 @@ function Glyph:draw_rec(x, y, w, h)
     y = y + h - self.h * self.sy + self.oy * self.sy
 
     self:draw(x, y)
+
+    return x, y
 end
 
 function Glyph:__glyph_draw__()
