@@ -466,8 +466,8 @@ function Scene:implements(param)
 
     self.draw = function(self)
         --set_canvas(self.canvas)
-        set_blend_mode("alpha")
-        set_color_draw(1, 1, 1, 1)
+        -- set_blend_mode("alpha")
+        -- set_color_draw(1, 1, 1, 1)
 
         love.graphics.setScissor(self.x, self.y, self.w, self.h - math_abs(self.h - self.dispositive_h))
         if self:get_color() then
@@ -521,7 +521,7 @@ function Scene:implements(param)
 
                     pop()
 
-                    camera:detach()
+                    camera:detach(i == self.n_layers, i == self.n_layers)
 
                     -- camera:set_shader()
 
@@ -535,7 +535,7 @@ function Scene:implements(param)
 
                 camera:attach()
                 r = param.draw and param.draw(camera)
-                camera:detach()
+                camera:detach(not param.layers, not param.layers)
             end
 
             camera = nil

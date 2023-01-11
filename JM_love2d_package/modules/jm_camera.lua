@@ -327,9 +327,9 @@ local function draw_grid(self)
         if px > vx + vw then break end
 
         if px % (tile * 4) == 0 then
-            love_set_color(0, 0, 0, 0.3)
+            love_set_color(0, 0, 0, 0.7)
         else
-            love_set_color(0, 0, 0, 0.1)
+            love_set_color(0, 0, 0, 0.3)
         end
 
         love_line(px, vy, px, vy + vh)
@@ -339,9 +339,9 @@ local function draw_grid(self)
         local py = tile * j
         if py > vy + vh then break end
         if py % (tile * 4) == 0 then
-            love_set_color(0, 0, 0, 0.3)
+            love_set_color(0, 0, 0, 0.7)
         else
-            love_set_color(0, 0, 0, 0.1)
+            love_set_color(0, 0, 0, 0.3)
         end
         love_line(self.x, py, vx + vw, py)
     end
@@ -441,18 +441,26 @@ local function show_focus(self)
             )
         end
 
-        love.graphics.circle("fill",
-            self.viewport_x + self.focus_x
-            + self:x_world_to_screen(
-                (self.target.x or self.target.last_x)
-            ),
+        -- love.graphics.circle("fill",
+        --     self.viewport_x / self.desired_scale / self.scale + self.focus_x / self.desired_scale
+        --     + self:x_world_to_screen(
+        --         (self.target.x or self.target.last_x)
+        --     ),
 
-            self.viewport_y + self.focus_y
-            + self:y_world_to_screen(
-                (self.target.y or self.target.last_y)
-            ),
-            7
-        )
+        --     self.viewport_y / self.desired_scale / self.scale + self.focus_y / self.desired_scale / self.scale
+        --     + self:y_world_to_screen(
+        --         (self.target.y or self.target.last_y)
+        --     ),
+        --     7
+        -- )
+
+        local px, py = self:world_to_screen(self.target.x, self.target.y)
+        px = px * self.desired_scale + self.focus_x
+        py = py * self.desired_scale + self.focus_y
+        love.graphics.circle("fill", self.viewport_x + px,
+            self.viewport_y + py,
+            7)
+
     end
 
     -- Camera's focus
@@ -773,7 +781,7 @@ function Camera:__constructor__(
     self.type = type_ or CAMERA_TYPES.SuperMarioWorld
     self:set_type(self.type)
 
-    self.debug = false
+    self.debug = true
     self.debug_msg_rad = 0
     self.debug_trgt_rad = 0
     self.debug_color = {}
@@ -782,8 +790,7 @@ function Camera:__constructor__(
     self.show_world_boundary = show_world_bounds or self.debug
     self.show_focus = false or self.debug
     self.border_color = border_color or { 1, 0, 0, 1 }
-    self.is_showing_grid = self.debug
-    -- only used if showing the grid
+    self.is_showing_grid = self.debug or false
     self.grid_desired_tile = self.tile_size * 1
 
 
@@ -1297,7 +1304,7 @@ local function debbug(self)
     if not self:hit_border() then
         love_set_color(1, 1, 0, 1)
     else
-        love_set_color(1, 1, 0, 0.2)
+        love_set_color(1, 1, 0, 0.7)
     end
     local border_len = self.tile_size * self.scale * self.desired_scale
     do
@@ -1359,10 +1366,10 @@ local function debbug(self)
 
         -- Showing the message DEBUG MODE
         self.debug_msg_rad = self.debug_msg_rad
-            + (math.pi * 2) / 3
+            + (math.pi * 2) / 0.5
             * love.timer.getDelta()
 
-        local alfa = 0.7 + 0.8 * math.cos(self.debug_msg_rad)
+        local alfa = 0.7 + 0.4 * math.cos(self.debug_msg_rad)
 
         Font.current:push()
         Font.current:set_color({ 1, 0, 0, alfa })
@@ -1398,18 +1405,26 @@ function Camera:attach()
     )
 end
 
-function Camera:detach()
+function Camera:detach(show_grid, show_bounds)
     local r
-    r = (self.is_showing_grid or true) and draw_grid(self)
-    --r = (self.show_world_boundary or true) and draw_bounds(self)
+    r = (self.is_showing_grid and show_grid) and draw_grid(self)
+    r = (self.show_world_boundary and show_bounds) and draw_bounds(self)
     love_pop()
 
-
-    --if self.debug then debbug(self) end
-    --r = self.show_focus and show_focus(self)
-    --r = self.border_color and show_border(self)
+    if show_bounds then
+        if self.debug then debbug(self) end
+        r = self.show_focus and show_focus(self)
+        r = self.border_color and show_border(self)
+    end
 
     love_set_scissor()
+end
+
+function Camera:draw_info()
+    local r
+    if self.debug then debbug(self) end
+    r = self.show_focus and show_focus(self)
+    r = self.border_color and show_border(self)
 end
 
 function Camera:scissor_transform(x, y, w, h)

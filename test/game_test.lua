@@ -894,7 +894,8 @@ Game:implements(
                     else
                         love.graphics.setColor(camera:get_color())
                     end
-                    -- love.graphics.rectangle("fill", 0, 0, Game.w / camera.scale - 100, 500)
+                    local vx, vy, vw, vh = camera:get_viewport_in_world_coord()
+                    love.graphics.rectangle("fill", 0, 0, vw, vh)
 
 
                     love.graphics.setColor(1, 1, 1, 1)
