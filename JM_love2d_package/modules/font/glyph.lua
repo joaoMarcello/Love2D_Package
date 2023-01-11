@@ -6,7 +6,6 @@ local love_graphics_set_color = love_graphics.setColor
 ---@type JM.Template.Affectable
 local Affectable = require((...):gsub("font.glyph", "templates.Affectable"))
 
-local Images = setmetatable({}, { __mode = 'k' })
 local Quads = setmetatable({}, { __mode = 'k' })
 
 ---@class JM.Font.Glyph: JM.Template.Affectable
@@ -25,9 +24,8 @@ end
 
 function Glyph:__constructor__(img, quad, args)
 
-
     self.__img = img
-    self.__quad = quad
+    self.__quad = nil --quad
     self.__id = args.id or ""
 
     self.x = args.x
@@ -44,6 +42,19 @@ function Glyph:__constructor__(img, quad, args)
     self.qh = args.h
 
     self.__args = args
+
+    if self.__img then
+        self.key = string.format("%d-%d-%d-%d", self.x, self.y, self.w, self.h)
+
+        if not Quads[self.__img] then
+            Quads[self.__img] = {}
+        end
+
+        if not Quads[self.__img][self.key] then
+            Quads[self.__img][self.key] = love.graphics.newQuad(self.x, self.y, self.w, self.h,
+                self.__img:getDimensions())
+        end
+    end
 
     if self.qy and self.qh then
         self.bottom = args.bottom or self.qy + self.qh
@@ -179,15 +190,17 @@ function Glyph:__glyph_draw__()
     elseif self.__id ~= "\t" and self.__id ~= " " then
         love_graphics_set_color(self.color)
 
-        self:setViewport(self.__img, self.__quad, x, y)
+        love_graphics_draw(self.__img, self:get_quad(), x, y, 0, self.sx, self.sy, self.ox, self.oy)
 
-        love_graphics_draw(self.__img, self.__quad,
-            x,
-            y,
-            0,
-            self.sx, self.sy,
-            self.ox, self.oy
-        )
+        -- self:setViewport(self.__img, self.__quad, x, y)
+
+        -- love_graphics_draw(self.__img, self.__quad,
+        --     x,
+        --     y,
+        --     0,
+        --     self.sx, self.sy,
+        --     self.ox, self.oy
+        -- )
 
     end
 
@@ -195,6 +208,18 @@ function Glyph:__glyph_draw__()
     --     love.graphics.setColor(0, 0, 0, 0.4)
     --     love.graphics.rectangle("line", x - self.ox * self.sx, y - self.oy * self.sy, self.w * self.sx, self.h * self.sy)
     -- end
+end
+
+function Glyph:get_pos_draw_rec(x, y, w, h)
+    x = x + w / 2
+    y = y + h - self.h * self.sy + self.oy * self.sy
+    return x, y
+end
+
+function Glyph:get_quad()
+    if self.__id ~= "\t" and self.__id ~= " " and self.is_visible then
+        return Quads[self.__img] and Quads[self.__img][self.key] or nil
+    end
 end
 
 return Glyph

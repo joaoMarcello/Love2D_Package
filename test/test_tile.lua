@@ -7,39 +7,39 @@ local TileMap = require("/JM_love2d_package/modules/tile/tile_map")
 
 local Game = package.Scene:new(0, 0, 1366, 768, 32 * 24, 32 * 16)
 
-do
-    Game:add_camera({
-        -- camera's viewport
-        x = Game.screen_w * 0.5,
-        y = Game.screen_h * 0,
-        w = Game.screen_w * 0.5,
-        h = Game.screen_h * 0.5,
+-- do
+--     Game:add_camera({
+--         -- camera's viewport
+--         x = Game.screen_w * 0.5,
+--         y = Game.screen_h * 0,
+--         w = Game.screen_w * 0.5,
+--         h = Game.screen_h * 0.5,
 
-        color = { 153 / 255, 217 / 255, 234 / 255, 1 },
-        scale = 1.2,
+--         color = { 153 / 255, 217 / 255, 234 / 255, 1 },
+--         scale = 1.2,
 
-        type = "metroid",
-        show_grid = true,
-        show_world_bounds = true
-    }, "red")
-    Game:get_camera("main"):set_viewport(nil, nil, Game.screen_w * 0.5, Game.screen_h)
-    Game.camera.focus_x = Game.screen_w * 0.5
-    Game:add_camera({
-        -- camera's viewport
-        x = Game.screen_w * 0.5,
-        y = Game.screen_h * 0.5,
-        w = Game.screen_w * 0.5,
-        h = Game.screen_h * 0.5,
+--         type = "metroid",
+--         show_grid = true,
+--         show_world_bounds = true
+--     }, "red")
+--     Game:get_camera("main"):set_viewport(nil, nil, Game.screen_w * 0.5, Game.screen_h)
+--     Game.camera.focus_x = Game.screen_w * 0.5
+--     Game:add_camera({
+--         -- camera's viewport
+--         x = Game.screen_w * 0.5,
+--         y = Game.screen_h * 0.5,
+--         w = Game.screen_w * 0.5,
+--         h = Game.screen_h * 0.5,
 
-        border_color = { 0, 0, 1, 1 },
-        scale = 0.5,
+--         border_color = { 0, 0, 1, 1 },
+--         scale = 0.5,
 
-        type = "metroid",
-        show_grid = true,
-        grid_tile_size = 32 * 4,
-        show_world_bounds = true
-    }, "blue")
-end
+--         type = "metroid",
+--         show_grid = true,
+--         grid_tile_size = 32 * 4,
+--         show_world_bounds = true
+--     }, "blue")
+-- end
 
 
 local tile_img = love.graphics.newImage("/data/tileset_01.png")
@@ -112,7 +112,7 @@ Game:implements({
                 -- love.graphics.rectangle("fill", 0, 0,
                 --     (camera.viewport_w) / camera.desired_scale / camera.scale,
                 --     (camera.viewport_h) / camera.desired_scale / camera.scale)
-                Font:printf("Hello World!", 32 * 3, 32 * 5, "left")
+                Font:print("Hello World!", 32 * 4, 32 * 5)
             end,
             factor_x = -1,
             factor_y = -1
@@ -153,7 +153,7 @@ Game:implements({
 
         {
             draw = function(self, camera)
-                Font:print(tostring(map.n_cells), 300, 330)
+                --Font:print(tostring(map.n_cells), 300, 330)
             end,
             factor_x = -1, factor_y = -1
         }

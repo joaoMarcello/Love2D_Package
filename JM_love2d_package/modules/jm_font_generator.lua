@@ -19,6 +19,7 @@ local Phrase = require(path:gsub("jm_font_generator", "font.Phrase"))
 --====================================================================
 
 local table_insert, string_find = table.insert, string.find
+local love_draw, love_set_color = love.graphics.draw, love.graphics.setColor
 
 ---@enum JM.Font.FormatOptions
 local FontFormat = {
@@ -146,6 +147,12 @@ function Font:__constructor__(args)
     self.__default_color = args.color or { 0.1, 0.1, 0.1, 1 }
 
     self.__bounds = { left = 0, top = 0, right = love.graphics.getWidth(), bottom = love.graphics.getHeight() }
+
+    self.batches = {
+        [FontFormat.normal] = love.graphics.newSpriteBatch(self.__normal_img),
+        [FontFormat.bold] = love.graphics.newSpriteBatch(self.__bold_img),
+        [FontFormat.italic] = love.graphics.newSpriteBatch(self.__italic_img)
+    }
 end
 
 ---@return JM.Font.GlyphIterator
@@ -210,20 +217,20 @@ local results_get_config = setmetatable({}, { __mode = 'kv' })
 
 ---@return {font_size: number, character_space: number, color: JM.Color, line_space: number, word_space: number, tab_size: number, format: JM.Font.FormatOptions }
 function Font:__get_configuration()
-    -- local index = "" ..
-    --     self.__font_size ..
-    --     self.__character_space
-    --     .. (self.__default_color[1])
-    --     .. (self.__default_color[2])
-    --     .. (self.__default_color[3])
-    --     -- .. (self.__default_color[4])
-    --     .. self.__line_space
-    --     --.. self.__word_space
-    --     --.. self.__tab_size
-    --     .. self.__format
+    local index = "" ..
+        self.__font_size ..
+        self.__character_space
+        .. (self.__default_color[1])
+        .. (self.__default_color[2])
+        .. (self.__default_color[3])
+        .. (self.__default_color[4])
+        .. self.__line_space
+        --.. self.__word_space
+        --.. self.__tab_size
+        .. self.__format
 
-    -- local result = results_get_config[self] and results_get_config[self][index]
-    -- if result then return result end
+    local result = results_get_config[self] and results_get_config[self][index]
+    if result then return result end
 
     local config = {}
     config.font_size = self.__font_size
@@ -234,8 +241,8 @@ function Font:__get_configuration()
     config.tab_size = self.__tab_size
     config.format = self.__format
 
-    -- results_get_config[self] = results_get_config[self] or setmetatable({}, { __mode = 'v' })
-    -- results_get_config[self][index] = config
+    results_get_config[self] = results_get_config[self] or setmetatable({}, { __mode = 'v' })
+    results_get_config[self][index] = config
 
     return config
 end
@@ -481,6 +488,14 @@ function Font:print(text, x, y, w, h, __i__, __color__, __x_origin__, __format__
 
     local text_size = #(text)
 
+    -- self.batches[FontFormat.normal]:clear()
+    -- self.batches[FontFormat.bold]:clear()
+    -- self.batches[FontFormat.italic]:clear()
+
+    for _, batch in pairs(self.batches) do
+        batch:clear()
+    end
+
     while (i <= text_size) do
 
         local char_string = text:sub(i, i)
@@ -575,13 +590,26 @@ function Font:print(text, x, y, w, h, __i__, __color__, __x_origin__, __format__
                 local width = char_obj.w * char_obj.sx
                 local height = char_obj.h * char_obj.sy
 
-                char_obj:draw_rec(tx, ty + self.__font_size - height, width, height)
+                -- char_obj:draw_rec(tx, ty + self.__font_size - height, width, height)
+
+                local quad = char_obj:get_quad()
+                local x, y = char_obj:get_pos_draw_rec(tx, ty + self.__font_size - height, width, height)
+
+                if quad then
+                    self.batches[current_format]:setColor(current_color)
+                    self.batches[current_format]:add(quad, x, y, 0, char_obj.sx, char_obj.sy, char_obj.ox, char_obj.oy)
+                end
             end
 
             tx = tx + char_obj:get_width() + self.__character_space
         end
 
         i = i + 1
+    end
+
+    love_set_color(1, 1, 1, 1)
+    for _, batch in pairs(self.batches) do
+        local r = batch:getCount() > 0 and love_draw(batch)
     end
 
     self:pop()
@@ -640,7 +668,8 @@ do
             end
 
             for i = 1, #(word) do
-                local char_obj = get_char_obj(word[i])
+                ---@type JM.Font.Glyph
+                local char_obj = word[i] --get_char_obj(word[i])
                 if char_obj then
 
                     char_obj:set_color2(Utils:unpack_color(current_color[1]))
@@ -715,6 +744,11 @@ do
     end
 
     local results_get_word = setmetatable({}, { __mode = 'kv' })
+
+    ---@param self JM.Font.Font
+    ---@param separated any
+    ---@param list any
+    ---@return unknown
     function get_words(self, separated, list)
 
         local result = results_get_word[self]
@@ -789,31 +823,6 @@ function Font:printf(text, x, y, align, limit_right)
     local separated = self:separate_string(text)
 
     local words = get_words(self, separated)
-
-    -- while (i <= #(separated)) do
-    --     local cur_word = separated[i] or ""
-
-    --     local match = self:__is_a_command_tag(cur_word)
-
-    --     if match == "<bold>" then
-    --         current_format = self.format_options.bold
-    --     elseif match == "</bold>" then
-    --         current_format = original_format
-    --     elseif match == "<italic>" then
-    --         current_format = self.format_options.italic
-    --     elseif match == "</italic>" then
-    --         current_format = original_format
-    --     end
-
-    --     self:set_format_mode(current_format)
-
-    --     local characters = self:get_text_iterator(cur_word)
-    --     characters = characters:get_characters_list()
-
-    --     table_insert(words, characters)
-
-    --     i = i + 1
-    -- end
 
     local total_width = 0
     local line = {}

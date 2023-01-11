@@ -30,6 +30,10 @@ function Word:__constructor__(args)
 
     local format = args.format or self.__font.format_options.normal
     self:__load_characters(format)
+
+    self.font_format = format
+
+    self.last_x, self.last_y = math.huge, math.huge
 end
 
 function Word:__load_characters(mode)
@@ -198,14 +202,30 @@ function Word:draw(x, y, __max_char__, __character_count__)
     local font = self.__font
     local cur_char
 
+    for _, batch in pairs(font.batches) do
+        batch:clear()
+    end
+
     for i = 1, #self.__characters do
-        cur_char = self:__get_char_by_index(i)
+
+        ---@type JM.Font.Glyph
+        cur_char = self.__characters[i] --self:__get_char_by_index(i)
 
         cur_char:set_color(cur_char.color)
         cur_char:set_scale(font.__scale)
 
         if not cur_char:is_animated() then
-            cur_char:draw_rec(tx, y, cur_char.w * cur_char.sx, font.__font_size)
+
+            local px, py = cur_char:get_pos_draw_rec(tx, y, cur_char.w * cur_char.sx, font.__font_size)
+
+            local quad = cur_char:get_quad()
+            if quad then
+                font.batches[self.font_format]:setColor(unpack(cur_char.color))
+                font.batches[self.font_format]:add(quad, px, py, 0, cur_char.sx, cur_char.sy, cur_char.ox,
+                    cur_char.oy)
+            end
+
+            -- cur_char:draw_rec(tx, y, cur_char.w * cur_char.sx, font.__font_size)
         else
             cur_char.__anima:set_size(
                 nil, self.__font.__font_size * 1.4,
@@ -229,6 +249,14 @@ function Word:draw(x, y, __max_char__, __character_count__)
             end
         end
     end
+
+    love.graphics.setColor(1, 1, 1, 1)
+    for _, batch in pairs(font.batches) do
+        local r = batch:getCount() > 0 and love.graphics.draw(batch)
+    end
+
+
+
 
     -- if self.__text ~= " " then
     --     love.graphics.setColor(0, 0, 0, 1)
