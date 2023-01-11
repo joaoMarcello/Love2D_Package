@@ -144,17 +144,15 @@ end
 function TileMap:draw(camera)
 
     if camera then
-        -- local left = camera.x + 32
-        -- local top = camera.y + 32
-        -- local right = camera:x_screen_to_world(camera.viewport_w / camera.desired_scale) - 32
-        -- local bottom = camera:y_screen_to_world(camera.viewport_h / camera.desired_scale) - 32
 
-        local left, top, right, bottom = camera:get_viewport_in_world_coord()
-        left, top = left + 32, top + 32
+        local x, y, w, h = camera:get_viewport_in_world_coord()
+        local right, bottom = x + w, y + h
+
+        x, y = x + 32, y + 32
         right, bottom = right - 32, bottom - 32
 
-        if bounds_changed(self, left, top, right, bottom) then
-            draw_with_bounds(self, left, top, right, bottom)
+        if bounds_changed(self, x, y, right, bottom) then
+            draw_with_bounds(self, x, y, right, bottom)
         else
             love_set_color(1, 1, 1, 1)
             love_draw(self.sprite_batch)

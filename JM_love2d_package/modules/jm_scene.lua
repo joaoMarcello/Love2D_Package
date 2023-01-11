@@ -106,10 +106,10 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
     self.tile_size_x = 32
     self.tile_size_y = 32
 
-    self.world_left = -32 * 0
-    self.world_right = 32 * 50
-    self.world_top = -32 * 0
-    self.world_bottom = 32 * 200
+    self.world_left = -32 * 20
+    self.world_right = 32 * 500
+    self.world_top = -32 * 20
+    self.world_bottom = 32 * 500
 
     do
         -- main camera's default configuration

@@ -317,21 +317,21 @@ end
 ---@param self JM.Camera.Camera
 local function draw_grid(self)
     local tile = self.grid_desired_tile
-    local vx, vy, vw, vh = self:get_viewport_in_world_coord()
+    --local vx, vy, vw, vh = self:get_viewport_in_world_coord()
     local qx = mceil((self.bounds_right - self.bounds_left) / tile)
     local qy = mceil((self.bounds_bottom - self.bounds_top) / tile)
 
     love_set_color(0, 0, 0, 0.05)
-    for i = mfloor(self.x / tile) + 2, qx do
+    for i = mfloor(self.x / tile), qx do
         local px = tile * i
-        if px > self.x + self.viewport_w / self.desired_scale / self.scale - 32 then break end
-        love_line(px, self.y + 32, px, self.y + self.viewport_h / self.desired_scale / self.scale - 32)
+        if px > self.x + self.viewport_w / self.desired_scale / self.scale then break end
+        love_line(px, self.y, px, self.y + self.viewport_h / self.desired_scale / self.scale)
     end
 
-    for j = mfloor(self.y / tile) + 2, qy do
+    for j = mfloor(self.y / tile), qy do
         local py = tile * j
-        if py > self.y + self.viewport_h / self.desired_scale / self.scale - 32 then break end
-        love_line(self.x + 32, py, self.x + self.viewport_w / self.desired_scale / self.scale - 32, py)
+        if py > self.y + self.viewport_h / self.desired_scale / self.scale then break end
+        love_line(self.x, py, self.x + self.viewport_w / self.desired_scale / self.scale, py)
     end
 end
 
@@ -339,42 +339,67 @@ end
 local function draw_bounds(self)
     local tile = self.tile_size
     local vx, vy, vw, vh = self:get_viewport_in_world_coord()
-    local qx = mceil(vw / tile)
-    local qy = mceil(vh / tile)
+    local qx = mfloor((self.bounds_right - self.bounds_left) / tile)
+    local qy = mfloor((self.bounds_bottom - self.bounds_top) / tile)
 
     love_set_color(0, 0, 0, 1)
-    for i = mfloor(vx / tile) + tile, (qx) * tile, tile do
+    local line_width = tile * 0.5
+
+    for i = mfloor(self.x / tile), qx do
+        local px = i * tile
+
+        if px > vx + vw then break end
         -- TOP
         love_line(
-            i,
+            px,
             self.bounds_top + tile,
-            i + tile * 0.5,
+            px + line_width,
             self.bounds_top + tile
         )
 
         -- BOTTOM
         love_line(
-            i,
+            px,
             self.bounds_bottom - tile,
-            i + tile * 0.5,
+            px + line_width,
             self.bounds_bottom - tile
         )
     end
 
-    for j = mfloor(vy / tile) + tile, (qy) * tile, tile do
+    for j = mfloor(self.y / tile), qy do
+        local py = tile * j
+        if py > vy + vh then break end
         love_line(
             self.bounds_left + tile,
-            j,
+            py,
             self.bounds_left + tile,
-            j + tile * 0.5
+            py + line_width
         )
 
         love_line(
             self.bounds_right - tile,
-            j,
+            py,
             self.bounds_right - tile,
-            j + tile * 0.5
+            py + line_width
         )
+    end
+
+    -- X-axis
+    if self.y <= 0 then
+        love_set_color(0, 0, 1, 1)
+        love_rect("fill", vx, 0, vw, 1 / self.scale)
+    end
+
+    -- Y-axis
+    if self.x <= 0 then
+        love_set_color(1, 0, 0, 1)
+        love_rect("fill", 0, vy, 1 / self.scale, vh)
+    end
+
+    -- Point (0, 0)
+    if self.x <= 0 and self.y <= 0 then
+        love_set_color(0.1, 0.1, 0.1, 1)
+        love.graphics.circle("fill", 0, 0, 2 / self.scale)
     end
 end
 
@@ -854,9 +879,11 @@ end
 
 --- Returns left, top, right and bottom!!!
 function Camera:get_viewport_in_world_coord()
-    local vw, vh = self:screen_to_world(self.viewport_w / self.desired_scale, self.viewport_h / self.desired_scale)
+    -- local vw, vh = self:screen_to_world(self.viewport_w / self.desired_scale, self.viewport_h / self.desired_scale)
 
-    return self.x, self.y, vw, vh
+    return self.x, self.y, self.viewport_w / self.desired_scale / self.scale,
+        self.viewport_h / self.desired_scale / self.scale
+    --return self.x, self.y, vw, vh
 end
 
 function Camera:get_viewport_in_real_coord()
@@ -1367,8 +1394,8 @@ function Camera:detach()
     love_pop()
 
 
-    if self.debug then debbug(self) end
-    r = self.show_focus and show_focus(self)
+    --if self.debug then debbug(self) end
+    --r = self.show_focus and show_focus(self)
     r = self.border_color and show_border(self)
 
     love_set_scissor()
