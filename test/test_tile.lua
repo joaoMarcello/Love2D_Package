@@ -16,12 +16,12 @@ do
         h = Game.screen_h * 0.5,
 
         color = { 153 / 255, 217 / 255, 234 / 255, 1 },
-        scale = 0.6,
+        scale = 1.2,
 
         type = "metroid",
         show_grid = true,
         show_world_bounds = true
-    }, "blue")
+    }, "red")
     Game:get_camera("main"):set_viewport(nil, nil, Game.screen_w * 0.5, Game.screen_h)
     Game.camera.focus_x = Game.screen_w * 0.5
     Game:add_camera({
@@ -31,14 +31,14 @@ do
         w = Game.screen_w * 0.5,
         h = Game.screen_h * 0.5,
 
-        color = { 255 / 255, 174 / 255, 201 / 255, 1 },
+        border_color = { 0, 0, 1, 1 },
         scale = 0.5,
 
         type = "metroid",
         show_grid = true,
         grid_tile_size = 32 * 4,
         show_world_bounds = true
-    }, "pink")
+    }, "blue")
 end
 
 

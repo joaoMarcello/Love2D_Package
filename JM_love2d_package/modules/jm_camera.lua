@@ -317,21 +317,33 @@ end
 ---@param self JM.Camera.Camera
 local function draw_grid(self)
     local tile = self.grid_desired_tile
-    --local vx, vy, vw, vh = self:get_viewport_in_world_coord()
+    local vx, vy, vw, vh = self:get_viewport_in_world_coord()
     local qx = mceil((self.bounds_right - self.bounds_left) / tile)
     local qy = mceil((self.bounds_bottom - self.bounds_top) / tile)
 
     love_set_color(0, 0, 0, 0.05)
     for i = mfloor(self.x / tile), qx do
         local px = tile * i
-        if px > self.x + self.viewport_w / self.desired_scale / self.scale then break end
-        love_line(px, self.y, px, self.y + self.viewport_h / self.desired_scale / self.scale)
+        if px > vx + vw then break end
+
+        if px % (tile * 4) == 0 then
+            love_set_color(0, 0, 0, 0.15)
+        else
+            love_set_color(0, 0, 0, 0.05)
+        end
+
+        love_line(px, vy, px, vy + vh)
     end
 
     for j = mfloor(self.y / tile), qy do
         local py = tile * j
-        if py > self.y + self.viewport_h / self.desired_scale / self.scale then break end
-        love_line(self.x, py, self.x + self.viewport_w / self.desired_scale / self.scale, py)
+        if py > vy + vh then break end
+        if py % (tile * 4) == 0 then
+            love_set_color(0, 0, 0, 0.2)
+        else
+            love_set_color(0, 0, 0, 0.1)
+        end
+        love_line(self.x, py, vx + vw, py)
     end
 end
 
@@ -456,7 +468,7 @@ local function show_focus(self)
     )
 
     local scl = self.scale
-    local corner_esp = 4
+    local corner_esp = 2
     local corner_length = 16
 
     if self:target_on_focus() then
@@ -522,32 +534,35 @@ local function show_focus(self)
 
 
     love_set_color(0.1, 0.1, 0.1, 1)
+    local len_bar = 16
+    local len_half = len_bar / 2
+
     -- Deadzone Right-Middle
     love_rect("fill",
-        self.viewport_x + self.focus_x + self.deadzone_w / 2 - 8 * scl,
+        self.viewport_x + self.focus_x + self.deadzone_w / 2 - len_half,
         self.viewport_y + self.focus_y,
-        16 * scl,
+        len_bar,
         corner_esp)
 
     -- Deadzone Left-Middle
     love_rect("fill",
-        self.viewport_x + self.focus_x - self.deadzone_w / 2 - 8 * scl,
+        self.viewport_x + self.focus_x - self.deadzone_w / 2 - len_half,
         self.viewport_y + self.focus_y,
-        16 * scl,
+        len_bar,
         corner_esp)
 
     -- Deadzone Top-Middle
     love_rect("fill",
         self.viewport_x + self.focus_x,
-        self.viewport_y + self.focus_y - self.deadzone_h / 2 - 8 * scl,
+        self.viewport_y + self.focus_y - self.deadzone_h / 2 - len_half,
         corner_esp,
-        16 * scl)
+        len_bar)
     -- Deadzone Bottom-Middle
     love_rect("fill",
         self.viewport_x + self.focus_x,
-        self.viewport_y + self.focus_y + self.deadzone_h / 2 - 8 * scl,
+        self.viewport_y + self.focus_y + self.deadzone_h / 2 - len_half,
         corner_esp,
-        16 * scl)
+        len_bar)
 end
 
 ---@param self JM.Camera.Camera
@@ -1350,10 +1365,6 @@ local function debbug(self)
         local alfa = 0.7 + 0.8 * math.cos(self.debug_msg_rad)
 
         Font.current:push()
-        -- self.debug_color[1] = 1
-        -- self.debug_color[2] = 0
-        -- self.debug_color[3] = 0
-        -- self.debug_color[4] = alfa
         Font.current:set_color({ 1, 0, 0, alfa })
         Font:print("DEBUG MODE",
             self.viewport_x + self.viewport_w - border_len - 100,
@@ -1394,8 +1405,8 @@ function Camera:detach()
     love_pop()
 
 
-    --if self.debug then debbug(self) end
-    --r = self.show_focus and show_focus(self)
+    if self.debug then debbug(self) end
+    r = self.show_focus and show_focus(self)
     r = self.border_color and show_border(self)
 
     love_set_scissor()

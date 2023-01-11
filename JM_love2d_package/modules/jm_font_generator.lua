@@ -212,12 +212,15 @@ local results_get_config = setmetatable({}, { __mode = 'kv' })
 function Font:__get_configuration()
     local index = "" ..
         self.__font_size ..
-        self.__character_space ..
-        tostring(self.__default_color[1]) ..
-        tostring(self.__default_color[2]) ..
-        tostring(self.__default_color[3]) ..
-        tostring(self.__default_color[4]) ..
-        self.__line_space .. self.__word_space .. self.__tab_size .. self.__format
+        self.__character_space
+        .. (self.__default_color[1])
+        .. (self.__default_color[2])
+        .. (self.__default_color[3])
+        -- .. (self.__default_color[4])
+        .. self.__line_space
+        --.. self.__word_space
+        --.. self.__tab_size
+        .. self.__format
 
     local result = results_get_config[self] and results_get_config[self][index]
     if result then return result end
