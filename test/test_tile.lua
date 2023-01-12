@@ -58,7 +58,7 @@ local t1 = Tile:new("1", tile_img, 32 * 1, 32 * 1, 32)
 local set = TileSet:new("data/tileset_01.png", 32)
 
 local map = TileMap:new("test/my_map_data.lua",
-    "data/tileset_01.png", 32, nil, nil
+    "data/tileset_01.png", 32, nil, "desert"
 -- function(x, y, id) return x < 1500 and y < 1500 end
 )
 
@@ -96,7 +96,7 @@ Game:implements({
             -- end)
         end
         if map.min_x < camera.x and not Game.__load_beach then
-            --map:load_map(nil, { "desert", "beach" }, nil)
+            map:load_map(nil, { "beach" }, nil)
             Game.__load_beach = true
 
         end
@@ -109,18 +109,14 @@ Game:implements({
         local cell = map.cells_by_pos[map.min_y] and map.cells_by_pos[map.min_y][map.min_x]
 
         if cell then
-            love.graphics.rectangle("fill", 32 * 30, 32 * 10, 32, 32)
+            love.graphics.rectangle("fill", 32 * 20, 32 * 10, 32, 32)
         end
 
-        love.graphics.rectangle("fill", 1280, 320, 32, 32)
+        love.graphics.rectangle("fill", 960, 320, 32, 32)
     end,
     layers = {
         {
             draw = function(self, camera)
-                -- love.graphics.setColor(0.5, 0.5, 0.5, 1)
-                -- love.graphics.rectangle("fill", 0, 0,
-                --     (camera.viewport_w) / camera.desired_scale / camera.scale,
-                --     (camera.viewport_h) / camera.desired_scale / camera.scale)
                 Font:print("Hello World!", 32 * 4, 32 * 5)
             end,
             factor_x = -1,

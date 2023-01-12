@@ -3,11 +3,22 @@ local file = io.open("test/my_map_data.lua", "w")
 
 local tile_size = 32
 
-local world = {
-    { name = "desert", left = 32 * 30, top = 32 * 10, right = 32 * 30 + 32 * 10, bottom = 32 * 10 + 32 * 15, cells = {} },
-    { name = "beach", left = 32 * 30 + 32 * 10, top = 32 * 10, right = 32 * 30 + 32 * 10 + 32 * 20,
-        bottom = 32 * 10 + 32 * 20, cells = {} }
-}
+
+local desert = { name = "desert",
+    left = 32 * 20,
+    top = 32 * 10,
+    right = 32 * 20 + 32 * 10,
+    bottom = 32 * 10 + 32 * 15,
+    cells = {} }
+
+local beach = { name = "beach",
+    left = desert.right,
+    top = 32 * 10,
+    right = desert.right + 32 * 150,
+    bottom = 32 * 10 + 32 * 150,
+    cells = {} }
+
+local world = { desert, beach }
 
 local function in_bounds(cell, region)
     return cell.x + tile_size - 1 >= region.left
@@ -72,8 +83,8 @@ end
     local max_x = -math.huge
     local max_y = -math.huge
 
-    for j = 1, 16 * 5, 1 do
-        for i = 1, 16 * 5, 1 do
+    for j = 1, 16 * 16, 1 do
+        for i = 1, 16 * 16, 1 do
             local x = 32 * 20 + (i - 1) * tile_size
             local y = 32 * 10 + (j - 1) * tile_size
             local id = math.random(9)
@@ -112,37 +123,57 @@ end
 
         local N = #region.cells
 
+        file:write(string.format("\n::%s::", region.name))
         if N > 0 then
-
             for i = 1, N do
-                if (i - 1) % max_chunks == 0 then
+                if (i - 1) % max_chunks == 0 and i ~= N then
                     if i ~= 1 then
-                        file:write("\nend")
+                        local next_region = world[_ + 1]
+                        if next_region then
+                            file:write(string.format("else goto %s end", next_region.name))
+                        else
+                            file:write("end") -------------------
+                        end
                     end
                     file:write(string.format('\nif select_region("%s") then\n', region.name))
                 end
 
                 local cell = region.cells[i]
                 file:write(string.format("Entry(%d,%d,%d)\n", cell.x, cell.y, cell.id))
+
+                if i == N then
+                    local next_region = world[_ + 1]
+                    if next_region then
+                        file:write(string.format("else goto %s end", next_region.name))
+                    else
+                        file:write("end") -----------------
+                    end
+                end
             end
-            file:write("end")
+            --file:write("end")
         end
     end
 
+    -- file:write("\n::no_region::")
+    -- file:write("\nif region then goto end_file end")
     if #no_region_cells > 0 then
         for i = 1, #no_region_cells do
-            if (i - 1) % max_chunks == 0 then
+            if (i - 1) % max_chunks == 0 and i ~= #no_region_cells then
                 if i ~= 1 then
                     file:write("\nend")
                 end
-                file:write('\nif not region then\n')
+                file:write('\nif not region then')
             end
             local cell = no_region_cells[i]
-            file:write(string.format("Entry(%d,%d,%d)\n", cell.x, cell.y, cell.id))
+            file:write(string.format("\nEntry(%d,%d,%d)", cell.x, cell.y, cell.id))
+
+            if i == #no_region_cells then
+                file:write("\nend")
+            end
         end
-        file:write("end")
     end
 
+    -- file:write("\n::end_file::")
     file:write("\n_G.JM_Map_Filter = nil")
     file:write("\n_G.JM_World_Region = nil")
     file:write("\n_G.JM_Map_Cells = nil")
