@@ -985,16 +985,17 @@ function Font:printx(text, x, y, right, align)
     self.buffer__ = self.buffer__ or setmetatable({}, { __mode = 'v' })
     self.buffer_time = 0.0
 
-    local index = text .. x .. y .. right .. align
+    local index = text .. x .. y .. align
 
     if not self.buffer__[index] then
         local f = Phrase:new({ text = text, font = self })
-        f:set_bounds(nil, nil, right)
+        --f:set_bounds(nil, nil, right)
         self.buffer__[index] = f
     end
 
     ---@type JM.Font.Phrase
     local fr = self.buffer__[index]
+    fr:set_bounds(nil, nil, right)
     local value = fr:draw(x, y, align)
 
     return value

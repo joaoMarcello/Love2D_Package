@@ -77,6 +77,7 @@ function Phrase:__verify_commands(text)
             local g = tonumber(parse[3]) or 0
             local b = tonumber(parse[4]) or 0
             local a = tonumber(parse[5]) or 1
+
             self.__font:set_color({ r, g, b, a })
 
         elseif result:match("< */ *color *>") then
@@ -246,7 +247,8 @@ local results_get_lines = setmetatable({}, { __mode = 'kv' })
 
 ---@return table
 function Phrase:get_lines(x)
-    local result = results_get_lines[self] and results_get_lines[self][x]
+    local key = string.format("%d %d", x, self.__bounds.right)
+    local result = results_get_lines[self] and results_get_lines[self][key]
     if result then return result end
 
     local lines = {}
@@ -320,7 +322,7 @@ function Phrase:get_lines(x)
 
     results_get_lines[self] = results_get_lines[self]
         or setmetatable({}, { __mode = 'k' })
-    results_get_lines[self][x] = lines
+    results_get_lines[self][key] = lines
 
     return lines
 end -- END function get_lines()
@@ -371,27 +373,35 @@ function Phrase:draw_lines(lines, x, y, align, threshold, __max_char__)
 
     for i = 1, #lines do
         if align == "right" then
-
             tx = self.__bounds.right - self:__line_length(lines[i])
 
         elseif align == "center" then
-
             tx = x + (self.__bounds.right - x) / 2 - self:__line_length(lines[i]) / 2
 
         elseif align == "justified" then
 
             local total = self:__line_length(lines[i])
 
-            local q = #lines[i] - 1
-            if lines[i][#lines[i]] and lines[i][#lines[i]].__text == "\n" then
+            local len_line = #lines[i]
+            local q = len_line - 1
+
+            if lines[i][len_line] and lines[i][len_line].__text == "\n" then
                 q = q * 2 + 7
                 q = 100
+            end
+
+            if i == #lines or (i == 1 and #lines == 1) then
+                --q = q + 10
+                tx = x
+                space = 0
+                goto skip_justify
             end
 
             if q == 0 then q = 1 end
             space = (self.__bounds.right - x - total) / (q)
 
             tx = tx
+            ::skip_justify::
         end
 
         for j = 1, #lines[i] do
