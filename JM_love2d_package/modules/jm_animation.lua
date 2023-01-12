@@ -660,7 +660,6 @@ function Anima:draw(x, y)
     self.x, self.y = x, y
 
     Affectable.draw(self, self.__draw_with_no_effects__, x, y)
-
 end
 
 ---@return JM.Anima.Frame

@@ -96,7 +96,7 @@ Game:implements({
             -- end)
         end
         if map.min_x < camera.x and not Game.__load_beach then
-            map:load_map(nil, { "beach" }, nil)
+            map:load_map(nil, { "beach", "desert" }, nil)
             Game.__load_beach = true
 
         end

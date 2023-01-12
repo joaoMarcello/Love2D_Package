@@ -126,14 +126,14 @@ function Font:__constructor__(args)
 
     self:set_font_size(self.__font_size)
 
-    self.__tab_char = Glyph:new(self.img, self.quad, {
+    self.__tab_char = Glyph:new(self.img, {
         id = "\t",
         x = 0, y = 0,
         w = self.__word_space * self.__tab_size,
         h = self.__ref_height
     })
 
-    self.__space_char = Glyph:new(self.img, self.quad, {
+    self.__space_char = Glyph:new(self.img, {
         id = " ",
         x = 0, y = 0,
         w = self.__word_space,
@@ -198,7 +198,7 @@ function Font:__load_caracteres_from_csv(list, name, img, extend, format)
             break
         end
 
-        local character_obj = Glyph:new(img, self.quad,
+        local character_obj = Glyph:new(img,
             { id = id, x = left, y = top, w = right - left, h = bottom - top, bottom = offset_y, format = format }
         )
 
@@ -211,7 +211,7 @@ function Font:__load_caracteres_from_csv(list, name, img, extend, format)
 end
 
 function Font:get_nule_character()
-    local char_ = Glyph:new(nil, nil,
+    local char_ = Glyph:new(nil,
         { id = "__nule__", x = nil, y = nil, w = self.__word_space, h = self.__ref_height })
 
     return char_
@@ -319,7 +319,7 @@ function Font:add_nickname_animated(nickname, args)
 
     local animation = Anima:new(args)
 
-    local new_character = Glyph:new(nil, nil, {
+    local new_character = Glyph:new(nil, {
         id = nickname,
         anima = animation,
         w = self.__ref_height * 1.5,
@@ -833,6 +833,7 @@ function Font:printf(text, x, y, align, limit_right)
     local ty = y
     align = align or "left"
     limit_right = limit_right or 500.0 --love.mouse.getX() - x
+    limit_right = limit_right - x
 
     local current_color = color_pointer --{ self.__default_color }
     current_color[1] = self.__default_color

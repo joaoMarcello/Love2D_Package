@@ -47,12 +47,14 @@ function Phrase:__constructor__(args)
             format = self.__font:get_format_mode()
         })
 
+
         self:__verify_commands(w.text)
 
         if w.text ~= "" then
             if not self.__font:__is_a_nickname(w.text, 1) then
                 w:set_color(self.__font.__default_color)
             end
+
             table.insert(self.__words, w)
         end
     end
@@ -446,18 +448,11 @@ end
 ---@param __max_char__ number|nil
 ---@return JM.Font.CharacterPosition|nil
 function Phrase:draw(x, y, align, __max_char__)
+
+    -- self:update(love.timer.getDelta())
     --self:__debbug()
 
     --if x >= self.__bounds.right then return end
-
-    -- if not self.__last_lines__
-    --     or self.__last_lines__.x ~= x
-    --     or self.__last_lines__.y ~= y
-    -- then
-    --     self.__last_lines__ = { lines = self:get_lines(x, y), x = x, y = y }
-    -- end
-
-    -- local lines = self.__last_lines__.lines
 
     local result = self:draw_lines(
         self:get_lines(x),

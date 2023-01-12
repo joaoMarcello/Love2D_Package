@@ -13,16 +13,16 @@ local Glyph = setmetatable({}, Affectable)
 Glyph.__index = Glyph
 
 ---@return JM.Font.Glyph
-function Glyph:new(img, quad, args)
+function Glyph:new(img, args)
     local obj = Affectable:new(self.__glyph_draw__)
     setmetatable(obj, self)
 
-    Glyph.__constructor__(obj, img, quad, args)
+    Glyph.__constructor__(obj, img, args)
 
     return obj
 end
 
-function Glyph:__constructor__(img, quad, args)
+function Glyph:__constructor__(img, args)
 
     self.__img = img
     self.__quad = nil --quad
@@ -96,7 +96,7 @@ function Glyph:get_height()
 end
 
 function Glyph:copy()
-    local obj = Glyph:new(self.__img, self.__quad, self.__args)
+    local obj = Glyph:new(self.__img, self.__args)
 
     if obj.__anima then
         obj.__anima = obj.__anima:copy()

@@ -1171,7 +1171,7 @@ function Camera:is_locked_in_y()
 end
 
 function Camera:update(dt)
-
+    assert(self.scale and self.scale ~= 0, ">> Error: Scale cannot be zero!!!")
     if self.target then
         local r
         r = self.movement_x and self.movement_x(self, dt)
@@ -1186,15 +1186,17 @@ function Camera:update(dt)
 
     -- local temp = self:target_on_focus()
     -- self.zoom_rad = self.zoom_rad + (math.pi * 2) / 4 * dt
-    -- self.scale = 1.5 + 2.9 / 2.0 / 5.0 * cos(self.zoom_rad)
+    -- -- self.scale = 1.5 + 2.9 / 2.0 / 5.0 * cos(self.zoom_rad)
+    -- self.scale = 1.2 + 0.5 / 5.0 * cos(self.zoom_rad)
     -- if true then
-    --     local lx = self.lock_x
-    --     self:unlock_x_axis()
+    --     -- local lx = self.lock_x
+    --     -- self:unlock_x_axis()
+    --     -- self:set_position(0, 0)
     --     -- self:set_position(self.target.x, self.target.y)
     --     -- self.target.last_x = self.x
     --     -- self.target.last_y = self.y
     --     self.deadzone_w = self.tile_size * 2 * self.scale
-    --     self:set_lock_x_axis(lx)
+    --     -- self:set_lock_x_axis(lx)
     -- end
 
     -- self.zoom_rad = self.zoom_rad + (math.pi * 2) / 10 * dt

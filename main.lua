@@ -3,9 +3,9 @@ local love = _G.love
 math.randomseed(os.time())
 love.graphics.setBackgroundColor(0, 0, 0, 1)
 
--- local scene = require("/test/game_test")
+local scene = require("/test/game_test")
 -- local scene = require("/test/test_tile")
-local scene = require("/test/font_new")
+-- local scene = require("/test/font_new")
 -- local scene = require("/test/test_gui")
 
 local t = 0.0
@@ -54,9 +54,11 @@ function love.draw()
     scene:draw()
 
     love.graphics.setColor(0, 0, 0, 0.7)
-    love.graphics.rectangle("fill", 0, 0, 90, 100)
+    love.graphics.rectangle("fill", 0, 0, 80, 120)
     love.graphics.setColor(1, 1, 0, 1)
-    love.graphics.print(string.format("Memory:\n\t%.2f Mb", km), 10, 10)
-    love.graphics.print("FPS: " .. tostring(love.timer.getFPS()), 10, 50)
-    love.graphics.print("Version: " .. love.getVersion(), 10, 70)
+    love.graphics.print(string.format("Memory:\n\t%.2f Mb", km), 5, 10)
+    love.graphics.print("FPS: " .. tostring(love.timer.getFPS()), 5, 50)
+    local maj, min, rev, code = love.getVersion()
+    love.graphics.print(string.format("Version:\n\t%d.%d.%d", maj, min, rev), 5, 75)
+    -- love.graphics.print("\n" .. code, 10, 90)
 end
