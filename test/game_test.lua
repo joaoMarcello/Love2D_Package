@@ -33,7 +33,7 @@ local m = 250
 local Game = Screen:new(32, 32, 1366 - 64, 768 - 32, 32 * 20, 32 * 12,
     {
         left = -32 * 2,
-        top = -32 * 3,
+        top = -32 * 10,
         right = 32 * 55,
         bottom = 32 * 14
     })
