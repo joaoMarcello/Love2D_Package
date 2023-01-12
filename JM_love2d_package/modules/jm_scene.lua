@@ -73,16 +73,32 @@ Scene.__index = Scene
 
 ---@param self JM.Scene
 ---@return JM.Scene
-function Scene:new(x, y, w, h, canvas_w, canvas_h)
+function Scene:new(x, y, w, h, canvas_w, canvas_h, bounds)
     local obj = {}
     setmetatable(obj, self)
 
-    Scene.__constructor__(obj, x, y, w, h, canvas_w, canvas_h)
+    Scene.__constructor__(obj, x, y, w, h, canvas_w, canvas_h, bounds)
 
     return obj
 end
 
-function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
+function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h, bounds)
+
+    bounds = bounds or {
+        left = -32 * 0,
+        right = 32 * 60,
+        top = -32 * 0,
+        bottom = 32 * 12,
+    }
+
+    -- cam_config = cam_config or {
+    --     color = { 1, 1, 1, 1 },
+    --     border_color = { 0, 1, 1, 1 },
+    --     scale = 1.0,
+    --     show_grid = true,
+    --     show_world_bounds = true,
+    --     debug = true
+    -- }
 
     -- the dispositive's screen dimensions
     self.dispositive_w = love.graphics.getWidth()
@@ -106,10 +122,10 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h)
     self.tile_size_x = 32
     self.tile_size_y = 32
 
-    self.world_left = -32 * 0
-    self.world_right = 32 * 60
-    self.world_top = -32 * 0
-    self.world_bottom = 32 * 12
+    self.world_left = bounds.left or 0
+    self.world_right = bounds.right or 0
+    self.world_top = bounds.top or (32 * 50)
+    self.world_bottom = bounds.bottom or (32 * 50)
 
     do
         -- main camera's default configuration
@@ -496,6 +512,10 @@ function Scene:implements(param)
 
                     -- camera:set_shader(self.shader)
 
+                    if i == 1 then
+                        camera:draw_background()
+                    end
+
                     camera:attach()
 
                     push()
@@ -521,7 +541,17 @@ function Scene:implements(param)
 
                     pop()
 
-                    camera:detach(i == self.n_layers, i == self.n_layers)
+                    local condition = not param.draw and i == self.n_layers
+                    if condition then
+                        camera:draw_grid()
+                        camera:draw_world_bounds()
+                    end
+
+                    camera:detach()
+
+                    if condition then
+                        camera:draw_info()
+                    end
 
                     -- camera:set_shader()
 
@@ -533,9 +563,19 @@ function Scene:implements(param)
                 -- set_blend_mode("alpha")
                 -- set_color_draw(1, 1, 1, 1)
 
+                if camera.color and not param.layers then
+                    camera:draw_background()
+                end
+
                 camera:attach()
+
                 r = param.draw and param.draw(camera)
-                camera:detach(not param.layers, not param.layers)
+                camera:draw_grid()
+                camera:draw_world_bounds()
+
+                camera:detach()
+
+                camera:draw_info()
             end
 
             camera = nil

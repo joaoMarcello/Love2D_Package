@@ -454,7 +454,8 @@ local function show_focus(self)
         --     7
         -- )
 
-        local px, py = self:world_to_screen(self.target.x, self.target.y)
+        local px, py = self:world_to_screen(self.target.x or self.target.last_x, self.target.y or self.target.last_y)
+
         px = px * self.desired_scale + self.focus_x
         py = py * self.desired_scale + self.focus_y
         love.graphics.circle("fill", self.viewport_x + px,
@@ -578,10 +579,10 @@ local function show_border(self)
     -- Drawind a border in the camera's viewport
     love_set_color(self.border_color)
 
-    local vx, vy, vw, vh = self:get_viewport_in_real_coord()
+    local vx, vy, vw, vh = self:get_viewport()
 
     -- left
-    love_rect("fill", round(vx), vy, 3, vh)
+    love_rect("fill", vx, vy, 3, vh)
 
     -- Right
     love_rect("fill", vx + vw - 3, vy, 3, vh)
@@ -751,7 +752,7 @@ function Camera:__constructor__(
     self.lock_x = false
     self.lock_y = false
 
-    self.color = color and true or false
+    self.color = false --color and true or false
     self.color_r = color and color[1] or 0.5
     self.color_g = color and color[2] or 0.9
     self.color_b = color and color[3] or 0.9
@@ -811,6 +812,18 @@ end
 
 function Camera:get_color()
     return self.color_r, self.color_g, self.color_b, self.color_a
+end
+
+function Camera:set_color(r, g, b, a)
+    if not r then
+        self.color = false
+        return
+    end
+    self.color = true
+    self.color_r = r or self.color_r
+    self.color_g = g or self.color_g
+    self.color_b = b or self.color_b
+    self.color_a = a or self.color_a
 end
 
 function Camera:set_background_color(r, g, b, a)
@@ -908,7 +921,8 @@ function Camera:get_viewport_in_world_coord()
     --return self.x, self.y, vw, vh
 end
 
-function Camera:get_viewport_in_real_coord()
+--- Viewport in Camera Screen coordinates.
+function Camera:get_viewport()
     return round(self.viewport_x), round(self.viewport_y), round(self.viewport_w), round(self.viewport_h)
 end
 
@@ -1304,7 +1318,7 @@ local function debbug(self)
     if not self:hit_border() then
         love_set_color(1, 1, 0, 1)
     else
-        love_set_color(1, 1, 0, 0.7)
+        love_set_color(1, 1, 0, 0.5)
     end
     local border_len = self.tile_size * self.scale * self.desired_scale
     do
@@ -1369,11 +1383,10 @@ local function debbug(self)
             + (math.pi * 2) / 0.5
             * love.timer.getDelta()
 
-        local alfa = 0.7 + 0.4 * math.cos(self.debug_msg_rad)
+        local alfa = (0.7 + 0.4 * math.cos(self.debug_msg_rad)) % 1.2
 
         Font.current:push()
-        Font.current:set_color({ 1, 0, 0, alfa })
-        Font:print("DEBUG MODE",
+        Font:print(string.format("<color, 1, 0, 0, %.2f>DEBUG MODE", alfa),
             self.viewport_x + self.viewport_w - border_len - 100,
             self.viewport_y + border_len + 10
         )
@@ -1386,12 +1399,7 @@ function Camera:set_shader(shader)
 end
 
 function Camera:attach()
-    love_set_scissor(
-        round(self.viewport_x),
-        round(self.viewport_y),
-        round(self.viewport_w),
-        round(self.viewport_h)
-    )
+    love_set_scissor(self:get_viewport())
 
     love_push()
     love_scale(self.scale)
@@ -1405,26 +1413,68 @@ function Camera:attach()
     )
 end
 
-function Camera:detach(show_grid, show_bounds)
-    local r
-    r = (self.is_showing_grid and show_grid) and draw_grid(self)
-    r = (self.show_world_boundary and show_bounds) and draw_bounds(self)
+function Camera:detach()
+    -- local r
+    -- r = (self.is_showing_grid and show_grid) and draw_grid(self)
+    -- r = (self.show_world_boundary and show_bounds) and draw_bounds(self)
     love_pop()
 
-    if show_bounds then
-        if self.debug then debbug(self) end
-        r = self.show_focus and show_focus(self)
-        r = self.border_color and show_border(self)
-    end
+    -- if show_bounds then
+    --     if self.debug then debbug(self) end
+    --     r = self.show_focus and show_focus(self)
+    --     r = self.border_color and show_border(self)
+    -- end
 
     love_set_scissor()
 end
 
+function Camera:draw_background()
+    if not self.color then return end
+    love_set_color(self.color_r, self.color_g, self.color_b, self.color_a)
+    love_rect("fill", self.viewport_x, self.viewport_y, self.viewport_w,
+        self.viewport_h)
+end
+
+-- Used after attach and before detach
+function Camera:draw_grid()
+    if self.is_showing_grid then
+        draw_grid(self)
+    end
+end
+
+-- Used after attach and before detach
+function Camera:draw_world_bounds()
+    if self.show_world_boundary then
+        draw_bounds(self)
+    end
+end
+
+--- Used after detach
 function Camera:draw_info()
     local r
     if self.debug then debbug(self) end
     r = self.show_focus and show_focus(self)
     r = self.border_color and show_border(self)
+end
+
+function Camera:toggle_grid()
+    if self.is_showing_grid then self.is_showing_grid = false
+    else self.is_showing_grid = true end
+end
+
+function Camera:toggle_debug()
+    if self.debug then
+        self.debug = false
+        self.show_focus = false
+    else
+        self.debug = true
+        self.show_focus = true
+    end
+end
+
+function Camera:toggle_world_bounds()
+    if self.show_world_boundary then self.show_world_boundary = false
+    else self.show_world_boundary = true end
 end
 
 function Camera:scissor_transform(x, y, w, h)

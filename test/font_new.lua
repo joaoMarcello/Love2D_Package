@@ -17,7 +17,24 @@ end
 
 Game:implements({
     update = update,
-    draw = draw
+
+    keypressed = function(key)
+        if key == "g" then
+            Game.camera:toggle_grid()
+            Game.camera:toggle_world_bounds()
+        end
+
+        if key == "d" then
+            Game.camera:toggle_debug()
+        end
+    end,
+
+    layers = {
+        {
+            draw = draw
+        }
+    }
+    --draw = draw
 })
 
 return Game

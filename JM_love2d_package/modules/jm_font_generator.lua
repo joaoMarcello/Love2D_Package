@@ -525,8 +525,9 @@ function Font:print(text, x, y, w, h, __i__, __color__, __x_origin__, __format__
                 local r = parse[2] or 1
                 local g = parse[3] or 0
                 local b = parse[4] or 0
+                local a = parse[5] or 1
 
-                current_color = Utils:get_rgba(r, g, b, 1) --{ r, g, b, 1 }
+                current_color = Utils:get_rgba(r, g, b, a) --{ r, g, b, 1 }
 
             elseif match == "</color>" then
                 current_color = original_color

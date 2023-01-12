@@ -5,7 +5,16 @@ local Tile = require("/JM_love2d_package/modules/tile/tile")
 local TileSet = require("/JM_love2d_package/modules/tile/tile_set")
 local TileMap = require("/JM_love2d_package/modules/tile/tile_map")
 
-local Game = package.Scene:new(0, 0, 1366, 768, 32 * 24, 32 * 16)
+local Game = package.Scene:new(32, 32, 1366 - 64, 768 - 32, 32 * 24, 32 * 16,
+    {
+        left = -32 * 10,
+        top = -32 * 10,
+        right = 32 * 200,
+        bottom = 32 * 200
+    }
+)
+--Game:set_color(0.5, 0.5, 0.5, 1)
+Game.camera:set_color(0.5, 0.5, 0.5, 1)
 
 -- do
 --     Game:add_camera({
