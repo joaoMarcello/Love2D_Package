@@ -41,6 +41,8 @@ function Glyph:__constructor__(img, quad, args)
     self.qw = args.w
     self.qh = args.h
 
+    self.format = args.format or 1
+
     self.__args = args
 
     if self.__img then

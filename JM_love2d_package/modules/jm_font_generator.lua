@@ -95,17 +95,21 @@ function Font:__constructor__(args)
 
     self:__load_caracteres_from_csv(self.__normal_characters,
         args.name,
-        self.__normal_img
+        self.__normal_img,
+        nil,
+        FontFormat.normal
     )
     self:__load_caracteres_from_csv(self.__bold_characters,
         args.name,
         self.__bold_img,
-        "_bold"
+        "_bold",
+        FontFormat.bold
     )
     self:__load_caracteres_from_csv(self.__italic_characters,
         args.name,
         self.__italic_img,
-        "_italic"
+        "_italic",
+        FontFormat.italic
     )
 
     self.__format = FontFormat.normal
@@ -170,7 +174,7 @@ function Font:get_format_mode()
     return self.__format
 end
 
-function Font:__load_caracteres_from_csv(list, name, img, extend, hash)
+function Font:__load_caracteres_from_csv(list, name, img, extend, format)
     if not extend then extend = "" end
 
     local lines = Utils:get_lines_in_file("/JM_love2d_package/data/Font/" .. name .. "/" .. name .. extend .. ".txt")
@@ -195,7 +199,7 @@ function Font:__load_caracteres_from_csv(list, name, img, extend, hash)
         end
 
         local character_obj = Glyph:new(img, self.quad,
-            { id = id, x = left, y = top, w = right - left, h = bottom - top, bottom = offset_y }
+            { id = id, x = left, y = top, w = right - left, h = bottom - top, bottom = offset_y, format = format }
         )
 
         list[character_obj.__id] = character_obj
@@ -644,6 +648,7 @@ do
     end
 
     print =
+    ---@param self JM.Font.Font
     ---@param word_list table
     ---@param tx number
     ---@param ty number
@@ -656,6 +661,10 @@ do
             or ty + self.__ref_height * self.__scale * 1.5 < self.__bounds.top
         then
             return
+        end
+
+        for _, batch in pairs(self.batches) do
+            batch:clear()
         end
 
         for k, word in ipairs(word_list) do
@@ -693,7 +702,15 @@ do
                         local width = char_obj.w * char_obj.sx
                         local height = char_obj.h * char_obj.sy
 
-                        char_obj:draw_rec(tx, ty + self.__font_size - height, width, height)
+                        local quad = char_obj:get_quad()
+                        local x, y = char_obj:get_pos_draw_rec(tx, ty + self.__font_size - height, width, height)
+
+                        if quad then
+                            self.batches[char_obj.format]:setColor(unpack(char_obj.color))
+                            self.batches[char_obj.format]:add(quad, x, y, 0, char_obj.sx, char_obj.sy, char_obj.ox,
+                                char_obj.oy)
+                        end
+                        -- char_obj:draw_rec(tx, ty + self.__font_size - height, width, height)
                     end
 
                     tx = tx + char_obj:get_width()
@@ -702,6 +719,11 @@ do
             end
 
             tx = tx + exceed_space
+        end
+
+        love_set_color(1, 1, 1, 1)
+        for _, batch in pairs(self.batches) do
+            local r = batch:getCount() > 0 and love_draw(batch)
         end
 
         if index_action then
@@ -833,28 +855,46 @@ function Font:printf(text, x, y, align, limit_right)
         local command_tag = self:__is_a_command_tag(separated[m])
 
         if command_tag and command_tag:match("color") then
-            local action = { i = #line + 1 }
+            --local action = { i = #line + 1 }
+
+            local action_i = #line + 1
+            local action_func
 
             if command_tag == "<color>" then
-                --- problem
-                ---@diagnostic disable-next-line: duplicate-set-field
-                action.action = function()
+                -- --- problem
+                -- ---@diagnostic disable-next-line: duplicate-set-field
+                -- action.action = function()
+                --     local parse = Utils:parse_csv_line(separated[m]:sub(2, #separated[m] - 1))
+                --     local r = parse[2] or 1
+                --     local g = parse[3] or 0
+                --     local b = parse[4] or 0
+                --     local a = parse[5] or 1
+
+                --     current_color[1] = Utils:get_rgba(r, g, b, a)
+                -- end
+
+                action_func = function()
                     local parse = Utils:parse_csv_line(separated[m]:sub(2, #separated[m] - 1))
                     local r = parse[2] or 1
                     local g = parse[3] or 0
                     local b = parse[4] or 0
+                    local a = parse[5] or 1
 
-                    current_color[1] = Utils:get_rgba(r, g, b, 1)
-                    --{ r, g, b, 1 }
+                    current_color[1] = Utils:get_rgba(r, g, b, a)
                 end
             elseif command_tag == "</color>" then
-                --- problem
-                ---@diagnostic disable-next-line: duplicate-set-field
-                action.action = function()
+                -- --- problem
+                -- ---@diagnostic disable-next-line: duplicate-set-field
+                -- action.action = function()
+                --     current_color[1] = original_color
+                -- end
+
+                action_func = function()
                     current_color[1] = original_color
                 end
             end
-            table_insert(line_actions, action)
+
+            table_insert(line_actions, { i = action_i, action = action_func })
         end
 
         local current_is_break_line = separated[m] == "\n"

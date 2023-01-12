@@ -7,8 +7,8 @@ local function update(dt)
 end
 
 local function draw(camera)
-    Font:printx("Hello <bold>World <italic><color, 1, 0, 0, 1>Iupi",
-        32 * 5,
+    Font:printf("Hello <bold>World <italic><color, 1, 0, 0, 1>Iupi",
+        32 * 4,
         32 * 4
         , "left",
         32 * 4
