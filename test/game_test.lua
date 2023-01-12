@@ -30,7 +30,13 @@ local function round(value)
 end
 
 local m = 250
-local Game = Screen:new(32, 32, 1366 - 64, 768 - 32, 32 * 20, 32 * 12)
+local Game = Screen:new(32, 32, 1366 - 64, 768 - 32, 32 * 20, 32 * 12,
+    {
+        left = -32 * 2,
+        top = -32 * 3,
+        right = 32 * 55,
+        bottom = 32 * 14
+    })
 
 Game:add_camera({
     -- camera's viewport
@@ -871,6 +877,24 @@ Game:implements(
             if key == "g" then
                 Game:turn_off_frame_skip()
                 current_animation:set_color({ math.random(), math.random(), math.random(), 1 })
+            end
+
+            local speed_zoom = 0.8
+            if key == "z" then
+                if Game.camera.scale == 1.0 then
+                    Game.camera:set_scale_dynamic(1.4, 0.8, speed_zoom)
+                else
+                    Game.camera:set_scale_dynamic(1.0, 0.8, speed_zoom)
+                end
+
+                local r = Game:get_camera("pink") and Game:get_camera("pink"):set_scale_dynamic(1.4, 0.8, speed_zoom)
+            elseif key == "o" then
+                if Game.camera.scale > 1 then
+                    Game.camera:set_scale_dynamic(1, 0.8, speed_zoom)
+                else
+                    Game.camera:set_scale_dynamic(0.6, 0.8, speed_zoom)
+                end
+                local r = Game:get_camera("pink") and Game:get_camera("pink"):set_scale_dynamic(1.0, 0.8, speed_zoom)
             end
         end,
 

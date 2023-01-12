@@ -834,6 +834,40 @@ function Camera:set_background_color(r, g, b, a)
     self.color_a = a or 1
 end
 
+---@param self JM.Camera.Camera
+local function dynamic_zoom_update(self, dt)
+    if not self.on_dynimac_zoom then return end
+
+    local r = self:get_state():match("blocked") and self.zoom_final < 1
+    if self.scale == self.zoom_final or r then
+        self.on_dynimac_zoom = false
+        return
+    end
+
+    self.scale = self.scale + (self.zoom_speed * dt) + self.zoom_acc * dt * dt / 2.0
+    self.zoom_speed = self.zoom_speed + self.zoom_acc * dt
+
+    if self.zoom_acc < 0 or self.zoom_speed < 0 then
+        self.scale = clamp(self.scale, self.zoom_final, self.max_zoom)
+    else
+        self.scale = clamp(self.scale, self.min_zoom, self.zoom_final)
+    end
+    self:set_bounds()
+end
+
+function Camera:set_scale_dynamic(scale, duration, speed)
+    assert(scale and scale ~= 0, ">> Error: Scale cannot be nil or zero!")
+    duration = duration or 1.0
+
+    self.zoom_final = clamp(scale, self.min_zoom, self.max_zoom)
+
+    local direction = (self.scale > self.zoom_final and -1 or 1)
+    self.zoom_speed = speed and (speed * direction) or 0
+    self.zoom_acc = not speed and math.abs(self.scale - self.zoom_final) / duration or 0
+    self.zoom_acc = self.zoom_acc * direction
+    self.on_dynimac_zoom = true
+end
+
 function Camera:set_type(s)
     if type(s) == "string" then s = string.lower(s) end
 
@@ -1184,6 +1218,7 @@ function Camera:update(dt)
     shake_update(self, dt)
     -- end
 
+    dynamic_zoom_update(self, dt)
     -- local temp = self:target_on_focus()
     -- self.zoom_rad = self.zoom_rad + (math.pi * 2) / 4 * dt
     -- -- self.scale = 1.5 + 2.9 / 2.0 / 5.0 * cos(self.zoom_rad)
