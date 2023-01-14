@@ -34,7 +34,8 @@ local text = "Hello <freaky>aqui quem fala \teh o seu<italic>capitão</italic>.a
 local function draw(camera)
     local a = 0.7 + 0.4 * math.sin(rad)
     -- a = a % 1.1
-    Font:printx("aAàÀ",
+    Font:printx("aAàÀ é fada mNoOpPqQrRsStTuUvVwWxXyYzZ 0123456789 +-=/*#§@ (){}[]\n|_'!?\n,.:;ªº°\n¹²³£¢\n <> ¨¬~$&"
+        ,
         32 * 3,
         32 * 2
         , "left",
