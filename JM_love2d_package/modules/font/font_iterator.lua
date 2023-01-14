@@ -37,6 +37,24 @@ function Iterator:__constructor__(text, font)
     while (i <= #text) do
         local current_char, char_obj
 
+        -- --======================
+        -- local tag = text:match("< *[%d, %.%w/]*>", i)
+
+        -- if tag then
+        --     local s, e = text:find("<color>", i)
+        --     if s and s == i then
+        --         font:set_color({ 1, 0, 0, 1 })
+
+        --         text = text:sub(1, s - 1) .. text:sub(e + 1, #text)
+        --         -- if e then i = e end
+        --     end
+        --     s, e = text:find("</color>", i)
+        --     if s and s == i then
+        --         font:set_color({ 0, 0, 0, 1 })
+        --     end
+        -- end
+        -- --======================
+
         local is_nick = font:__is_a_nickname(text, i)
         if is_nick then
             current_char = is_nick

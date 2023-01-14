@@ -122,7 +122,7 @@ local function separate2(s, list)
         local regex = string.format("[^ ]*.-[%s]", sep)
         local tag_regex = "< *[%d, %.%w/]*>"
 
-        local tag = s:match(tag_regex, cur_init)
+        local tag = false and s:match(tag_regex, cur_init)
         local find = not tag and string.match(s, regex, cur_init)
 
         if tag then
@@ -184,7 +184,7 @@ end
 
 local text = " Em- <bold>---a-- meio às sinuosas e confusas</bold> correntezas--c-- inimigas\nastha yuno    a   b "
 
-text = "Hello <freaky>aqui quem fala eh o seu <italic>capitão.</italic> nao sei mais oque escrever para este texto ficar longo então vou ficar enrolando <bold>World <italic><color, 1, 0, 0, %.1f> Iupi <bold> World</color> Wo"
+text = "Hello <freaky>aqui quem fala eh o seu <italic>capitão</italic>. nao sei mais oque escrever para este texto ficar longo então vou ficar enrolando <bold>World <italic><color,1,0,0,1f>Iupi <bold> World</color> Wo"
 
 -- local w = separate_string(" oi p--astha--goku--p-- ----a--b")
 

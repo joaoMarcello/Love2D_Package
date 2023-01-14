@@ -30,13 +30,13 @@ local function update(dt)
     --rad = rad + math.pi * 2 / 0.7 * dt
 end
 
-local text = "Hello <freaky>aqui quem fala \teh o seu<italic>capitão</italic>.astha nao sei mais oque escrever paraastasatsagstasga este texto ficar longo então vou ficar enrolando <bold>World <italic><color,1>Iupi <bold> World</color>test Wo"
+local text = "Hello <freaky>aqui quem fala \teh o seu<color>capitão</color>.astha nao sei mais oque escrever paraastasatsagstasga este texto ficar longo então vou ficar enrolando <bold>World <italic><color>Iupi <bold> World</color>test <color>Wo"
 local function draw(camera)
     local a = 0.7 + 0.4 * math.sin(rad)
     -- a = a % 1.1
     Font:printx(text,
         32 * 3,
-        32 * 4
+        32 * 2
         , "left",
         32 * 3 + 32 * 5--,Game:get_mouse_position()
     )

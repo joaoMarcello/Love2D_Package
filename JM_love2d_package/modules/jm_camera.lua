@@ -1205,7 +1205,8 @@ function Camera:is_locked_in_y()
 end
 
 function Camera:update(dt)
-    assert(self.scale and self.scale ~= 0, ">> Error: Scale cannot be zero!!!")
+    assert(self.scale and self.scale ~= 0, ">> Error: Scale cannot be zero or nil !!!")
+
     if self.target then
         local r
         r = self.movement_x and self.movement_x(self, dt)
@@ -1237,19 +1238,19 @@ function Camera:update(dt)
     -- self.zoom_rad = self.zoom_rad + (math.pi * 2) / 10 * dt
     -- self.angle = self.zoom_rad
 
-    local left, top, right, bottom, lock, px, py
+    -- local left, top, right, bottom, lock, px, py
 
-    left, top = self:screen_to_world(self.bounds_left, self.bounds_top)
-    right, bottom = self:screen_to_world(
-        self.bounds_right - self.viewport_w / self.scale / self.desired_scale,
-        self.bounds_bottom - self.viewport_h / self.scale / self.desired_scale
-    )
-    px, py = self:screen_to_world(self.x, self.y)
+    -- left, top = self:screen_to_world(self.bounds_left, self.bounds_top)
+    -- right, bottom = self:screen_to_world(
+    --     self.bounds_right - self.viewport_w / self.scale / self.desired_scale,
+    --     self.bounds_bottom - self.viewport_h / self.scale / self.desired_scale
+    -- )
+    -- px, py = self:screen_to_world(self.x, self.y)
 
     -- --===================================
-    px = clamp(self.x, self.bounds_left, self.bounds_right - self.viewport_w / self.desired_scale / self.scale)
+    local px = clamp(self.x, self.bounds_left, self.bounds_right - self.viewport_w / self.desired_scale / self.scale)
 
-    py = clamp(self.y, self.bounds_top, self.bounds_bottom - self.viewport_h / self.desired_scale / self.scale)
+    local py = clamp(self.y, self.bounds_top, self.bounds_bottom - self.viewport_h / self.desired_scale / self.scale)
 
     self.x = round(px)
     self.y = round(py)

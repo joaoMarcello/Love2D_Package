@@ -36,7 +36,7 @@ function Phrase:__constructor__(args)
 
     self.__font:push()
 
-    self.__separated_string = self.__font:separate_string_2(self.text)
+    self.__separated_string = self.__font:separate_string(self.text)
     self.__words = {}
 
     self.__bounds = { top = 0, left = 0, bottom = love.graphics.getHeight(), right = love.graphics.getWidth() - 100 }
@@ -48,7 +48,7 @@ function Phrase:__constructor__(args)
         })
 
 
-        --self:__verify_commands(w.text)
+        self:__verify_commands(w.text)
 
         -- if self.__freaky then
         --     ---@type JM.Font.Glyph

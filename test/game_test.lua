@@ -553,25 +553,25 @@ Game:implements(
                         self.y = self.y + self.spy * dt + self.acc * dt * dt / 2
                     end
 
-                    -- if self.x <= Game.world_left then
-                    --     self.spx = 0
-                    --     self.x = Game.world_left
-                    -- end
+                    if self.x <= Game.world_left then
+                        self.spx = 0
+                        self.x = Game.world_left
+                    end
 
-                    -- if self.x + self.w >= Game.world_right then
-                    --     self.spx = 0
-                    --     self.x = Game.world_right - self.w
-                    -- end
+                    if self.x + self.w >= Game.world_right then
+                        self.spx = 0
+                        self.x = Game.world_right - self.w
+                    end
 
-                    -- if self.y <= Game.world_top then
-                    --     self.spy = 0
-                    --     self.y = Game.world_top
-                    -- end
+                    if self.y <= Game.world_top then
+                        self.spy = 0
+                        self.y = Game.world_top
+                    end
 
-                    -- if self.y + self.h >= Game.world_bottom then
-                    --     self.spy = 0
-                    --     self.y = Game.world_bottom - self.h
-                    -- end
+                    if self.y + self.h >= Game.world_bottom then
+                        self.spy = 0
+                        self.y = Game.world_bottom - self.h
+                    end
                 end,
                 update = function(self, dt)
                     self:move(dt)

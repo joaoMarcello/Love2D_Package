@@ -479,13 +479,15 @@ function Font:separate_string_2(s, list)
         local regex = string.format("[^ ]*.-[%s]", sep)
         local tag_regex = "< *[%d, %.%w/]*>"
 
-        local tag = s:match(tag_regex, cur_init)
+        local tag = false and s:match(tag_regex, cur_init)
         local find = not tag and string.match(s, regex, cur_init)
 
         if tag then
             local startp, endp = string.find(s, tag_regex, cur_init)
             local sub_s = s:sub(cur_init, endp)
             local prev_s = s:sub(cur_init, startp)
+
+            -- local sep_p = 1
 
             local m1 = string.match(prev_s, string.format("[%s]<", sep))
             local t1, t2 = string.find(prev_s, ".* ")
@@ -523,6 +525,7 @@ function Font:separate_string_2(s, list)
                 cur_init = endp
             end
         end
+
 
         cur_init = cur_init + 1
     end
