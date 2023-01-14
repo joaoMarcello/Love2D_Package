@@ -550,7 +550,9 @@ function Scene:implements(param)
                     camera:detach()
 
                     if condition then
+                        love.graphics.setScissor(camera:get_viewport())
                         camera:draw_info()
+                        love.graphics.setScissor()
                     end
 
                     -- camera:set_shader()
@@ -570,12 +572,15 @@ function Scene:implements(param)
                 camera:attach()
 
                 r = param.draw and param.draw(camera)
+
                 camera:draw_grid()
                 camera:draw_world_bounds()
 
                 camera:detach()
 
+                love.graphics.setScissor(camera:get_viewport())
                 camera:draw_info()
+                love.graphics.setScissor()
             end
 
             camera = nil

@@ -1246,7 +1246,16 @@ function Camera:update(dt)
     )
     px, py = self:screen_to_world(self.x, self.y)
 
-    lock = self.lock_x
+    -- --===================================
+    px = clamp(self.x, self.bounds_left, self.bounds_right - self.viewport_w / self.desired_scale / self.scale)
+
+    py = clamp(self.y, self.bounds_top, self.bounds_bottom - self.viewport_h / self.desired_scale / self.scale)
+
+    self.x = round(px)
+    self.y = round(py)
+    -- --=====================================
+
+    --[[lock = self.lock_x
     if px < left then
         local x = self:world_to_screen(left)
         self:set_lock_x_axis(false)
@@ -1270,9 +1279,8 @@ function Camera:update(dt)
         self:set_lock_y_axis(false)
         self:set_position(nil, y)
         self:set_lock_y_axis(lock)
-    end
+    end --]]
 
-    left, top, right, bottom, lock, px, py = nil, nil, nil, nil, nil, nil, nil
 end
 
 ---@param duration any

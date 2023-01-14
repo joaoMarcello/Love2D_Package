@@ -445,7 +445,7 @@ function Phrase:__debbug()
     local s = self.text
     local w = self.__font:separate_string_2(s)
 
-    w = self.__separated_string
+    -- w = self.__separated_string
     for i = 1, #w do
         --self.__font:print(tostring(w[i]), 32 * 10, 12 * i)
         love.graphics.setColor(0, 0, 0, 1)

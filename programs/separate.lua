@@ -120,18 +120,36 @@ local function separate2(s, list)
     local N = #s
     while (cur_init <= N) do
         local regex = string.format("[^ ]*.-[%s]", sep)
-        local tag_regex = "< *[%d, .%w/]*>"
+        local tag_regex = "< *[%d, %.%w/]*>"
 
-        local tag = false and s:match(tag_regex, cur_init)
+        local tag = s:match(tag_regex, cur_init)
         local find = not tag and string.match(s, regex, cur_init)
 
         if tag then
             local startp, endp = string.find(s, tag_regex, cur_init)
             local sub_s = s:sub(cur_init, endp)
-            local prev_s = s:sub(cur_init, startp - 1)
-            local temp = prev_s:find("^ -", cur_init)
+            local prev_s = s:sub(cur_init, startp)
 
-            table.insert(words, sub_s)
+            -- local sep_p = 1
+
+            local m1 = string.match(prev_s, string.format("[%s]<", sep))
+            local t1, t2 = string.find(prev_s, ".* ")
+
+            if not m1 and not t1 then
+                local add = sub_s
+                table.insert(words, sub_s)
+            elseif m1 then
+                local zz = s:sub(cur_init, startp - 1)
+                separate2(zz, words)
+                local add = tag
+                table.insert(words, tag)
+            elseif t1 then
+                local zz = prev_s:sub(1, t2)
+                separate2(zz, words)
+                local add = prev_s:sub(t2 + 1, #prev_s - 1) .. tag
+                table.insert(words, add)
+            end
+
             cur_init = endp
 
         elseif find then
