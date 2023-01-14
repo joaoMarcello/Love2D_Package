@@ -76,11 +76,11 @@ function Font:__constructor__(args)
 
     self.img = self.__normal_img
 
-    self.quad = love.graphics.newQuad(
-        0, 0,
-        20, 20,
-        self.img:getDimensions()
-    )
+    -- self.quad = love.graphics.newQuad(
+    --     0, 0,
+    --     20, 20,
+    --     self.img:getDimensions()
+    -- )
 
     self.__nicknames = {}
 
@@ -99,6 +99,10 @@ function Font:__constructor__(args)
         nil,
         FontFormat.normal
     )
+
+    self.__normal_characters = {}
+    self:load_characters_2()
+
     self:__load_caracteres_from_csv(self.__bold_characters,
         args.name,
         self.__bold_img,
@@ -119,6 +123,8 @@ function Font:__constructor__(args)
     self.__ref_height = self:__get_char_equals("A").h
         or self:__get_char_equals("0").h
         or self.__font_size
+
+    -- self.__ref_height = 24
 
     self.__word_space = self.__ref_height * 0.6
 
@@ -208,6 +214,85 @@ function Font:__load_caracteres_from_csv(list, name, img, extend, format)
     local nule_char = self:get_nule_character()
 
     list[nule_char.__id] = nule_char
+end
+
+function Font:load_characters_2()
+    local img_data = love.image.newImageData("JM_love2d_package/data/Font/Consolas/consolas_normal_2.png")
+    -- assert(img_data:getDimensions(), "Error")
+
+    local mask_color = { 1, 1, 0, 1 }
+
+    local chars_ = { "a", "A", "à", "À", "á", "Á", "ã", "Ã", "â", "Â", "ä", "Ä", "e", "E", "é", "É", "è",
+        'È', 'ê', 'Ê', 'ë', "Ë", 'i', 'I', 'í', 'Í', 'ì', 'Ì', 'î', 'Î', 'ï', 'Ï', 'o', "O", 'ó', 'Ó', 'ò',
+        'Ò', 'ô', 'Ô', 'õ', 'Õ', 'ö', 'Ö', 'u', "U", 'ú', 'Ú', 'ù', 'Ù', 'û', 'Û', 'ü', 'Ü', 'b', 'B', 'c',
+        'C', 'ç', 'Ç', 'd', 'D', 'f', 'F' }
+
+    local function equals(r, g, b, a)
+        return r == mask_color[1] and g == mask_color[2] and b == mask_color[3] and a == mask_color[4]
+    end
+
+    local img = love.graphics.newImage(img_data)
+    do
+        local data = love.image.newImageData("JM_love2d_package/data/Font/Consolas/consolas_normal_2.png")
+        local w, h = data:getDimensions()
+        for i = 1, w - 1 do
+            for j = 1, h - 1 do
+                if equals(data:getPixel(i, j)) then
+                    data:setPixel(i, j, 0, 0, 0, 0)
+                end
+            end
+        end
+        img = love.graphics.newImage(data)
+        data:release()
+    end
+
+    local w, h = img_data:getDimensions()
+    local cur_id = 1
+
+    local i = 1
+    while (i <= w - 1) do
+        if cur_id > #chars_ then break end
+
+        local j = 1
+        while (j <= h - 1) do
+            local r, g, b, a = img_data:getPixel(i, j)
+            if a == 0 then
+                local qx, qy, qw, qh
+                qx, qy = i, j + 1
+
+                for k = i, w - 1 do
+                    local r, g, b, a = img_data:getPixel(k, j)
+                    if equals(r, g, b, a) then
+                        qw = k - qx - 1
+                        break
+                    end
+                end
+
+                for p = j, h - 1 do
+                    local r, g, b, a = img_data:getPixel(qx, p)
+                    if equals(r, g, b, a) then
+                        qh = p - qy - 1
+                        break
+                    end
+                end
+
+                local glyph = Glyph:new(img,
+                    { id = chars_[cur_id], x = qx, w = qw, y = qy, bottom = qy + qh, h = qh, format = FontFormat.normal })
+
+                self.__normal_characters[glyph.__id] = glyph
+
+                cur_id = cur_id + 1
+                i = qx + qw + 1
+            end
+            j = j + 1
+        end
+        i = i + 1
+    end
+
+    local nule_char = self:get_nule_character()
+
+    self.__normal_characters[nule_char.__id] = nule_char
+
 end
 
 function Font:get_nule_character()
