@@ -469,6 +469,43 @@ function Font:separate_string(s, list)
     return words
 end
 
+function Font:separate_string_2(s, list)
+    s = s .. " "
+    local sep = "\n " -- line break and space as separators
+    local cur_init = 1
+    local words = list or {}
+    local N = #s
+
+    while (cur_init <= N) do
+        local regex = string.format("[^ ]*.-[%s]", sep)
+
+        local startp, endp = string.find(s, regex, cur_init)
+        if startp then
+            local sub_s = s:sub(startp, endp - 1)
+
+            if sub_s and sub_s ~= "" then
+                table.insert(words, sub_s)
+            end
+
+            sub_s = s:sub(endp, endp)
+            if sub_s == "\n" then table.insert(words, "\n") end
+            if sub_s == "\t" then table.insert(words, "\t") end
+
+            cur_init = endp
+        end
+
+        cur_init = cur_init + 1
+    end
+
+    local rest = s:sub(cur_init, N)
+
+    if rest ~= "" and not rest:match(" *") then
+        table.insert(words, s:sub(cur_init, N))
+    end
+
+    return words
+end
+
 function Font:__is_a_command_tag(s)
     return (s:match("< *bold *>") and "<bold>")
         or (s:match("< */ *bold *>") and "</bold>")

@@ -204,9 +204,9 @@ function Word:draw(x, y, __max_char__, __character_count__)
     local font = self.__font
     local cur_char
 
-    for _, batch in pairs(font.batches) do
-        batch:clear()
-    end
+    -- for _, batch in pairs(font.batches) do
+    --     batch:clear()
+    -- end
 
     for i = 1, #self.__characters do
 
@@ -252,10 +252,10 @@ function Word:draw(x, y, __max_char__, __character_count__)
         end
     end
 
-    love.graphics.setColor(1, 1, 1, 1)
-    for _, batch in pairs(font.batches) do
-        --local r = batch:getCount() > 0 and love.graphics.draw(batch)
-    end
+    -- love.graphics.setColor(1, 1, 1, 1)
+    -- for _, batch in pairs(font.batches) do
+    --     local r = batch:getCount() > 0 and love.graphics.draw(batch)
+    -- end
 
     -- if self.__text ~= " " then
     --     love.graphics.setColor(0, 0, 0, 1)

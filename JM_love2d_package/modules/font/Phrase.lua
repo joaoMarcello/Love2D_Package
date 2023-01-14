@@ -36,7 +36,7 @@ function Phrase:__constructor__(args)
 
     self.__font:push()
 
-    self.__separated_string = self.__font:separate_string(self.text)
+    self.__separated_string = self.__font:separate_string_2(self.text)
     self.__words = {}
 
     self.__bounds = { top = 0, left = 0, bottom = love.graphics.getHeight(), right = love.graphics.getWidth() - 100 }
@@ -48,7 +48,7 @@ function Phrase:__constructor__(args)
         })
 
 
-        self:__verify_commands(w.text)
+        --self:__verify_commands(w.text)
 
         -- if self.__freaky then
         --     ---@type JM.Font.Glyph
@@ -443,10 +443,13 @@ end
 
 function Phrase:__debbug()
     local s = self.text
-    local w = self.__font:separate_string(s)
+    local w = self.__font:separate_string_2(s)
 
+    w = self.__separated_string
     for i = 1, #w do
-        self.__font:print(tostring(w[i]), 10, 50 * i)
+        --self.__font:print(tostring(w[i]), 32 * 10, 12 * i)
+        love.graphics.setColor(0, 0, 0, 1)
+        love.graphics.print(tostring(w[i]), 32 * 10, 12 * i)
     end
 end
 
@@ -458,7 +461,7 @@ end
 function Phrase:draw(x, y, align, __max_char__)
 
     -- self:update(love.timer.getDelta())
-    --self:__debbug()
+    self:__debbug()
 
     --if x >= self.__bounds.right then return end
     self:update(love.timer.getDelta())
