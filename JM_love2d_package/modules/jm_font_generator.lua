@@ -93,15 +93,13 @@ function Font:__constructor__(args)
     self.__bold_characters = {}
     self.__italic_characters = {}
 
-    self:__load_caracteres_from_csv(self.__normal_characters,
-        args.name,
-        self.__normal_img,
-        nil,
-        FontFormat.normal
-    )
+    -- self:__load_caracteres_from_csv(self.__normal_characters,
+    --     args.name,
+    --     self.__normal_img,
+    --     nil,
+    --     FontFormat.normal
+    -- )
 
-    self.__normal_characters = {}
-    self:load_characters_2()
 
     self:__load_caracteres_from_csv(self.__bold_characters,
         args.name,
@@ -115,6 +113,15 @@ function Font:__constructor__(args)
         "_italic",
         FontFormat.italic
     )
+
+    self.__normal_characters = {}
+    self:load_characters_2("/JM_love2d_package/data/Font/Consolas/consolas_normal_2.png", self.__normal_characters,
+        FontFormat.normal)
+
+    self.__bold_characters = {}
+    self:load_characters_2("/JM_love2d_package/data/Font/Consolas/consolas_bold.png", self.__bold_characters,
+        FontFormat.bold)
+
 
     self.__format = FontFormat.normal
 
@@ -216,8 +223,8 @@ function Font:__load_caracteres_from_csv(list, name, img, extend, format)
     list[nule_char.__id] = nule_char
 end
 
-function Font:load_characters_2()
-    local img_data = love.image.newImageData("JM_love2d_package/data/Font/Consolas/consolas_normal_2.png")
+function Font:load_characters_2(path, list, format)
+    local img_data = love.image.newImageData(path)
     -- assert(img_data:getDimensions(), "Error")
 
     local mask_color = { 1, 1, 0, 1 }
@@ -242,7 +249,7 @@ function Font:load_characters_2()
 
     local img = love.graphics.newImage(img_data)
     do
-        local data = love.image.newImageData("JM_love2d_package/data/Font/Consolas/consolas_normal_2.png")
+        local data = love.image.newImageData(path)
         local w, h = data:getDimensions()
         for i = 1, w - 1 do
             for j = 1, h - 1 do
@@ -289,9 +296,9 @@ function Font:load_characters_2()
 
                 local glyph = Glyph:new(img,
                     { id = chars_[cur_id], x = qx, w = qw, y = qy, bottom = bottom or (qy + qh), h = qh,
-                        format = FontFormat.normal })
+                        format = format })
 
-                self.__normal_characters[glyph.__id] = glyph
+                list[glyph.__id] = glyph
 
                 cur_id = cur_id + 1
                 i = qx + qw + 1
@@ -303,7 +310,7 @@ function Font:load_characters_2()
 
     local nule_char = self:get_nule_character()
 
-    self.__normal_characters[nule_char.__id] = nule_char
+    list[nule_char.__id] = nule_char
 
 end
 
