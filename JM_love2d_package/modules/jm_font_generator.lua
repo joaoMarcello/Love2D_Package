@@ -86,7 +86,7 @@ function Font:__constructor__(args)
 
     self.__font_size = args.font_size or 20
 
-    self.__character_space = args.character_space or 1
+    self.__character_space = args.character_space or 0
     self.__line_space = args.line_space or 10
 
     self.__normal_characters = {}
@@ -221,6 +221,7 @@ function Font:load_characters_2()
     -- assert(img_data:getDimensions(), "Error")
 
     local mask_color = { 1, 1, 0, 1 }
+    local mask_color_red = { 1, 0, 0, 1 }
 
     local chars_ = { "a", "A", "à", "À", "á", "Á", "ã", "Ã", "â", "Â", "ä", "Ä", "e", "E", "é", "É", "è",
         'È', 'ê', 'Ê', 'ë', "Ë", 'i', 'I', 'í', 'Í', 'ì', 'Ì', 'î', 'Î', 'ï', 'Ï', 'o', "O", 'ó', 'Ó', 'ò',
@@ -229,11 +230,14 @@ function Font:load_characters_2()
         'P', 'q', 'Q', 'r', 'R', 's', 'S', 't', 'T', 'v', 'V', 'w', 'W', 'x', 'X', 'y', 'Y', 'z', 'Z', '0', '1', '2', '3',
         '4', '5', '6', '7', '8', '9', '+', '-', '=', '/', '*', '%', [[\]], '#', '§', '@', "(", '{', '[', ']', '}', ')',
         '|', '_', [["]], "'", '!', '?', ',', '.', ':', ';', 'ª', 'º', '°', '¹', '²', '³', '£', '¢', '<', '>', '¨',
-        '¬', '~', '$', '&' } -- '<', '>', '¨', '¬',
-    -- '~', '$', '&' }
+        '¬', '~', '$', '&' }
 
     local function equals(r, g, b, a)
         return r == mask_color[1] and g == mask_color[2] and b == mask_color[3] and a == mask_color[4]
+    end
+
+    local function equals_red(r, g, b, a)
+        return r == mask_color_red[1] and g == mask_color_red[2] and b == mask_color_red[3] and a == mask_color_red[4]
     end
 
     local img = love.graphics.newImage(img_data)
@@ -262,13 +266,13 @@ function Font:load_characters_2()
         while (j <= h - 1) do
             local r, g, b, a = img_data:getPixel(i, j)
             if a == 0 then
-                local qx, qy, qw, qh
-                qx, qy = i, j + 1
+                local qx, qy, qw, qh, bottom
+                qx, qy = i, j
 
                 for k = i, w - 1 do
                     local r, g, b, a = img_data:getPixel(k, j)
                     if equals(r, g, b, a) then
-                        qw = k - qx - 1
+                        qw = k - qx
                         break
                     end
                 end
@@ -276,13 +280,16 @@ function Font:load_characters_2()
                 for p = j, h - 1 do
                     local r, g, b, a = img_data:getPixel(qx, p)
                     if equals(r, g, b, a) then
-                        qh = p - qy - 1
+                        qh = p - qy
                         break
+                    elseif equals_red(img_data:getPixel(qx - 1, p)) then
+                        bottom = p
                     end
                 end
 
                 local glyph = Glyph:new(img,
-                    { id = chars_[cur_id], x = qx, w = qw, y = qy, bottom = qy + qh, h = qh, format = FontFormat.normal })
+                    { id = chars_[cur_id], x = qx, w = qw, y = qy, bottom = bottom or (qy + qh), h = qh,
+                        format = FontFormat.normal })
 
                 self.__normal_characters[glyph.__id] = glyph
 
