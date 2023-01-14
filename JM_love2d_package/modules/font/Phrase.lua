@@ -50,6 +50,12 @@ function Phrase:__constructor__(args)
 
         self:__verify_commands(w.text)
 
+        -- if self.__freaky then
+        --     ---@type JM.Font.Glyph
+        --     local r = w.__characters[1]
+        --     r:apply_effect("ghost")
+        -- end
+
         if w.text ~= "" then
             if not self.__font:__is_a_nickname(w.text, 1) then
                 w:set_color(self.__font.__default_color)
@@ -62,6 +68,7 @@ function Phrase:__constructor__(args)
     self.__font:pop()
 end
 
+---@param text any
 function Phrase:__verify_commands(text)
     local result = self.__font:__is_a_command_tag(text)
 
@@ -90,7 +97,8 @@ function Phrase:__verify_commands(text)
 
         elseif result:match("< */ *italic *>") then
             self.__font:set_format_mode(self.__font_config.format)
-
+            -- elseif result:match("<freaky>") then
+            --     self.__freaky = true
         end
     end
 end
@@ -453,6 +461,7 @@ function Phrase:draw(x, y, align, __max_char__)
     --self:__debbug()
 
     --if x >= self.__bounds.right then return end
+    self:update(love.timer.getDelta())
 
     local result = self:draw_lines(
         self:get_lines(x),

@@ -36,6 +36,7 @@ function Word:__constructor__(args)
     self.last_x, self.last_y = math.huge, math.huge
 end
 
+---@param mode JM.Font.FormatOptions
 function Word:__load_characters(mode)
     local last_font_format = self.__font:get_format_mode()
 
@@ -49,6 +50,8 @@ function Word:__load_characters(mode)
 
         char_obj = char_obj:copy()
         char_obj:set_color(self.__font.__default_color)
+
+        --char_obj:apply_effect("float", { range = 3, speed = 2 })
 
         table.insert(self.__characters, char_obj)
 
@@ -137,14 +140,9 @@ function Word:surge_effect(startp, endp, delay)
     return delay
 end
 
---- change the word color
+--- Change the word color
 ---@param color JM.Color
 function Word:set_color(color, startp, endp)
-    -- if self.__font:__is_a_nickname(self.__text, 1) then
-    --     local char__ = self:__get_char_by_index(1)
-    --     if char__ and char__:is_animated() then char__.__anima:set_color(color) end
-    --     return
-    -- end
 
     if not startp then startp = 1 end
     if not endp then endp = #self.__characters end
@@ -152,7 +150,11 @@ function Word:set_color(color, startp, endp)
     local i = startp
     while (i <= endp) do
         local char_ = self:__get_char_by_index(i)
-        local r = char_ and char_:set_color(color)
+        if char_ and char_:is_animated() then
+
+        else
+            local r = char_ and char_:set_color(color)
+        end
         i = i + 1
     end
 end
@@ -216,16 +218,16 @@ function Word:draw(x, y, __max_char__, __character_count__)
 
         if not cur_char:is_animated() then
 
-            local px, py = cur_char:get_pos_draw_rec(tx, y, cur_char.w * cur_char.sx, font.__font_size)
+            -- local px, py = cur_char:get_pos_draw_rec(tx, y, cur_char.w * cur_char.sx, font.__font_size)
 
-            local quad = cur_char:get_quad()
-            if quad then
-                font.batches[self.font_format]:setColor(unpack(cur_char.color))
-                font.batches[self.font_format]:add(quad, px, py, 0, cur_char.sx, cur_char.sy, cur_char.ox,
-                    cur_char.oy)
-            end
+            -- local quad = cur_char:get_quad()
+            -- if quad then
+            --     font.batches[self.font_format]:setColor(unpack(cur_char.color))
+            --     font.batches[self.font_format]:add(quad, px, py, 0, cur_char.sx, cur_char.sy, cur_char.ox,
+            --         cur_char.oy)
+            -- end
 
-            -- cur_char:draw_rec(tx, y, cur_char.w * cur_char.sx, font.__font_size)
+            cur_char:draw_rec(tx, y, cur_char.w * cur_char.sx, font.__font_size)
         else
             cur_char.__anima:set_size(
                 nil, self.__font.__font_size * 1.4,
@@ -252,7 +254,7 @@ function Word:draw(x, y, __max_char__, __character_count__)
 
     love.graphics.setColor(1, 1, 1, 1)
     for _, batch in pairs(font.batches) do
-        local r = batch:getCount() > 0 and love.graphics.draw(batch)
+        --local r = batch:getCount() > 0 and love.graphics.draw(batch)
     end
 
     -- if self.__text ~= " " then

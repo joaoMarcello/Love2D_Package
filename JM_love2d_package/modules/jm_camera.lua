@@ -418,7 +418,7 @@ end
 ---@param self JM.Camera.Camera
 local function show_focus(self)
     -- Focus guide lines
-    love_set_color(0, 0, 0, 0.02)
+    love_set_color(0, 0, 0, 0.1)
     love_rect("fill",
         self.viewport_x + self.focus_x,
         self.viewport_y, 2, self.viewport_h

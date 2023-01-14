@@ -8,6 +8,17 @@ local Game = package.Scene:new(0, 0, 1366, 768, 32 * 24, 32 * 14,
         bottom = 32 * 200
     }
 )
+Game.camera:toggle_debug()
+
+local button = Font.current:add_nickname_animated("--a--", {
+    img = "/data/xbox.png",
+    frames_list = {
+        { 407, 525, 831, 948 },
+        { 407, 525, 831, 948 },
+        { 401, 517, 1016, 1133 }
+    },
+    duration = 1
+})
 
 local rad = 0
 local function update(dt)
@@ -16,18 +27,18 @@ local function update(dt)
     -- Game.camera:update(dt)
     local mx, my = Game:get_mouse_position()
     -- Game.camera:follow(mx, my)
-    rad = rad + math.pi * 2 / 0.7 * dt
+    --rad = rad + math.pi * 2 / 0.7 * dt
 end
 
+local text = "Hello--a--<freaky>aqui quem fala \teh o seu <italic>capitão.</italic> nao sei mais oque escrever para este texto ficar longo então vou ficar enrolando <bold>World <italic><color, 1, 0, 0, %.1f>Iupi <bold> World</color> Wo"
 local function draw(camera)
     local a = 0.7 + 0.4 * math.sin(rad)
     -- a = a % 1.1
-    Font:printf(string.format("Hello <freaky>aqui quem fala \teh o seu <italic>capitão.</italic> nao sei mais oque escrever para este texto ficar longo então vou ficar enrolando <bold>World <italic><color, 1, 0, 0, %.1f>Iupi <bold> World</color> Wo"
-        , a),
+    Font:printx(string.format(text, 1),
         32 * 3,
         32 * 4
-        , "justified",
-        Game:get_mouse_position()
+        , "left",
+        32 * 3 + 32 * 5--,Game:get_mouse_position()
     )
 
     local mx, my = Game:get_mouse_position()

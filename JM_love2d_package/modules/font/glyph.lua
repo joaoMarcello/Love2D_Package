@@ -36,10 +36,10 @@ function Glyph:__constructor__(img, args)
     self.sy = args.sy or 1
     self.sx = self.sy
 
-    self.qx = args.x
-    self.qy = args.y
-    self.qw = args.w
-    self.qh = args.h
+    -- self.qx = args.x
+    -- self.qy = args.y
+    -- self.qw = args.w
+    -- self.qh = args.h
 
     self.format = args.format or 1
 
@@ -58,9 +58,9 @@ function Glyph:__constructor__(img, args)
         end
     end
 
-    if self.qy and self.qh then
-        self.bottom = args.bottom or self.qy + self.qh
-        self.offset_y = args.bottom and self.qy + self.qh - self.bottom or 0
+    if self.y and self.h then
+        self.bottom = args.bottom or self.y + self.h
+        self.offset_y = args.bottom and self.y + self.h - self.bottom or 0
         self.h = self.h - self.offset_y
     else
         self.bottom = nil
@@ -72,8 +72,8 @@ function Glyph:__constructor__(img, args)
 
     self:set_color2(1, 1, 1, 1)
 
-    self.ox = self.qx and self.qw / 2 or 0
-    self.oy = self.qy and self.qh / 2 or 0
+    self.ox = self.x and self.w / 2 or 0
+    self.oy = self.y and self.h / 2 or 0
 
     self.bounds = { left = 0, top = 0, right = love.graphics.getWidth(), bottom = love.graphics.getHeight() }
 
@@ -134,27 +134,27 @@ function Glyph:is_animated()
     return self.__anima and true or false
 end
 
-function Glyph:setViewport(img, quad, x, y)
-    local qx = self.qx
-    local qy = self.qy
-    local qw = self.qw
-    local qh = self.qh
+-- function Glyph:setViewport(img, quad, x, y)
+--     local qx = self.qx
+--     local qy = self.qy
+--     local qw = self.qw
+--     local qh = self.qh
 
-    local bottom = self.bounds.top + self.bounds.bottom
-    local top = self.bounds.top
+--     local bottom = self.bounds.top + self.bounds.bottom
+--     local top = self.bounds.top
 
-    -- if y and bottom then
-    --     if y + self.h * self.sy > bottom then
-    --         qh = self.h - ((y + self.h * self.sy) - bottom) / self.sy
-    --     end
-    -- end
+--     -- if y and bottom then
+--     --     if y + self.h * self.sy > bottom then
+--     --         qh = self.h - ((y + self.h * self.sy) - bottom) / self.sy
+--     --     end
+--     -- end
 
-    quad:setViewport(
-        qx, qy,
-        qw, qh,
-        img:getWidth(), img:getHeight()
-    )
-end
+--     quad:setViewport(
+--         qx, qy,
+--         qw, qh,
+--         img:getWidth(), img:getHeight()
+--     )
+-- end
 
 function Glyph:draw(x, y)
 

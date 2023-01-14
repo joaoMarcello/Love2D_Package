@@ -15,9 +15,9 @@ end
 Font.current = Font.fonts[1]
 
 function Font:update(dt)
-    for _, font in ipairs(self.fonts) do
+    for i = 1, #self.fonts do
         ---@type JM.Font.Font
-        local font = font
+        local font = self.fonts[i]
         font:update(dt)
     end
 end

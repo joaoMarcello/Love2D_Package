@@ -221,17 +221,27 @@ local results_get_config = setmetatable({}, { __mode = 'kv' })
 
 ---@return {font_size: number, character_space: number, color: JM.Color, line_space: number, word_space: number, tab_size: number, format: JM.Font.FormatOptions }
 function Font:__get_configuration()
-    local index = "" ..
-        self.__font_size ..
-        self.__character_space
-        .. (self.__default_color[1])
-        .. (self.__default_color[2])
-        .. (self.__default_color[3])
-        .. (self.__default_color[4])
-        .. self.__line_space
-        --.. self.__word_space
-        --.. self.__tab_size
-        .. self.__format
+    local index = string.format("%d %d %.1f %.1f %.1f %.1f %d %s",
+        self.__font_size,
+        self.__character_space,
+        (self.__default_color[1]),
+        (self.__default_color[2]),
+        (self.__default_color[3]),
+        (self.__default_color[4]),
+        self.__line_space,
+        self.__format)
+
+    -- local index = "" ..
+    --     self.__font_size ..
+    --     self.__character_space
+    --     .. (self.__default_color[1])
+    --     .. (self.__default_color[2])
+    --     .. (self.__default_color[3])
+    --     .. (self.__default_color[4])
+    --     .. self.__line_space
+    --     --.. self.__word_space
+    --     --.. self.__tab_size
+    --     .. self.__format
 
     local result = results_get_config[self] and results_get_config[self][index]
     if result then return result end
@@ -392,7 +402,8 @@ function Font:separate_string(s, list)
     local words = list or {}
 
     while (current_init <= #(s)) do
-        local regex = "[^[ ]]*.-[" .. sep .. "]"
+        local regex = string.format("[^[ ]]*.-[%s]", sep)
+        --"[^[ ]]*.-[" .. sep .. "]"
         local tag_regex = "< *[%d, .%w/]*>"
 
         local tag = s:match(tag_regex, current_init)
@@ -465,6 +476,7 @@ function Font:__is_a_command_tag(s)
         or (s:match("< */ *italic *>") and "</italic>")
         or (s:match("< *color[%d, .]*>") and "<color>")
         or (s:match("< */ *color *>") and "</color>")
+        or (s:match("< *freaky *>") and "<freaky>")
         or false
 end
 
@@ -980,13 +992,19 @@ function Font:printf(text, x, y, align, limit_right)
     -- love.graphics.line(x + limit_right, 0, x + limit_right, love.graphics.getHeight())
 end
 
+local AlignOptions = {
+    left = 1,
+    right = 2,
+    center = 3,
+    justified = 4
+}
 function Font:printx(text, x, y, right, align)
     align = align or "left"
 
     self.buffer__ = self.buffer__ or setmetatable({}, { __mode = 'v' })
     self.buffer_time = 0.0
 
-    local index = text .. x .. y .. align
+    local index = string.format("%s %d %d %s", text, x, y, AlignOptions[align])
 
     if not self.buffer__[index] then
         local f = Phrase:new({ text = text, font = self })
