@@ -139,6 +139,18 @@ function Font:__constructor__(args)
     self:load_characters_2("/JM_love2d_package/data/Font/Consolas/consolas_bold.png", self.__bold_characters,
         FontFormat.bold, chars_)
 
+    chars_ = { "a", "A", "à", "À", "á", "Á", "ã", "Ã", "â", "Â", "ä", "Ä", "e", "E", "é", "É", "è",
+        'È', 'ê', 'Ê', 'ë', "Ë", 'i', 'I', 'í', 'Í', 'ì', 'Ì', 'î', 'Î', 'ï', 'Ï', 'o', "O", 'ó', 'Ó', 'ò',
+        'Ò', 'ô', 'Ô', 'õ', 'Õ', 'ö', 'Ö', 'u', "U", 'ú', 'Ú', 'ù', 'Ù', 'û', 'Û', 'ü', 'Ü', 'b', 'B', 'c',
+        'C', 'ç', 'Ç', 'd', 'D', 'f', 'F', 'g', 'G', 'h', 'H', 'j', "J", 'k', 'K', 'l', 'L', 'm', 'M', 'n', 'N', 'p',
+        'P', 'q', 'Q', 'r', 'R', 's', 'S', 't', 'T', 'v', 'V', 'w', 'W', 'x', 'X', 'y', 'Y', 'z', 'Z', '0', '1', '2', '3',
+        '4', '5', '6', '7', '8', '9', '+', '-', '=', '/', '*', '%', [[\]], '#', '§', '@', "(", '{', '[', ']', '}', ')',
+        '|', '_', [["]], "'", '!', '?', ',', '.', ':', ';', 'ª', 'º', '°', '¹', '²', '³', '£', '¢', '¬', '¨',
+        '<', '>', '&', '$', '~' }
+    self.__italic_characters = {}
+    self:load_characters_2("/JM_love2d_package/data/Font/Consolas/consolas_italic.png", self.__italic_characters,
+        FontFormat.italic, chars_)
+
 
     self.__format = FontFormat.normal
 
