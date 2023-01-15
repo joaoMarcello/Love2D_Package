@@ -11,11 +11,7 @@ local Consolas = FontGenerator:new({
     tab_size = 4,
 })
 
-local text = "<color, 0.2, 0.2, 0.2> Caro senhor --a--rroz<italic>Potter,</italic> \n \n \tChegou ao conhecimento do Ministério que o senhor executou o <italic>feitiço do patrono</italic> na presença de um trouxa.\n \tSendo uma grave violação ao <italic>'Regulamento de Restrição à Prática de Magia por Menores',</italic> o senhor está expulso da <bold>Escola de Magia e Bruxaria de Hogwarts.\n \n \n </bold>\t\t\tEsperando que esteja bem,\n \t\t\t\t\t<italic>Mafalda Hopkins --goomba--</bold> "
-
-local text2 = "\tAquele que\n h--a-- habita no <italic>esconderijo</italic> do altíssimo, <color>à <color, 0, 0, 1>sombra do <color, 0.7, 0.5, 0.1>onipotente</color> --goomba-- descansará\n \n \tDiz ao Senhor, meu refúgio e meu baluarte. Deus meu em quem confio.\n \n \tPois ele te livrará do <color, 0,0,1>laço do <color, 1, 0, 0>passarinheiro</color> e da peste perniciosa. Cobrir-te-á com suas penas e sob suas asas estarás seguro. Tua verdade é <bold>pavê e escudo.</bold>"
-
-text = ""
+local text = ""
 
 
 local function round(value)
@@ -117,7 +113,7 @@ local current_animation = monica_idle_normal
 
 -- current_animation:apply_effect("float")
 -- current_animation:apply_effect("flash")
-current_animation:apply_effect("swing")
+-- current_animation:apply_effect("swing")
 
 ---@param new_anima JM.Anima
 local function change_animation(new_anima)
@@ -1098,12 +1094,8 @@ Game:implements(
             -- end
 
             Consolas:printf(text, 20, 20, "left", 300)
-            goomba_anim:draw(300, 200)
-            Consolas:printf("Oi eu sou o Goku.", 20, 100, "center", 200)
-            -- Consolas:print(tostring(camera.viewport_x), 100, 200)
-
-            -- Consolas:print(tostring(getmetatable(goomba_anim)), 300, 200 - 35)
-            -- Consolas:printf(text3, 10, 150, "left", Game.screen_w)
+            -- goomba_anim:draw(300, 200)
+            -- Consolas:printf("Oi eu sou o Goku.", 20, 100, "center", 200)
         end
     }
 )
