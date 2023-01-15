@@ -14,9 +14,9 @@ function love.conf(t)
     t.window.title = "  JM Löve2D Package" -- The window title (string)
     t.window.icon = nil -- Filepath to an image to use as the window's icon (string)
 
-    local scale = 2
-    local width = 320
-    local height = 160
+    -- local scale = 2
+    -- local width = 320
+    -- local height = 160
     t.window.width = 1366 -- The window width (number)
     t.window.height = 768 -- The window height (number)
     t.window.borderless = false -- Remove all border visuals from the window (boolean)
