@@ -160,7 +160,7 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h, bounds)
 
             scale = 1.0,
 
-            type = "super mario world",
+            type = "metroid",
 
             show_grid = true,
             grid_tile_size = self.tile_size_x * 2,

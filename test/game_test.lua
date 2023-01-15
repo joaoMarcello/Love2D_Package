@@ -71,7 +71,6 @@ Game:add_camera({
 -- temp = Game:get_camera("main")
 -- temp:shake_in_x(nil, temp.tile_size * 2 / 4, nil, 7.587)
 -- temp:shake_in_y(nil, temp.tile_size * 2.34 / 4, nil, 10.7564)
--- temp = nil
 
 local monica_idle_normal =
 Anima:new(

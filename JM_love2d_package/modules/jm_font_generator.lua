@@ -114,13 +114,30 @@ function Font:__constructor__(args)
         FontFormat.italic
     )
 
+    local chars_ = { "a", "A", "à", "À", "á", "Á", "ã", "Ã", "â", "Â", "ä", "Ä", "e", "E", "é", "É", "è",
+        'È', 'ê', 'Ê', 'ë', "Ë", 'i', 'I', 'í', 'Í', 'ì', 'Ì', 'î', 'Î', 'ï', 'Ï', 'o', "O", 'ó', 'Ó', 'ò',
+        'Ò', 'ô', 'Ô', 'õ', 'Õ', 'ö', 'Ö', 'u', "U", 'ú', 'Ú', 'ù', 'Ù', 'û', 'Û', 'ü', 'Ü', 'b', 'B', 'c',
+        'C', 'ç', 'Ç', 'd', 'D', 'f', 'F', 'g', 'G', 'h', 'H', 'j', "J", 'k', 'K', 'l', 'L', 'm', 'M', 'n', 'N', 'p',
+        'P', 'q', 'Q', 'r', 'R', 's', 'S', 't', 'T', 'v', 'V', 'w', 'W', 'x', 'X', 'y', 'Y', 'z', 'Z', '0', '1', '2', '3',
+        '4', '5', '6', '7', '8', '9', '+', '-', '=', '/', '*', '%', [[\]], '#', '§', '@', "(", '{', '[', ']', '}', ')',
+        '|', '_', [["]], "'", '!', '?', ',', '.', ':', ';', 'ª', 'º', '°', '¹', '²', '³', '£', '¢', '<', '>', '¨',
+        '¬', '~', '$', '&' }
+
     self.__normal_characters = {}
     self:load_characters_2("/JM_love2d_package/data/Font/Consolas/consolas_normal_2.png", self.__normal_characters,
-        FontFormat.normal)
+        FontFormat.normal, chars_)
 
+    chars_ = { "a", "A", "à", "À", "á", "Á", "ã", "Ã", "â", "Â", "ä", "Ä", "e", "E", "é", "É", "è",
+        'È', 'ê', 'Ê', 'ë', "Ë", 'i', 'I', 'í', 'Í', 'ì', 'Ì', 'î', 'Î', 'ï', 'Ï', 'o', "O", 'ó', 'Ó', 'ò',
+        'Ò', 'ô', 'Ô', 'õ', 'Õ', 'ö', 'Ö', 'u', "U", 'ú', 'Ú', 'ù', 'Ù', 'û', 'Û', 'ü', 'Ü', 'b', 'B', 'c',
+        'C', 'ç', 'Ç', 'd', 'D', 'f', 'F', 'g', 'G', 'h', 'H', 'j', "J", 'k', 'K', 'l', 'L', 'm', 'M', 'n', 'N', 'p',
+        'P', 'q', 'Q', 'r', 'R', 's', 'S', 't', 'T', 'v', 'V', 'w', 'W', 'x', 'X', 'y', 'Y', 'z', 'Z', '0', '1', '2', '3',
+        '4', '5', '6', '7', '8', '9', '+', '-', '=', '/', '*', '%', [[\]], '#', '§', '@', "(", '{', '[', ']', '}', ')',
+        '|', '_', [["]], "'", '!', '?', ',', '.', ':', ';', 'ª', 'º', '°', '¹', '²', '³', '£', '¢', '¬', '¨',
+        '~', '$', '<', '>', '&' }
     self.__bold_characters = {}
     self:load_characters_2("/JM_love2d_package/data/Font/Consolas/consolas_bold.png", self.__bold_characters,
-        FontFormat.bold)
+        FontFormat.bold, chars_)
 
 
     self.__format = FontFormat.normal
@@ -223,21 +240,12 @@ function Font:__load_caracteres_from_csv(list, name, img, extend, format)
     list[nule_char.__id] = nule_char
 end
 
-function Font:load_characters_2(path, list, format)
+function Font:load_characters_2(path, list, format, chars_)
     local img_data = love.image.newImageData(path)
     -- assert(img_data:getDimensions(), "Error")
 
     local mask_color = { 1, 1, 0, 1 }
     local mask_color_red = { 1, 0, 0, 1 }
-
-    local chars_ = { "a", "A", "à", "À", "á", "Á", "ã", "Ã", "â", "Â", "ä", "Ä", "e", "E", "é", "É", "è",
-        'È', 'ê', 'Ê', 'ë', "Ë", 'i', 'I', 'í', 'Í', 'ì', 'Ì', 'î', 'Î', 'ï', 'Ï', 'o', "O", 'ó', 'Ó', 'ò',
-        'Ò', 'ô', 'Ô', 'õ', 'Õ', 'ö', 'Ö', 'u', "U", 'ú', 'Ú', 'ù', 'Ù', 'û', 'Û', 'ü', 'Ü', 'b', 'B', 'c',
-        'C', 'ç', 'Ç', 'd', 'D', 'f', 'F', 'g', 'G', 'h', 'H', 'j', "J", 'k', 'K', 'l', 'L', 'm', 'M', 'n', 'N', 'p',
-        'P', 'q', 'Q', 'r', 'R', 's', 'S', 't', 'T', 'v', 'V', 'w', 'W', 'x', 'X', 'y', 'Y', 'z', 'Z', '0', '1', '2', '3',
-        '4', '5', '6', '7', '8', '9', '+', '-', '=', '/', '*', '%', [[\]], '#', '§', '@', "(", '{', '[', ']', '}', ')',
-        '|', '_', [["]], "'", '!', '?', ',', '.', ':', ';', 'ª', 'º', '°', '¹', '²', '³', '£', '¢', '<', '>', '¨',
-        '¬', '~', '$', '&' }
 
     local function equals(r, g, b, a)
         return r == mask_color[1] and g == mask_color[2] and b == mask_color[3] and a == mask_color[4]
