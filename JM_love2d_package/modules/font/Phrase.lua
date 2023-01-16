@@ -460,8 +460,7 @@ end
 ---@return JM.Font.CharacterPosition|nil
 function Phrase:draw(x, y, align, __max_char__)
 
-    -- self:update(love.timer.getDelta())
-    self:__debbug()
+    -- self:__debbug()
 
     --if x >= self.__bounds.right then return end
     self:update(love.timer.getDelta())

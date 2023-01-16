@@ -1,3 +1,5 @@
+local utf8 = require('utf8')
+
 ---@class JM.Font.GlyphIterator
 local Iterator = {}
 Iterator.__index = Iterator

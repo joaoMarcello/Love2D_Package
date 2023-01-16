@@ -32,11 +32,13 @@ local ANIMA_STATES = {
 }
 
 
----@param width number|nil
----@param height number|nil
----@param ref_width number|nil
----@param ref_height number|nil
----@return JM.Point
+---@param width any
+---@param height any
+---@param ref_width any
+---@param ref_height any
+---@param keep_proportions any
+---@return number
+---@return number
 local function desired_size(width, height, ref_width, ref_height, keep_proportions)
     local dw, dh
 
@@ -51,7 +53,7 @@ local function desired_size(width, height, ref_width, ref_height, keep_proportio
         end
     end
 
-    return { x = dw, y = dh }
+    return dw, dh
 end
 
 ---@param animation JM.Anima
@@ -306,15 +308,15 @@ function Anima:set_size(width, height, ref_width, ref_height)
     if width or height then
         local current_frame = self:get_current_frame()
 
-        local desired_size_in_pxl = desired_size(
+        local dw, dh = desired_size(
             width, height,
             ref_width or current_frame.w,
             ref_height or current_frame.h,
             true
         )
 
-        if desired_size_in_pxl then
-            self:set_scale(desired_size_in_pxl.x, desired_size_in_pxl.y)
+        if dw then
+            self:set_scale(dw, dh)
         end
     end
 end

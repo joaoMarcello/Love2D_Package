@@ -21,6 +21,12 @@ local Phrase = require(path:gsub("jm_font_generator", "font.Phrase"))
 local table_insert, string_find = table.insert, string.find
 local love_draw, love_set_color = love.graphics.draw, love.graphics.setColor
 
+---@param nickname string
+---@return string|nil
+local function is_valid_nickname(nickname)
+    return #nickname > 4 and nickname:match("%-%-[^%-][%w%p]-%-%-") or nil
+end
+
 ---@enum JM.Font.FormatOptions
 local FontFormat = {
     normal = 0,
@@ -49,8 +55,6 @@ function Font:new(args)
 
     Font.__constructor__(obj, args)
 
-    -- Affectable.__checks_implementation__(obj)
-
     return obj
 end
 
@@ -76,43 +80,12 @@ function Font:__constructor__(args)
 
     self.img = self.__normal_img
 
-    -- self.quad = love.graphics.newQuad(
-    --     0, 0,
-    --     20, 20,
-    --     self.img:getDimensions()
-    -- )
-
     self.__nicknames = {}
 
     self.__font_size = args.font_size or 20
 
     self.__character_space = args.character_space or 0
     self.__line_space = args.line_space or 10
-
-    self.__normal_characters = {}
-    self.__bold_characters = {}
-    self.__italic_characters = {}
-
-    -- self:__load_caracteres_from_csv(self.__normal_characters,
-    --     args.name,
-    --     self.__normal_img,
-    --     nil,
-    --     FontFormat.normal
-    -- )
-
-
-    self:__load_caracteres_from_csv(self.__bold_characters,
-        args.name,
-        self.__bold_img,
-        "_bold",
-        FontFormat.bold
-    )
-    self:__load_caracteres_from_csv(self.__italic_characters,
-        args.name,
-        self.__italic_img,
-        "_italic",
-        FontFormat.italic
-    )
 
     local chars_ = { "a", "A", "à", "À", "á", "Á", "ã", "Ã", "â", "Â", "ä", "Ä", "e", "E", "é", "É", "è",
         'È', 'ê', 'Ê', 'ë', "Ë", 'i', 'I', 'í', 'Í', 'ì', 'Ì', 'î', 'Î', 'ï', 'Ï', 'o', "O", 'ó', 'Ó', 'ò',
@@ -121,10 +94,10 @@ function Font:__constructor__(args)
         'P', 'q', 'Q', 'r', 'R', 's', 'S', 't', 'T', 'v', 'V', 'w', 'W', 'x', 'X', 'y', 'Y', 'z', 'Z', '0', '1', '2', '3',
         '4', '5', '6', '7', '8', '9', '+', '-', '=', '/', '*', '%', [[\]], '#', '§', '@', "(", '{', '[', ']', '}', ')',
         '|', '_', [["]], "'", '!', '?', ',', '.', ':', ';', 'ª', 'º', '°', '¹', '²', '³', '£', '¢', '<', '>', '¨',
-        '¬', '~', '$', '&' }
+        '¬', '~', '$', '&', '--dots--' }
 
     self.__normal_characters = {}
-    self:load_characters_2("/JM_love2d_package/data/Font/Consolas/consolas_normal_2.png", self.__normal_characters,
+    self:load_characters_2("/JM_love2d_package/data/Font/Consolas/consolas_normal.png", self.__normal_characters,
         FontFormat.normal, chars_)
 
     chars_ = { "a", "A", "à", "À", "á", "Á", "ã", "Ã", "â", "Â", "ä", "Ä", "e", "E", "é", "É", "è",
@@ -146,7 +119,7 @@ function Font:__constructor__(args)
         'P', 'q', 'Q', 'r', 'R', 's', 'S', 't', 'T', 'v', 'V', 'w', 'W', 'x', 'X', 'y', 'Y', 'z', 'Z', '0', '1', '2', '3',
         '4', '5', '6', '7', '8', '9', '+', '-', '=', '/', '*', '%', [[\]], '#', '§', '@', "(", '{', '[', ']', '}', ')',
         '|', '_', [["]], "'", '!', '?', ',', '.', ':', ';', 'ª', 'º', '°', '¹', '²', '³', '£', '¢', '¬', '¨',
-        '<', '>', '&', '$', '~' }
+        '<', '>', '&', '$', '~', '--heart--', '--dots--' }
     self.__italic_characters = {}
     self:load_characters_2("/JM_love2d_package/data/Font/Consolas/consolas_italic.png", self.__italic_characters,
         FontFormat.italic, chars_)
@@ -156,11 +129,10 @@ function Font:__constructor__(args)
 
     self.format_options = FontFormat
 
-    self.__ref_height = self:__get_char_equals("A").h
-        or self:__get_char_equals("0").h
+    self.__ref_height = (self:__get_char_equals("A")
+        and self:__get_char_equals("A").h)
+        or (self:__get_char_equals("0") and self:__get_char_equals("0").h)
         or self.__font_size
-
-    -- self.__ref_height = 24
 
     self.__word_space = self.__ref_height * 0.6
 
@@ -216,41 +188,41 @@ function Font:get_format_mode()
     return self.__format
 end
 
-function Font:__load_caracteres_from_csv(list, name, img, extend, format)
-    if not extend then extend = "" end
+-- function Font:__load_caracteres_from_csv(list, name, img, extend, format)
+--     if not extend then extend = "" end
 
-    local lines = Utils:get_lines_in_file("/JM_love2d_package/data/Font/" .. name .. "/" .. name .. extend .. ".txt")
+--     local lines = Utils:get_lines_in_file("/JM_love2d_package/data/Font/" .. name .. "/" .. name .. extend .. ".txt")
 
-    for i = 2, #lines do
-        local parse = Utils:parse_csv_line(lines[i])
-        local id = (parse[1])
-        if id == "" then
-            id = ","
-        elseif id == [[_"]] then
-            id = [["]]
-        end
-        local left = tonumber(parse[2])
-        local right = tonumber(parse[3])
-        local top = tonumber(parse[4])
-        local bottom = tonumber(parse[5])
-        local offset_y = tonumber(parse[6])
-        local offset_x = tonumber(parse[7])
+--     for i = 2, #lines do
+--         local parse = Utils:parse_csv_line(lines[i])
+--         local id = (parse[1])
+--         if id == "" then
+--             id = ","
+--         elseif id == [[_"]] then
+--             id = [["]]
+--         end
+--         local left = tonumber(parse[2])
+--         local right = tonumber(parse[3])
+--         local top = tonumber(parse[4])
+--         local bottom = tonumber(parse[5])
+--         local offset_y = tonumber(parse[6])
+--         local offset_x = tonumber(parse[7])
 
-        if not left then
-            break
-        end
+--         if not left then
+--             break
+--         end
 
-        local character_obj = Glyph:new(img,
-            { id = id, x = left, y = top, w = right - left, h = bottom - top, bottom = offset_y, format = format }
-        )
+--         local character_obj = Glyph:new(img,
+--             { id = id, x = left, y = top, w = right - left, h = bottom - top, bottom = offset_y, format = format }
+--         )
 
-        list[character_obj.__id] = character_obj
-    end
+--         list[character_obj.__id] = character_obj
+--     end
 
-    local nule_char = self:get_nule_character()
+--     local nule_char = self:get_nule_character()
 
-    list[nule_char.__id] = nule_char
-end
+--     list[nule_char.__id] = nule_char
+-- end
 
 function Font:load_characters_2(path, list, format, chars_)
     local img_data = love.image.newImageData(path)
@@ -320,8 +292,12 @@ function Font:load_characters_2(path, list, format, chars_)
 
                 list[glyph.__id] = glyph
 
+                if is_valid_nickname(glyph.__id) then
+                    table_insert(self.__nicknames, glyph.__id)
+                end
+
                 cur_id = cur_id + 1
-                i = qx + qw + 1
+                i = qx + qw
             end
             j = j + 1
         end
@@ -440,12 +416,6 @@ function Font:set_font_size(value)
 end
 
 ---@param nickname string
----@return string|nil
-local function is_valid_nickname(nickname)
-    return #nickname > 4 and nickname:match("%-%-[^%-][%w%p]-%-%-") or nil
-end
-
----@param nickname string
 --- @param args {img: love.Image|string, frames: number, frames_list: table,  speed: number, rotation: number, color: JM.Color, scale: table, flip_x: boolean, flip_y: boolean, is_reversed: boolean, stop_at_the_end: boolean, amount_cycle: number, state: JM.AnimaStates, bottom: number, kx: number, ky: number, width: number, height: number, ref_width: number, ref_height: number, duration: number, n: number}
 function Font:add_nickname_animated(nickname, args)
     assert(is_valid_nickname(nickname),
@@ -506,11 +476,24 @@ end
 ---@param c string
 ---@return JM.Font.Glyph|nil
 function Font:__get_char_equals(c)
+    if not c then return nil end
+
     local list = self.__format == FontFormat.normal and self.__normal_characters
         or self.__format == FontFormat.bold and self.__bold_characters
         or self.__italic_characters
 
-    return list[c]
+    local char_ = list[c]
+
+    if not char_ and is_valid_nickname(c) then
+        char_ = self.__bold_characters[c]
+        if char_ then return char_ end
+        char_ = self.__italic_characters[c]
+        if char_ then return char_ end
+        char_ = self.__normal_characters[c]
+        if char_ then return char_ end
+    end
+
+    return char_
 end
 
 local result_sep_text = setmetatable({}, { __mode = 'kv' })

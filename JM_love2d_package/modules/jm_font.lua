@@ -8,7 +8,7 @@ Font.fonts = {}
 do
     ---@type JM.Font.Generator
     local Generator = require(path:gsub("jm_font", "jm_font_generator"))
-    Font.fonts[1] = Generator:new({ name = "consolas", font_size = 12, tab_size = 4 })
+    Font.fonts[1] = Generator:new({ name = "consolas", font_size = 10, tab_size = 4 })
 end
 
 ---@type JM.Font.Font

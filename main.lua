@@ -1,4 +1,5 @@
 local love = _G.love
+local utf8 = require('utf8')
 
 math.randomseed(os.time())
 love.graphics.setBackgroundColor(0, 0, 0, 1)
