@@ -32,7 +32,7 @@ end
 
 local text = "Hello <freaky>aqui quem fala \teh o seu<italic>capitão</italic>.astha nao sei mais oque escrever paraastasatsagstasga este texto ficar longo então vou ficar enrolando <bold>World <italic><color, 0, 0, 1, 1>Iupi <bold> World</color>test <color>Wo"
 
-local text2 = "<color, 0, 0, 1>Thanos</color> <italic>aAáÁàÀãÃäÄ eEéÉèÈêÊëË iIíÍìÌîÎïÏ\n\toOóÓòòôÔ\n\töÖõÕ uUúÚùÙûüÜ bBcCçÇdDfF gGhHjJkKlLm M nNpPqQrRsS {[(astha)]} |as_ \n tTvVwWxXyYzZ 0123456789 +-=/# @TMJ_por_JM & § ?|!,.;: °º1ª¹²³£¢¬<bold>AsthaYuno </bold> * ¨¬¬ ~ $ ~ ---- Sasuke --heart-- --dots--"
+local text2 = "<color, 0, 0, 1>Thanos</color> <italic>aAáÁàÀãÃäÄ eEéÉèÈêÊëË iIíÍìÌîÎïÏ\n\toOóÓòòôÔ\n\töÖõÕ uUúÚùÙûüÜ bBcCçÇdDfF gGhHjJkKlLm M nNpPqQrRsS {[(astha)]} |as_ \n tTvVwWxXyYzZ 0123456789 +-=/# @TMJ_por_JM & § ?|!,.;: °º1ª¹²³£¢¬<bold>AsthaYuno </bold> * ¨¬¬ ~ $ ~ --a-- Sasuke --heart-- --dots--"
     .. [["]]
 
 local text3 = "aAàÀ <italic>çÇé fada <bold>dDeEfFgGhHiIjJkKlL</bold> mNoOpPqQrRsStT\n\tuUvVwWxXyYzZ <italic>0123456789</italic> +-=/*#§@ (){}[]\n|_'!?\n,.:;ªº°\n¹²³£¢\n <> ¨¬~$&\nEste é o mundo de Greg Uooôô ôô"
@@ -48,7 +48,8 @@ local function draw(camera)
         32 * 3,
         32 * 2
         , "left",
-        32 * 3 + 32 * 5--,Game:get_mouse_position()
+        -- 32 * 3 + 32 * 5
+        Game:get_mouse_position()
     )
 
     local mx, my = Game:get_mouse_position()

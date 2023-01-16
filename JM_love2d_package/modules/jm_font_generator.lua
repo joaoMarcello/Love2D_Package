@@ -102,7 +102,7 @@ function Font:__constructor__(args)
         [FontFormat.bold_italic] = {}
     }
 
-    local chars_ = { "a", "A", "à", "À", "á", "Á", "ã", "Ã", "â", "Â", "ä", "Ä", "e", "E", "é", "É", "è",
+    local glyphs = { "a", "A", "à", "À", "á", "Á", "ã", "Ã", "â", "Â", "ä", "Ä", "e", "E", "é", "É", "è",
         'È', 'ê', 'Ê', 'ë', "Ë", 'i', 'I', 'í', 'Í', 'ì', 'Ì', 'î', 'Î', 'ï', 'Ï', 'o', "O", 'ó', 'Ó', 'ò',
         'Ò', 'ô', 'Ô', 'õ', 'Õ', 'ö', 'Ö', 'u', "U", 'ú', 'Ú', 'ù', 'Ù', 'û', 'Û', 'ü', 'Ü', 'b', 'B', 'c',
         'C', 'ç', 'Ç', 'd', 'D', 'f', 'F', 'g', 'G', 'h', 'H', 'j', "J", 'k', 'K', 'l', 'L', 'm', 'M', 'n', 'N', 'p',
@@ -112,9 +112,9 @@ function Font:__constructor__(args)
         '¬', '~', '$', '&', '--dots--' }
 
     self:load_characters("/JM_love2d_package/data/Font/Consolas/consolas_normal.png",
-        FontFormat.normal, chars_)
+        FontFormat.normal, glyphs)
 
-    chars_ = { "a", "A", "à", "À", "á", "Á", "ã", "Ã", "â", "Â", "ä", "Ä", "e", "E", "é", "É", "è",
+    glyphs = { "a", "A", "à", "À", "á", "Á", "ã", "Ã", "â", "Â", "ä", "Ä", "e", "E", "é", "É", "è",
         'È', 'ê', 'Ê', 'ë', "Ë", 'i', 'I', 'í', 'Í', 'ì', 'Ì', 'î', 'Î', 'ï', 'Ï', 'o', "O", 'ó', 'Ó', 'ò',
         'Ò', 'ô', 'Ô', 'õ', 'Õ', 'ö', 'Ö', 'u', "U", 'ú', 'Ú', 'ù', 'Ù', 'û', 'Û', 'ü', 'Ü', 'b', 'B', 'c',
         'C', 'ç', 'Ç', 'd', 'D', 'f', 'F', 'g', 'G', 'h', 'H', 'j', "J", 'k', 'K', 'l', 'L', 'm', 'M', 'n', 'N', 'p',
@@ -123,9 +123,9 @@ function Font:__constructor__(args)
         '|', '_', [["]], "'", '!', '?', ',', '.', ':', ';', 'ª', 'º', '°', '¹', '²', '³', '£', '¢', '¬', '¨',
         '~', '$', '<', '>', '&' }
     self:load_characters("/JM_love2d_package/data/Font/Consolas/consolas_bold.png",
-        FontFormat.bold, chars_)
+        FontFormat.bold, glyphs)
 
-    chars_ = { "a", "A", "à", "À", "á", "Á", "ã", "Ã", "â", "Â", "ä", "Ä", "e", "E", "é", "É", "è",
+    glyphs = { "a", "A", "à", "À", "á", "Á", "ã", "Ã", "â", "Â", "ä", "Ä", "e", "E", "é", "É", "è",
         'È', 'ê', 'Ê', 'ë', "Ë", 'i', 'I', 'í', 'Í', 'ì', 'Ì', 'î', 'Î', 'ï', 'Ï', 'o', "O", 'ó', 'Ó', 'ò',
         'Ò', 'ô', 'Ô', 'õ', 'Õ', 'ö', 'Ö', 'u', "U", 'ú', 'Ú', 'ù', 'Ù', 'û', 'Û', 'ü', 'Ü', 'b', 'B', 'c',
         'C', 'ç', 'Ç', 'd', 'D', 'f', 'F', 'g', 'G', 'h', 'H', 'j', "J", 'k', 'K', 'l', 'L', 'm', 'M', 'n', 'N', 'p',
@@ -134,7 +134,7 @@ function Font:__constructor__(args)
         '|', '_', [["]], "'", '!', '?', ',', '.', ':', ';', 'ª', 'º', '°', '¹', '²', '³', '£', '¢', '¬', '¨',
         '<', '>', '&', '$', '~', '--heart--', '--dots--' }
     self:load_characters("/JM_love2d_package/data/Font/Consolas/consolas_italic.png",
-        FontFormat.italic, chars_)
+        FontFormat.italic, glyphs)
 
 
     self.__format = FontFormat.normal
@@ -240,8 +240,8 @@ end
 
 ---@param path string
 ---@param format JM.Font.FormatOptions
----@param chars_ table
-function Font:load_characters(path, format, chars_)
+---@param glyphs table
+function Font:load_characters(path, format, glyphs)
     local img_data = love.image.newImageData(path)
     local list = {}
 
@@ -277,7 +277,7 @@ function Font:load_characters(path, format, chars_)
 
     local i = 1
     while (i <= w - 1) do
-        if cur_id > #chars_ then break end
+        if cur_id > #glyphs then break end
 
         local j = 1
         while (j <= h - 1) do
@@ -305,7 +305,7 @@ function Font:load_characters(path, format, chars_)
                 end
 
                 local glyph = Glyph:new(img,
-                    { id = chars_[cur_id], x = qx, w = qw, y = qy, bottom = bottom or (qy + qh), h = qh,
+                    { id = glyphs[cur_id], x = qx, w = qw, y = qy, bottom = bottom or (qy + qh), h = qh,
                         format = format })
 
                 list[glyph.__id] = glyph
