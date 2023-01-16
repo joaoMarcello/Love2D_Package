@@ -177,7 +177,7 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h, bounds)
 
     self.n_layers = 0
 
-    self.canvas = love.graphics.newCanvas(self.w, self.h)
+    -- self.canvas = love.graphics.newCanvas(self.w, self.h)
 
     self.shader = nil
 

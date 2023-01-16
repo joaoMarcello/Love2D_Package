@@ -67,18 +67,25 @@ function Font:__constructor__(args)
         args = temp_table
     end
 
-    self.__normal_img = love.graphics.newImage("/JM_love2d_package/data/Font/" .. args.name .. "/" .. args.name .. ".png")
-    self.__normal_img:setFilter("linear", "nearest")
+    self.__imgs = {}
 
-    self.__bold_img = love.graphics.newImage("/JM_love2d_package/data/Font/" ..
-        args.name .. "/" .. args.name .. "_bold" .. ".png")
-    self.__bold_img:setFilter("linear", "nearest")
+    -- self.__normal_img = love.graphics.newImage("/JM_love2d_package/data/Font/" .. args.name .. "/" .. args.name .. ".png")
+    -- self.__normal_img:setFilter("linear", "nearest")
 
-    self.__italic_img = love.graphics.newImage("/JM_love2d_package/data/Font/" ..
-        args.name .. "/" .. args.name .. "_italic" .. ".png")
-    self.__italic_img:setFilter("linear", "nearest")
+    -- self.__bold_img = love.graphics.newImage("/JM_love2d_package/data/Font/" ..
+    --     args.name .. "/" .. args.name .. "_bold" .. ".png")
+    -- self.__bold_img:setFilter("linear", "nearest")
 
-    self.img = self.__normal_img
+    -- self.__italic_img = love.graphics.newImage("/JM_love2d_package/data/Font/" ..
+    --     args.name .. "/" .. args.name .. "_italic" .. ".png")
+    -- self.__italic_img:setFilter("linear", "nearest")
+
+    -- self.img = self.__normal_img
+
+
+    -- self.__imgs[FontFormat.normal] = self.__normal_img
+    -- self.__imgs[FontFormat.bold] = self.__bold_img
+    -- self.__imgs[FontFormat.italic] = self.__italic_img
 
     self.__nicknames = {}
 
@@ -86,6 +93,14 @@ function Font:__constructor__(args)
 
     self.__character_space = args.character_space or 0
     self.__line_space = args.line_space or 10
+
+
+    self.__characters = {
+        [FontFormat.normal] = {},
+        [FontFormat.bold] = {},
+        [FontFormat.italic] = {},
+        [FontFormat.bold_italic] = {}
+    }
 
     local chars_ = { "a", "A", "à", "À", "á", "Á", "ã", "Ã", "â", "Â", "ä", "Ä", "e", "E", "é", "É", "è",
         'È', 'ê', 'Ê', 'ë', "Ë", 'i', 'I', 'í', 'Í', 'ì', 'Ì', 'î', 'Î', 'ï', 'Ï', 'o', "O", 'ó', 'Ó', 'ò',
@@ -96,8 +111,7 @@ function Font:__constructor__(args)
         '|', '_', [["]], "'", '!', '?', ',', '.', ':', ';', 'ª', 'º', '°', '¹', '²', '³', '£', '¢', '<', '>', '¨',
         '¬', '~', '$', '&', '--dots--' }
 
-    self.__normal_characters = {}
-    self:load_characters_2("/JM_love2d_package/data/Font/Consolas/consolas_normal.png", self.__normal_characters,
+    self:load_characters("/JM_love2d_package/data/Font/Consolas/consolas_normal.png",
         FontFormat.normal, chars_)
 
     chars_ = { "a", "A", "à", "À", "á", "Á", "ã", "Ã", "â", "Â", "ä", "Ä", "e", "E", "é", "É", "è",
@@ -108,8 +122,7 @@ function Font:__constructor__(args)
         '4', '5', '6', '7', '8', '9', '+', '-', '=', '/', '*', '%', [[\]], '#', '§', '@', "(", '{', '[', ']', '}', ')',
         '|', '_', [["]], "'", '!', '?', ',', '.', ':', ';', 'ª', 'º', '°', '¹', '²', '³', '£', '¢', '¬', '¨',
         '~', '$', '<', '>', '&' }
-    self.__bold_characters = {}
-    self:load_characters_2("/JM_love2d_package/data/Font/Consolas/consolas_bold.png", self.__bold_characters,
+    self:load_characters("/JM_love2d_package/data/Font/Consolas/consolas_bold.png",
         FontFormat.bold, chars_)
 
     chars_ = { "a", "A", "à", "À", "á", "Á", "ã", "Ã", "â", "Â", "ä", "Ä", "e", "E", "é", "É", "è",
@@ -120,8 +133,7 @@ function Font:__constructor__(args)
         '4', '5', '6', '7', '8', '9', '+', '-', '=', '/', '*', '%', [[\]], '#', '§', '@', "(", '{', '[', ']', '}', ')',
         '|', '_', [["]], "'", '!', '?', ',', '.', ':', ';', 'ª', 'º', '°', '¹', '²', '³', '£', '¢', '¬', '¨',
         '<', '>', '&', '$', '~', '--heart--', '--dots--' }
-    self.__italic_characters = {}
-    self:load_characters_2("/JM_love2d_package/data/Font/Consolas/consolas_italic.png", self.__italic_characters,
+    self:load_characters("/JM_love2d_package/data/Font/Consolas/consolas_italic.png",
         FontFormat.italic, chars_)
 
 
@@ -140,36 +152,37 @@ function Font:__constructor__(args)
 
     self:set_font_size(self.__font_size)
 
-    self.__tab_char = Glyph:new(self.img, {
+    self.__tab_char = Glyph:new(self.__imgs[FontFormat.normal], {
         id = "\t",
         x = 0, y = 0,
         w = self.__word_space * self.__tab_size,
         h = self.__ref_height
     })
 
-    self.__space_char = Glyph:new(self.img, {
+    self.__space_char = Glyph:new(self.__imgs[FontFormat.normal], {
         id = " ",
         x = 0, y = 0,
         w = self.__word_space,
         h = self.__ref_height
     })
 
-    self.__normal_characters[" "] = self.__space_char
-    self.__bold_characters[" "] = self.__space_char
-    self.__italic_characters[" "] = self.__space_char
 
-    self.__normal_characters["\t"] = self.__tab_char
-    self.__bold_characters["\t"] = self.__tab_char
-    self.__italic_characters["\t"] = self.__tab_char
+    for _, format in pairs(FontFormat) do
+        self.__characters[format][" "] = self.__space_char
+        self.__characters[format]["\t"] = self.__tab_char
+    end
 
     self.__default_color = args.color or { 0.1, 0.1, 0.1, 1 }
 
     self.__bounds = { left = 0, top = 0, right = love.graphics.getWidth(), bottom = love.graphics.getHeight() }
 
     self.batches = {
-        [FontFormat.normal] = love.graphics.newSpriteBatch(self.__normal_img),
-        [FontFormat.bold] = love.graphics.newSpriteBatch(self.__bold_img),
-        [FontFormat.italic] = love.graphics.newSpriteBatch(self.__italic_img)
+        [FontFormat.normal] =
+        love.graphics.newSpriteBatch(self.__imgs[FontFormat.normal]),
+        [FontFormat.bold] =
+        love.graphics.newSpriteBatch(self.__imgs[FontFormat.bold]),
+        [FontFormat.italic] =
+        love.graphics.newSpriteBatch(self.__imgs[FontFormat.italic])
     }
 end
 
@@ -224,9 +237,13 @@ end
 --     list[nule_char.__id] = nule_char
 -- end
 
-function Font:load_characters_2(path, list, format, chars_)
+
+---@param path string
+---@param format JM.Font.FormatOptions
+---@param chars_ table
+function Font:load_characters(path, format, chars_)
     local img_data = love.image.newImageData(path)
-    -- assert(img_data:getDimensions(), "Error")
+    local list = {}
 
     local mask_color = { 1, 1, 0, 1 }
     local mask_color_red = { 1, 0, 0, 1 }
@@ -251,6 +268,7 @@ function Font:load_characters_2(path, list, format, chars_)
             end
         end
         img = love.graphics.newImage(data)
+        img:setFilter("linear", "nearest")
         data:release()
     end
 
@@ -308,6 +326,8 @@ function Font:load_characters_2(path, list, format, chars_)
 
     list[nule_char.__id] = nule_char
 
+    self.__characters[format] = list
+    self.__imgs[format] = img
 end
 
 function Font:get_nule_character()
@@ -432,9 +452,9 @@ function Font:add_nickname_animated(nickname, args)
 
     table_insert(self.__nicknames, nickname)
 
-    self.__normal_characters[new_character.__id] = new_character
-    self.__bold_characters[new_character.__id] = new_character
-    self.__italic_characters[new_character.__id] = new_character
+    for _, format in pairs(FontFormat) do
+        self.__characters[format][nickname] = new_character
+    end
 
     return animation
 end
@@ -457,20 +477,10 @@ end
 
 ---
 function Font:update(dt)
-
     for i = 1, #(self.__nicknames), 1 do
         local character = self:__get_char_equals(self.__nicknames[i])
         local r = character and character:update(dt)
     end
-
-    -- if self.buffer__ then
-    --     -- self.buffer_time = self.buffer_time + dt
-
-    --     -- if self.buffer_time >= 15.0 then
-    --     --     self.buffer_time = 0.0
-    --     --     self:clear_buffer()
-    --     -- end
-    -- end
 end
 
 ---@param c string
@@ -478,19 +488,13 @@ end
 function Font:__get_char_equals(c)
     if not c then return nil end
 
-    local list = self.__format == FontFormat.normal and self.__normal_characters
-        or self.__format == FontFormat.bold and self.__bold_characters
-        or self.__italic_characters
-
-    local char_ = list[c]
+    local char_ = self.__characters[self.__format][c]
 
     if not char_ and is_valid_nickname(c) then
-        char_ = self.__bold_characters[c]
-        if char_ then return char_ end
-        char_ = self.__italic_characters[c]
-        if char_ then return char_ end
-        char_ = self.__normal_characters[c]
-        if char_ then return char_ end
+        for _, format in pairs(FontFormat) do
+            char_ = self.__characters[format][c]
+            if char_ then return char_ end
+        end
     end
 
     return char_
