@@ -29,6 +29,7 @@ function Ghost:__constructor__(args)
     self.__range = (self.__max - self.__min) / 2
     self.__speed = args and args.speed or 1.5
     self.__alpha = self.__max
+    self.__rad = PI
 end
 
 function Ghost:update(dt)

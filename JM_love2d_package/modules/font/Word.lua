@@ -94,13 +94,18 @@ function Word:copy()
 end
 
 local rad_wave = 0
-local fadein_delay
+local fadein_delay = 0
+
+function Word:restaure_effect()
+    rad_wave = 0
+    fadein_delay = 0
+end
 
 ---@param startp number|nil
 ---@param endp number|nil
 ---@param effect_type string
 ---@param offset number|nil
-function Word:apply_effect(startp, endp, effect_type, offset)
+function Word:apply_effect(startp, endp, effect_type, offset, eff_args)
     if not startp then startp = 1 end
     if not endp then endp = #self.__characters end
     if not offset then offset = 0 end
@@ -121,19 +126,16 @@ function Word:apply_effect(startp, endp, effect_type, offset)
             rad_wave = rad_wave - (math.pi * 2 * 0.1)
             if char__.__id == " " then goto continue end
             eff = EffectManager:generate_effect("float", { range = 2, rad = rad_wave, speed = 0.5 })
-        elseif effect_type == "fadein" then
+        elseif effect_type == "goddess" then
 
-            fadein_delay = fadein_delay or 0
-
-            -- fadein_delay = fadein_delay + 0.5 * i
             char__:set_color2(nil, nil, nil, 0)
-            eff = EffectManager:generate_effect("fadein", { delay = fadein_delay + 0.2 * i })
+            eff = EffectManager:generate_effect("fadein", { delay = fadein_delay + 0.1 * i })
 
             if i == endp then
-                fadein_delay = fadein_delay + 0.2 * (endp - startp + 1)
+                fadein_delay = fadein_delay + 0.1 * (endp - startp + 1)
             end
         else
-            eff = EffectManager:generate_effect(effect_type)
+            eff = EffectManager:generate_effect(effect_type, eff_args)
         end
 
         if not eff then break end

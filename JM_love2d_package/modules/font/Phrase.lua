@@ -56,14 +56,18 @@ function Phrase:__constructor__(args)
             end
 
             if self.__effect then
-                w:apply_effect(nil, nil, self.__effect)
+                if not self.__font:__is_a_command_tag(w.text) then
+                    w:apply_effect(nil, nil, self.__effect, nil, self.__eff_args)
+                end
             end
 
             table.insert(self.__words, w)
         end
     end
 
+    Word:restaure_effect()
     self.__effect = nil
+    self.__eff_args = nil
 
     self.__font:pop()
 end
@@ -99,13 +103,28 @@ function Phrase:__verify_commands(text)
             self.__font:set_format_mode(self.__font_config.format)
 
         elseif result == "<effect>" then
-            local starp, endp = string.find(text, "=[^ ].*[^ ]")
+            local starp, endp = string.find(text, "=")
             if starp then
+                local reg = "[^ ].*[^ ]"
                 local s = text:sub(starp + 1, #text - 1)
+                ---@type table
                 local parse = Utils:parse_csv_line(s)
-                local eff = parse[1]
+                local eff = parse[1]:match(reg)
 
                 self.__effect = eff
+                self.__eff_args = {}
+
+                for i = 2, #parse do
+                    local s = string.find(parse[i], '=')
+                    if s then
+                        local opt = parse[i]:sub(1, s - 1):match(reg)
+                        if opt then
+                            local value = parse[i]:sub(s + 1, #parse[i])
+                            self.__eff_args[opt] = tonumber(value)
+                        end
+                    end
+                end
+
             end
         elseif result == "</effect>" then
             self.__effect = false

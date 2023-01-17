@@ -33,6 +33,10 @@ function Fadein:__constructor__(args)
         self.__speed = 0.2
         local r = self.__object and self.__object:set_color2(nil, nil, nil, 1)
     end
+
+    -- if self.__id == Effect.TYPE.fadein then
+
+    -- end
 end
 
 function Fadein:update(dt)
@@ -59,6 +63,11 @@ function Fadein:update_fadeout(dt)
     end
 
     self.__object:set_color2(nil, nil, nil, self.__alpha)
+end
+
+function Fadein:apply(object, reset)
+    Effect.apply(self, object, reset)
+    local r = self.__object and self.__object:set_color2(nil, nil, nil, 0)
 end
 
 return Fadein

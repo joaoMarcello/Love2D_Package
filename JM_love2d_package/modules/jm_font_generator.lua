@@ -676,7 +676,7 @@ function Font:__is_a_command_tag(s)
         or (s:match("< *color[%d, .]*>") and "<color>")
         or (s:match("< */ *color *>") and "</color>")
 
-        or (s:match("< *effect=[%a, ]* *>") and "<effect>")
+        or (s:match("< *effect *=[%a, =%d%.]* *>") and "<effect>")
         or (s:match("< */ *effect *>") and "</effect>")
         or false
 end
