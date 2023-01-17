@@ -1199,25 +1199,32 @@ local AlignOptions = {
     center = 3,
     justified = 4
 }
+
+---@param text any
+---@param x any
+---@param y any
+---@param right any
+---@param align any
 function Font:printx(text, x, y, right, align)
     align = align or "left"
 
-    self.buffer__ = self.buffer__ or setmetatable({}, { __mode = 'v' })
-    self.buffer_time = 0.0
+    self.buffer__ = self.buffer__ or setmetatable({}, { __mode = 'k' })
 
-    local index = string.format("%s %d %d %s", text, x, y, AlignOptions[align])
+    if not self.buffer__[text] then self.buffer__[text] = {} end
 
-    if not self.buffer__[index] then
-        local f = Phrase:new({ text = text, font = self })
-        self.buffer__[index] = f
+    local index = string.format("%d %d %s", x, y, AlignOptions[align])
+
+    if not self.buffer__[text][index] then
+        local f = Phrase:new({ text = text, font = self, x = x, y = y })
+        self.buffer__[text][index] = f
     end
 
     ---@type JM.Font.Phrase
-    local fr = self.buffer__[index]
+    local fr = self.buffer__[text][index]
     fr:set_bounds(nil, nil, right)
     local value = fr:draw(x, y, align)
 
-    return value
+    return fr
 end
 
 function Font:clear_buffer()

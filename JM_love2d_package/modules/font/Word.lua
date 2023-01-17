@@ -64,28 +64,28 @@ function Word:__load_characters(mode)
     self.__font:set_format_mode(last_font_format)
 end
 
-function Word:turn_into_bold(startp, endp)
-    if not startp then startp = 1 end
-    if not endp then endp = #(self.__characters) end
-    local last_font_format = self.__font:get_format_mode()
+-- function Word:turn_into_bold(startp, endp)
+--     if not startp then startp = 1 end
+--     if not endp then endp = #(self.__characters) end
+--     local last_font_format = self.__font:get_format_mode()
 
-    self.__font:set_format_mode(self.__font.format_options.bold)
+--     self.__font:set_format_mode(self.__font.format_options.bold)
 
-    local i = startp
-    while (i <= endp) do
-        local current_char = self:__get_char_by_index(i)
-        local bold_char = self.__font:__get_char_equals(current_char.__id)
-        local color_char = current_char:get_color()
+--     local i = startp
+--     while (i <= endp) do
+--         local current_char = self:__get_char_by_index(i)
+--         local bold_char = self.__font:__get_char_equals(current_char.__id)
+--         local color_char = current_char:get_color()
 
-        self.__characters[i] = bold_char and bold_char:copy() or self.__characters[i]
+--         self.__characters[i] = bold_char and bold_char:copy() or self.__characters[i]
 
-        self.__characters[i]:set_color(color_char)
+--         self.__characters[i]:set_color(color_char)
 
-        i = i + 1
-    end
+--         i = i + 1
+--     end
 
-    self.__font:set_format_mode(last_font_format)
-end
+--     self.__font:set_format_mode(last_font_format)
+-- end
 
 ---
 function Word:copy()

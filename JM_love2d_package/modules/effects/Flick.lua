@@ -38,7 +38,7 @@ function Flick:__constructor__(args)
     self.__id = Effect.TYPE.flickering
     self.__speed = args and args.speed or 0.1
     self.__time = 0
-    self.__color = args and args.color or { 0, 0, 1, 1 }
+    -- self.__color = args and args.color or { 0, 0, 1, 1 }
 
     self.__flick_state = 1
     self.cycle_count = -1
