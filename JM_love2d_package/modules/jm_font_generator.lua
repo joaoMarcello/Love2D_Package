@@ -533,7 +533,7 @@ function Font:separate_string(s, list)
     while (current_init <= #(s)) do
         local regex = string.format("[^[ ]]*.-[%s]", sep)
         --"[^[ ]]*.-[" .. sep .. "]"
-        local tag_regex = "< *[%d, .%w/]*>"
+        local tag_regex = "< *[%d, =.%w/]*>"
 
         local tag = s:match(tag_regex, current_init)
         local find = not tag and s:match(regex, current_init)
@@ -675,7 +675,9 @@ function Font:__is_a_command_tag(s)
         or (s:match("< */ *italic *>") and "</italic>")
         or (s:match("< *color[%d, .]*>") and "<color>")
         or (s:match("< */ *color *>") and "</color>")
-        or (s:match("< *freaky *>") and "<freaky>")
+
+        or (s:match("< *effect=[%a, ]* *>") and "<effect>")
+        or (s:match("< */ *effect *>") and "</effect>")
         or false
 end
 

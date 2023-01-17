@@ -165,7 +165,9 @@ end
 
 function Glyph:draw_rec(x, y, w, h)
     x = x + w / 2
-    y = y + h - self.h * self.sy + self.oy * self.sy
+    y = y + h
+        - self.h * self.sy
+        + self.oy * self.sy
 
     self:draw(x, y)
 

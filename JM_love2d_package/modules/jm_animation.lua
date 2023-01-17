@@ -691,8 +691,6 @@ function Anima:draw_rec(x, y, w, h)
     end
 
     self:draw(x, y)
-
-    current_frame, effect_transform = nil, nil
 end
 
 ---

@@ -32,11 +32,11 @@ end
 
 local text = "Hello <freaky>aqui quem fala \teh o seu<italic>capitão</italic>.astha nao sei mais oque escrever paraastasatsagstasga este texto ficar longo então vou ficar enrolando <bold>World <italic><color, 0, 0, 1, 1>Iupi <bold> World</color>test <color>Wo"
 
-local text2 = "<color, 0, 0, 1>Thanos</color> <italic>aAáÁàÀãÃäÄ eEéÉèÈêÊëË iIíÍìÌîÎïÏ\n\toOóÓòòôÔ\n\töÖõÕ uUúÚùÙûüÜ bBcCçÇdDfF gGhHjJkKlLm M nNpPqQrRsS {[(astha)]} |as_ \n tTvVwWxXyYzZ 0123456789 +-=/# @TMJ_por_JM & § ?|!,.;: °º1ª¹²³£¢¬ AsthaYuno * ¨¬¬ ~ $ ~ --heart-- --dots-- \n</italic>Press --a-- to <color><bold>charge your laser</color>."
+local text2 = "<color, 0, 0, 1>Thanos</color> <italic>aAáÁàÀãÃäÄ eEéÉèÈêÊëË iIíÍìÌîÎïÏ\n\toOóÓòòôÔ\n\töÖõÕ uUúÚùÙûüÜ bBcCçÇdDfF gGhHjJkKlLm M nNpPqQrRsS {[(astha)]} |as_ \n< effect=freaky>tTvVwW xXyYzZ</effect> 0123456789 +-=/# @TMJ_por_JM & § ?|!,.;: °º1ª¹²³£¢¬ AsthaYuno * ¨¬¬ ~ $ ~ --heart-- --dots-- \n</italic><effect=wave>Press --s-- to <bold><color>charge</effect> your laser</color>."
     .. [["]]
 
-local text3 = "aAàÀ <italic>çÇé fada <bold>dDeEfFgGhHiIjJkKlL</bold> mNoOpPqQrRsStT\n\tuUvVwWxXyYzZ <italic>0123456789</italic> +-=/*#§@ (){}[]\n|_'!?\n,.:;ªº°\n¹²³£¢\n <> ¨¬~$&\nEste é o mundo de Greg Uooôô ôô"
-    .. [["/]]
+-- local text3 = "aAàÀ <italic>çÇé fada <bold>dDeEfFgGhHiIjJkKlL</bold> mNoOpPqQrRsStT\n\t<freaky>uUvVwWxXyYzZ</freaky> <italic>0123456789</italic> +-=/*#§@ (){}[]\n|_'!?\n,.:;ªº°\n¹²³£¢\n <> ¨¬~$&\nEste é o mundo de Greg Uooôô ôô"
+--     .. [["/]]
 
 local text4 = "oi eu sou o goku"
 

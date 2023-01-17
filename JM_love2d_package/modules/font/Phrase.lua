@@ -50,25 +50,27 @@ function Phrase:__constructor__(args)
 
         self:__verify_commands(w.text)
 
-        -- if self.__freaky then
-        --     ---@type JM.Font.Glyph
-        --     local r = w.__characters[1]
-        --     r:apply_effect("ghost")
-        -- end
+
 
         if w.text ~= "" then
             if not self.__font:__is_a_nickname(w.text, 1) then
                 w:set_color(self.__font.__default_color)
             end
 
+            if self.__effect then
+                w:apply_effect(nil, nil, self.__effect)
+            end
+
             table.insert(self.__words, w)
         end
     end
 
+    self.__effect = nil
+
     self.__font:pop()
 end
 
----@param text any
+---@param text string
 function Phrase:__verify_commands(text)
     local result = self.__font:__is_a_command_tag(text)
 
@@ -97,8 +99,18 @@ function Phrase:__verify_commands(text)
 
         elseif result:match("< */ *italic *>") then
             self.__font:set_format_mode(self.__font_config.format)
-            -- elseif result:match("<freaky>") then
-            --     self.__freaky = true
+
+        elseif result == "<effect>" then
+            local starp, endp = string.find(text, "=[^ ].*[^ ]")
+            if starp then
+                local s = text:sub(starp + 1, #text - 1)
+                local parse = Utils:parse_csv_line(s)
+                local eff = parse[1]
+
+                self.__effect = eff
+            end
+        elseif result == "</effect>" then
+            self.__effect = false
         end
     end
 end
@@ -318,7 +330,6 @@ function Phrase:get_lines(x)
             and current_word.text ~= "\n"
             and next_word and next_word.text ~= "\t"
         then
-
             table.insert(lines[cur_line], word_char)
         end
         tx = tx + r
@@ -367,7 +378,7 @@ local pointer_char_count = {}
 ---@param lines table
 ---@param x number
 ---@param y number
----@param align "left"|"right"|"center"|"justified"|nil
+---@param align "left"|"right"|"center"|"justify"|nil
 ---@param threshold number|nil
 ---@return JM.Font.CharacterPosition|nil
 function Phrase:draw_lines(lines, x, y, align, threshold, __max_char__)
@@ -388,7 +399,7 @@ function Phrase:draw_lines(lines, x, y, align, threshold, __max_char__)
         elseif align == "center" then
             tx = x + (self.__bounds.right - x) / 2 - self:__line_length(lines[i]) / 2
 
-        elseif align == "justified" then
+        elseif align == "justify" then
 
             local total = self:__line_length(lines[i])
 
@@ -455,7 +466,7 @@ end
 
 ---@param x number
 ---@param y number
----@param align "left"|"right"|"center"|"justified"|nil
+---@param align "left"|"right"|"center"|"justify"|nil
 ---@param __max_char__ number|nil
 ---@return JM.Font.CharacterPosition|nil
 function Phrase:draw(x, y, align, __max_char__)

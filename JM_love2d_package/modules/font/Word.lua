@@ -93,9 +93,11 @@ function Word:copy()
     return cpy
 end
 
+local rad_wave = 0
+
 ---@param startp number|nil
 ---@param endp number|nil
----@param effect_type "freaky"|"pump"
+---@param effect_type string
 ---@param offset number|nil
 function Word:apply_effect(startp, endp, effect_type, offset)
     if not startp then startp = 1 end
@@ -104,23 +106,32 @@ function Word:apply_effect(startp, endp, effect_type, offset)
 
     for i = startp, endp, 1 do
         local eff
+        local char__ = self:__get_char_by_index(i)
 
-        if effect_type == "freaky" or true then
+        if effect_type == "freaky" then
             eff = EffectManager:generate_effect("float", {
-                range = 0.7,
+                range = 0.5,
                 speed = 0.2,
                 rad = math.pi * (i % 4) + offset
             })
         elseif effect_type == "pump" then
             eff = EffectManager:generate_effect("jelly")
+        elseif effect_type == "wave" then
+            rad_wave = rad_wave - (math.pi * 2 * 0.1)
+            if char__.__id == " " then goto continue end
+            eff = EffectManager:generate_effect("float", { range = 2, rad = rad_wave, speed = 0.5 })
+        else
+            eff = EffectManager:generate_effect(effect_type)
         end
 
-        local char__ = self:__get_char_by_index(i)
+        if not eff then break end
+
         if char__ and char__:is_animated() then
             eff:apply(char__.__anima)
         else
             eff:apply(self.__characters[i])
         end
+        ::continue::
     end
 
 end
