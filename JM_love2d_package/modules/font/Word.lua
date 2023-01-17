@@ -94,6 +94,7 @@ function Word:copy()
 end
 
 local rad_wave = 0
+local fadein_delay
 
 ---@param startp number|nil
 ---@param endp number|nil
@@ -120,6 +121,17 @@ function Word:apply_effect(startp, endp, effect_type, offset)
             rad_wave = rad_wave - (math.pi * 2 * 0.1)
             if char__.__id == " " then goto continue end
             eff = EffectManager:generate_effect("float", { range = 2, rad = rad_wave, speed = 0.5 })
+        elseif effect_type == "fadein" then
+
+            fadein_delay = fadein_delay or 0
+
+            -- fadein_delay = fadein_delay + 0.5 * i
+            char__:set_color2(nil, nil, nil, 0)
+            eff = EffectManager:generate_effect("fadein", { delay = fadein_delay + 0.2 * i })
+
+            if i == endp then
+                fadein_delay = fadein_delay + 0.2 * (endp - startp + 1)
+            end
         else
             eff = EffectManager:generate_effect(effect_type)
         end
@@ -133,7 +145,6 @@ function Word:apply_effect(startp, endp, effect_type, offset)
         end
         ::continue::
     end
-
 end
 
 function Word:surge_effect(startp, endp, delay)

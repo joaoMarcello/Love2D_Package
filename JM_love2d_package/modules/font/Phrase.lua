@@ -50,8 +50,6 @@ function Phrase:__constructor__(args)
 
         self:__verify_commands(w.text)
 
-
-
         if w.text ~= "" then
             if not self.__font:__is_a_nickname(w.text, 1) then
                 w:set_color(self.__font.__default_color)
