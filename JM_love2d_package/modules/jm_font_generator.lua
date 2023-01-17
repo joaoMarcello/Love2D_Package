@@ -1,3 +1,5 @@
+local utf8 = require('utf8')
+
 ---@type string
 local path = ...
 
@@ -25,6 +27,59 @@ local love_draw, love_set_color = love.graphics.draw, love.graphics.setColor
 ---@return string|nil
 local function is_valid_nickname(nickname)
     return #nickname > 4 and nickname:match("%-%-[^%-][%w%p]-%-%-") or nil
+end
+
+---@param s string
+local function get_glyphs(s)
+    local t = {}
+    for p, c in utf8.codes(s) do
+        table.insert(t, utf8.char(c))
+    end
+
+    return t
+end
+
+---@param t table
+local function find_nicks(t)
+
+    local next_ = function(init)
+        local i = init
+        local n = #t
+        while (i <= n) do
+            if t[i] == '-' and t[i + 1] and t[i + 1] == '-' then
+                return (i + 1)
+            end
+            i = i + 1
+        end
+        return false
+    end
+
+    local i = 1
+    local N = #t
+    local new_table = {}
+
+    while (i <= N) do
+        if t[i] == '-' and t[i + 1] and t[i + 1] == '-' then
+            local next = next_(i + 2)
+            if next then
+                local s = ''
+                for k = i, next do
+                    s = s .. t[k]
+                end
+
+                if is_valid_nickname(s) then
+                    table_insert(new_table, s)
+                    i = next
+                end
+            end
+        else
+            table_insert(new_table, t[i])
+        end
+
+        i = i + 1
+    end
+
+    return new_table
 end
 
 ---@enum JM.Font.FormatOptions
@@ -102,39 +157,24 @@ function Font:__constructor__(args)
         [FontFormat.bold_italic] = {}
     }
 
-    local glyphs = { "a", "A", "à", "À", "á", "Á", "ã", "Ã", "â", "Â", "ä", "Ä", "e", "E", "é", "É", "è",
-        'È', 'ê', 'Ê', 'ë', "Ë", 'i', 'I', 'í', 'Í', 'ì', 'Ì', 'î', 'Î', 'ï', 'Ï', 'o', "O", 'ó', 'Ó', 'ò',
-        'Ò', 'ô', 'Ô', 'õ', 'Õ', 'ö', 'Ö', 'u', "U", 'ú', 'Ú', 'ù', 'Ù', 'û', 'Û', 'ü', 'Ü', 'b', 'B', 'c',
-        'C', 'ç', 'Ç', 'd', 'D', 'f', 'F', 'g', 'G', 'h', 'H', 'j', "J", 'k', 'K', 'l', 'L', 'm', 'M', 'n', 'N', 'p',
-        'P', 'q', 'Q', 'r', 'R', 's', 'S', 't', 'T', 'v', 'V', 'w', 'W', 'x', 'X', 'y', 'Y', 'z', 'Z', '0', '1', '2', '3',
-        '4', '5', '6', '7', '8', '9', '+', '-', '=', '/', '*', '%', [[\]], '#', '§', '@', "(", '{', '[', ']', '}', ')',
-        '|', '_', [["]], "'", '!', '?', ',', '.', ':', ';', 'ª', 'º', '°', '¹', '²', '³', '£', '¢', '<', '>', '¨',
-        '¬', '~', '$', '&', '--dots--' }
+    local glyphs
+
+    local s = "aAàÀáÁãÃâÂäÄeEéÉèÈêÊëËiIíÍìÌîÎïÏoOóÓòÒôÔõÕöÖuUúÚùÙûÛüÜbBcCçÇdDfFgGhHjJkKlLmMnNpPqQrRsStTvVwWxXyYzZ0123456789+-=/*%"
+        .. [[\]] .. "#§@({[]})|_" .. [["]] .. "'!?,.:;ªº°¹²³£¢<>¨¬~$&--dots--"
 
     self:load_characters("/JM_love2d_package/data/Font/Consolas/consolas_normal.png",
-        FontFormat.normal, glyphs)
+        FontFormat.normal, find_nicks(get_glyphs(s)))
 
-    glyphs = { "a", "A", "à", "À", "á", "Á", "ã", "Ã", "â", "Â", "ä", "Ä", "e", "E", "é", "É", "è",
-        'È', 'ê', 'Ê', 'ë', "Ë", 'i', 'I', 'í', 'Í', 'ì', 'Ì', 'î', 'Î', 'ï', 'Ï', 'o', "O", 'ó', 'Ó', 'ò',
-        'Ò', 'ô', 'Ô', 'õ', 'Õ', 'ö', 'Ö', 'u', "U", 'ú', 'Ú', 'ù', 'Ù', 'û', 'Û', 'ü', 'Ü', 'b', 'B', 'c',
-        'C', 'ç', 'Ç', 'd', 'D', 'f', 'F', 'g', 'G', 'h', 'H', 'j', "J", 'k', 'K', 'l', 'L', 'm', 'M', 'n', 'N', 'p',
-        'P', 'q', 'Q', 'r', 'R', 's', 'S', 't', 'T', 'v', 'V', 'w', 'W', 'x', 'X', 'y', 'Y', 'z', 'Z', '0', '1', '2', '3',
-        '4', '5', '6', '7', '8', '9', '+', '-', '=', '/', '*', '%', [[\]], '#', '§', '@', "(", '{', '[', ']', '}', ')',
-        '|', '_', [["]], "'", '!', '?', ',', '.', ':', ';', 'ª', 'º', '°', '¹', '²', '³', '£', '¢', '¬', '¨',
-        '~', '$', '<', '>', '&' }
+    s = "aAàÀáÁãÃâÂäÄeEéÉèÈêÊëËiIíÍìÌîÎïÏoOóÓòÒôÔõÕöÖuUúÚùÙûÛüÜbBcCçÇdDfFgGhHjJkKlLmMnNpPqQrRsStTvVwWxXyYzZ0123456789+-=/*%"
+        .. [[\]] .. "#§@({[]})|_" .. [["]] .. "'!?,.:;ªº°¹²³£¢¬¨~$<>&"
+
     self:load_characters("/JM_love2d_package/data/Font/Consolas/consolas_bold.png",
-        FontFormat.bold, glyphs)
+        FontFormat.bold, find_nicks(get_glyphs(s)))
 
-    glyphs = { "a", "A", "à", "À", "á", "Á", "ã", "Ã", "â", "Â", "ä", "Ä", "e", "E", "é", "É", "è",
-        'È', 'ê', 'Ê', 'ë', "Ë", 'i', 'I', 'í', 'Í', 'ì', 'Ì', 'î', 'Î', 'ï', 'Ï', 'o', "O", 'ó', 'Ó', 'ò',
-        'Ò', 'ô', 'Ô', 'õ', 'Õ', 'ö', 'Ö', 'u', "U", 'ú', 'Ú', 'ù', 'Ù', 'û', 'Û', 'ü', 'Ü', 'b', 'B', 'c',
-        'C', 'ç', 'Ç', 'd', 'D', 'f', 'F', 'g', 'G', 'h', 'H', 'j', "J", 'k', 'K', 'l', 'L', 'm', 'M', 'n', 'N', 'p',
-        'P', 'q', 'Q', 'r', 'R', 's', 'S', 't', 'T', 'v', 'V', 'w', 'W', 'x', 'X', 'y', 'Y', 'z', 'Z', '0', '1', '2', '3',
-        '4', '5', '6', '7', '8', '9', '+', '-', '=', '/', '*', '%', [[\]], '#', '§', '@', "(", '{', '[', ']', '}', ')',
-        '|', '_', [["]], "'", '!', '?', ',', '.', ':', ';', 'ª', 'º', '°', '¹', '²', '³', '£', '¢', '¬', '¨',
-        '<', '>', '&', '$', '~', '--heart--', '--dots--' }
+    s = [[aAàÀáÁãÃâÂäÄeEéÉèÈêÊëËiIíÍìÌîÎïÏoOóÓòÒôÔõÕöÖuUúÚùÙûÛüÜbBcCçÇdDfFgGhHjJkKlLmMnNpPqQrRsStTvVwWxXyYzZ0123456789+-=/*%\#§@({[]})|_"'!?,.:;ªº°¹²³£¢¬¨<>&$~--heart----dots--]]
+
     self:load_characters("/JM_love2d_package/data/Font/Consolas/consolas_italic.png",
-        FontFormat.italic, glyphs)
+        FontFormat.italic, find_nicks(get_glyphs(s)))
 
 
     self.__format = FontFormat.normal
@@ -236,6 +276,7 @@ end
 
 --     list[nule_char.__id] = nule_char
 -- end
+
 
 
 ---@param path string

@@ -24,7 +24,7 @@ Consolas:add_nickname_animated("--goomba--", {
     state = "looping"
 })
 
-Consolas:add_nickname_animated("--jean--", {
+Consolas:add_nickname_animated("--jj--", {
     img = "/data/goomba.png",
     frames_list = { { 27, 85, 17, 89 },
         { 150, 209, 20, 89 },
