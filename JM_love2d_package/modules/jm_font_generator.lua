@@ -355,7 +355,7 @@ function Font:get_nule_character()
     return char_
 end
 
-local results_get_config = setmetatable({}, { __mode = 'kv' })
+local results_get_config = setmetatable({}, { __mode = 'k' })
 
 ---@return {font_size: number, character_space: number, color: JM.Color, line_space: number, word_space: number, tab_size: number, format: JM.Font.FormatOptions }
 function Font:__get_configuration()
@@ -1209,7 +1209,6 @@ function Font:printx(text, x, y, right, align)
 
     if not self.buffer__[index] then
         local f = Phrase:new({ text = text, font = self })
-        --f:set_bounds(nil, nil, right)
         self.buffer__[index] = f
     end
 

@@ -32,12 +32,12 @@ end
 
 local text = "Hello <freaky>aqui quem fala \teh o seu<italic>capitão</italic>.astha nao sei mais oque escrever paraastasatsagstasga este texto ficar longo então vou ficar enrolando <bold>World <italic><color, 0, 0, 1, 1>Iupi <bold> World</color>test <color>Wo"
 
-local text2 = "<color, 0, 0, 1>Thanos</color> aAáÁàÀãÃäÄ eEéÉèÈêÊëË iIíÍìÌîÎïÏ\n\toOóÓòòôÔ\n\töÖõÕ uUúÚùÙûüÜ bBcCçÇdDfF gGhHjJkKlLm M nNpPqQrRsS {[(astha)]} |as_ \n<effect=fadein>tTvVwW xXyYzZ</effect> 0123456789 +-=/# @TMJ_por_JM & § ?|!,.;: °º1ª¹²³£¢¬ AsthaYuno * ¨¬¬ ~ $ ~ --heart-- --dots-- \n</italic><effect=wave>Press --a-- to <bold><color>charge</effect> your laser</color> .  alfa"
+local text2 = "<color, 0, 0, 1>Thanos</color> aAáÁàÀãÃäÄ eEéÉèÈêÊëË iIíÍìÌîÎïÏ\n\toOóÓòòôÔ\n\töÖõÕ uUúÚùÙûüÜ bBcCçÇdDfF gGhHjJkKlLm M nNpPqQrRsS {[(astha)]} |as_ \n<effect=spooky>tTvVwW xXyYzZ</effect> 0123456789 +-=/# @TMJ_por_JM & § ?|!,.;: °º1ª¹²³£¢¬ AsthaYuno * ¨¬¬ ~ $ ~ --heart-- --dots-- \n</italic><effect=wave>Press --a-- to <bold><color>charge</effect> your laser</color> .  alfa"
 
 -- local text3 = "aAàÀ <italic>çÇé fada <bold>dDeEfFgGhHiIjJkKlL</bold> mNoOpPqQrRsStT\n\t<freaky>uUvVwWxXyYzZ</freaky> <italic>0123456789</italic> +-=/*#§@ (){}[]\n|_'!?\n,.:;ªº°\n¹²³£¢\n <> ¨¬~$&\nEste é o mundo de Greg Uooôô ôô"
 --     .. [["/]]
 
-local text4 = "< effect =ghost, delay =3 , speed=1, min=0.2, max=1 >oi eu sou o goku"
+local text4 = "< effect =ghost, delay =0 , speed=1, min=0.2, max=1 >oi eu sou o goku"
 
 local function draw(camera)
     local a = 0.7 + 0.4 * math.sin(rad)
@@ -51,7 +51,10 @@ local function draw(camera)
     -- Game:get_mouse_position()
     )
 
+    Font.current:push()
+    Font.current:set_font_size(22)
     Font:printx(text4, 32 * 13, 32 * 3, "left", 32 * 13 + 32 * 6)
+    Font.current:pop()
 
     local mx, my = Game:get_mouse_position()
     love.graphics.setColor(0, 0, 1, 1)

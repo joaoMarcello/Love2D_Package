@@ -114,7 +114,7 @@ function Word:apply_effect(startp, endp, effect_type, offset, eff_args)
         local eff
         local char__ = self:__get_char_by_index(i)
 
-        if effect_type == "freaky" then
+        if effect_type == "spooky" then
             eff = EffectManager:generate_effect("float", {
                 range = 0.5,
                 speed = 0.2,
