@@ -124,24 +124,6 @@ function Font:__constructor__(args)
 
     self.__imgs = {}
 
-    -- self.__normal_img = love.graphics.newImage("/JM_love2d_package/data/Font/" .. args.name .. "/" .. args.name .. ".png")
-    -- self.__normal_img:setFilter("linear", "nearest")
-
-    -- self.__bold_img = love.graphics.newImage("/JM_love2d_package/data/Font/" ..
-    --     args.name .. "/" .. args.name .. "_bold" .. ".png")
-    -- self.__bold_img:setFilter("linear", "nearest")
-
-    -- self.__italic_img = love.graphics.newImage("/JM_love2d_package/data/Font/" ..
-    --     args.name .. "/" .. args.name .. "_italic" .. ".png")
-    -- self.__italic_img:setFilter("linear", "nearest")
-
-    -- self.img = self.__normal_img
-
-
-    -- self.__imgs[FontFormat.normal] = self.__normal_img
-    -- self.__imgs[FontFormat.bold] = self.__bold_img
-    -- self.__imgs[FontFormat.italic] = self.__italic_img
-
     self.__nicknames = {}
 
     self.__font_size = args.font_size or 20
@@ -157,16 +139,12 @@ function Font:__constructor__(args)
         [FontFormat.bold_italic] = {}
     }
 
-    local glyphs
-
-    local s = "aAàÀáÁãÃâÂäÄeEéÉèÈêÊëËiIíÍìÌîÎïÏoOóÓòÒôÔõÕöÖuUúÚùÙûÛüÜbBcCçÇdDfFgGhHjJkKlLmMnNpPqQrRsStTvVwWxXyYzZ0123456789+-=/*%"
-        .. [[\]] .. "#§@({[]})|_" .. [["]] .. "'!?,.:;ªº°¹²³£¢<>¨¬~$&--dots--"
+    local s = [[aAàÀáÁãÃâÂäÄeEéÉèÈêÊëËiIíÍìÌîÎïÏoOóÓòÒôÔõÕöÖuUúÚùÙûÛüÜbBcCçÇdDfFgGhHjJkKlLmMnNpPqQrRsStTvVwWxXyYzZ0123456789+-=/*%\#§@({[]})|_"'!?,.:;ªº°¹²³£¢<>¨¬~$&--dots--]]
 
     self:load_characters("/JM_love2d_package/data/Font/Consolas/consolas_normal.png",
         FontFormat.normal, find_nicks(get_glyphs(s)))
 
-    s = "aAàÀáÁãÃâÂäÄeEéÉèÈêÊëËiIíÍìÌîÎïÏoOóÓòÒôÔõÕöÖuUúÚùÙûÛüÜbBcCçÇdDfFgGhHjJkKlLmMnNpPqQrRsStTvVwWxXyYzZ0123456789+-=/*%"
-        .. [[\]] .. "#§@({[]})|_" .. [["]] .. "'!?,.:;ªº°¹²³£¢¬¨~$<>&"
+    s = [[aAàÀáÁãÃâÂäÄeEéÉèÈêÊëËiIíÍìÌîÎïÏoOóÓòÒôÔõÕöÖuUúÚùÙûÛüÜbBcCçÇdDfFgGhHjJkKlLmMnNpPqQrRsStTvVwWxXyYzZ0123456789+-=/*%\#§@({[]})|_"'!?,.:;ªº°¹²³£¢¬¨~$<>&]]
 
     self:load_characters("/JM_love2d_package/data/Font/Consolas/consolas_bold.png",
         FontFormat.bold, find_nicks(get_glyphs(s)))
@@ -175,7 +153,6 @@ function Font:__constructor__(args)
 
     self:load_characters("/JM_love2d_package/data/Font/Consolas/consolas_italic.png",
         FontFormat.italic, find_nicks(get_glyphs(s)))
-
 
     self.__format = FontFormat.normal
 
