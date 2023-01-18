@@ -24,7 +24,7 @@ local button = Font.current:add_nickname_animated("--a--", {
 
 local text = "Hello <freaky>aqui quem fala \teh o seu<italic>capitão</italic>.astha nao sei mais oque escrever paraastasatsagstasga este texto ficar longo então vou ficar enrolando <bold>World <italic><color, 0, 0, 1, 1>Iupi <bold> World</color>test <color>Wo"
 
-local text2 = "<color, 0, 0, 1>Thanos.</color> eu nem gosto, ouviu? sas vefe sajs asasahs wtwrfaghsas\n \n \n \n  asd asss df iIíÍìÌîÎïÏ oOóÓòòôÔ öÖõÕ uUúÚùÙûüÜ <color, 1, 1, 0>bBcCçÇdDfF</color> gGhHjJkKlLm\n <effect=spooky>tTvVwW xXyYzZ</effect> 0123456789¬ AsthaYuno * ¨¬¬ ~ $ ~ --heart-- --dots-- </italic><effect = wave>Press --a-- to <bold><color>charge your laser</color> .  alfa"
+local text2 = "<color, 0, 0, 1>Thanos.</color> eu nem gosto, ouviu? sas vefe sajs asasahs wtwrfaghsas\n \n \n \n  asd asss df \n\tiIíÍìÌîÎïÏ \n\toOóÓòòôÔ öÖõÕ uUúÚùÙûüÜ <color, 1, 1, 0>bBcCçÇdDfF</color> gGhHjJkKlLm\n <effect=spooky>tTvVwW xXyYzZ</effect> 0123456789¬ AsthaYuno * ¨¬¬ ~ $ ~ --heart-- --dots-- </italic><effect = wave>\nPress --a-- to <bold><color>charge your laser</color> .  alfa"
 
 local rad = 0
 local box = TextBox:new(text2, Font.current, 32 * 10, 32 * 5, 32 * 6)

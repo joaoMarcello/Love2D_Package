@@ -80,16 +80,28 @@ end
 
 function TextBox:key_pressed(key)
     if key == "space" then
-        if self:finish_screen() and self.cur_screen < self.amount_screens then
-            self.cur_screen = self.cur_screen + 1
-            self.cur_glyph = 0
-            self.time_glyph = 0.0
-        elseif self:finished() then
-            self.cur_screen = 1
-            self.cur_glyph = 0
-            self.time_glyph = 0.0
-        end
+        local r = self:go_to_next_screen()
+        if not r then self:restart() end
     end
+end
+
+function TextBox:refresh()
+    self.cur_glyph = 0
+    self.time_glyph = 0.0
+end
+
+function TextBox:go_to_next_screen()
+    if self:finish_screen() and self.cur_screen < self.amount_screens then
+        self.cur_screen = self.cur_screen + 1
+        self:refresh()
+        return true
+    end
+    return false
+end
+
+function TextBox:restart()
+    self.cur_screen = 1
+    self:refresh()
 end
 
 function TextBox:update(dt)
@@ -152,9 +164,9 @@ function TextBox:draw()
 
     Font:print("qScreen=" .. tostring(self.amount_screens) .. "-" .. tostring(#self.lines), self.x, self.y - 40)
 
-    if self:finished() then
-        Font:print("--a--", self.x + self.w - 20,
-            self.y + self.sentence:text_height(self.screens[2]))
+    if self:finish_screen() then
+        Font:print("--a--", self.x + self.w + 5,
+            self.y + self.h + 10)
     end
 end
 
