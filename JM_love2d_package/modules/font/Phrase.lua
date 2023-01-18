@@ -41,8 +41,6 @@ function Phrase:__constructor__(args)
 
     self.__bounds = { top = 0, left = 0, bottom = love.graphics.getHeight(), right = love.graphics.getWidth() - 100 }
 
-    local sum = 0
-
     for i = 1, #self.__separated_string do
         local w = Word:new({ text = self.__separated_string[i],
             font = self.__font,
@@ -52,10 +50,16 @@ function Phrase:__constructor__(args)
         self:__verify_commands(w.text)
 
         if w.text ~= "" then
-            if sum >= self.x + self.__bounds.right then
-                sum = 0
-                Word:restaure_effect()
-            end
+
+            -- if not self.__font:__is_a_command_tag(w.text) then
+            --     sum = sum + w:get_width() + self.__font:__get_char_equals(" "):get_width()
+            -- end
+
+            -- if self.x + sum > self.__bounds.right - 1000 then
+            --     sum = 0
+            --     -- Word:restaure_effect()
+            -- end
+            -- -- Word:restaure_effect()
 
             if not self.__font:__is_a_nickname(w.text, 1) then
                 w:set_color(self.__font.__default_color)
@@ -66,12 +70,6 @@ function Phrase:__constructor__(args)
                     w:apply_effect(nil, nil, self.__effect, nil, self.__eff_args)
                 end
             end
-
-            if not self.__font:__is_a_command_tag(w.text) then
-                sum = sum + w:get_width() + self.__font:__get_char_equals(" "):get_width()
-            end
-
-
 
             table.insert(self.__words, w)
         end
@@ -524,13 +522,14 @@ end
 ---@param y number
 ---@param align "left"|"right"|"center"|"justify"|nil
 ---@param __max_char__ number|nil
+---@param dt number|nil
 ---@return JM.Font.CharacterPosition|nil
-function Phrase:draw(x, y, align, __max_char__)
+function Phrase:draw(x, y, align, __max_char__, dt)
 
     -- self:__debbug()
 
     --if x >= self.__bounds.right then return end
-    self:update(love.timer.getDelta())
+    self:update(dt or love.timer.getDelta())
 
     local result = self:draw_lines(
         self:get_lines(x, true),

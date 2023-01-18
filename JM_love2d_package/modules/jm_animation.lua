@@ -661,7 +661,7 @@ end -- END update function
 function Anima:draw(x, y)
     self.x, self.y = x, y
 
-    Affectable.draw(self, self.__draw_with_no_effects__, x, y)
+    Affectable.draw(self, self.__draw_with_no_effects__)
 end
 
 ---@return JM.Anima.Frame
@@ -695,10 +695,8 @@ end
 
 ---
 --- Draws the animation without apply any effect.
----
----@param x number # The top-left position to draw (x-axis).
----@param y number # The top-left position to draw (y-axis).
-function Anima:__draw_with_no_effects__(x, y)
+--
+function Anima:__draw_with_no_effects__()
 
     local current_frame
     current_frame = self:get_current_frame()
@@ -709,7 +707,7 @@ function Anima:__draw_with_no_effects__(x, y)
 
     if self.is_visible then
         love_graphics_draw(self.img, self.quad,
-            (x), (y),
+            self.x, self.y,
             self.rotation, self.scale_x * self.flip_x,
             self.scale_y * self.flip_y,
             current_frame.ox, current_frame.oy,

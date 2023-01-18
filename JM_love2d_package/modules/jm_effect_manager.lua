@@ -36,6 +36,9 @@ local Ghost = require(path .. "effects.Ghost")
 ---@type JM.Effect.Disc
 local Disc = require(path .. "effects.Disc")
 
+---@type JM.Effect.Disc
+local Earthquake = require(path .. "effects.Earthquake")
+
 local Sample = require(path .. "effects.shader")
 
 -- Variable for control the unique id's from EffectManager class
@@ -253,15 +256,16 @@ do
     ---|"clickHere"
     ---|"ufo"
     ---|"pendulum"
+    ---|"earthquake"
 end
 
 ---Applies effect in a animation.
 ---@param object JM.Template.Affectable|nil # The object to apply the effect.
----@param eff_type JM.Effect.id_string|JM.Effect.id_number # The type of the effect.
+---@param type_ JM.Effect.id_string # The type of the effect.
 ---@param effect_args any # The parameters need for that especific effect.
 ---@param __only_get__ boolean|nil
 ---@return JM.Effect eff # The generate effect.
-function EffectManager:apply_effect(object, eff_type, effect_args, __only_get__)
+function EffectManager:apply_effect(object, type_, effect_args, __only_get__)
 
     object = object or self.object
 
@@ -271,7 +275,7 @@ function EffectManager:apply_effect(object, eff_type, effect_args, __only_get__)
         effect_args = {}
     end
 
-    eff_type = type(eff_type) == "string" and Effect.TYPE[eff_type] or eff_type
+    local eff_type = type(type_) == "string" and Effect.TYPE[type_] or type_
 
     if eff_type == Effect.TYPE.flash then
         eff = Flash:new(object, effect_args)
@@ -416,23 +420,26 @@ function EffectManager:apply_effect(object, eff_type, effect_args, __only_get__)
 
         eff = idle
 
+    elseif eff_type == Effect.TYPE.earthquake then
+        eff = Earthquake:new(object, effect_args)
+
     elseif eff_type == Effect.TYPE.pendulum then
 
-        local pointing = self:apply_effect(object, "pointing", { speed = 4, range = 100 }, true)
+        -- local pointing = self:apply_effect(object, "pointing", { speed = 4, range = 100 }, true)
 
-        local floating = self:apply_effect(object, "float", { speed = 2 }, true)
+        -- local floating = self:apply_effect(object, "float", { speed = 2 }, true)
 
-        local idle = Idle:new(object, { duration = 0, __id__ = Effect.TYPE.pendulum })
+        -- local idle = Idle:new(object, { duration = 0, __id__ = Effect.TYPE.pendulum })
 
-        idle:set_final_action(
-        ---@param args {idle: JM.Effect, pointing: JM.Effect, floating: JM.Effect}
-            function(args)
-                args.pointing:apply(idle.__object)
-                args.floating:apply(idle.__object)
-            end,
-            { idle = idle, pointing = pointing, floating = floating })
+        -- idle:set_final_action(
+        -- ---@param args {idle: JM.Effect, pointing: JM.Effect, floating: JM.Effect}
+        --     function(args)
+        --         args.pointing:apply(idle.__object)
+        --         args.floating:apply(idle.__object)
+        --     end,
+        --     { idle = idle, pointing = pointing, floating = floating })
 
-        eff = idle
+        -- eff = idle
     elseif eff_type == "shader" then
         eff = Sample:new(object, effect_args)
     end
@@ -451,7 +458,7 @@ function EffectManager:apply_effect(object, eff_type, effect_args, __only_get__)
 end
 
 ---comment
----@param effect_type JM.Effect.id_string|JM.Effect.id_number
+---@param effect_type JM.Effect.id_string
 ---@param effect_args any
 ---@return JM.Effect
 function EffectManager:generate_effect(effect_type, effect_args)

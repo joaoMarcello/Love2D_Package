@@ -112,7 +112,8 @@ function Word:apply_effect(startp, endp, effect_type, offset, eff_args)
 
     for i = startp, endp, 1 do
         local eff
-        local char__ = self:__get_char_by_index(i)
+        ---@type JM.Font.Glyph
+        local glyph = self.__characters[i] --self:__get_char_by_index(i)
 
         if effect_type == "spooky" then
             eff = EffectManager:generate_effect("float", {
@@ -120,30 +121,46 @@ function Word:apply_effect(startp, endp, effect_type, offset, eff_args)
                 speed = 0.2,
                 rad = math.pi * (i % 4) + offset
             })
+
         elseif effect_type == "pump" then
             eff = EffectManager:generate_effect("jelly")
+
         elseif effect_type == "wave" then
             rad_wave = rad_wave - (math.pi * 2 * 0.1)
-            if char__.__id == " " then goto continue end
+            if glyph.__id == " " then goto continue end
             eff = EffectManager:generate_effect("float", { range = 2, rad = rad_wave, speed = 0.5 })
-        elseif effect_type == "goddess" then
 
-            char__:set_color2(nil, nil, nil, 0)
+        elseif effect_type == "goddess" then
+            glyph:set_color2(nil, nil, nil, 0)
             eff = EffectManager:generate_effect("fadein", { delay = fadein_delay + 0.1 * i })
 
             if i == endp then
                 fadein_delay = fadein_delay + 0.1 * (endp - startp + 1)
             end
+
+        elseif effect_type == "scream" then
+            local speed_x = 0.25 --math.random() > 0.5 and 0.3 or 0.4
+
+            eff = EffectManager:generate_effect("earthquake",
+                {
+                    speed_x = speed_x,
+                    speed_y = speed_x,
+                    range_x = 1,
+                    range_y = 3,
+                    rad_x = math.random() * math.pi * 2,
+                    rad_y = math.random() * math.pi * 2,
+                    random = true
+                })
         else
             eff = EffectManager:generate_effect(effect_type, eff_args)
         end
 
         if not eff then break end
 
-        if char__ and char__:is_animated() then
-            eff:apply(char__.__anima)
+        if glyph and glyph:is_animated() then
+            eff:apply(glyph.__anima)
         else
-            eff:apply(self.__characters[i])
+            eff:apply(glyph)
         end
         ::continue::
     end

@@ -67,7 +67,8 @@ local TYPE_ = {
     clickHere = 35, --***
     jump = 36,
     ufo = 37, --***
-    pendulum = 38
+    pendulum = 38,
+    earthquake = 39
 }
 
 ---
