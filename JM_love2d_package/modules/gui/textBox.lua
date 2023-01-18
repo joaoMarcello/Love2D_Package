@@ -48,6 +48,10 @@ function TextBox:__constructor__(args, w)
         table.insert(self.screens,
             { unpack(self.lines, j, j + self.amount_lines - 1) })
 
+        -- defining the textBox height
+        local h = self.sentence:text_height(self.screens[#self.screens])
+        self.h = h > self.h and h or self.h
+
         local screen = self.screens[#self.screens]
 
         -- removing empty lines
@@ -64,9 +68,10 @@ function TextBox:__constructor__(args, w)
             k = k + 1
         end --end removing empty lines
 
-        -- defining the textBox height
-        local h = self.sentence:text_height(self.screens[#self.screens])
-        self.h = h > self.h and h or self.h
+        if #screen <= 0 then
+            table.remove(self.screens, #self.screens)
+            self.amount_screens = self.amount_screens - 1
+        end
 
         j = j + self.amount_lines
     end
@@ -81,7 +86,10 @@ end
 function TextBox:key_pressed(key)
     if key == "space" then
         local r = self:go_to_next_screen()
-        if not r then self:restart() end
+
+        if not r and self:finish_screen() then
+            self:restart()
+        end
     end
 end
 
