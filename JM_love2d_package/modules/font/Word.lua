@@ -132,7 +132,11 @@ function Word:apply_effect(startp, endp, effect_type, offset, eff_args)
 
         elseif effect_type == "goddess" then
             glyph:set_color2(nil, nil, nil, 0)
-            eff = EffectManager:generate_effect("fadein", { delay = fadein_delay + 0.1 * i })
+            if eff_args and eff_args.delay then
+                eff = EffectManager:generate_effect("fadein", { delay = i * eff_args.delay })
+            else
+                eff = EffectManager:generate_effect("fadein", { delay = fadein_delay + 0.1 * i })
+            end
 
             if i == endp then
                 fadein_delay = fadein_delay + 0.1 * (endp - startp + 1)

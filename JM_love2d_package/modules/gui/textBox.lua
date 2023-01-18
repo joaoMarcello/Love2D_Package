@@ -7,6 +7,7 @@ TextBox.__index = TextBox
 
 function TextBox:new(text, font, x, y, w, h)
     local obj = setmetatable({}, self)
+    text = "<effect=goddess, delay=0.05>" .. text
     TextBox.__constructor__(obj, { text = text, x = x, y = y, font = font }, w, h)
     return obj
 end
@@ -34,7 +35,7 @@ function TextBox:rect()
 end
 
 function TextBox:update(dt)
-    self.sentence:update(dt)
+    --self.sentence:update(dt)
 
     if love.keyboard.isDown("a") then self.cur_glyph = nil end
 

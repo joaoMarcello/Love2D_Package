@@ -420,11 +420,11 @@ function Phrase:__line_length(line)
 end
 
 function Phrase:update(dt)
-    for i = 1, #self.__words, 1 do
-        ---@type JM.Font.Word
-        local w = self.__words[i] --self:__get_word_in_list(self.__words, i)
-        w:update(dt)
-    end
+    -- for i = 1, #self.__words, 1 do
+    --     ---@type JM.Font.Word
+    --     local w = self.__words[i]
+    --     w:update(dt)
+    -- end
 end
 
 local pointer_char_count = {}
@@ -487,6 +487,8 @@ function Phrase:draw_lines(lines, x, y, align, threshold, __max_char__)
             ---@type JM.Font.Word
             local current_word = lines[i][j]
             local r = current_word:get_width() + space
+
+            current_word:update(love.timer.getDelta())
 
             result_tx, result_char = current_word:draw(tx, ty, __max_char__, character_count)
 
