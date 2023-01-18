@@ -1,5 +1,6 @@
 local package = require("/JM_love2d_package/init")
 local Font = package.Font
+local TextBox = require("/JM_love2d_package/modules/gui/textBox")
 local Game = package.Scene:new(0, 0, 1366, 768, 32 * 24, 32 * 14,
     {
         left = -32 * 10,
@@ -20,24 +21,28 @@ local button = Font.current:add_nickname_animated("--a--", {
     duration = 1
 })
 
+local text = "Hello <freaky>aqui quem fala \teh o seu<italic>capitão</italic>.astha nao sei mais oque escrever paraastasatsagstasga este texto ficar longo então vou ficar enrolando <bold>World <italic><color, 0, 0, 1, 1>Iupi <bold> World</color>test <color>Wo"
+
+local text2 = "<color, 0, 0, 1>Thanos.</color> eu nem gosto, ouviu? aAáÁàÀãÃäÄ eEéÉèÈêÊëË iIíÍìÌîÎïÏ\n\toOóÓòòôÔ\n\töÖõÕ uUúÚùÙûüÜ bBcCçÇdDfF gGhHjJkKlLm M nNpPqQrRsS {[(astha)]} |as_ \n<effect=spooky>tTvVwW xXyYzZ</effect> 0123456789 +-=/# @TMJ_por_JM & § ?|!,.;: °º1ª¹²³£¢¬ AsthaYuno * ¨¬¬ ~ $ ~ --heart-- --dots-- \n</italic><effect = wave>Press --a-- to <bold><color>charge your laser</color> .  alfa"
+
 local rad = 0
+local box = TextBox:new(text2, Font.current, 32 * 10, 32 * 5, 32 * 6, 32 * 5)
+
 local function update(dt)
     Font:update(dt)
 
+    box:update(dt)
     -- Game.camera:update(dt)
     local mx, my = Game:get_mouse_position()
     -- Game.camera:follow(mx, my)
     --rad = rad + math.pi * 2 / 0.7 * dt
 end
 
-local text = "Hello <freaky>aqui quem fala \teh o seu<italic>capitão</italic>.astha nao sei mais oque escrever paraastasatsagstasga este texto ficar longo então vou ficar enrolando <bold>World <italic><color, 0, 0, 1, 1>Iupi <bold> World</color>test <color>Wo"
-
-local text2 = "<color, 0, 0, 1>Thanos</color> aAáÁàÀãÃäÄ eEéÉèÈêÊëË iIíÍìÌîÎïÏ\n\toOóÓòòôÔ\n\töÖõÕ uUúÚùÙûüÜ bBcCçÇdDfF gGhHjJkKlLm M nNpPqQrRsS {[(astha)]} |as_ \n<effect=spooky>tTvVwW xXyYzZ</effect> 0123456789 +-=/# @TMJ_por_JM & § ?|!,.;: °º1ª¹²³£¢¬ AsthaYuno * ¨¬¬ ~ $ ~ --heart-- --dots-- \n</italic><effect = wave>Press --a-- to <bold><color>charge your laser</color> .  alfa"
-
 -- local text3 = "aAàÀ <italic>çÇé fada <bold>dDeEfFgGhHiIjJkKlL</bold> mNoOpPqQrRsStT\n\t<freaky>uUvVwWxXyYzZ</freaky> <italic>0123456789</italic> +-=/*#§@ (){}[]\n|_'!?\n,.:;ªº°\n¹²³£¢\n <> ¨¬~$&\nEste é o mundo de Greg Uooôô ôô"
 --     .. [["/]]
 
 -- local text4 = "< effect=flickering, speed = 1 >oi eu sou o goku"
+
 
 local function draw(camera)
     local a = 0.7 + 0.4 * math.sin(rad)
@@ -46,7 +51,7 @@ local function draw(camera)
         ,
         32 * 3,
         32 * 2
-        , "justify",
+        , "left",
         32 * 3 + 32 * 6
     -- Game:get_mouse_position()
     )
@@ -55,6 +60,8 @@ local function draw(camera)
     Font.current:set_font_size(10)
     Font:printx("< effect=scream>PARA DE GRITAAAAAR!", 32 * 13, 32 * 3, "left", 32 * 13 + 32 * 3)
     Font.current:pop()
+
+    box:draw()
 
     local mx, my = Game:get_mouse_position()
     love.graphics.setColor(0, 0, 1, 1)

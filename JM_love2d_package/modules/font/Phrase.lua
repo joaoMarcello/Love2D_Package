@@ -435,7 +435,7 @@ local pointer_char_count = {}
 ---@param align "left"|"right"|"center"|"justify"|nil
 ---@param threshold number|nil
 ---@return number|nil tx
----@return number ty
+---@return number|nil ty
 ---@return JM.Font.Glyph|nil glyph
 function Phrase:draw_lines(lines, x, y, align, threshold, __max_char__)
     if not align then align = "left" end
@@ -528,9 +528,9 @@ end
 ---@param dt number|nil
 function Phrase:draw(x, y, align, __max_char__, dt)
 
+    if __max_char__ and __max_char__ == 0 then return end
     -- self:__debbug()
 
-    --if x >= self.__bounds.right then return end
     self:update(dt or love.timer.getDelta())
 
     return self:draw_lines(
