@@ -224,6 +224,7 @@ function Word:get_width()
 
     for i = 1, #self.__characters do
         local cur_char = self:__get_char_by_index(i)
+
         w = w + (cur_char.w * self.__font.__scale)
             + self.__font.__character_space
     end
@@ -260,6 +261,7 @@ function Word:draw(x, y, __max_char__, __character_count__)
 
         cur_char:set_color(cur_char.color)
         cur_char:set_scale(font.__scale)
+        -- cur_char:update(love.timer.getDelta())
 
         if not cur_char:is_animated() then
 
@@ -302,10 +304,10 @@ function Word:draw(x, y, __max_char__, __character_count__)
     --     local r = batch:getCount() > 0 and love.graphics.draw(batch)
     -- end
 
-    -- if self.__text ~= " " then
-    --     love.graphics.setColor(0, 0, 0, 1)
-    --     love.graphics.rectangle("line", x - 2, y - 2, self:get_width() + 4, self.__font.__font_size + 4)
-    -- end
+    if self.text ~= " " then
+        love.graphics.setColor(0, 0, 0, 1)
+        love.graphics.rectangle("line", x - 2, y - 2, self:get_width() + 4, self.__font.__font_size + 4)
+    end
 end
 
 return Word

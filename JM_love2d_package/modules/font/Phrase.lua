@@ -317,7 +317,7 @@ end
 local results_get_lines = setmetatable({}, { __mode = 'kv' })
 
 ---@return table
-function Phrase:get_lines(x, skip_tags)
+function Phrase:get_lines(x)
     local key = string.format("%d %d", x, self.__bounds.right)
     local result = results_get_lines[self] and results_get_lines[self][key]
     if result then return result end
@@ -337,11 +337,7 @@ function Phrase:get_lines(x, skip_tags)
             + word_char:get_width()
 
         if cur_is_tag then
-            if not skip_tags then
-                goto add_word
-            else
-                goto skip_word
-            end
+            goto skip_word
         end
 
         if tx + r > self.__bounds.right
@@ -407,6 +403,20 @@ end -- END function get_lines()
 --     return list[index]
 -- end
 
+function Phrase:text_height(lines)
+    if not lines then return end
+    local lines = lines or self:get_lines(self.x)
+
+    ---@type JM.Font.Word
+    local word = lines[1][1]
+
+    if word then
+        local h = word:get_height() * (#lines)
+        return h
+    end
+    return 0
+end
+
 function Phrase:__line_length(line)
     local total_len = 0
 
@@ -420,11 +430,11 @@ function Phrase:__line_length(line)
 end
 
 function Phrase:update(dt)
-    -- for i = 1, #self.__words, 1 do
-    --     ---@type JM.Font.Word
-    --     local w = self.__words[i]
-    --     w:update(dt)
-    -- end
+    for i = 1, #self.__words, 1 do
+        ---@type JM.Font.Word
+        local w = self.__words[i]
+        w:update(dt)
+    end
 end
 
 local pointer_char_count = {}
@@ -488,7 +498,7 @@ function Phrase:draw_lines(lines, x, y, align, threshold, __max_char__)
             local current_word = lines[i][j]
             local r = current_word:get_width() + space
 
-            current_word:update(love.timer.getDelta())
+            -- current_word:update(love.timer.getDelta())
 
             result_tx, result_char = current_word:draw(tx, ty, __max_char__, character_count)
 
@@ -536,7 +546,7 @@ function Phrase:draw(x, y, align, __max_char__, dt)
     self:update(dt or love.timer.getDelta())
 
     return self:draw_lines(
-        self:get_lines(x, true),
+        self:get_lines(x),
         x, y, align,
         nil, __max_char__
     )
