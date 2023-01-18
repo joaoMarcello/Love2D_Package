@@ -5,7 +5,8 @@ local Phrase = require((...):gsub("gui.textBox", "font.Phrase"))
 local Event = {
     finishScreen = 1,
     finishAll = 2,
-    changeScreen = 3
+    changeScreen = 3,
+    glyphChange = 4
 }
 ---@alias JM.GUI.TextBox.EventNames "finishScreen"|"finishAll"|"changeScreen"
 
@@ -25,7 +26,7 @@ function TextBox:__constructor__(args, w)
     self.sentence:set_bounds(nil, nil, args.x + w)
     self.lines = self.sentence:get_lines(self.sentence.x)
 
-    self.align = "justify"
+    self.align = "left"
     self.x = self.sentence.x
     self.y = self.sentence.y
     self.w = w
@@ -68,6 +69,7 @@ function TextBox:__constructor__(args, w)
             k = k + 1
         end --end removing empty lines
 
+        -- removing empty screens
         if #screen <= 0 then
             table.remove(self.screens, #self.screens)
             self.amount_screens = self.amount_screens - 1
@@ -146,10 +148,11 @@ function TextBox:draw()
     love.graphics.rectangle("line", self:rect())
 
     local screen = self.screens[self.cur_screen]
+    local height = self.sentence:text_height(screen)
 
     local tx, ty, glyph = self.sentence:draw_lines(
         screen,
-        x, y,
+        x, y + self.h / 2 - height / 2,
         self.align, nil,
         self.cur_glyph
     )
@@ -157,9 +160,9 @@ function TextBox:draw()
     if glyph then
         local id = glyph.__id
 
-        if id:match("[%.;]") or id == "--dots--" then
+        if id:match("[%.;?]") or id == "--dots--" then
             self.extra_time = 0.8
-        elseif id:match("[,?!]") then
+        elseif id:match("[,!]") then
             self.extra_time = 0.2
         else
             self.extra_time = 0.0
