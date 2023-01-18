@@ -1197,7 +1197,7 @@ local AlignOptions = {
     left = 1,
     right = 2,
     center = 3,
-    justified = 4
+    justify = 4
 }
 
 ---@param text any
@@ -1227,7 +1227,7 @@ function Font:printx(text, x, y, right, align)
     return fr
 end
 
-function Font:clear_buffer()
+function Font:flush()
     self.buffer__ = nil
 end
 

@@ -117,8 +117,8 @@ function Word:apply_effect(startp, endp, effect_type, offset, eff_args)
 
         if effect_type == "spooky" then
             eff = EffectManager:generate_effect("float", {
-                range = 0.5,
-                speed = 0.2,
+                range = 0.6,
+                speed = 0.15,
                 rad = math.pi * (i % 4) + offset
             })
 
@@ -235,7 +235,7 @@ end
 
 ---@alias JM.Font.CharacterPosition {x: number, y:number, char: JM.Font.Glyph}
 
----@return JM.Font.CharacterPosition|nil
+---@param x number
 function Word:draw(x, y, __max_char__, __character_count__)
     -- love.graphics.setColor(0.9, 0, 0, 0.15)
     -- love.graphics.rectangle("fill", x, y, self:get_width(), self.__font.__font_size)
@@ -288,7 +288,7 @@ function Word:draw(x, y, __max_char__, __character_count__)
             __character_count__[1] = __character_count__[1] + 1
 
             if __max_char__ and __character_count__[1] >= __max_char__ then
-                return { x = tx, y = y, char = cur_char }
+                return tx, cur_char
             end
         end
     end

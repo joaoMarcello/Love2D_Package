@@ -434,7 +434,9 @@ local pointer_char_count = {}
 ---@param y number
 ---@param align "left"|"right"|"center"|"justify"|nil
 ---@param threshold number|nil
----@return JM.Font.CharacterPosition|nil
+---@return number|nil tx
+---@return number ty
+---@return JM.Font.Glyph|nil glyph
 function Phrase:draw_lines(lines, x, y, align, threshold, __max_char__)
     if not align then align = "left" end
     if not threshold then threshold = #lines end
@@ -444,7 +446,7 @@ function Phrase:draw_lines(lines, x, y, align, threshold, __max_char__)
     local character_count = pointer_char_count --{ [1] = 0 }
     character_count[1] = 0
 
-    local result
+    local result_tx, result_char
 
     for i = 1, #lines do
         if align == "right" then
@@ -486,11 +488,11 @@ function Phrase:draw_lines(lines, x, y, align, threshold, __max_char__)
             local current_word = lines[i][j]
             local r = current_word:get_width() + space
 
-            result = current_word:draw(tx, ty, __max_char__, character_count)
+            result_tx, result_char = current_word:draw(tx, ty, __max_char__, character_count)
 
             tx = tx + r
 
-            if result then return result end
+            if result_tx then return result_tx, ty, result_char end
         end
 
         tx = x
@@ -500,6 +502,7 @@ function Phrase:draw_lines(lines, x, y, align, threshold, __max_char__)
             break
         end
     end
+    return nil, ty, nil
 end
 
 -- function Phrase:refresh()
@@ -523,7 +526,6 @@ end
 ---@param align "left"|"right"|"center"|"justify"|nil
 ---@param __max_char__ number|nil
 ---@param dt number|nil
----@return JM.Font.CharacterPosition|nil
 function Phrase:draw(x, y, align, __max_char__, dt)
 
     -- self:__debbug()
@@ -531,7 +533,7 @@ function Phrase:draw(x, y, align, __max_char__, dt)
     --if x >= self.__bounds.right then return end
     self:update(dt or love.timer.getDelta())
 
-    local result = self:draw_lines(
+    return self:draw_lines(
         self:get_lines(x, true),
         x, y, align,
         nil, __max_char__
@@ -540,7 +542,6 @@ function Phrase:draw(x, y, align, __max_char__, dt)
     -- love.graphics.setColor(0.4, 0.4, 0.4, 1)
     -- love.graphics.line(self.__bounds.right, 0, self.__bounds.right, 600)
 
-    return result
     ------------------------------------------------------------------------
 end
 
