@@ -35,7 +35,7 @@ function TextBox:__constructor__(args, w)
 
     self.cur_glyph = 0
     self.time_glyph = 0.0
-    self.max_time_glyph = 0.7
+    self.max_time_glyph = 0.05
     self.extra_time = 0.0
 
     self.font = self.sentence.__font
@@ -102,6 +102,7 @@ end
 function TextBox:refresh()
     self.cur_glyph = 0
     self.time_glyph = 0.0
+    self.extra_time = 0.0
 end
 
 function TextBox:go_to_next_screen()
@@ -119,7 +120,21 @@ function TextBox:restart()
 end
 
 function TextBox:update(dt)
-    --self.sentence:update(dt)
+
+    local glyph = self.sentence:get_glyph(self.cur_glyph, self.screens[self.cur_screen])
+    if glyph then
+        local id = glyph.__id
+
+        if id:match("[%.;?]") or id == "--dots--" then
+            self.extra_time = 0.8
+        elseif id:match("[,!]") then
+            self.extra_time = 0.3
+        else
+            self.extra_time = 0.0
+        end
+    end
+
+    self.__finish = not glyph and self.cur_glyph ~= 0
 
     if love.keyboard.isDown("a") then self.cur_glyph = nil end
 
@@ -137,11 +152,6 @@ function TextBox:update(dt)
         end
     end
 
-    -- if self:finish_screen() and self.cur_screen < self.amount_screens then
-    --     self.cur_screen = self.cur_screen + 1
-    --     self.cur_glyph = 0
-    --     self.time_glyph = 0.0
-    -- end
 end
 
 local Font = _G.JM_Font
@@ -165,26 +175,26 @@ function TextBox:draw()
     )
     self.font:pop()
 
-    if glyph then
-        local id = glyph.__id
+    -- if glyph then
+    --     local id = glyph.__id
 
-        if id:match("[%.;?]") or id == "--dots--" then
-            self.extra_time = 0.8
-        elseif id:match("[,!]") then
-            self.extra_time = 0.3
-        else
-            self.extra_time = 0.0
-        end
-    end
+    --     if id:match("[%.;?]") or id == "--dots--" then
+    --         self.extra_time = 0.8
+    --     elseif id:match("[,!]") then
+    --         self.extra_time = 0.3
+    --     else
+    --         self.extra_time = 0.0
+    --     end
+    -- end
 
-    self.__finish = not tx
+    -- self.__finish = not tx
 
-    local g = self.sentence:get_glyph(self.cur_glyph, screen)
-    if g then
-        Font:print(tostring(g.__id), self.x, self.y - 20)
-    end
+    -- local g = self.sentence:get_glyph(self.cur_glyph, screen)
+    -- if g then
+    --     Font:printf(tostring(g.__id), self.x, self.y - 20)
+    -- end
 
-    -- Font:print(self.__finish and "<color>true" or "<color, 1, 1, 1>false", self.x, self.y - 20)
+    Font:print(self.__finish and "<color>true" or "<color, 1, 1, 1>false", self.x, self.y - 20)
 
     -- Font:print("qScreen=" .. tostring(self.amount_screens) .. "-" .. tostring(#self.lines), self.x, self.y - 40)
 

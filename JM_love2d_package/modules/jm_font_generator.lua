@@ -821,8 +821,8 @@ function Font:print(text, x, y, w, h, __i__, __color__, __x_origin__, __format__
                 local x, y = char_obj:get_pos_draw_rec(tx, ty + self.__font_size - height, width, height)
 
                 if quad then
-                    self.batches[current_format]:setColor(current_color)
-                    self.batches[current_format]:add(quad, x, y, 0, char_obj.sx, char_obj.sy, char_obj.ox, char_obj.oy)
+                    self.batches[char_obj.format]:setColor(current_color)
+                    self.batches[char_obj.format]:add(quad, x, y, 0, char_obj.sx, char_obj.sy, char_obj.ox, char_obj.oy)
                 end
             end
 
