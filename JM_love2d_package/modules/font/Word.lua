@@ -278,7 +278,11 @@ function Word:draw(x, y, __max_char__, __glyph_count__)
             --         cur_char.oy)
             -- end
 
-            cur_char:draw_rec(tx, y, cur_char.w * cur_char.sx, font.__font_size)
+            cur_char:draw_rec(tx, y,
+                cur_char.w * cur_char.sx,
+                font.__font_size)
+
+            -- cur_char:draw(tx, y)
         else
             cur_char.__anima:set_size(
                 nil, self.__font.__font_size * 1.4,
@@ -308,10 +312,10 @@ function Word:draw(x, y, __max_char__, __glyph_count__)
     --     local r = batch:getCount() > 0 and love.graphics.draw(batch)
     -- end
 
-    if self.text ~= " " or true then
-        love.graphics.setColor(0, 0, 0, 1)
-        love.graphics.rectangle("line", x - 2, y - 2, self:get_width() + 4, self.__font.__font_size + 4)
-    end
+    -- if self.text ~= " " or true then
+    --     love.graphics.setColor(0, 0, 0, 1)
+    --     love.graphics.rectangle("line", x - 2, y - 2, self:get_width() + 4, self.__font.__font_size + 4)
+    -- end
 end
 
 return Word

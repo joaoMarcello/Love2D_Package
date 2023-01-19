@@ -8,7 +8,14 @@ local Event = {
     changeScreen = 3,
     glyphChange = 4
 }
----@alias JM.GUI.TextBox.EventNames "finishScreen"|"finishAll"|"changeScreen"
+---@alias JM.GUI.TextBox.EventNames "finishScreen"|"finishAll"|"changeScreen"|"glyphChange"
+
+---@param self JM.GUI.TextBox
+---@param type_ JM.GUI.TextBox.EventTypes
+local function dispatch_event(self, type_)
+    local evt = self.events and self.events[type_]
+    local r = evt and evt.action(evt.args)
+end
 
 ---@class JM.GUI.TextBox
 local TextBox = {}
@@ -85,6 +92,10 @@ function TextBox:__constructor__(args, w)
     self.cur_screen = 1
 end
 
+function TextBox:get_current_glyph()
+    return self.sentence:get_glyph(self.cur_glyph, self.screens[self.cur_screen])
+end
+
 function TextBox:rect()
     return self.x, self.y, self.w, self.h
 end
@@ -119,6 +130,20 @@ function TextBox:restart()
     self:refresh()
 end
 
+function TextBox:set_finish(value)
+    if value then
+        if not self.__finish then
+
+            self.__finish = true
+        end
+    else
+        if self.__finish then
+
+            self.__finish = false
+        end
+    end
+end
+
 function TextBox:update(dt)
 
     local glyph = self.sentence:get_glyph(self.cur_glyph, self.screens[self.cur_screen])
@@ -134,7 +159,7 @@ function TextBox:update(dt)
         end
     end
 
-    self.__finish = not glyph and self.cur_glyph ~= 0
+    self:set_finish(not glyph and self.cur_glyph ~= 0)
 
     if love.keyboard.isDown("a") then self.cur_glyph = nil end
 
@@ -149,6 +174,7 @@ function TextBox:update(dt)
 
         if self.cur_glyph then
             self.cur_glyph = self.cur_glyph + 1
+            dispatch_event(self, Event.glyphChange)
         end
     end
 
@@ -156,47 +182,28 @@ end
 
 local Font = _G.JM_Font
 function TextBox:draw()
-    local x, y = self.x, self.y
-
     love.graphics.setColor(1, 1, 1, 1)
     love.graphics.rectangle("line", self:rect())
 
     local screen = self.screens[self.cur_screen]
 
+    -- if self.cur_glyph and self.cur_glyph == 0 then return end
     self.font:push()
     self.font:set_configuration(self.font_config)
+
     local height = self.sentence:text_height(screen)
 
     local tx, ty, glyph = self.sentence:draw_lines(
         screen,
-        x, y + self.h / 2 - height / 2,
+        self.x, self.y + self.h / 2 - height / 2,
         self.align, nil,
         self.cur_glyph
     )
+
     self.font:pop()
-
-    -- if glyph then
-    --     local id = glyph.__id
-
-    --     if id:match("[%.;?]") or id == "--dots--" then
-    --         self.extra_time = 0.8
-    --     elseif id:match("[,!]") then
-    --         self.extra_time = 0.3
-    --     else
-    --         self.extra_time = 0.0
-    --     end
-    -- end
-
-    -- self.__finish = not tx
-
-    -- local g = self.sentence:get_glyph(self.cur_glyph, screen)
-    -- if g then
-    --     Font:printf(tostring(g.__id), self.x, self.y - 20)
-    -- end
+    --==========================================================
 
     Font:print(self.__finish and "<color>true" or "<color, 1, 1, 1>false", self.x, self.y - 20)
-
-    -- Font:print("qScreen=" .. tostring(self.amount_screens) .. "-" .. tostring(#self.lines), self.x, self.y - 40)
 
     if self:finish_screen() then
         Font:print("--a--", self.x + self.w + 5,
@@ -212,6 +219,9 @@ function TextBox:finished()
     return self.__finish and self.cur_screen == self.amount_screens
 end
 
+---@param name JM.GUI.TextBox.EventNames
+---@param action function
+---@param args any
 function TextBox:on_event(name, action, args)
     local evt_type = Event[name]
     if not evt_type then return end

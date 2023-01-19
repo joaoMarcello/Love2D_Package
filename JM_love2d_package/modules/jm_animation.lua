@@ -59,7 +59,6 @@ end
 ---@param animation JM.Anima
 ---@param type_ JM.Anima.EventTypes
 local function dispatch_event(animation, type_)
-    ---@type JM.Physics.Event
     local evt = animation.events and animation.events[type_]
     local r = evt and evt.action(evt.args)
 end

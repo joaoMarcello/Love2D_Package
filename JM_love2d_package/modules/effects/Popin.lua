@@ -29,8 +29,19 @@ function Popin:__constructor__(args)
     self.__range = 0.2
     self.__state = 1
 
+    if self.__object then
+        self.__object:set_effect_transform("sx", 0)
+        self.__object:set_effect_transform("sy", 0)
+    end
+
     if self.__id == Effect.TYPE.popout then
-        if self.__object then self.__object:set_visible(true) end
+        if self.__object then
+            self.__object:set_visible(true)
+            if self.__object then
+                self.__object:set_effect_transform("sx", 1)
+                self.__object:set_effect_transform("sy", 1)
+            end
+        end
         self.__scale.x = 1
         self.__min = 0.3
         self.__range = 0.3

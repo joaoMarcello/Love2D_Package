@@ -24,7 +24,7 @@ local button = Font.current:add_nickname_animated("--a--", {
 
 local text = "Hello <freaky>aqui quem fala \teh o seu<italic>capitão</italic>.astha nao sei mais oque escrever paraastasatsagstasga este texto ficar longo então vou ficar enrolando <bold>World <italic><color, 0, 0, 1, 1>Iupi <bold> World</color>test <color>Wo"
 
-local text2 = "<color, 0, 0, 1>Thanos.</color> eu nem gosto, ouviu? sas vefe sajs <italic>asasahs</italic> wtwrfaghsas\n \n \n \n \n \n  asd asss df \n\tiIíÍìÌîÎïÏ \n\toOóÓòòôÔ \n \n \n \n \n öÖõÕ uUúÚùÙûüÜ <color, 1, 1, 0>bBcCçÇdDfF</color> gGhHjJkKlLm\n <effect=spooky>tTvVwW xXyYzZ</effect> 01234 56789¬ AsthaYuno * ¨¬¬ ~ $ ~ --heart-- --dots-- </italic><effect = wave>\nPress --a-- to <bold><color>charge your laser</color> .  alfa</bold>\n<effect=scream>\n \n \n \nPARA DE GRITAAAAAAAR!!!"
+local text2 = "<color, 1, 1, 1>Thanos.</color> eu nem gosto, ouviu? sas vefe sajs <italic>asasahs</italic> wtwrfaghsas\n   asd asss df \n\tiIíÍìÌîÎïÏ \n\toOóÓòòôÔ öÖõÕ uUúÚùÙûüÜ <effect=flash, speed=1><color, 1, 1, 0>bBcCçÇdDfF</color></effect> gGhHjJkKlLm\n <effect=spooky>tTvVwW xXyYzZ</effect> 01234 56789¬ AsthaYuno * ¨¬¬ ~ $ ~ --heart-- --dots-- </italic><effect = wave>\nPress --a-- to <bold><color>charge your laser</color> .  alfa</bold>\n<effect=scream>\n \n \n \nPARA DE GRITAAAAAAAR!!!"
 
 local rad = 0
 Font.current:push()
@@ -32,8 +32,28 @@ Font.current:set_font_size(22)
 local box = TextBox:new(text2, Font.current, 32 * 10, 32 * 5, 32 * 6)
 Font.current:pop()
 
+box:on_event("glyphChange", function()
+    local g = box:get_current_glyph()
+    if g then
+        g:apply_effect("stretchVertical", { range = 0.1 })
+    end
+end)
+
+local A = Font.current:__get_char_equals("A"):copy()
+-- A.sx = 1
+-- A.sy = 1
+A.ox = 7
+A.oy = 7
+A:apply_effect("clockWise")
+
+local button = package.GUI.Button:new({ text = "Button 1", x = 32 * 17, y = 32, w = 32 * 2, h = 32 })
+button:apply_effect("swing")
 local function update(dt)
     Font:update(dt)
+
+    A:update(dt)
+
+    button:update(dt)
 
     box:update(dt)
     -- Game.camera:update(dt)
@@ -51,7 +71,8 @@ end
 local function draw(camera)
     local a = 0.7 + 0.4 * math.sin(rad)
     -- a = a % 1.1
-
+    A:draw(32 * 15, 32 * 2)
+    button:draw()
     Font:printx(text2
         ,
         32 * 3,

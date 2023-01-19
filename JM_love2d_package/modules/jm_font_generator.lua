@@ -1055,15 +1055,11 @@ function Font:printf(text, x, y, align, limit_right)
     limit_right = limit_right or 500.0 --love.mouse.getX() - x
     limit_right = limit_right - x
 
-    local current_color = color_pointer --{ self.__default_color }
+    local current_color = color_pointer
     current_color[1] = self.__default_color
 
     local original_color = self.__default_color
 
-    local current_format = self.__format
-    local original_format = self.__format
-
-    local i = 1
     local separated = self:separate_string(text)
 
     local words = get_words(self, separated)
@@ -1076,23 +1072,10 @@ function Font:printf(text, x, y, align, limit_right)
         local command_tag = self:__is_a_command_tag(separated[m])
 
         if command_tag and command_tag:match("color") then
-            --local action = { i = #line + 1 }
-
             local action_i = #line + 1
             local action_func
 
             if command_tag == "<color>" then
-                -- --- problem
-                -- ---@diagnostic disable-next-line: duplicate-set-field
-                -- action.action = function()
-                --     local parse = Utils:parse_csv_line(separated[m]:sub(2, #separated[m] - 1))
-                --     local r = parse[2] or 1
-                --     local g = parse[3] or 0
-                --     local b = parse[4] or 0
-                --     local a = parse[5] or 1
-
-                --     current_color[1] = Utils:get_rgba(r, g, b, a)
-                -- end
 
                 action_func = function()
                     local parse = Utils:parse_csv_line(separated[m]:sub(2, #separated[m] - 1))
@@ -1104,12 +1087,6 @@ function Font:printf(text, x, y, align, limit_right)
                     current_color[1] = Utils:get_rgba(r, g, b, a)
                 end
             elseif command_tag == "</color>" then
-                -- --- problem
-                -- ---@diagnostic disable-next-line: duplicate-set-field
-                -- action.action = function()
-                --     current_color[1] = original_color
-                -- end
-
                 action_func = function()
                     current_color[1] = original_color
                 end

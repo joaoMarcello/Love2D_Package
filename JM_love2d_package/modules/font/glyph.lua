@@ -158,14 +158,19 @@ function Glyph:draw(x, y)
 
     self.x, self.y = x, y
 
+    -- self.ox = self.w * self.sx / 2
+    -- self.oy = self.h * self.sy / 2
+
     Affectable.draw(self)
 end
 
 function Glyph:draw_rec(x, y, w, h)
+    --local eff_t = self:__get_effect_transform()
+
     x = x + w / 2
     y = y + h
-        - self.h * self.sy
-        + self.oy * self.sy
+        - self.h * self.sy --* (eff_t and eff_t.sy or 1)
+        + self.oy * self.sy -- * (eff_t and eff_t.sy or 1)
 
     self:draw(x, y)
 

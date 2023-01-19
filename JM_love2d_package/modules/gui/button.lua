@@ -80,7 +80,7 @@ function Button:__custom_draw__()
         self.x,
         self.y + 10,
         "center",
-        self.w
+        self.x + self.w
     )
 
     -- love.graphics.setColor(0, 0, 0, 1)

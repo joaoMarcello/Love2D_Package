@@ -379,6 +379,7 @@ function Phrase:get_lines(x)
             and current_word.text ~= "\t"
             and current_word.text ~= "\n"
             and next_word and next_word.text ~= "\t"
+        -- and not cur_is_tag
         then
             table.insert(lines[cur_line], word_char)
         end
@@ -425,7 +426,7 @@ function Phrase:__line_length(line)
 
     for i = 1, #line do
         ---@type JM.Font.Word
-        local word = line[i] --self:__get_word_in_list(line, i)
+        local word = line[i]
         total_len = total_len + word:get_width()
     end
 
@@ -449,6 +450,11 @@ function Phrase:get_glyph(n, lines)
         for j = 1, #lines[i] do
             ---@type JM.Font.Word
             local word = lines[i][j]
+
+            if self.__font:__is_a_command_tag(word.text) then
+                goto next_word
+            end
+
             local N = #(word.__characters)
             count = count + N
 
@@ -458,6 +464,8 @@ function Phrase:get_glyph(n, lines)
                 local glyph = word.__characters[N - exceed]
                 return glyph
             end
+
+            ::next_word::
         end
     end
 end
@@ -475,6 +483,8 @@ local pointer_char_count = {}
 function Phrase:draw_lines(lines, x, y, align, threshold, __max_char__)
     if not align then align = "left" end
     if not threshold then threshold = #lines end
+
+    if __max_char__ and __max_char__ <= 0 then return end
 
     local tx, ty = x, y
     local space = 0
@@ -521,6 +531,11 @@ function Phrase:draw_lines(lines, x, y, align, threshold, __max_char__)
 
             ---@type JM.Font.Word
             local current_word = lines[i][j]
+
+            if self.__font:__is_a_command_tag(current_word.text) then
+                goto continue
+            end
+
             local r = current_word:get_width() + space
 
             -- current_word:update(love.timer.getDelta())
@@ -530,6 +545,7 @@ function Phrase:draw_lines(lines, x, y, align, threshold, __max_char__)
             tx = tx + r
 
             if result_tx then return result_tx, ty, result_char end
+            ::continue::
         end
 
         tx = x
