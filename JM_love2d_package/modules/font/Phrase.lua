@@ -441,16 +441,22 @@ function Phrase:update(dt)
 end
 
 function Phrase:get_glyph(n, lines)
+    if not n then return end
     lines = lines or self:get_lines(self.x)
     local count = 0
+
     for i = 1, #lines do
         for j = 1, #lines[i] do
             ---@type JM.Font.Word
             local word = lines[i][j]
-            count = count + #(word.__characters)
+            local N = #(word.__characters)
+            count = count + N
 
             if count >= n then
-
+                local exceed = count - n
+                ---@type JM.Font.Glyph
+                local glyph = word.__characters[N - exceed]
+                return glyph
             end
         end
     end

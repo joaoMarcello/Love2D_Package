@@ -251,8 +251,6 @@ end
 --     list[nule_char.__id] = nule_char
 -- end
 
-
-
 ---@param path string
 ---@param format JM.Font.FormatOptions
 ---@param glyphs table
@@ -327,6 +325,10 @@ function Font:load_characters(path, format, glyphs)
 
                 if is_valid_nickname(glyph.__id) then
                     table_insert(self.__nicknames, glyph.__id)
+
+                    -- for _, format in pairs(FontFormat) do
+                    --     self.__characters[format][glyph.__id] = glyph
+                    -- end
                 end
 
                 cur_id = cur_id + 1

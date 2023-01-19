@@ -68,6 +68,7 @@ local function draw(camera)
 
     box:draw()
 
+    Font:print("Ai --dots-- --heart-- --dots--", 500, 100)
     local mx, my = Game:get_mouse_position()
     love.graphics.setColor(0, 0, 1, 1)
     love.graphics.circle('fill', mx, my, 5)

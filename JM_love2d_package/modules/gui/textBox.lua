@@ -35,7 +35,7 @@ function TextBox:__constructor__(args, w)
 
     self.cur_glyph = 0
     self.time_glyph = 0.0
-    self.max_time_glyph = 0.05
+    self.max_time_glyph = 0.7
     self.extra_time = 0.0
 
     self.font = self.sentence.__font
@@ -179,9 +179,14 @@ function TextBox:draw()
 
     self.__finish = not tx
 
-    Font:print(self.__finish and "<color>true" or "<color, 1, 1, 1>false", self.x, self.y - 20)
+    local g = self.sentence:get_glyph(self.cur_glyph, screen)
+    if g then
+        Font:print(tostring(g.__id), self.x, self.y - 20)
+    end
 
-    Font:print("qScreen=" .. tostring(self.amount_screens) .. "-" .. tostring(#self.lines), self.x, self.y - 40)
+    -- Font:print(self.__finish and "<color>true" or "<color, 1, 1, 1>false", self.x, self.y - 20)
+
+    -- Font:print("qScreen=" .. tostring(self.amount_screens) .. "-" .. tostring(#self.lines), self.x, self.y - 40)
 
     if self:finish_screen() then
         Font:print("--a--", self.x + self.w + 5,
