@@ -38,6 +38,10 @@ function TextBox:__constructor__(args, w)
     self.max_time_glyph = 0.05
     self.extra_time = 0.0
 
+    self.font = self.sentence.__font
+    self.font_size = self.font.__font_size
+    self.font_config = self.font:__get_configuration()
+
     self.amount_lines = 4
     self.amount_screens = math.ceil(#self.lines / self.amount_lines) --3
 
@@ -148,6 +152,9 @@ function TextBox:draw()
     love.graphics.rectangle("line", self:rect())
 
     local screen = self.screens[self.cur_screen]
+
+    self.font:push()
+    self.font:set_configuration(self.font_config)
     local height = self.sentence:text_height(screen)
 
     local tx, ty, glyph = self.sentence:draw_lines(
@@ -156,6 +163,7 @@ function TextBox:draw()
         self.align, nil,
         self.cur_glyph
     )
+    self.font:pop()
 
     if glyph then
         local id = glyph.__id
@@ -163,7 +171,7 @@ function TextBox:draw()
         if id:match("[%.;?]") or id == "--dots--" then
             self.extra_time = 0.8
         elseif id:match("[,!]") then
-            self.extra_time = 0.2
+            self.extra_time = 0.3
         else
             self.extra_time = 0.0
         end

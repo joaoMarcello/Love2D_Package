@@ -318,7 +318,7 @@ local results_get_lines = setmetatable({}, { __mode = 'kv' })
 
 ---@return table
 function Phrase:get_lines(x)
-    local key = string.format("%d %d", x, self.__bounds.right)
+    local key = string.format("%d %d %d", x, self.__bounds.right, self.__font.__font_size)
     local result = results_get_lines[self] and results_get_lines[self][key]
     if result then return result end
 
@@ -382,7 +382,10 @@ function Phrase:get_lines(x)
         then
             table.insert(lines[cur_line], word_char)
         end
-        tx = tx + r
+
+        if not cur_is_tag then
+            tx = tx + r
+        end
         ::skip_word::
     end
 
@@ -434,6 +437,22 @@ function Phrase:update(dt)
         ---@type JM.Font.Word
         local w = self.__words[i]
         w:update(dt)
+    end
+end
+
+function Phrase:get_glyph(n, lines)
+    lines = lines or self:get_lines(self.x)
+    local count = 0
+    for i = 1, #lines do
+        for j = 1, #lines[i] do
+            ---@type JM.Font.Word
+            local word = lines[i][j]
+            count = count + #(word.__characters)
+
+            if count >= n then
+
+            end
+        end
     end
 end
 
@@ -542,6 +561,9 @@ function Phrase:draw(x, y, align, __max_char__, dt)
 
     if __max_char__ and __max_char__ == 0 then return end
     -- self:__debbug()
+
+    self.x = x
+    self.y = y
 
     self:update(dt or love.timer.getDelta())
 

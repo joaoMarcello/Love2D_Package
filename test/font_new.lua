@@ -27,7 +27,10 @@ local text = "Hello <freaky>aqui quem fala \teh o seu<italic>capitão</italic>.a
 local text2 = "<color, 0, 0, 1>Thanos.</color> eu nem gosto, ouviu? sas vefe sajs <italic>asasahs</italic> wtwrfaghsas\n \n \n \n \n \n  asd asss df \n\tiIíÍìÌîÎïÏ \n\toOóÓòòôÔ \n \n \n \n \n öÖõÕ uUúÚùÙûüÜ <color, 1, 1, 0>bBcCçÇdDfF</color> gGhHjJkKlLm\n <effect=spooky>tTvVwW xXyYzZ</effect> 01234 56789¬ AsthaYuno * ¨¬¬ ~ $ ~ --heart-- --dots-- </italic><effect = wave>\nPress --a-- to <bold><color>charge your laser</color> .  alfa</bold>\n<effect=scream>\n \n \n \nPARA DE GRITAAAAAAAR!!!"
 
 local rad = 0
+Font.current:push()
+Font.current:set_font_size(22)
 local box = TextBox:new(text2, Font.current, 32 * 10, 32 * 5, 32 * 6)
+Font.current:pop()
 
 local function update(dt)
     Font:update(dt)
@@ -48,6 +51,7 @@ end
 local function draw(camera)
     local a = 0.7 + 0.4 * math.sin(rad)
     -- a = a % 1.1
+
     Font:printx(text2
         ,
         32 * 3,
@@ -58,7 +62,7 @@ local function draw(camera)
     )
 
     Font.current:push()
-    Font.current:set_font_size(10)
+    Font.current:set_font_size(9)
     Font:printx("< effect=scream>PARA DE GRITAAAAAR!", 32 * 13, 32 * 3, "left", 32 * 13 + 32 * 3)
     Font.current:pop()
 

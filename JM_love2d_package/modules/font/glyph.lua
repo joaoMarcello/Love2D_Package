@@ -25,7 +25,7 @@ end
 function Glyph:__constructor__(img, args)
 
     self.__img = img
-    self.__quad = nil --quad
+    -- self.__quad = nil
     self.__id = args.id or ""
 
     self.x = args.x
@@ -35,11 +35,6 @@ function Glyph:__constructor__(img, args)
 
     self.sy = args.sy or 1
     self.sx = self.sy
-
-    -- self.qx = args.x
-    -- self.qy = args.y
-    -- self.qw = args.w
-    -- self.qh = args.h
 
     self.format = args.format or 1
 
@@ -53,8 +48,11 @@ function Glyph:__constructor__(img, args)
         end
 
         if not Quads[self.__img][self.key] then
-            Quads[self.__img][self.key] = love.graphics.newQuad(self.x, self.y, self.w, self.h,
-                self.__img:getDimensions())
+            Quads[self.__img][self.key] = love.graphics.newQuad(
+                self.x, self.y,
+                self.w, self.h,
+                self.__img:getDimensions()
+            )
         end
     end
 

@@ -234,6 +234,11 @@ end
 
 ---
 function Word:get_height()
+    -- do
+    --     -- ---@type JM.Font.Glyph
+    --     -- local glyph = self.__characters[1]
+    --     -- return
+    -- end
     local h = self.__font.__font_size + self.__font.__line_space
     return h
 end
@@ -241,7 +246,7 @@ end
 ---@alias JM.Font.CharacterPosition {x: number, y:number, char: JM.Font.Glyph}
 
 ---@param x number
-function Word:draw(x, y, __max_char__, __character_count__)
+function Word:draw(x, y, __max_char__, __glyph_count__)
     -- love.graphics.setColor(0.9, 0, 0, 0.15)
     -- love.graphics.rectangle("fill", x, y, self:get_width(), self.__font.__font_size)
 
@@ -257,11 +262,10 @@ function Word:draw(x, y, __max_char__, __character_count__)
     for i = 1, #self.__characters do
 
         ---@type JM.Font.Glyph
-        cur_char = self.__characters[i] --self:__get_char_by_index(i)
+        cur_char = self.__characters[i]
 
         cur_char:set_color(cur_char.color)
         cur_char:set_scale(font.__scale)
-        -- cur_char:update(love.timer.getDelta())
 
         if not cur_char:is_animated() then
 
@@ -290,10 +294,10 @@ function Word:draw(x, y, __max_char__, __character_count__)
 
         tx = tx + cur_char.w * font.__scale + font.__character_space
 
-        if __character_count__ then
-            __character_count__[1] = __character_count__[1] + 1
+        if __glyph_count__ then
+            __glyph_count__[1] = __glyph_count__[1] + 1
 
-            if __max_char__ and __character_count__[1] >= __max_char__ then
+            if __max_char__ and __glyph_count__[1] >= __max_char__ then
                 return tx, cur_char
             end
         end

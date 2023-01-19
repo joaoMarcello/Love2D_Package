@@ -1,8 +1,5 @@
 local utf8 = require('utf8')
 
----@type string
-local path = ...
-
 ---@type JM.Anima
 local Anima = _G.JM_Anima
 
@@ -10,13 +7,13 @@ local Anima = _G.JM_Anima
 local Utils = _G.JM_Utils
 
 ---@type JM.Font.Glyph
-local Glyph = require(path:gsub("jm_font_generator", "font.glyph"))
+local Glyph = require((...):gsub("jm_font_generator", "font.glyph"))
 
 ---@type JM.Font.GlyphIterator
-local Iterator = require(path:gsub("jm_font_generator", "font.font_iterator"))
+local Iterator = require((...):gsub("jm_font_generator", "font.font_iterator"))
 
 ---@type JM.Font.Phrase
-local Phrase = require(path:gsub("jm_font_generator", "font.Phrase"))
+local Phrase = require((...):gsub("jm_font_generator", "font.Phrase"))
 
 --====================================================================
 
@@ -355,11 +352,13 @@ function Font:get_nule_character()
     return char_
 end
 
+---@alias JM.Font.Configuration {font_size: number, character_space: number, color: JM.Color, line_space: number, word_space: number, tab_size: number, format: JM.Font.FormatOptions }
+
 local results_get_config = setmetatable({}, { __mode = 'k' })
 
----@return {font_size: number, character_space: number, color: JM.Color, line_space: number, word_space: number, tab_size: number, format: JM.Font.FormatOptions }
+---@return JM.Font.Configuration
 function Font:__get_configuration()
-    local index = string.format("%d %d %.1f %.1f %.1f %.1f %d %s",
+    local index = string.format("%d %d %.1f %.1f %.1f %.1f %d %d",
         self.__font_size,
         self.__character_space,
         (self.__default_color[1]),
@@ -384,14 +383,15 @@ function Font:__get_configuration()
     local result = results_get_config[self] and results_get_config[self][index]
     if result then return result end
 
-    local config = {}
-    config.font_size = self.__font_size
-    config.character_space = self.__character_space
-    config.color = self.__default_color
-    config.line_space = self.__line_space
-    config.word_space = self.__word_space
-    config.tab_size = self.__tab_size
-    config.format = self.__format
+    local config = {
+        font_size = self.__font_size,
+        character_space = self.__character_space,
+        color = self.__default_color,
+        line_space = self.__line_space,
+        word_space = self.__word_space,
+        tab_size = self.__tab_size,
+        format = self.__format,
+    }
 
     results_get_config[self] = results_get_config[self] or setmetatable({}, { __mode = 'v' })
     results_get_config[self][index] = config
@@ -410,12 +410,8 @@ function Font:push()
     table.insert(self.__config_stack__, config)
 end
 
-function Font:pop()
-    assert(self.__config_stack__ and #self.__config_stack__ > 0,
-        "\nError: You're using a pop operation without using a push before.")
-
-    local config = table.remove(self.__config_stack__, #self.__config_stack__)
-
+---@param config JM.Font.Configuration
+function Font:set_configuration(config)
     self:set_font_size(config.font_size)
     self.__character_space = config.character_space
     self.__default_color = config.color
@@ -423,6 +419,15 @@ function Font:pop()
     self.__word_space = config.word_space
     self.__tab_size = config.tab_size
     self.__format = config.format
+end
+
+function Font:pop()
+    assert(self.__config_stack__ and #self.__config_stack__ > 0,
+        "\nError: You're using a pop operation without using a push before.")
+
+    local config = table.remove(self.__config_stack__, #self.__config_stack__)
+
+    self:set_configuration(config)
 end
 
 function Font:set_character_space(value)
