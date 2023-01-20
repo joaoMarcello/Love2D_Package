@@ -41,61 +41,41 @@ function Phrase:__constructor__(args)
 
     self.__bounds = { top = 0, left = 0, bottom = love.graphics.getHeight(), right = love.graphics.getWidth() - 100 }
 
+    local prev_word
+    self.tags = {}
+
     for i = 1, #self.__separated_string do
         local w = Word:new({ text = self.__separated_string[i],
             font = self.__font,
             format = self.__font:get_format_mode()
         })
 
-        self:__verify_commands(w.text)
+        local tag_values = self:__verify_commands(w.text)
 
         if w.text ~= "" then
-
-            -- if not self.__font:__is_a_command_tag(w.text) then
-            --     sum = sum + w:get_width() + self.__font:__get_char_equals(" "):get_width()
-            -- end
-
-            -- if self.x + sum > self.__bounds.right - 1000 then
-            --     sum = 0
-            --     -- Word:restaure_effect()
-            -- end
-            -- -- Word:restaure_effect()
 
             if not self.__font:__is_a_nickname(w.text, 1) then
                 w:set_color(self.__font.__default_color)
             end
 
+            local is_command_tag = self.__font:__is_a_command_tag(w.text)
+
             if self.__effect then
-                if not self.__font:__is_a_command_tag(w.text) then
+                if not is_command_tag then
                     w:apply_effect(nil, nil, self.__effect, nil, self.__eff_args)
                 end
             end
 
             table.insert(self.__words, w)
+
+            if tag_values then
+                tag_values["prev"] = prev_word
+                table.insert(self.tags, tag_values)
+            end
+
+            prev_word = (not is_command_tag and w) or prev_word
         end
     end
-
-    -- local lines = self:get_lines(self.x, false)
-    -- for i = 1, #lines do
-    --     -- Word:restaure_effect()
-    --     for j = 1, #lines[i] do
-    --         ---@type JM.Font.Word
-    --         local w = lines[i][j]
-
-    --         self:__verify_commands(w.text)
-
-    --         if not self.__font:__is_a_nickname(w.text, 1) then
-    --             w:set_color(self.__font.__default_color)
-    --         end
-
-    --         if self.__effect then
-    --             if not self.__font:__is_a_command_tag(w.text) then
-    --                 w:apply_effect(nil, nil, self.__effect, nil, self.__eff_args)
-    --             end
-    --         end
-    --     end
-
-    -- end
 
     Word:restaure_effect()
     self.__effect = nil
@@ -104,11 +84,63 @@ function Phrase:__constructor__(args)
     self.__font:pop()
 end
 
+---@param s string
+local function get_tag_args(s)
+    if not s or s == "" then return {} end
+    s = s:sub(2, #s - 1)
+    if not s or s == "" then return {} end
+
+    local N = #s
+    local i = 1
+    local result = {}
+
+    while (i <= N) do
+        local startp, endp = s:find("[=,]", i)
+
+        if startp then
+            local left = s:sub(i, endp - 1):match("[^ ].*[^ ]")
+            local s2, e2 = s:find(",", i)
+
+            i = endp
+            local right
+
+            if s2 then
+                right = s:sub(endp + 1, e2 - 1)
+                i = e2
+            else
+                right = s:sub(endp + 1)
+            end
+
+            if right then
+                if right == "" then
+                    right = true
+                elseif tonumber(right) then
+                    right = tonumber(right)
+                elseif right:match("true") then
+                    right = true
+                elseif right:match("false") then
+                    right = false
+                end
+            end
+
+            if left then
+                result[left] = right
+            end
+        end
+
+        i = i + 1
+    end
+
+    return result
+end
+
 ---@param text string
 function Phrase:__verify_commands(text)
     local result = self.__font:__is_a_command_tag(text)
 
     if result then
+        local tag_values = get_tag_args(text)
+
         if result:match("< *bold *>") then
             self.__font:set_format_mode(self.__font.format_options.bold)
 
@@ -135,32 +167,20 @@ function Phrase:__verify_commands(text)
             self.__font:set_format_mode(self.__font_config.format)
 
         elseif result == "<effect>" then
-            local starp, endp = string.find(text, "=")
-            if starp then
-                local reg = "[^ ].*[^ ]"
-                local s = text:sub(starp + 1, #text - 1)
-                ---@type table
-                local parse = Utils:parse_csv_line(s)
-                local eff = parse[1]:match(reg)
 
-                self.__effect = eff
-                self.__eff_args = {}
+            self.__effect = tag_values["effect"]
+            self.__eff_args = {}
 
-                for i = 2, #parse do
-                    local s = string.find(parse[i], '=')
-                    if s then
-                        local opt = parse[i]:sub(1, s - 1):match(reg)
-                        if opt then
-                            local value = parse[i]:sub(s + 1, #parse[i])
-                            self.__eff_args[opt] = tonumber(value)
-                        end
-                    end
-                end
-
+            for left, right in pairs(tag_values) do
+                self.__eff_args[left] = right
             end
+            self.__eff_args.effect = nil
+
         elseif result == "</effect>" then
             self.__effect = false
         end
+
+        return tag_values
     end
 end
 
@@ -454,6 +474,10 @@ function Phrase:update(dt)
     end
 end
 
+---@param n number|nil
+---@param lines table|nil
+---@return JM.Font.Glyph|nil
+---@return JM.Font.Word|nil
 function Phrase:get_glyph(n, lines)
     if not n then return end
     lines = lines or self:get_lines(self.x)
@@ -475,7 +499,7 @@ function Phrase:get_glyph(n, lines)
                 local exceed = count - n
                 ---@type JM.Font.Glyph
                 local glyph = word.__characters[N - exceed]
-                return glyph
+                return glyph, word
             end
 
             ::next_word::

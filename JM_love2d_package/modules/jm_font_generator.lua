@@ -289,8 +289,10 @@ function Font:load_characters(path, format, glyphs)
     local cur_id = 1
 
     local i = 1
+    local N_glyphs = #glyphs
+
     while (i <= w - 1) do
-        if cur_id > #glyphs then break end
+        if cur_id > N_glyphs then break end
 
         local j = 1
         while (j <= h - 1) do
@@ -675,6 +677,10 @@ function Font:separate_string_2(s, list)
     return words
 end
 
+---@alias JM.Font.Tags "<bold>"|"</bold>"|"<italic>"|"</italic>"|"<color>"|"</color>"|"<effect>"|"</effect>"|"<pause>"
+
+---@param s string
+---@return JM.Font.Tags|false
 function Font:__is_a_command_tag(s)
     return (s:match("< *bold *[ %w%-]*>") and "<bold>")
         or (s:match("< */ *bold *[ %w%-]*>") and "</bold>")
@@ -685,6 +691,8 @@ function Font:__is_a_command_tag(s)
 
         or (s:match("< *effect *=[%w, =%.]* *>") and "<effect>")
         or (s:match("< */ *effect *[ %w%-]*>") and "</effect>")
+
+        or (s:match("< *pause[ %w%-]*=[ %d%.]*>") and "<pause>")
         or false
 end
 

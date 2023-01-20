@@ -123,6 +123,7 @@ end
 function Glyph:set_scale(value)
     self.sy = value
     self.sx = self.sy
+
     -- if self:is_animated() then
     --     self.__anima:set_scale({ x = self.sx, y = self.sy })
     -- end

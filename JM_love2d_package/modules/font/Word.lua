@@ -150,12 +150,12 @@ function Word:apply_effect(startp, endp, effect_type, offset, eff_args)
                     speed_x = speed_x,
                     speed_y = speed_x,
                     range_x = 1,
-                    range_y = 3,
+                    range_y = 2,
                     rad_x = math.random() * math.pi * 2,
                     rad_y = math.random() * math.pi * 2,
                     random = true
                 })
-        else
+        elseif effect_type ~= "pause" then
             eff = EffectManager:generate_effect(effect_type, eff_args)
         end
 
@@ -170,20 +170,20 @@ function Word:apply_effect(startp, endp, effect_type, offset, eff_args)
     end
 end
 
-function Word:surge_effect(startp, endp, delay)
-    if not startp then startp = 1 end
-    if not endp then endp = #self.__characters end
-    if not delay then delay = 1 end
+-- function Word:surge_effect(startp, endp, delay)
+--     if not startp then startp = 1 end
+--     if not endp then endp = #self.__characters end
+--     if not delay then delay = 1 end
 
-    for i = startp, endp, 1 do
-        local eff = EffectManager:generate_effect("fadein", {
-            delay = delay
-        })
-        eff:apply(self.__characters[i])
-        delay = delay + 0.5
-    end
-    return delay
-end
+--     for i = startp, endp, 1 do
+--         local eff = EffectManager:generate_effect("fadein", {
+--             delay = delay
+--         })
+--         eff:apply(self.__characters[i])
+--         delay = delay + 0.5
+--     end
+--     return delay
+-- end
 
 --- Change the word color
 ---@param color JM.Color
