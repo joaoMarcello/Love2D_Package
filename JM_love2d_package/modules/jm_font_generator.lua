@@ -318,17 +318,18 @@ function Font:load_characters(path, format, glyphs)
                 end
 
                 local glyph = Glyph:new(img,
-                    { id = glyphs[cur_id], x = qx, w = qw, y = qy, bottom = bottom or (qy + qh), h = qh,
+                    { id = glyphs[cur_id],
+                        x = qx,
+                        y = qy,
+                        w = qw,
+                        h = qh,
+                        bottom = bottom or (qy + qh),
                         format = format })
 
                 list[glyph.__id] = glyph
 
                 if is_valid_nickname(glyph.__id) then
                     table_insert(self.__nicknames, glyph.__id)
-
-                    -- for _, format in pairs(FontFormat) do
-                    --     self.__characters[format][glyph.__id] = glyph
-                    -- end
                 end
 
                 cur_id = cur_id + 1
@@ -539,8 +540,7 @@ function Font:separate_string(s, list)
 
     while (current_init <= #(s)) do
         local regex = string.format("[^[ ]]*.-[%s]", sep)
-        --"[^[ ]]*.-[" .. sep .. "]"
-        local tag_regex = "< *[%d, =.%w/]*>"
+        local tag_regex = "< *[%d, =.%w/%-]*>"
 
         local tag = s:match(tag_regex, current_init)
         local find = not tag and s:match(regex, current_init)
@@ -676,15 +676,15 @@ function Font:separate_string_2(s, list)
 end
 
 function Font:__is_a_command_tag(s)
-    return (s:match("< *bold *>") and "<bold>")
-        or (s:match("< */ *bold *>") and "</bold>")
-        or (s:match("< *italic *>") and "<italic>")
-        or (s:match("< */ *italic *>") and "</italic>")
+    return (s:match("< *bold *[ %w%-]*>") and "<bold>")
+        or (s:match("< */ *bold *[ %w%-]*>") and "</bold>")
+        or (s:match("< *italic *[ %w%-]*>") and "<italic>")
+        or (s:match("< */ *italic *[ %w%-]*>") and "</italic>")
         or (s:match("< *color[%d, .]*>") and "<color>")
-        or (s:match("< */ *color *>") and "</color>")
+        or (s:match("< */ *color[ %w%-]*>") and "</color>")
 
-        or (s:match("< *effect *=[%a, =%d%.]* *>") and "<effect>")
-        or (s:match("< */ *effect *>") and "</effect>")
+        or (s:match("< *effect *=[%w, =%.]* *>") and "<effect>")
+        or (s:match("< */ *effect *[ %w%-]*>") and "</effect>")
         or false
 end
 

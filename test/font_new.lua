@@ -24,7 +24,7 @@ local button = Font.current:add_nickname_animated("--a--", {
 
 local text = "Hello <freaky>aqui quem fala \teh o seu<italic>capitão</italic>.astha nao sei mais oque escrever paraastasatsagstasga este texto ficar longo então vou ficar enrolando <bold>World <italic><color, 0, 0, 1, 1>Iupi <bold> World</color>test <color>Wo"
 
-local text2 = "<color, 1, 1, 1>Thanos.</color> eu nem gosto, ouviu? sas vefe sajs <italic>asasahs</italic> wtwrfaghsas\n   asd asss df \n\tiIíÍìÌîÎïÏ \n\toOóÓòòôÔ öÖõÕ uUúÚùÙûüÜ <effect=flash, speed=1><color, 1, 1, 0>bBcCçÇdDfF</color></effect> gGhHjJkKlLm\n <effect=spooky>tTvVwW xXyYzZ</effect> 01234 56789¬ AsthaYuno * ¨¬¬ ~ $ ~ --heart-- --dots-- </italic><effect = wave>\nPress --a-- to <bold><color>charge your laser</color> .  alfa</bold>\n<effect=scream>\n \n \n \nPARA DE GRITAAAAAAAR!!!"
+local text2 = "<color, 1, 1, 1, 1>Thanos</color no-space>. eu nem gosto, ouviu? sas vefe \n sajs <italic>asasahs</italic> wtwrfaghsas\n   asd asss df \n\tiIíÍìÌîÎïÏ \n\toOóÓòòôÔ <bold>öÖõÕ</bold> uU úÚùÙûüÜ <effect=flash, speed=1><color, 1, 1, 0>bBcCçÇdDfF</color></effect> gGhHjJk KlLm <effect=spooky>tTvVwW xXyYzZ</effect > 01234 56789¬ AsthaYuno * ¨¬¬ ~ $ ~ --heart-- --dots-- </italic><effect = wave>\nPress --a-- to <bold><color>charge your laser</color nospace> .  alfa</bold>\n<effect=scream>\n \n \n \nPARA DE GRITAAAAAAAR!!!"
 
 local rad = 0
 Font.current:push()
@@ -35,7 +35,7 @@ Font.current:pop()
 box:on_event("glyphChange", function()
     local g = box:get_current_glyph()
     if g then
-        g:apply_effect("stretchVertical", { range = 0.1 })
+        g:apply_effect("fadein", { speed = 0.2 })
     end
 end)
 
@@ -77,7 +77,7 @@ local function draw(camera)
         ,
         32 * 3,
         32 * 2
-        , "justify",
+        , "left",
         32 * 3 + 32 * 6
     -- Game:get_mouse_position()
     )

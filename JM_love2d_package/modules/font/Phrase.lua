@@ -328,8 +328,14 @@ function Phrase:get_lines(x)
     local word_char = Word:new({ text = " ", font = self.__font })
 
     for i = 1, #self.__words do
-        local current_word = self:get_word_by_index(i)
-        local next_word = self:get_word_by_index(i + 1)
+        ---@type JM.Font.Word
+        local current_word = self.__words[i]
+
+        ---@type JM.Font.Word|nil
+        local next_word = self.__words[i + 1]
+
+        ---@type JM.Font.Word
+        local prev_word = self.__words[i - 1]
 
         local cur_is_tag = self.__font:__is_a_command_tag(current_word.text)
 
@@ -337,6 +343,16 @@ function Phrase:get_lines(x)
             + word_char:get_width()
 
         if cur_is_tag then
+            if current_word.text:match("no%-space") then
+                -- eliminating tha last added glyph object if his id equals "space"
+
+                local last_added = lines[cur_line] and lines[cur_line][#lines[cur_line]]
+
+                if last_added and last_added.text == " " then
+                    table.remove(lines[cur_line], #lines[cur_line])
+                end
+            end
+
             goto skip_word
         end
 
@@ -368,25 +384,27 @@ function Phrase:get_lines(x)
 
         if current_word.text ~= "\n" then
             table.insert(lines[cur_line], current_word)
-        elseif next_word.text ~= "\n" then
+        elseif next_word and next_word.text ~= "\n" then
             table.insert(lines[cur_line - 1], current_word)
         else
             table.insert(lines[cur_line], current_word)
             table.insert(lines[cur_line - 1], current_word)
         end
 
+        local cond = (prev_word
+            and not self.__font:__is_a_command_tag(prev_word.text))
+            or not prev_word
+
         if i ~= #(self.__words)
             and current_word.text ~= "\t"
             and current_word.text ~= "\n"
             and next_word and next_word.text ~= "\t"
-        -- and not cur_is_tag
         then
             table.insert(lines[cur_line], word_char)
         end
 
-        if not cur_is_tag then
-            tx = tx + r
-        end
+        tx = tx + r
+
         ::skip_word::
     end
 
@@ -402,14 +420,9 @@ function Phrase:get_lines(x)
     return lines
 end -- END function get_lines()
 
--- ---@return JM.Font.Word
--- function Phrase:__get_word_in_list(list, index)
---     return list[index]
--- end
-
 function Phrase:text_height(lines)
     if not lines then return end
-    local lines = lines or self:get_lines(self.x)
+    lines = lines or self:get_lines(self.x)
 
     ---@type JM.Font.Word
     local word = lines[1][1]
