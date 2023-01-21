@@ -10,6 +10,40 @@ local Event = {
 }
 ---@alias JM.GUI.TextBox.EventNames "finishScreen"|"finishAll"|"changeScreen"|"glyphChange"
 
+local Mode = {
+    normal = 1,
+    goddess = 2,
+    popin = 3,
+    rainbow = 4
+}
+
+local function mode_goddess(g)
+    g:apply_effect("fadein", { speed = 0.2 })
+end
+
+local function mode_popin(g)
+    g:apply_effect("popin", { speed = 0.2 })
+end
+
+local function mode_rainbow(g)
+    g:set_color2(math.random(), math.random(), math.random())
+end
+
+local ModeAction = {
+    normal = function(...) return false end,
+    goddess = mode_goddess,
+    popin = mode_popin,
+    rainbow = mode_rainbow
+}
+---@alias JM.GUI.TextBox.Modes "normal"|"goddess"|"popin"|"rainbow"|nil
+
+
+local Align = {
+    top = 1,
+    bottom = 2,
+    center = 3
+}
+
 ---@param self JM.GUI.TextBox
 ---@param type_ JM.GUI.TextBox.EventTypes
 local function dispatch_event(self, type_)
@@ -34,6 +68,7 @@ function TextBox:__constructor__(args, w)
     self.lines = self.sentence:get_lines(self.sentence.x)
 
     self.align = "left"
+    self.text_align = Align.center
     self.x = self.sentence.x
     self.y = self.sentence.y
     self.w = w
@@ -46,6 +81,8 @@ function TextBox:__constructor__(args, w)
     self.extra_time = 0.0
 
     self.time_pause = 0.0
+
+    self.simulate_speak = false
 
     self.font = self.sentence.__font
     self.font_config = self.font:__get_configuration()
@@ -91,6 +128,16 @@ function TextBox:__constructor__(args, w)
     end
 
     self.cur_screen = 1
+
+    self:set_mode()
+end
+
+---@param mode JM.GUI.TextBox.Modes
+function TextBox:set_mode(mode)
+    if mode == "goddess" then
+        self.max_time_glyph = 0.12
+    end
+    self.glyph_change_action = ModeAction[mode]
 end
 
 function TextBox:get_current_glyph()
@@ -105,7 +152,7 @@ function TextBox:key_pressed(key)
     if key == "space" then
         local r = self:go_to_next_screen()
 
-        if not r and self:finish_screen() then
+        if not r and self:screen_is_finished() then
             self:restart()
         end
     end
@@ -118,7 +165,7 @@ function TextBox:refresh()
 end
 
 function TextBox:go_to_next_screen()
-    if self:finish_screen() and self.cur_screen < self.amount_screens then
+    if self:screen_is_finished() and self.cur_screen < self.amount_screens then
         self.cur_screen = self.cur_screen + 1
         self:refresh()
         return true
@@ -146,7 +193,7 @@ function TextBox:set_finish(value)
     end
 end
 
-function TextBox:finish_screen()
+function TextBox:screen_is_finished()
     return self.__finish
 end
 
@@ -170,7 +217,13 @@ function TextBox:on_event(name, action, args)
     }
 end
 
+function TextBox:skip_screen()
+    self.cur_glyph = nil
+end
+
 function TextBox:update(dt)
+
+    self.sentence:update(dt)
 
     if self.time_pause > 0 then
         self.time_pause = self.time_pause - dt
@@ -181,9 +234,7 @@ function TextBox:update(dt)
         end
     end
 
-    if love.keyboard.isDown("a") then self.cur_glyph = nil end
-
-    self.sentence:update(dt)
+    if love.keyboard.isDown("a") then self:skip_screen() end
 
     self.time_glyph = self.time_glyph + dt
 
@@ -195,42 +246,49 @@ function TextBox:update(dt)
         if self.cur_glyph then
             self.cur_glyph = self.cur_glyph + 1
             dispatch_event(self, Event.glyphChange)
+
+            local g = self:get_current_glyph()
+            local r = g and self.glyph_change_action
+                and self.glyph_change_action(g)
         end
     end
 
 
-    local glyph, word = self.sentence:get_glyph(self.cur_glyph, self.screens[self.cur_screen])
+    local glyph, word, endword = self.sentence:get_glyph(self.cur_glyph, self.screens[self.cur_screen])
 
     if glyph then
-        local id = glyph.__id
+        if self.simulate_speak then
+            local id = glyph.__id
 
-        if id:match("[%.;?]") or id == "--dots--" then
-            self.extra_time = 0.8
-        elseif id:match("[,!]") then
-            self.extra_time = 0.3
-        else
-            self.extra_time = 0.0
+            if id:match("[%.;?]") then
+                self.extra_time = 0.8
+            elseif id:match("[,!]") then
+                self.extra_time = 0.3
+            else
+                self.extra_time = 0.0
+            end
         end
         --===================================================
         if word then
-            local tag = self.sentence.tags[1]
+            local tags = self.sentence.word_to_tag[word]
 
-            if word == tag["prev"] then
+            if tags and endword then
                 self.used_tags = self.used_tags or {}
-                if not self.used_tags[tag] then
-                    self.cur_glyph = self.cur_glyph - 1
-                    self.used_tags[tag] = true
-                    self.time_pause = tag["pause"]
-                    return false
+                local N = #tags
+
+                for i = 1, N do
+                    local tag = tags[i]
+                    if not self.used_tags[tag] and tag["pause"] then
+                        self.used_tags[tag] = true
+                        self.time_pause = tag["pause"]
+                        return false
+                    end
                 end
             end
         end
     end
 
     self:set_finish(not glyph and self.cur_glyph ~= 0)
-
-
-
 end
 
 local Font = _G.JM_Font
@@ -246,9 +304,16 @@ function TextBox:draw()
 
     local height = self.sentence:text_height(screen)
 
+    local py = self.y
+    if self.text_align == Align.center then
+        py = py + self.h / 2 - height / 2
+    elseif self.text_align == Align.bottom then
+        py = py + self.h - height
+    end
+
     local tx, ty, glyph = self.sentence:draw_lines(
         screen,
-        self.x, self.y + self.h / 2 - height / 2,
+        self.x, py,
         self.align, nil,
         self.cur_glyph
     )
@@ -260,7 +325,7 @@ function TextBox:draw()
 
     Font:print(tostring(self.sentence.tags[1]["pause"]), self.x, self.y + self.h + 10)
 
-    if self:finish_screen() then
+    if self:screen_is_finished() then
         Font:print("--a--", self.x + self.w + 5,
             self.y + self.h + 10)
     end

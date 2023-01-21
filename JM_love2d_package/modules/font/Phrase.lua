@@ -483,6 +483,7 @@ end
 ---@param lines table|nil
 ---@return JM.Font.Glyph|nil
 ---@return JM.Font.Word|nil
+---@return boolean|nil
 function Phrase:get_glyph(n, lines)
     if not n then return end
     lines = lines or self:get_lines(self.x)
@@ -508,7 +509,7 @@ function Phrase:get_glyph(n, lines)
                 ---@type JM.Font.Glyph
                 local glyph = word.__characters[N - exceed]
 
-                return glyph, word
+                return glyph, word, count == n
             end
 
             ::next_word::

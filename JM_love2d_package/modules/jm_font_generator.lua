@@ -692,7 +692,7 @@ function Font:__is_a_command_tag(s)
         or (s:match("< *effect *=[%w, =%.]* *>") and "<effect>")
         or (s:match("< */ *effect *[ %w%-]*>") and "</effect>")
 
-        or (s:match("< *pause[ %w%-]*=[ %d%.]*>") and "<pause>")
+        or (s:match("< *pause *=[ %d%.]*[, %w%-]*>") and "<pause>")
         or false
 end
 

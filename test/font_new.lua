@@ -24,13 +24,15 @@ local button = Font.current:add_nickname_animated("--a--", {
 
 local text = "Hello <freaky>aqui quem fala \teh o seu<italic>capitão</italic>.astha nao sei mais oque escrever paraastasatsagstasga este texto ficar longo então vou ficar enrolando <bold>World <italic><color, 0, 0, 1, 1>Iupi <bold> World</color>test <color>Wo"
 
-local text2 = "Oi Cara <pause=1>Oi<color, 1, 1, 1>Thanos</color no-space>. eu<pause=1> nem<pause=1> gosto,<pause=1> ouviu? sas vefe \n sajs <italic>asasahs</italic> wtwrfaghsas\n   asd asss df \n\tiIíÍìÌîÎïÏ \n\toOóÓòòôÔ <bold>öÖõÕ</bold> uU úÚùÙûüÜ <effect=flash, speed=1><color, 1, 1, 0>bBcCçÇdDfF</color></effect> gGhHjJk KlLm <effect=spooky>tTvVwW xXyYzZ</effect > 01234 56789¬ AsthaYuno * ¨¬¬ ~ $ ~ --heart-- --dots-- </italic><effect=wave, speed=1>\nPress --a-- to <bold><color>charge your laser</color no-space> .  alfa</bold>\n<effect=scream>\n \n \n \nPARA DE GRITAAAAAAAR!!!"
+local text2 = "Oi Cara Oi<color, 1, 1, 1>Thanos</color no-space>. eu <pause=0.3>nem<pause=0.3> gosto,<pause=0.3> ouviu? sas vefe \n sajs <italic>asasahs</italic> wtwrfaghsas\n   asd asss df \n\tiIíÍìÌîÎïÏ \n\toOóÓòòôÔ <bold>öÖõÕ</bold> uU úÚùÙûüÜ <effect=flash, speed=1><color, 1, 1, 0>bBcCçÇdDfF</color></effect> gGhHjJk KlLm <effect=spooky>tTvVwW xXyYzZ</effect > 01234 56789¬ AsthaYuno * ¨¬¬ ~ $ ~ --heart-- --dots--<pause=1> </italic><effect=wave, speed=1>\nPress --a-- to <bold><color>charge your laser</color no-space> .  alfa</bold>\n<effect=scream>\n \n \n \nPARA DE GRITAAAAAAAR!!!"
 
 local rad = 0
 Font.current:push()
 Font.current:set_font_size(14)
 local box = TextBox:new(text2, Font.current, 32 * 10, 32 * 5, 32 * 6)
 Font.current:pop()
+
+box:set_mode("popin")
 
 box:on_event("glyphChange", function()
     local g = box:get_current_glyph()
