@@ -44,6 +44,11 @@ local Align = {
     center = 3
 }
 
+local UpdateMode = {
+    by_char = 1,
+    by_word = 2
+}
+
 ---@param self JM.GUI.TextBox
 ---@param type_ JM.GUI.TextBox.EventTypes
 local function dispatch_event(self, type_)
@@ -77,12 +82,13 @@ function TextBox:__constructor__(args, w)
 
     self.cur_glyph = 0
     self.time_glyph = 0.0
-    self.max_time_glyph = 0.05
+    self.max_time_glyph = 0.6
     self.extra_time = 0.0
 
     self.time_pause = 0.0
 
     self.simulate_speak = false
+    self.update_mode = UpdateMode.by_word
 
     self.font = self.sentence.__font
     self.font_config = self.font:__get_configuration()
@@ -247,14 +253,18 @@ function TextBox:update(dt)
             self.cur_glyph = self.cur_glyph + 1
             dispatch_event(self, Event.glyphChange)
 
-            local g = self:get_current_glyph()
+            local g, w, endw = self:get_current_glyph()
             local r = g and self.glyph_change_action
                 and self.glyph_change_action(g)
+
+            if self.update_mode == UpdateMode.by_word and g and w then
+                self.cur_glyph = self.cur_glyph + #w.__characters - 1
+                if w.text == " " then self.time_glyph = self.max_time_glyph end
+            end
         end
     end
 
-
-    local glyph, word, endword = self.sentence:get_glyph(self.cur_glyph, self.screens[self.cur_screen])
+    local glyph, word, endword = self:get_current_glyph()
 
     if glyph then
         if self.simulate_speak then

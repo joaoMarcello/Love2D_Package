@@ -410,6 +410,8 @@ function Phrase:draw_lines(lines, x, y, align, threshold, __max_char__)
 
     self.__font:push()
 
+    local init_font_size = self.__font.__font_size
+
     for i = 1, #lines do
         if align == "right" then
             tx = self.__bounds.right - self:__line_length(lines[i])
@@ -461,14 +463,12 @@ function Phrase:draw_lines(lines, x, y, align, threshold, __max_char__)
                     if tag["font-size"] then
                         self.__font:set_font_size(tag["font-size"])
                     elseif tag["/font-size"] then
-                        self.__font:set_font_size(14)
+                        self.__font:set_font_size(init_font_size)
                     end
                 end
             end
 
             local r = current_word:get_width() + space
-
-            -- current_word:update(love.timer.getDelta())
 
             result_tx, result_char = current_word:draw(tx, ty, __max_char__, character_count)
 
