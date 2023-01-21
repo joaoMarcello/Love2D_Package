@@ -43,6 +43,7 @@ function Phrase:__constructor__(args)
 
     local prev_word
     self.tags = {}
+    self.word_to_tag = {}
 
     for i = 1, #self.__separated_string do
         local w = Word:new({ text = self.__separated_string[i],
@@ -71,6 +72,10 @@ function Phrase:__constructor__(args)
             if tag_values then
                 tag_values["prev"] = prev_word
                 table.insert(self.tags, tag_values)
+
+                local index = prev_word or "first"
+                self.word_to_tag[index] = self.word_to_tag[index] or {}
+                table.insert(self.word_to_tag[index], tag_values)
             end
 
             prev_word = (not is_command_tag and w) or prev_word
@@ -483,12 +488,14 @@ function Phrase:get_glyph(n, lines)
     lines = lines or self:get_lines(self.x)
     local count = 0
 
+    local is_command_tag = self.__font.__is_a_command_tag
+
     for i = 1, #lines do
         for j = 1, #lines[i] do
             ---@type JM.Font.Word
             local word = lines[i][j]
 
-            if self.__font:__is_a_command_tag(word.text) then
+            if is_command_tag(self.__font, word.text) then
                 goto next_word
             end
 
@@ -497,8 +504,10 @@ function Phrase:get_glyph(n, lines)
 
             if count >= n then
                 local exceed = count - n
+
                 ---@type JM.Font.Glyph
                 local glyph = word.__characters[N - exceed]
+
                 return glyph, word
             end
 
@@ -507,7 +516,7 @@ function Phrase:get_glyph(n, lines)
     end
 end
 
-local pointer_char_count = {}
+local pointer_char_count = { [1] = 0 }
 ---
 ---@param lines table
 ---@param x number

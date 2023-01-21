@@ -45,8 +45,9 @@ function TextBox:__constructor__(args, w)
     self.max_time_glyph = 0.05
     self.extra_time = 0.0
 
+    self.time_pause = 0.0
+
     self.font = self.sentence.__font
-    self.font_size = self.font.__font_size
     self.font_config = self.font:__get_configuration()
 
     self.amount_lines = 4
@@ -127,6 +128,7 @@ end
 
 function TextBox:restart()
     self.cur_screen = 1
+    self.used_tags = nil
     self:refresh()
 end
 
@@ -141,75 +143,6 @@ function TextBox:set_finish(value)
 
             self.__finish = false
         end
-    end
-end
-
-function TextBox:update(dt)
-
-    local glyph = self.sentence:get_glyph(self.cur_glyph, self.screens[self.cur_screen])
-    if glyph then
-        local id = glyph.__id
-
-        if id:match("[%.;?]") or id == "--dots--" then
-            self.extra_time = 0.8
-        elseif id:match("[,!]") then
-            self.extra_time = 0.3
-        else
-            self.extra_time = 0.0
-        end
-    end
-
-    self:set_finish(not glyph and self.cur_glyph ~= 0)
-
-    if love.keyboard.isDown("a") then self.cur_glyph = nil end
-
-    self.sentence:update(dt)
-
-    self.time_glyph = self.time_glyph + dt
-
-    if self.time_glyph >= (self.max_time_glyph + self.extra_time) then
-
-        self.time_glyph = self.time_glyph - self.max_time_glyph
-            - self.extra_time
-
-        if self.cur_glyph then
-            self.cur_glyph = self.cur_glyph + 1
-            dispatch_event(self, Event.glyphChange)
-        end
-    end
-
-end
-
-local Font = _G.JM_Font
-function TextBox:draw()
-    love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.rectangle("line", self:rect())
-
-    local screen = self.screens[self.cur_screen]
-
-    -- if self.cur_glyph and self.cur_glyph == 0 then return end
-    self.font:push()
-    self.font:set_configuration(self.font_config)
-
-    local height = self.sentence:text_height(screen)
-
-    local tx, ty, glyph = self.sentence:draw_lines(
-        screen,
-        self.x, self.y + self.h / 2 - height / 2,
-        self.align, nil,
-        self.cur_glyph
-    )
-
-    self.font:pop()
-    --==========================================================
-
-    Font:print(self.__finish and "<color>true" or "<color, 1, 1, 1>false", self.x, self.y - 20)
-
-    Font:print(tostring(self.sentence.tags[1]["pause"]), self.x, self.y + self.h + 10)
-
-    if self:finish_screen() then
-        Font:print("--a--", self.x + self.w + 5,
-            self.y + self.h + 10)
     end
 end
 
@@ -235,6 +168,102 @@ function TextBox:on_event(name, action, args)
         action = action,
         args = args
     }
+end
+
+function TextBox:update(dt)
+
+    if self.time_pause > 0 then
+        self.time_pause = self.time_pause - dt
+        if self.time_pause <= 0 then
+            self.time_pause = 0.0
+        else
+            return false
+        end
+    end
+
+    if love.keyboard.isDown("a") then self.cur_glyph = nil end
+
+    self.sentence:update(dt)
+
+    self.time_glyph = self.time_glyph + dt
+
+    if self.time_glyph >= (self.max_time_glyph + self.extra_time) then
+
+        self.time_glyph = self.time_glyph - self.max_time_glyph
+            - self.extra_time
+
+        if self.cur_glyph then
+            self.cur_glyph = self.cur_glyph + 1
+            dispatch_event(self, Event.glyphChange)
+        end
+    end
+
+
+    local glyph, word = self.sentence:get_glyph(self.cur_glyph, self.screens[self.cur_screen])
+
+    if glyph then
+        local id = glyph.__id
+
+        if id:match("[%.;?]") or id == "--dots--" then
+            self.extra_time = 0.8
+        elseif id:match("[,!]") then
+            self.extra_time = 0.3
+        else
+            self.extra_time = 0.0
+        end
+        --===================================================
+        if word then
+            local tag = self.sentence.tags[1]
+
+            if word == tag["prev"] then
+                self.used_tags = self.used_tags or {}
+                if not self.used_tags[tag] then
+                    self.cur_glyph = self.cur_glyph - 1
+                    self.used_tags[tag] = true
+                    self.time_pause = tag["pause"]
+                    return false
+                end
+            end
+        end
+    end
+
+    self:set_finish(not glyph and self.cur_glyph ~= 0)
+
+
+
+end
+
+local Font = _G.JM_Font
+
+function TextBox:draw()
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.rectangle("line", self:rect())
+
+    local screen = self.screens[self.cur_screen]
+
+    self.font:push()
+    self.font:set_configuration(self.font_config)
+
+    local height = self.sentence:text_height(screen)
+
+    local tx, ty, glyph = self.sentence:draw_lines(
+        screen,
+        self.x, self.y + self.h / 2 - height / 2,
+        self.align, nil,
+        self.cur_glyph
+    )
+
+    self.font:pop()
+    --==========================================================
+
+    Font:print(self.__finish and "<color>true" or "<color, 1, 1, 1>false", self.x, self.y - 20)
+
+    Font:print(tostring(self.sentence.tags[1]["pause"]), self.x, self.y + self.h + 10)
+
+    if self:finish_screen() then
+        Font:print("--a--", self.x + self.w + 5,
+            self.y + self.h + 10)
+    end
 end
 
 return TextBox
