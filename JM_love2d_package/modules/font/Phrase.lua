@@ -135,7 +135,7 @@ local function get_tag_args(s)
 
         i = i + 1
     end
-
+    if #result <= 0 then result[s] = true end
     return result
 end
 
@@ -183,6 +183,12 @@ function Phrase:__verify_commands(text)
 
         elseif result == "</effect>" then
             self.__effect = false
+        elseif result == "<font-size>" then
+            --self.__font:set_font_size(22)
+            --self.__font:set_format_mode(self.__font.format_options.bold)
+        elseif result == "</font-size>" then
+            --self.__font:set_font_size(14)
+            --self.__font:set_format_mode(self.__font.format_options.normal)
         end
 
         return tag_values
@@ -195,144 +201,6 @@ function Phrase:set_bounds(top, left, right, bottom)
     self.__bounds.right = right or self.__bounds.right
     self.__bounds.bottom = bottom or self.__bounds.bottom
 end
-
--- ---@param word string
--- ---@param mode number|"all"
--- function Phrase:color_pattern(word, color, mode)
---     local count = 0
-
---     for i = 1, #self.__words, 1 do
---         local w = self:get_word_by_index(i)
---         local text = w.text
---         local startp, endp = 1, 1
-
---         while true do
---             startp, endp = text:find(word, startp)
-
---             if startp then
---                 if self.__font:__is_a_nickname(text, 1) then
---                     if word == text then
---                         w:set_color(color)
---                     end
---                 else
---                     w:turn_into_bold(startp, endp)
---                     w:set_color(color, startp, endp)
---                 end
-
---                 if mode ~= "all" then
---                     count = count + 1
---                     if count >= mode then return end
---                 end
-
---                 startp = startp + 1
---                 -- text = text:sub(endp + 1, #text)
---             else
---                 break
---             end
-
---         end
-
-
---     end -- END FOR each word in list
--- end
-
--- ---@return {stack: table, phrase: JM.Font.Phrase}
--- function Phrase:__find_occurrences__(sentence, mode)
---     local Sentence = Phrase:new({ text = sentence, font = self.__font })
---     local found_stack = {}
---     local count = 0
-
---     local i = 1
---     while (i <= #self.__words) do
-
---         local j = 1
---         while (j <= #Sentence.__words) do
---             local word = self:get_word_by_index(i + j - 1)
---             if not word then break end
-
---             local cur_sentence_word = Sentence:get_word_by_index(j).text
---             local startp, endp = word.text:find(cur_sentence_word)
-
---             local startp = word.text == cur_sentence_word
---                 or word.text:sub(1, #(word.text) - 1) == cur_sentence_word
-
---             if not startp then break end
-
---             if j == #Sentence.__words then
---                 if not (self.__font:string_is_nickname(word.text)
---                     and word.text ~= cur_sentence_word)
---                     and not (self.__font:string_is_nickname(cur_sentence_word)
---                         and cur_sentence_word ~= word.text)
---                 then
-
---                     table.insert(found_stack, i)
---                     count = count + 1
---                 end
---             end
-
---             j = j + 1
---         end
-
---         if mode ~= "all" and count >= mode then
---             break
---         end
-
---         i = i + 1
---     end
-
---     return { stack = found_stack, phrase = Sentence }
--- end
-
--- --- Color a sentence.
--- ---@param sentence string
--- ---@param color JM.Color
--- ---@param mode number|"all"
--- function Phrase:color_sentence(sentence, color, mode)
---     local result = self:__find_occurrences__(sentence, mode)
---     local found_stack = result.stack
---     local phrase = result.phrase
-
---     if #found_stack > 0 then
---         for k = 1, #found_stack do
---             local where_found = found_stack[k]
-
---             for i = where_found, where_found + #(phrase.__words) - 1, 1 do
---                 local word = self:get_word_by_index(i)
---                 local word_sentence = phrase:get_word_by_index(i - where_found + 1)
-
---                 local startp, endp = word.text:find(word_sentence.text)
---                 local r = startp and word:set_color(color, startp, endp)
---                 -- r = startp and word:turn_into_bold(startp, endp)
---             end
---         end
---     end
--- end
-
--- ---@param sentence string
--- ---@param mode number|"all"
--- function Phrase:apply_freaky(sentence, mode)
---     local result = self:__find_occurrences__(sentence, mode)
---     local found_stack = result.stack
---     local Sentence = result.phrase
-
---     local offset = 0
---     if #found_stack > 0 then
---         for k = 1, #found_stack do
-
---             local where_found = found_stack[k]
-
---             for i = where_found, where_found + #(Sentence.__words) - 1, 1 do
---                 offset = offset + math.pi / 2
-
---                 local word = self:get_word_by_index(i)
---                 local word_sentence = Sentence:get_word_by_index(i - where_found + 1)
-
---                 local startp, endp = word.text:find(word_sentence.text)
---                 local r = startp and word:apply_effect(startp, endp, "freaky", offset)
---             end
---         end
---     end
--- end
 
 ---@return JM.Font.Word
 function Phrase:get_word_by_index(index)
@@ -540,6 +408,8 @@ function Phrase:draw_lines(lines, x, y, align, threshold, __max_char__)
 
     local result_tx, result_char
 
+    self.__font:push()
+
     for i = 1, #lines do
         if align == "right" then
             tx = self.__bounds.right - self:__line_length(lines[i])
@@ -579,8 +449,21 @@ function Phrase:draw_lines(lines, x, y, align, threshold, __max_char__)
             ---@type JM.Font.Word
             local current_word = lines[i][j]
 
-            if self.__font:__is_a_command_tag(current_word.text) then
-                goto continue
+            -- if self.__font:__is_a_command_tag(current_word.text) then
+            --     goto continue
+            -- end
+
+            local tags = self.word_to_tag[current_word]
+            if tags then
+                for i = 1, #tags do
+                    local tag = tags[i]
+
+                    if tag["font-size"] then
+                        self.__font:set_font_size(tag["font-size"])
+                    elseif tag["/font-size"] then
+                        self.__font:set_font_size(14)
+                    end
+                end
             end
 
             local r = current_word:get_width() + space
@@ -591,7 +474,10 @@ function Phrase:draw_lines(lines, x, y, align, threshold, __max_char__)
 
             tx = tx + r
 
-            if result_tx then return result_tx, ty, result_char end
+            if result_tx then
+                self.__font:pop()
+                return result_tx, ty, result_char
+            end
             ::continue::
         end
 
@@ -602,6 +488,9 @@ function Phrase:draw_lines(lines, x, y, align, threshold, __max_char__)
             break
         end
     end
+
+    self.__font:pop()
+
     return nil, ty, nil
 end
 

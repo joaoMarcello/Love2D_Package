@@ -40,7 +40,7 @@ local function parse_csv_line(line, sep)
     return res
 end
 
-local s = "<pause=1.5>"
+local s = "</font-size>"
 
 ---@param s string
 local function do_things(s)
@@ -91,6 +91,7 @@ local function do_things(s)
         i = i + 1
     end
 
+    if #result <= 0 then result[s] = true end
     return result
 end
 
