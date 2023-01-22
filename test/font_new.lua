@@ -24,11 +24,11 @@ local button = Font.current:add_nickname_animated("--a--", {
 
 local text = "Hello <freaky>aqui quem fala \teh o seu<italic>capitão</italic>.astha nao sei mais oque escrever paraastasatsagstasga este texto ficar longo então vou ficar enrolando <bold>World <italic><color, 0, 0, 1, 1>Iupi <bold> World</color>test <color>Wo"
 
-local text2 = "Não estou in<pause=0, no-space>-te<pause=0, no-space>-res<pause=0, no-space>-sa<pause=0, no-space>-do Tam Oi Cara Oi<color, 1, 1, 1>Thanos</color no-space>. eu <pause= 2>nem<pause=0.3> gosto,<pause=0.3> ouviu?<pause=2> sas vefe \n sajs <italic><effect=ghost, speed=0.5, min=0.2>asasahs</effect></italic> wtwrfaghsas\n   asd asss df \n\tiIíÍìÌîÎïÏ \n\toOóÓòòôÔ <bold>öÖõÕ</bold> uU úÚùÙûüÜ <effect=flash, speed=1><color, 1, 1, 0>bBcCçÇdDfF</color></effect> gGhHjJk KlLm <effect=spooky>tTvVwW xXyYzZ</effect > 01234 56789¬ AsthaYuno * ¨¬¬ ~ $ ~ --heart-- --dots--<pause=1> </italic><effect=wave, speed=1>\nPress --a-- to <bold><color>charge your laser</color no-space> .  alfa</bold>\n \n \n <effect=scream>\n \n \n \nPARA DE GRITAAAAAAAR!!!"
+local text2 = "\n \n \ta \n Não estou in<pause=0, no-space>-te<pause=0, no-space>-res<pause=0, no-space>-sa<pause=0, no-space>-do Tam Oi Cara Oi<color, 1, 1, 1>Thanos</color no-space>. eu <pause= 2>nem<pause=0.3> gosto,<pause=0.3> ouviu?<pause=2> sas vefe \n sajs <italic><effect=ghost, speed=0.5, min=0.2>asasahs</effect></italic> wtwrfaghsas\n   asd asss df \n\tiIíÍìÌîÎïÏ \n\toOóÓòòôÔ <bold>öÖõÕ</bold> uU úÚùÙûüÜ <effect=flash, speed=1><color, 1, 1, 0>bBcCçÇdDfF</color></effect> gGhHjJk KlLm <effect=spooky>tTvVwW xXyYzZ</effect > 01234 56789¬ AsthaYuno * ¨¬¬ ~ $ ~ --heart-- --dots--<pause=1> </italic><effect=wave, speed=1>\nPress --a-- to <bold><color>charge your laser</color no-space> .  alfa</bold>\n \n \n <effect=scream> \n \nPARA DE GRITAAAAAAAR!!!"
 
 local rad = 0
 Font.current:push()
-Font.current:set_font_size(14)
+-- Font.current:set_font_size(14)
 local box = TextBox:new(text2, Font.current, 32 * 10, 32 * 5, 32 * 6)
 Font.current:pop()
 
@@ -78,7 +78,7 @@ local function draw(camera)
     Font:printx(text2
         ,
         32 * 3,
-        32 * 2
+        32 * 1
         , "left",
         32 * 3 + 32 * 6
     -- Game:get_mouse_position()

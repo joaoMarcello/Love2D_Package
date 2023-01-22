@@ -257,19 +257,28 @@ function Phrase:get_lines(x)
             -- Try remove the last added space word
             if pcall(
                 function()
-                    -- local last_added = self:__get_word_in_list(lines[cur_line], #lines[cur_line])
 
                     ---@type JM.Font.Word
-                    local last_added = lines[cur_line][#(lines[cur_line])]
+                    local last_added = lines[cur_line] and lines[cur_line][#(lines[cur_line])]
 
 
-                    if last_added.text == " " then
+                    if last_added and last_added.text == " " then
                         table.remove(lines[cur_line], #lines[cur_line])
                     end
                 end)
             then
+                if not lines[cur_line] then lines[cur_line] = {} end
                 cur_line = cur_line + 1
+                if not lines[cur_line] then lines[cur_line] = {} end
             end
+
+            ---@type JM.Font.Word
+            local last_added = lines[cur_line] and lines[cur_line][#(lines[cur_line])]
+
+            if last_added and last_added.text == " " then
+                table.remove(lines[cur_line], #lines[cur_line])
+            end
+
         end
 
         ::add_word::
@@ -277,16 +286,18 @@ function Phrase:get_lines(x)
 
         if current_word.text ~= "\n" then
             table.insert(lines[cur_line], current_word)
-        elseif next_word and next_word.text ~= "\n" then
-            table.insert(lines[cur_line - 1], current_word)
-        else
-            table.insert(lines[cur_line], current_word)
-            table.insert(lines[cur_line - 1], current_word)
-        end
+        elseif false and next_word and next_word.text ~= "\n" then
 
-        local cond = (prev_word
-            and not self.__font:__is_a_command_tag(prev_word.text))
-            or not prev_word
+            -- table.insert(lines[cur_line], word_char)
+            -- if lines[cur_line - 1] then
+            --     -- table.insert(lines[cur_line - 1], current_word)
+            -- end
+        else
+            --table.insert(lines[cur_line], current_word)
+            if lines[cur_line - 1] then
+                table.insert(lines[cur_line - 1], current_word)
+            end
+        end
 
         if i ~= #(self.__words)
             and current_word.text ~= "\t"

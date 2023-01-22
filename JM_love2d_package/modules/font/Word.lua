@@ -312,10 +312,10 @@ function Word:draw(x, y, __max_char__, __glyph_count__)
     --     local r = batch:getCount() > 0 and love.graphics.draw(batch)
     -- end
 
-    -- if self.text ~= " " or true then
-    --     love.graphics.setColor(0, 0, 0, 1)
-    --     love.graphics.rectangle("line", x - 2, y - 2, self:get_width() + 4, self.__font.__font_size + 4)
-    -- end
+    if self.text ~= " " or true then
+        love.graphics.setColor(0, 0, 0, 1)
+        love.graphics.rectangle("line", x - 2, y - 2, self:get_width() + 4, self.__font.__font_size + 4)
+    end
 end
 
 return Word
