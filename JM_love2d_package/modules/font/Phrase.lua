@@ -61,11 +61,11 @@ function Phrase:__constructor__(args)
 
             local is_command_tag = self.__font:__is_a_command_tag(w.text)
 
-            if self.__effect then
-                if not is_command_tag then
-                    w:apply_effect(nil, nil, self.__effect, nil, self.__eff_args)
-                end
-            end
+            -- if self.__effect then
+            --     if not is_command_tag then
+            --         w:apply_effect(nil, nil, self.__effect, nil, self.__eff_args)
+            --     end
+            -- end
 
             table.insert(self.__words, w)
 
@@ -83,8 +83,6 @@ function Phrase:__constructor__(args)
     end
 
     Word:restaure_effect()
-    self.__effect = nil
-    self.__eff_args = nil
 
     self.__font:pop()
 end
@@ -125,17 +123,25 @@ local function get_tag_args(s)
                     right = true
                 elseif right:match("false") then
                     right = false
+                else
+                    right = right:match("[^ ].*[^ ]")
                 end
             end
 
             if left then
                 result[left] = right
             end
+        else
+            local index = s:sub(i, #s):match("[^ ].*[^ ]")
+            if index then
+                result[s:sub(i, #s):match("[^ ].*[^ ]")] = true
+            end
+            break
         end
 
         i = i + 1
     end
-    if #result <= 0 then result[s] = true end
+
     return result
 end
 
@@ -145,6 +151,7 @@ function Phrase:__verify_commands(text)
 
     if result then
         local tag_values = get_tag_args(text)
+        tag_values["tag_name"] = result
 
         if result:match("< *bold *>") then
             self.__font:set_format_mode(self.__font.format_options.bold)
@@ -171,24 +178,24 @@ function Phrase:__verify_commands(text)
         elseif result:match("< */ *italic *>") then
             self.__font:set_format_mode(self.__font_config.format)
 
-        elseif result == "<effect>" then
+            -- elseif result == "<effect>" then
 
-            self.__effect = tag_values["effect"]
-            self.__eff_args = {}
+            --     --self.__effect = tag_values["effect"]
+            --     self.__eff_args = {}
 
-            for left, right in pairs(tag_values) do
-                self.__eff_args[left] = right
-            end
-            self.__eff_args.effect = nil
+            --     for left, right in pairs(tag_values) do
+            --         self.__eff_args[left] = right
+            --     end
+            --     self.__eff_args.effect = nil
 
-        elseif result == "</effect>" then
-            self.__effect = false
-        elseif result == "<font-size>" then
-            --self.__font:set_font_size(22)
-            --self.__font:set_format_mode(self.__font.format_options.bold)
-        elseif result == "</font-size>" then
-            --self.__font:set_font_size(14)
-            --self.__font:set_format_mode(self.__font.format_options.normal)
+            -- elseif result == "</effect>" then
+            --     self.__effect = false
+            -- elseif result == "<font-size>" then
+            --     --self.__font:set_font_size(22)
+            --     --self.__font:set_format_mode(self.__font.format_options.bold)
+            -- elseif result == "</font-size>" then
+            --     --self.__font:set_font_size(14)
+            --     --self.__font:set_format_mode(self.__font.format_options.normal)
         end
 
         return tag_values
@@ -220,6 +227,9 @@ function Phrase:get_lines(x)
     local cur_line = 1
     local word_char = Word:new({ text = " ", font = self.__font })
 
+    local effect = nil
+    local eff_args = nil
+
     for i = 1, #self.__words do
         ---@type JM.Font.Word
         local current_word = self.__words[i]
@@ -249,6 +259,30 @@ function Phrase:get_lines(x)
             goto skip_word
         end
 
+        if effect then
+            current_word:apply_effect(nil, nil, effect, nil, eff_args)
+        end
+
+        if current_word then
+            local tags = self.word_to_tag[current_word]
+            if tags then
+                for i = 1, #tags do
+                    local tag = tags[i]
+                    local tag_name = tag["tag_name"]
+
+                    if tag_name == "<effect>" then
+                        effect = tag["effect"]
+                        eff_args = tag
+                    elseif tag_name == "</effect>" then
+                        effect = nil
+                        eff_args = nil
+                    end
+                end
+            end
+        end
+
+
+
         if tx + r > self.__bounds.right
             or current_word.text:match("\n ?") then
 
@@ -269,7 +303,6 @@ function Phrase:get_lines(x)
 
         end
 
-        ::add_word::
         if not lines[cur_line] then lines[cur_line] = {} end
 
         if current_word.text ~= "\n" then

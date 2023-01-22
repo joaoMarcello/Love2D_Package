@@ -40,7 +40,7 @@ local function parse_csv_line(line, sep)
     return res
 end
 
-local s = "</font-size>"
+local s = "</ effect>"
 
 ---@param s string
 local function do_things(s)
@@ -78,25 +78,41 @@ local function do_things(s)
                 elseif right:match("false") then
                     right = false
                 else
-
+                    right = right:match("[^ ].*[^ ]")
                 end
             end
 
             if left then
                 result[left] = right
-                print(left .. "==" .. tostring(right) .. "_ " .. type(right))
+                --print(left .. "==" .. tostring(right) .. "_ " .. type(right))
             end
+        else
+            local index = s:sub(i, #s):match("[^ ].*[^ ]")
+            if index then
+                result[s:sub(i, #s):match("[^ ].*[^ ]")] = true
+            end
+            break
         end
 
         i = i + 1
     end
 
-    if #result <= 0 then result[s] = true end
+    local len = 0
+    for _, __ in pairs(result) do len = len + 1; break; end
+    --if len <= 0 then result[s:match("[^ ].*[^ ]")] = true end
+
     return result
 end
 
 local result = do_things(s)
-print(s)
+-- print(s)
 for l, r in pairs(result) do
-    print(l .. " - " .. tostring(r))
+    print(":" .. l .. ": - :" .. tostring(r) .. ":")
 end
+
+local A = { ["pam"] = 1 }
+local len = 0
+for _, __ in pairs(A) do
+    len = len + 1
+end
+print(len)
