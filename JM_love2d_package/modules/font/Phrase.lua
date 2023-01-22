@@ -255,29 +255,17 @@ function Phrase:get_lines(x)
             tx = x
 
             -- Try remove the last added space word
-            if pcall(
-                function()
-
-                    ---@type JM.Font.Word
-                    local last_added = lines[cur_line] and lines[cur_line][#(lines[cur_line])]
-
-
-                    if last_added and last_added.text == " " then
-                        table.remove(lines[cur_line], #lines[cur_line])
-                    end
-                end)
-            then
-                if not lines[cur_line] then lines[cur_line] = {} end
-                cur_line = cur_line + 1
-                if not lines[cur_line] then lines[cur_line] = {} end
-            end
-
             ---@type JM.Font.Word
             local last_added = lines[cur_line] and lines[cur_line][#(lines[cur_line])]
 
             if last_added and last_added.text == " " then
                 table.remove(lines[cur_line], #lines[cur_line])
             end
+            --=========================================================
+
+            if not lines[cur_line] then lines[cur_line] = {} end
+            cur_line = cur_line + 1
+            if not lines[cur_line] then lines[cur_line] = {} end
 
         end
 
@@ -286,14 +274,7 @@ function Phrase:get_lines(x)
 
         if current_word.text ~= "\n" then
             table.insert(lines[cur_line], current_word)
-        elseif false and next_word and next_word.text ~= "\n" then
-
-            -- table.insert(lines[cur_line], word_char)
-            -- if lines[cur_line - 1] then
-            --     -- table.insert(lines[cur_line - 1], current_word)
-            -- end
         else
-            --table.insert(lines[cur_line], current_word)
             if lines[cur_line - 1] then
                 table.insert(lines[cur_line - 1], current_word)
             end
@@ -333,7 +314,7 @@ function Phrase:text_height(lines)
 
     if word then
         local h = word:get_height() * (#lines)
-        return h
+        return h --- self.__font.__line_space
     end
     return 0
 end

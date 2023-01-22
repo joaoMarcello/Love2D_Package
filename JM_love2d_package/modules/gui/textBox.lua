@@ -73,7 +73,7 @@ function TextBox:__constructor__(args, w)
     self.lines = self.sentence:get_lines(self.sentence.x)
 
     self.align = "left"
-    self.text_align = Align.top
+    self.text_align = Align.center
     self.x = self.sentence.x
     self.y = self.sentence.y
     self.w = w
@@ -116,9 +116,7 @@ function TextBox:__constructor__(args, w)
             local line = screen[k]
             local N_line = #line
 
-            if (N_line == 2 and line[1].text == "\n"
-                and line[2].text == "\n")
-                or (N_line == 1 and line[1].text == "\n")
+            if (N_line == 1 and line[1].text == "\n")
                 or (N_line <= 0)
             then
                 table.remove(screen, k)
