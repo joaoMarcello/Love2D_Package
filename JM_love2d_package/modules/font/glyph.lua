@@ -70,8 +70,8 @@ function Glyph:__constructor__(img, args)
 
     self:set_color2(1, 1, 1, 1)
 
-    self.ox = self.x and self.w / 2 or 0
-    self.oy = self.y and self.h / 2 or 0
+    self.ox = self.x and self.w / 2 * self.sx or 0
+    self.oy = self.y and self.h / 2 * self.sy or 0
 
     self.bounds = { left = 0, top = 0, right = love.graphics.getWidth(), bottom = love.graphics.getHeight() }
 
@@ -119,9 +119,9 @@ function Glyph:set_color2(r, g, b, a)
     end
 end
 
----@param value number
+---@param value number|nil
 function Glyph:set_scale(value)
-    self.sy = value
+    self.sy = value or self.sy
     self.sx = self.sy
 
     -- self.ox = self.w / 2 * self.sx
@@ -161,9 +161,6 @@ end
 function Glyph:draw(x, y)
 
     self.x, self.y = x, y
-
-    -- self.ox = self.w * self.sx / 2
-    -- self.oy = self.h * self.sy / 2
 
     Affectable.draw(self)
 end
@@ -219,6 +216,14 @@ function Glyph:__glyph_draw__()
     --     love.graphics.setColor(0, 0, 0, 0.4)
     --     love.graphics.rectangle("line", x - self.ox * self.sx, y - self.oy * self.sy, self.w * self.sx, self.h * self.sy)
     -- end
+
+    -- love.graphics.setColor(0, 0, 0, 0.4)
+    -- love.graphics.rectangle("line",
+    --     self.x - self.w / 2 * self.sx,
+    --     self.y - self.h / 2 * self.sy,
+    --     self.w * self.sx,
+    --     self.h * self.sy
+    -- )
 end
 
 function Glyph:get_pos_draw_rec(x, y, w, h)

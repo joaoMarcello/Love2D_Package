@@ -40,7 +40,7 @@ local function parse_csv_line(line, sep)
     return res
 end
 
-local s = "</ effect>"
+local s = "</effect=_anta>"
 
 ---@param s string
 local function do_things(s)
@@ -116,3 +116,7 @@ for _, __ in pairs(A) do
     len = len + 1
 end
 print(len)
+
+local t = "<text-box, action=reset_>"
+local reg = "< *text%-box[ ,=%w%._]*>"
+print(t:match(reg))

@@ -246,10 +246,11 @@ end
 ---@alias JM.Font.CharacterPosition {x: number, y:number, char: JM.Font.Glyph}
 
 ---@param x number
-function Word:draw(x, y, __max_char__, __glyph_count__)
+function Word:draw(x, y, __max_char__, __glyph_count__, bottom)
     -- love.graphics.setColor(0.9, 0, 0, 0.15)
     -- love.graphics.rectangle("fill", x, y, self:get_width(), self.__font.__font_size)
 
+    bottom = bottom or (y + self.__font.__font_size)
 
     local tx = x
     local font = self.__font
@@ -278,11 +279,15 @@ function Word:draw(x, y, __max_char__, __glyph_count__)
             --         cur_char.oy)
             -- end
 
-            cur_char:draw_rec(tx, y,
-                cur_char.w * cur_char.sx,
-                font.__font_size)
+            -- cur_char:draw_rec(tx, y,
+            --     cur_char.w * cur_char.sx,
+            --     font.__font_size)
 
-            -- cur_char:draw(tx, y)
+            local px, py
+            py = bottom - cur_char.h / 2 * cur_char.sy
+            px = tx + cur_char.w / 2 * cur_char.sx
+
+            cur_char:draw(px, py)
         else
             cur_char.__anima:set_size(
                 nil, self.__font.__font_size * 1.4,

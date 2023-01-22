@@ -45,8 +45,9 @@ local Align = {
 }
 
 local UpdateMode = {
-    by_char = 1,
-    by_word = 2
+    by_glyph = 1,
+    by_word = 2,
+    by_screen = 3
 }
 
 ---@param self JM.GUI.TextBox
@@ -82,7 +83,7 @@ function TextBox:__constructor__(args, w)
 
     self.cur_glyph = 0
     self.time_glyph = 0.0
-    self.max_time_glyph = 0.6
+    self.max_time_glyph = 1
     self.extra_time = 0.0
 
     self.time_pause = 0.0
@@ -139,12 +140,30 @@ function TextBox:__constructor__(args, w)
     self:set_mode()
 end
 
+function TextBox:resetToDefault()
+    self.align = "left"
+    self.text_align = Align.center
+    self.is_visible = true
+    self.max_time_glyph = 0.05
+    self.update_mode = UpdateMode.by_glyph
+end
+
+function TextBox:do_the_thing(index, args)
+    if not index then return end
+    local field = self[index]
+    if type(field) == "function" then
+        field(self, args)
+    else
+        self[index] = args or self[index]
+    end
+end
+
 ---@param mode JM.GUI.TextBox.Modes
 function TextBox:set_mode(mode)
     if mode == "goddess" then
         self.max_time_glyph = 0.12
     end
-    self.glyph_change_action = ModeAction[mode]
+    self.glyph_change_action = ModeAction[mode] or ModeAction["normal"]
 end
 
 function TextBox:get_current_glyph()
@@ -289,15 +308,24 @@ function TextBox:update(dt)
 
                 for i = 1, N do
                     local tag = tags[i]
-                    if not self.used_tags[tag] and tag["pause"] then
+                    local name = tag['tag_name']
+
+                    if not self.used_tags[tag] then
                         self.used_tags[tag] = true
-                        self.time_pause = tag["pause"]
-                        return false
+
+                        if name == "<pause>" then
+                            self.time_pause = tag["pause"]
+                            return false
+                        elseif name == "<text-box>" then
+                            self:do_the_thing(tag['action'], tag['value'])
+                            self.time_pause = 0.5
+                        end
                     end
                 end
-            end
-        end
-    end
+
+            end -- End if tags end endword
+        end --End if Word
+    end -- End if Glyph
 
     self:set_finish(not glyph and self.cur_glyph ~= 0)
 end

@@ -61,12 +61,6 @@ function Phrase:__constructor__(args)
 
             local is_command_tag = self.__font:__is_a_command_tag(w.text)
 
-            -- if self.__effect then
-            --     if not is_command_tag then
-            --         w:apply_effect(nil, nil, self.__effect, nil, self.__eff_args)
-            --     end
-            -- end
-
             table.insert(self.__words, w)
 
             if tag_values then
@@ -265,6 +259,8 @@ function Phrase:get_lines(x)
 
         if current_word then
             local tags = self.word_to_tag[current_word]
+                or self.word_to_tag["first"]
+
             if tags then
                 for i = 1, #tags do
                     local tag = tags[i]
@@ -278,6 +274,10 @@ function Phrase:get_lines(x)
                         eff_args = nil
                     end
                 end
+            end
+
+            if tags == self.word_to_tag["first"] and effect then
+                current_word:apply_effect(nil, nil, effect, nil, eff_args)
             end
         end
 
@@ -480,24 +480,25 @@ function Phrase:draw_lines(lines, x, y, align, threshold, __max_char__)
             --     goto continue
             -- end
 
+            local r = current_word:get_width() + space
+
+            result_tx, result_char = current_word:draw(tx, ty, __max_char__, character_count, ty + init_font_size)
+
+            tx = tx + r
+
             local tags = self.word_to_tag[current_word]
             if tags then
                 for i = 1, #tags do
                     local tag = tags[i]
+                    local name = tag["tag_name"]
 
-                    if tag["font-size"] then
+                    if name == "<font-size>" then
                         self.__font:set_font_size(tag["font-size"])
-                    elseif tag["/font-size"] then
+                    elseif name == "</font-size>" then
                         self.__font:set_font_size(init_font_size)
                     end
                 end
             end
-
-            local r = current_word:get_width() + space
-
-            result_tx, result_char = current_word:draw(tx, ty, __max_char__, character_count)
-
-            tx = tx + r
 
             if result_tx then
                 self.__font:pop()
@@ -507,7 +508,7 @@ function Phrase:draw_lines(lines, x, y, align, threshold, __max_char__)
         end
 
         tx = x
-        ty = ty + (self.__font.__font_size + self.__font.__line_space)
+        ty = ty + (init_font_size + self.__font.__line_space)
 
         if i >= threshold then
             break
