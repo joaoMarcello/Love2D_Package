@@ -65,9 +65,4 @@ function Fadein:update_fadeout(dt)
     self.__object:set_color2(nil, nil, nil, self.__alpha)
 end
 
-function Fadein:apply(object, reset)
-    Effect.apply(self, object, reset)
-    local r = self.__object and self.__object:set_color2(nil, nil, nil, 0)
-end
-
 return Fadein

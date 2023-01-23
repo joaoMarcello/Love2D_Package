@@ -45,7 +45,7 @@ end)
 box:on_event("wordChange", function()
     local g, w, endw = box:get_current_glyph()
     if w then
-        w:apply_effect(nil, nil, "popin", nil, { speed = 1 })
+        w:apply_effect(nil, nil, "fadein", nil, { speed = 1 })
     end
 end)
 

@@ -162,9 +162,9 @@ function Word:apply_effect(startp, endp, effect_type, offset, eff_args)
         if not eff then break end
 
         if glyph and glyph:is_animated() then
-            eff:apply(glyph.__anima)
+            eff:apply(glyph.__anima, true)
         else
-            eff:apply(glyph)
+            eff:apply(glyph, true)
         end
         ::continue::
     end
