@@ -145,8 +145,8 @@ function Font:__constructor__(args)
     self:load_characters(string.format(dir, "book antiqua", "book antiqua"),
         FontFormat.normal, find_nicks(get_glyphs(args.glyphs)))
 
-    self:load_characters(string.format(dir, args.name, args.name .. "_bold"),
-        FontFormat.bold, find_nicks(get_glyphs(args.glyphs_bold)))
+    self:load_characters(string.format(dir, "book antiqua", "book antiqua" .. "_bold"),
+        FontFormat.bold, find_nicks(get_glyphs(args.glyphs)))
 
     self:load_characters(string.format(dir, args.name, args.name .. "_italic"),
         FontFormat.italic, find_nicks(get_glyphs(args.glyphs_italic)))
@@ -697,6 +697,7 @@ function Font:__is_a_command_tag(s)
         or (s:match("< */ *font%-size *[, %w%-]*>") and "</font-size>")
 
         or (s:match("< *text%-box[ ,=%w%._]*>") and "<text-box>")
+        or (s:match("< *sep[ %w,%-]*>") and "<sep>")
         or false
 end
 
