@@ -168,7 +168,7 @@ function Affectable:__draw__(draw, ...)
     apply_transform(self, self.x, self.y)
     local args = (...) and { ... }
     if args then
-        draw(self, unpack { ... })
+        draw(self, unpack(args))
     else
         draw(self)
     end

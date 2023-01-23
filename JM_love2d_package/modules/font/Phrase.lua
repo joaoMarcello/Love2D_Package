@@ -437,6 +437,24 @@ function Phrase:draw_lines(lines, x, y, align, threshold, __max_char__)
 
     local init_font_size = self.__font.__font_size
 
+    local apply_commands = function(cur_word)
+        local tags = self.word_to_tag[cur_word]
+        if tags then
+            for i = 1, #tags do
+                local tag = tags[i]
+                local name = tag["tag_name"]
+
+                if name == "<font-size>" then
+                    self.__font:set_font_size(tag["font-size"])
+                elseif name == "</font-size>" then
+                    self.__font:set_font_size(init_font_size)
+                end
+            end
+            return true
+        end
+        return false
+    end
+
     for i = 1, #lines do
         if align == "right" then
             tx = self.__bounds.right - self:__line_length(lines[i])
@@ -480,25 +498,15 @@ function Phrase:draw_lines(lines, x, y, align, threshold, __max_char__)
             --     goto continue
             -- end
 
+            local first = apply_commands(i == 1 and j == 1 and "first")
+
             local r = current_word:get_width() + space
 
             result_tx, result_char = current_word:draw(tx, ty, __max_char__, character_count, ty + init_font_size)
 
             tx = tx + r
 
-            local tags = self.word_to_tag[current_word]
-            if tags then
-                for i = 1, #tags do
-                    local tag = tags[i]
-                    local name = tag["tag_name"]
-
-                    if name == "<font-size>" then
-                        self.__font:set_font_size(tag["font-size"])
-                    elseif name == "</font-size>" then
-                        self.__font:set_font_size(init_font_size)
-                    end
-                end
-            end
+            apply_commands(not first and current_word)
 
             if result_tx then
                 self.__font:pop()
