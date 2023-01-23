@@ -33,7 +33,8 @@ local box = TextBox:new(text2, Font.current, 32 * 10, 32 * 5, 32 * 6)
 Font.current:pop()
 
 -- box:set_mode("popin")
-local sound = love.audio.newSource("/data/letter.wav", "static")
+local sound --= love.audio.newSource("/data/letter.wav", "static")
+local pause
 
 box:on_event("glyphChange", function()
     local g = box:get_current_glyph()
@@ -50,6 +51,10 @@ box:on_event("wordChange", function()
         --w:apply_effect(nil, nil, "fadein", nil, { speed = 1 })
         -- sound:play()
     end
+end)
+
+box:on_event("finishScreen", function()
+    pause:play()
 end)
 
 local A = Font.current:__get_char_equals("A"):copy()
@@ -110,6 +115,12 @@ local function draw(camera)
 end
 
 Game:implements({
+
+    load = function()
+        sound = love.audio.newSource("data/letter.wav", "static")
+        pause = love.audio.newSource("data/pause.wav", "static")
+    end,
+
     update = update,
 
     keypressed = function(key)

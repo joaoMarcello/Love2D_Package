@@ -212,10 +212,10 @@ function TextBox:set_finish(value)
         if not self.__finish then
             self.__finish = true
 
+            dispatch_event(self, Event.finishScreen)
+
             if self:finished() then
                 dispatch_event(self, Event.finishAll)
-            else
-                dispatch_event(self, Event.finishScreen)
             end
         end
     else
