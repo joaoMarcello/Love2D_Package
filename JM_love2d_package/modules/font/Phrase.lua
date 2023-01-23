@@ -223,6 +223,7 @@ function Phrase:get_lines(x)
 
     local effect = nil
     local eff_args = nil
+    local prev_word
 
     for i = 1, #self.__words do
         ---@type JM.Font.Word
@@ -231,8 +232,8 @@ function Phrase:get_lines(x)
         ---@type JM.Font.Word|nil
         local next_word = self.__words[i + 1]
 
-        ---@type JM.Font.Word
-        local prev_word = self.__words[i - 1]
+        -- ---@type JM.Font.Word
+        -- local prev_word = self.__words[i - 1]
 
         local cur_is_tag = self.__font:__is_a_command_tag(current_word.text)
 
@@ -253,12 +254,8 @@ function Phrase:get_lines(x)
             goto skip_word
         end
 
-        if effect then
-            current_word:apply_effect(nil, nil, effect, nil, eff_args)
-        end
-
-        if current_word then
-            local tags = self.word_to_tag[current_word]
+        do
+            local tags = self.word_to_tag[prev_word]
                 or self.word_to_tag["first"]
 
             if tags then
@@ -276,11 +273,16 @@ function Phrase:get_lines(x)
                 end
             end
 
-            if tags == self.word_to_tag["first"] and effect then
-                current_word:apply_effect(nil, nil, effect, nil, eff_args)
-            end
+            -- if tags == self.word_to_tag["first"] and effect then
+            --     current_word:apply_effect(nil, nil, effect, nil, eff_args)
+            -- end
         end
 
+        prev_word = current_word
+
+        if effect then
+            current_word:apply_effect(nil, nil, effect, nil, eff_args)
+        end
 
 
         if tx + r > self.__bounds.right
@@ -494,11 +496,8 @@ function Phrase:draw_lines(lines, x, y, align, threshold, __max_char__)
             ---@type JM.Font.Word
             local current_word = lines[i][j]
 
-            -- if self.__font:__is_a_command_tag(current_word.text) then
-            --     goto continue
-            -- end
-
-            local first = apply_commands(i == 1 and j == 1 and "first")
+            local first = apply_commands((i == 1 and j == 1 and "first")
+                or nil)
 
             local r = current_word:get_width() + space
 

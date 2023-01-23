@@ -90,7 +90,7 @@ local function draw(camera)
 
     Font.current:push()
     Font.current:set_font_size(9)
-    Font:printx("<effect=scream><font-size=22>PARA DE</font-size> GRITAAAAAR!", 32 * 13, 32 * 3, "left",
+    Font:printx("<effect=scream><font-size=16>PARA DE <font-size=6>GRITAAAR!</font-size>A", 32 * 13, 32 * 3, "left",
         32 * 13 + 32 * 3)
     Font.current:pop()
 
