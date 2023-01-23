@@ -24,7 +24,7 @@ local button = Font.current:add_nickname_animated("--a--", {
 
 local text = "Hello <freaky>aqui quem fala \teh o seu<italic>capitão</italic>.astha nao sei mais oque escrever paraastasatsagstasga este texto ficar longo então vou ficar enrolando <bold>World <italic><color, 0, 0, 1, 1>Iupi <bold> World</color>test <color>Wo"
 
-local text2 = "Não <effect=spooky>estou</effect> in<pause=0, no-space>-te<pause=0, no-space>-res<pause=0, no-space>-sa<pause=0, no-space>-do <pause=1><text-box, action=set_mode, value=popin><text-box, action=update_mode, value=1><text-box, action=max_time_glyph, value=0.05> Tam <font-size=22> Oi</font-size> Cara Oi<color, 1, 1, 1>Thanos</color no-space>. eu <pause= 2>nem<pause=1> gosto,<pause=0.3> ouviu?<pause=2> sas vefe \n sajs <italic><effect=ghost, speed=0.5, min=0.2>asasahs</effect></italic> wtwrfaghsas\n   asd asss df \n\tiIíÍìÌîÎïÏ \n\toOóÓòòôÔ <bold>öÖõÕ</bold> uU úÚùÙûüÜ <effect=flickering, speed=1.2><color, 1, 1, 0>bBcCçÇdDfF</color></effect> gGhHjJk KlLm <effect=spooky>tTvVwW xXyYzZ</effect> 01234 56789¬ AsthaYuno * ¨¬¬ ~ $ ~ --heart-- --dots--<pause=1> </italic><effect=wave, speed=1>\nPress --a-- to <bold><color>charge your laser</color no-space> .  alfa</bold></effect><pause=2><effect=scream><text-box, action=update_mode, value=2><text-box, action=max_time_glyph, value=0.6> \n \nPARA DE GRITAAAAAAAR!!!"
+local text2 = "Não <effect=spooky>estou</effect> in<pause=0, no-space>-te<pause=0, no-space>-res<pause=0, no-space>-sa<pause=0, no-space>-do <pause=1><text-box, action=set_mode, value=normal><text-box, action=update_mode, value=1><text-box, action=max_time_glyph, value=0.05> Tam <font-size=22> Oi</font-size> Cara Oi<color, 1, 1, 1>Thanos</color no-space>. eu <pause= 2>nem<pause=1> gosto,<pause=0.3> ouviu?<pause=1> sas vefe \n sajs <italic><effect=ghost, speed=0.5, min=0.2>asasahs</effect></italic> wtwrfaghsas\n   asd asss df \n\tiIíÍìÌîÎïÏ \n\toOóÓòòôÔ <bold>öÖõÕ</bold> uU úÚùÙûüÜ <effect=flash, speed=1.2><color, 1, 1, 0>bBcCçÇdDfF</color></effect> gGhHjJk KlLm <effect=spooky>tTvVwW xXyYzZ</effect> 01234 56789¬ AsthaYuno * ¨¬¬ ~ $ ~ --heart-- --dots--<pause=1> </italic><effect=wave, speed=1>\nPress --a-- to <bold><color>charge your laser</color no-space> .  alfa</bold></effect><pause=2><effect=scream><text-box, action=update_mode, value=2><text-box, action=max_time_glyph, value=0.6> \n \nPARA DE GRITAAAAAAAR!!!"
 
 local rad = 0
 Font.current:push()
@@ -33,10 +33,12 @@ local box = TextBox:new(text2, Font.current, 32 * 10, 32 * 5, 32 * 6)
 Font.current:pop()
 
 -- box:set_mode("popin")
+local sound = love.audio.newSource("/data/letter.wav", "static")
 
 box:on_event("glyphChange", function()
     local g = box:get_current_glyph()
     if g then
+        sound:play()
         -- g:apply_effect("fadein", { speed = 0.2 })
         -- g:set_color2(math.random(), math.random(), math.random())
     end
@@ -45,7 +47,8 @@ end)
 box:on_event("wordChange", function()
     local g, w, endw = box:get_current_glyph()
     if w then
-        w:apply_effect(nil, nil, "fadein", nil, { speed = 1 })
+        --w:apply_effect(nil, nil, "fadein", nil, { speed = 1 })
+        -- sound:play()
     end
 end)
 
@@ -76,7 +79,7 @@ end
 
 local function draw(camera)
     -- A:set_scale()
-    A:draw(32 * 15, 32 * 2)
+    -- A:draw(32 * 15, 32 * 2)
     -- button:draw()
 
     Font:printx(text2

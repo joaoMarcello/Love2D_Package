@@ -382,7 +382,7 @@ function TextBox:draw()
     Font:print(tostring(self.sentence.tags[1]["effect"]), self.x, self.y + self.h + 10)
 
     if self:screen_is_finished() then
-        Font:print("--a--", self.x + self.w + 5,
+        Font:print("--b--", self.x + self.w + 5,
             self.y + self.h + 10)
     end
 end

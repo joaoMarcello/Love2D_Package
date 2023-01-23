@@ -415,6 +415,24 @@ function Phrase:get_glyph(n, lines)
     end
 end
 
+local apply_commands = function(self, cur_word, init_font_size)
+    local tags = self.word_to_tag[cur_word]
+    if tags then
+        for i = 1, #tags do
+            local tag = tags[i]
+            local name = tag["tag_name"]
+
+            if name == "<font-size>" then
+                self.__font:set_font_size(tag["font-size"])
+            elseif name == "</font-size>" then
+                self.__font:set_font_size(init_font_size)
+            end
+        end
+        return true
+    end
+    return false
+end
+
 local pointer_char_count = { [1] = 0 }
 ---
 ---@param lines table
@@ -442,23 +460,7 @@ function Phrase:draw_lines(lines, x, y, align, threshold, __max_char__)
 
     local init_font_size = self.__font.__font_size
 
-    local apply_commands = function(cur_word)
-        local tags = self.word_to_tag[cur_word]
-        if tags then
-            for i = 1, #tags do
-                local tag = tags[i]
-                local name = tag["tag_name"]
 
-                if name == "<font-size>" then
-                    self.__font:set_font_size(tag["font-size"])
-                elseif name == "</font-size>" then
-                    self.__font:set_font_size(init_font_size)
-                end
-            end
-            return true
-        end
-        return false
-    end
 
     for i = 1, #lines do
         if align == "right" then
@@ -499,8 +501,8 @@ function Phrase:draw_lines(lines, x, y, align, threshold, __max_char__)
             ---@type JM.Font.Word
             local current_word = lines[i][j]
 
-            local first = apply_commands((i == 1 and j == 1 and "first")
-                or nil)
+            local first = apply_commands(self, (i == 1 and j == 1 and "first")
+                or nil, init_font_size)
 
             local r = current_word:get_width() + space
 
@@ -508,7 +510,7 @@ function Phrase:draw_lines(lines, x, y, align, threshold, __max_char__)
 
             tx = tx + r
 
-            apply_commands(not first and current_word)
+            apply_commands(self, not first and current_word, init_font_size)
 
             if result_tx then
                 self.__font:pop()
