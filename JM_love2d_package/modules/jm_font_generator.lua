@@ -1,5 +1,8 @@
 local utf8 = require('utf8')
 
+---@type string
+local path = ...
+
 ---@type JM.Anima
 local Anima = _G.JM_Anima
 
@@ -28,6 +31,7 @@ end
 
 ---@param s string
 local function get_glyphs(s)
+    if not s then return {} end
     local t = {}
     for p, c in utf8.codes(s) do
         table.insert(t, utf8.char(c))
@@ -38,7 +42,6 @@ end
 
 ---@param t table
 local function find_nicks(t)
-
     local next_ = function(init)
         local i = init
         local n = #t
@@ -98,7 +101,7 @@ local Font = {
 }
 
 ---@overload fun(self: table, args: JM.AvailableFonts)
----@param args {name: JM.AvailableFonts, font_size: number, line_space: number, tab_size: number, character_space: number, color: JM.Color}
+---@param args {name: JM.AvailableFonts, font_size: number, line_space: number, tab_size: number, character_space: number, color: JM.Color, glyphs:string, glyphs_bold:string, glyphs_italic:string, glyphs_bold_italic:string}
 ---@return JM.Font.Font new_Font
 function Font:new(args)
     local obj = {}
@@ -111,7 +114,7 @@ function Font:new(args)
 end
 
 ---@overload fun(self: table, args: JM.AvailableFonts)
----@param args {name: JM.AvailableFonts, font_size: number, line_space: number, tab_size: number, character_space: number, color: JM.Color}
+---@param args {name: JM.AvailableFonts, font_size: number, line_space: number, tab_size: number, character_space: number, color: JM.Color, glyphs:string, glyphs_bold:string, glyphs_italic:string, glyphs_bold_italic:string}
 function Font:__constructor__(args)
     if type(args) == "string" then
         local temp_table = {}
@@ -136,20 +139,17 @@ function Font:__constructor__(args)
         [FontFormat.bold_italic] = {}
     }
 
-    local s = [[aAàÀáÁãÃâÂäÄeEéÉèÈêÊëËiIíÍìÌîÎïÏoOóÓòÒôÔõÕöÖuUúÚùÙûÛüÜbBcCçÇdDfFgGhHjJkKlLmMnNpPqQrRsStTvVwWxXyYzZ0123456789+-=/*%\#§@({[]})|_"'!?,.:;ªº°¹²³£¢<>¨¬~$&--dots--]]
+    local dir = path:gsub("modules.jm_font_generator", "data/font/")
+        .. "%s/%s.png"
 
-    self:load_characters("/JM_love2d_package/data/Font/Consolas/consolas_normal.png",
-        FontFormat.normal, find_nicks(get_glyphs(s)))
+    self:load_characters(string.format(dir, "book antiqua", "book antiqua"),
+        FontFormat.normal, find_nicks(get_glyphs(args.glyphs)))
 
-    s = [[aAàÀáÁãÃâÂäÄeEéÉèÈêÊëËiIíÍìÌîÎïÏoOóÓòÒôÔõÕöÖuUúÚùÙûÛüÜbBcCçÇdDfFgGhHjJkKlLmMnNpPqQrRsStTvVwWxXyYzZ0123456789+-=/*%\#§@({[]})|_"'!?,.:;ªº°¹²³£¢¬¨~$<>&]]
+    self:load_characters(string.format(dir, args.name, args.name .. "_bold"),
+        FontFormat.bold, find_nicks(get_glyphs(args.glyphs_bold)))
 
-    self:load_characters("/JM_love2d_package/data/Font/Consolas/consolas_bold.png",
-        FontFormat.bold, find_nicks(get_glyphs(s)))
-
-    s = [[aAàÀáÁãÃâÂäÄeEéÉèÈêÊëËiIíÍìÌîÎïÏoOóÓòÒôÔõÕöÖuUúÚùÙûÛüÜbBcCçÇdDfFgGhHjJkKlLmMnNpPqQrRsStTvVwWxXyYzZ0123456789+-=/*%\#§@({[]})|_"'!?,.:;ªº°¹²³£¢¬¨<>&$~--heart----dots--]]
-
-    self:load_characters("/JM_love2d_package/data/Font/Consolas/consolas_italic.png",
-        FontFormat.italic, find_nicks(get_glyphs(s)))
+    self:load_characters(string.format(dir, args.name, args.name .. "_italic"),
+        FontFormat.italic, find_nicks(get_glyphs(args.glyphs_italic)))
 
     self.__format = FontFormat.normal
 

@@ -8,7 +8,21 @@ Font.fonts = {}
 do
     ---@type JM.Font.Generator
     local Generator = require(path:gsub("jm_font", "jm_font_generator"))
-    Font.fonts[1] = Generator:new({ name = "consolas", font_size = 10, tab_size = 4 })
+
+    local glyphs = [[aAàÀáÁãÃâÂäÄeEéÉèÈêÊëËiIíÍìÌîÎïÏoOóÓòÒôÔõÕöÖuUúÚùÙûÛüÜbBcCçÇdDfFgGhHjJkKlLmMnNpPqQrRsStTvVwWxXyYzZ0123456789+-=/*%\#§@({[]})|_"'!?,.:;ªº°¹²³£¢<>¨¬~$&^--dots--]]
+
+    local glyphs_bold = [[aAàÀáÁãÃâÂäÄeEéÉèÈêÊëËiIíÍìÌîÎïÏoOóÓòÒôÔõÕöÖuUúÚùÙûÛüÜbBcCçÇdDfFgGhHjJkKlLmMnNpPqQrRsStTvVwWxXyYzZ0123456789+-=/*%\#§@({[]})|_"'!?,.:;ªº°¹²³£¢¬¨~$<>&]]
+
+    local glyphs_italic = [[aAàÀáÁãÃâÂäÄeEéÉèÈêÊëËiIíÍìÌîÎïÏoOóÓòÒôÔõÕöÖuUúÚùÙûÛüÜbBcCçÇdDfFgGhHjJkKlLmMnNpPqQrRsStTvVwWxXyYzZ0123456789+-=/*%\#§@({[]})|_"'!?,.:;ªº°¹²³£¢¬¨<>&$~--heart----dots--]]
+
+    Font.fonts[1] = Generator:new({
+        name = "consolas",
+        font_size = 10,
+        tab_size = 4,
+        glyphs = glyphs,
+        glyphs_bold = glyphs_bold,
+        glyphs_italic = glyphs_italic
+    })
 end
 
 ---@type JM.Font.Font
