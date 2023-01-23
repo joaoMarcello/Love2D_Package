@@ -24,7 +24,7 @@ local button = Font.current:add_nickname_animated("--a--", {
 
 local text = "Hello <freaky>aqui quem fala \teh o seu<italic>capitão</italic>.astha nao sei mais oque escrever paraastasatsagstasga este texto ficar longo então vou ficar enrolando <bold>World <italic><color, 0, 0, 1, 1>Iupi <bold> World</color>test <color>Wo"
 
-local text2 = "Não <effect=spooky>estou</effect> in<pause=0, no-space>-te<pause=0, no-space>-res<pause=0, no-space>-sa<pause=0, no-space>-do <pause=1><text-box, action=set_mode, value=popin><text-box, action=update_mode, value=1><text-box, action=max_time_glyph, value=0.05> Tam <font-size=22> Oi</font-size> Cara Oi<color, 1, 1, 1>Thanos</color no-space>. eu <pause= 2>nem<pause=1> gosto,<pause=0.3> ouviu?<pause=2> sas vefe \n sajs <italic><effect=ghost, speed=0.5, min=0.2>asasahs</effect></italic> wtwrfaghsas\n   asd asss df \n\tiIíÍìÌîÎïÏ \n\toOóÓòòôÔ <bold>öÖõÕ</bold> uU úÚùÙûüÜ <effect=flickering, speed=1.2><color, 1, 1, 0>bBcCçÇdDfF</color></effect> gGhHjJk KlLm <effect=spooky>tTvVwW xXyYzZ</effect> 01234 56789¬ AsthaYuno * ¨¬¬ ~ $ ~ --heart-- --dots--<pause=1> </italic><effect=wave, speed=1>\nPress --a-- to <bold><color>charge your laser</color no-space> .  alfa</bold>\n \n \n </effect><effect=scream> \n \nPARA DE GRITAAAAAAAR!!!"
+local text2 = "Não <effect=spooky>estou</effect> in<pause=0, no-space>-te<pause=0, no-space>-res<pause=0, no-space>-sa<pause=0, no-space>-do <pause=1><text-box, action=set_mode, value=popin><text-box, action=update_mode, value=1><text-box, action=max_time_glyph, value=0.05> Tam <font-size=22> Oi</font-size> Cara Oi<color, 1, 1, 1>Thanos</color no-space>. eu <pause= 2>nem<pause=1> gosto,<pause=0.3> ouviu?<pause=2> sas vefe \n sajs <italic><effect=ghost, speed=0.5, min=0.2>asasahs</effect></italic> wtwrfaghsas\n   asd asss df \n\tiIíÍìÌîÎïÏ \n\toOóÓòòôÔ <bold>öÖõÕ</bold> uU úÚùÙûüÜ <effect=flickering, speed=1.2><color, 1, 1, 0>bBcCçÇdDfF</color></effect> gGhHjJk KlLm <effect=spooky>tTvVwW xXyYzZ</effect> 01234 56789¬ AsthaYuno * ¨¬¬ ~ $ ~ --heart-- --dots--<pause=1> </italic><effect=wave, speed=1>\nPress --a-- to <bold><color>charge your laser</color no-space> .  alfa</bold></effect><pause=2><effect=scream><text-box, action=update_mode, value=2><text-box, action=max_time_glyph, value=0.6> \n \nPARA DE GRITAAAAAAAR!!!"
 
 local rad = 0
 Font.current:push()
@@ -90,7 +90,10 @@ local function draw(camera)
 
     Font.current:push()
     Font.current:set_font_size(9)
-    Font:printx("<effect=scream><effect=ghost><font-size=16>PARA DE <font-size=6>GRITAAAR!</font-size>A", 32 * 13, 32 * 3
+    Font:printx("<effect=scream><font-size=16>PARA</effect> DE <font-size=6>GRITAAAR!</font-size>A"
+        ,
+        32 * 13,
+        32 * 3
         , "left",
         32 * 13 + 32 * 3)
     Font.current:pop()

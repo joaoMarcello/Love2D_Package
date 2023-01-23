@@ -84,7 +84,7 @@ function TextBox:__constructor__(args, w)
 
     self.cur_glyph = 0
     self.time_glyph = 0.0
-    self.max_time_glyph = 1
+    self.max_time_glyph = 0.4
     self.extra_time = 0.0
 
     self.time_pause = 0.0

@@ -1,8 +1,7 @@
----@type string
-local path = ...
+local table_insert = table.insert
 
 ---@type JM.Font.Word
-local Word = require(path:gsub("Phrase", "Word"))
+local Word = require((...):gsub("Phrase", "Word"))
 
 ---@type JM.Utils
 local Utils = _G.JM_Utils
@@ -61,15 +60,15 @@ function Phrase:__constructor__(args)
 
             local is_command_tag = self.__font:__is_a_command_tag(w.text)
 
-            table.insert(self.__words, w)
+            table_insert(self.__words, w)
 
             if tag_values then
                 tag_values["prev"] = prev_word
-                table.insert(self.tags, tag_values)
+                table_insert(self.tags, tag_values)
 
                 local index = prev_word or "first"
                 self.word_to_tag[index] = self.word_to_tag[index] or {}
-                table.insert(self.word_to_tag[index], tag_values)
+                table_insert(self.word_to_tag[index], tag_values)
             end
 
             prev_word = (not is_command_tag and w) or prev_word
@@ -208,7 +207,7 @@ function Phrase:get_word_by_index(index)
     return self.__words[index]
 end
 
-local results_get_lines = setmetatable({}, { __mode = 'kv' })
+local results_get_lines = setmetatable({}, { __mode = 'k' })
 
 ---@return table
 function Phrase:get_lines(x)
@@ -265,13 +264,11 @@ function Phrase:get_lines(x)
 
                     if tag_name == "<effect>" then
                         effect = effect or {}
-                        table.insert(effect, tag['effect'])
+                        table_insert(effect, tag['effect'])
 
                         eff_args = eff_args or {}
-                        table.insert(eff_args, tag)
+                        table_insert(eff_args, tag)
 
-                        -- effect = tag["effect"]
-                        -- eff_args = tag
                     elseif tag_name == "</effect>" then
                         effect = nil
                         eff_args = nil
@@ -288,7 +285,6 @@ function Phrase:get_lines(x)
                 local args = eff_args[i]
                 current_word:apply_effect(nil, nil, eff, nil, args)
             end
-            --current_word:apply_effect(nil, nil, effect, nil, eff_args)
         end
 
 
@@ -315,10 +311,10 @@ function Phrase:get_lines(x)
         if not lines[cur_line] then lines[cur_line] = {} end
 
         if current_word.text ~= "\n" then
-            table.insert(lines[cur_line], current_word)
+            table_insert(lines[cur_line], current_word)
         else
             if lines[cur_line - 1] then
-                table.insert(lines[cur_line - 1], current_word)
+                table_insert(lines[cur_line - 1], current_word)
             end
         end
 
@@ -327,7 +323,7 @@ function Phrase:get_lines(x)
             and current_word.text ~= "\n"
             and next_word and next_word.text ~= "\t"
         then
-            table.insert(lines[cur_line], word_char)
+            table_insert(lines[cur_line], word_char)
         end
 
         tx = tx + r
@@ -335,13 +331,13 @@ function Phrase:get_lines(x)
         ::skip_word::
     end
 
-    table.insert(
+    table_insert(
         lines[cur_line],
         Word:new({ text = "\n", font = self.__font })
     )
 
     results_get_lines[self] = results_get_lines[self]
-        or setmetatable({}, { __mode = 'k' })
+        or setmetatable({}, { __mode = 'v' })
     results_get_lines[self][key] = lines
 
     return lines
