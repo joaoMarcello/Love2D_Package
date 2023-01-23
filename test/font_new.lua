@@ -42,6 +42,13 @@ box:on_event("glyphChange", function()
     end
 end)
 
+box:on_event("wordChange", function()
+    local g, w, endw = box:get_current_glyph()
+    if w then
+        w:apply_effect(nil, nil, "popin", nil, { speed = 1 })
+    end
+end)
+
 local A = Font.current:__get_char_equals("A"):copy()
 -- A:apply_effect("clockWise")
 

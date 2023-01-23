@@ -91,4 +91,8 @@ function Popin:update(dt)
     end
 end
 
+function Popin:apply(object, restart)
+    
+end
+
 return Popin

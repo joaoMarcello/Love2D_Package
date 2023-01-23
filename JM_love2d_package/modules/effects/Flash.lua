@@ -44,7 +44,8 @@ local shader_code = [[
     }
   ]]
 
-local flash_shader = love.graphics.newShader(shader_code)
+---@type love.Shader
+local flash_shader
 
 ---
 ---@class JM.Effect.Flash: JM.Effect
@@ -56,6 +57,7 @@ Flash.__index = Flash
 ---@param args {speed: number, color: table, min: number, max: number}
 ---@return JM.Effect effect
 function Flash:new(object, args)
+    flash_shader = flash_shader or love.graphics.newShader(shader_code)
 
     local ef = Effect:new(object, args)
     setmetatable(ef, self)
@@ -64,8 +66,6 @@ function Flash:new(object, args)
     return ef
 end
 
----
---- Constructor.
 ---@overload fun(self: JM.Effect, args: nil)
 ---@param self JM.Effect
 ---@param args {speed: number, color: table, min: number, max: number}

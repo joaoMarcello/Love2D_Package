@@ -6,9 +6,10 @@ local Event = {
     finishScreen = 1,
     finishAll = 2,
     changeScreen = 3,
-    glyphChange = 4
+    glyphChange = 4,
+    wordChange = 5
 }
----@alias JM.GUI.TextBox.EventNames "finishScreen"|"finishAll"|"changeScreen"|"glyphChange"
+---@alias JM.GUI.TextBox.EventNames "finishScreen"|"finishAll"|"changeScreen"|"glyphChange"|"wordChange"
 
 local Mode = {
     normal = 1,
@@ -194,6 +195,7 @@ function TextBox:go_to_next_screen()
     if self:screen_is_finished() and self.cur_screen < self.amount_screens then
         self.cur_screen = self.cur_screen + 1
         self:refresh()
+        dispatch_event(self, Event.changeScreen)
         return true
     end
     return false
@@ -208,12 +210,16 @@ end
 function TextBox:set_finish(value)
     if value then
         if not self.__finish then
-
             self.__finish = true
+
+            if self:finished() then
+                dispatch_event(self, Event.finishAll)
+            else
+                dispatch_event(self, Event.finishScreen)
+            end
         end
     else
         if self.__finish then
-
             self.__finish = false
         end
     end
@@ -251,6 +257,7 @@ function TextBox:update(dt)
 
     self.sentence:update(dt)
 
+    -- Pausing the textBox
     if self.time_pause > 0 then
         self.time_pause = self.time_pause - dt
         if self.time_pause <= 0 then
@@ -273,15 +280,23 @@ function TextBox:update(dt)
             self.cur_glyph = self.cur_glyph + 1
             dispatch_event(self, Event.glyphChange)
 
-            local g, w, endw = self:get_current_glyph()
-            local r = g and self.glyph_change_action
-                and self.glyph_change_action(g)
+            local g, w = self:get_current_glyph()
 
-            if self.update_mode == UpdateMode.by_word and g and w then
-                self.cur_glyph = self.cur_glyph + #w.__characters - 1
-                if w.text == " " then self.time_glyph = self.max_time_glyph end
+            if self.update_mode == UpdateMode.by_glyph then
+                local temp = g and self.glyph_change_action
+                    and self.glyph_change_action(g)
+
+            elseif self.update_mode == UpdateMode.by_word and g and w then
+                self.cur_glyph = self.cur_glyph + #(w.__characters) - 1
+
+                if w.text == " " then
+                    self.time_glyph = self.max_time_glyph
+                else
+                    dispatch_event(self, Event.wordChange)
+                end
             end
-        end
+
+        end -- END if cur_glyph is not nil
     end
 
     local glyph, word, endword = self:get_current_glyph()
@@ -324,7 +339,9 @@ function TextBox:update(dt)
                 end
 
             end -- End if tags end endword
+
         end --End if Word
+
     end -- End if Glyph
 
     self:set_finish(not glyph and self.cur_glyph ~= 0)
