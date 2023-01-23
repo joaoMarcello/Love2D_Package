@@ -264,24 +264,31 @@ function Phrase:get_lines(x)
                     local tag_name = tag["tag_name"]
 
                     if tag_name == "<effect>" then
-                        effect = tag["effect"]
-                        eff_args = tag
+                        effect = effect or {}
+                        table.insert(effect, tag['effect'])
+
+                        eff_args = eff_args or {}
+                        table.insert(eff_args, tag)
+
+                        -- effect = tag["effect"]
+                        -- eff_args = tag
                     elseif tag_name == "</effect>" then
                         effect = nil
                         eff_args = nil
                     end
                 end
             end
-
-            -- if tags == self.word_to_tag["first"] and effect then
-            --     current_word:apply_effect(nil, nil, effect, nil, eff_args)
-            -- end
         end
 
         prev_word = current_word
 
-        if effect then
-            current_word:apply_effect(nil, nil, effect, nil, eff_args)
+        if effect and eff_args then
+            for i = 1, #effect do
+                local eff = effect[i]
+                local args = eff_args[i]
+                current_word:apply_effect(nil, nil, eff, nil, args)
+            end
+            --current_word:apply_effect(nil, nil, effect, nil, eff_args)
         end
 
 
