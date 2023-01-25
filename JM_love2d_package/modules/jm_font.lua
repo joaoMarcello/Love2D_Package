@@ -33,7 +33,7 @@ do
 end
 
 ---@type JM.Font.Font
-Font.current = Font.fonts[2]
+Font.current = Font.fonts[1]
 Font.current:set_format_mode(Font.current.format_options.normal)
 
 function Font:update(dt)

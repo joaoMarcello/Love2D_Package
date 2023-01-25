@@ -142,12 +142,13 @@ function Font:__constructor__(args)
     local dir = path:gsub("modules.jm_font_generator", "data/font/")
         .. "%s/%s.png"
 
-    self:load_characters(string.format(dir, args.name, args.name),
+    self:load_characters(string.format(dir, "komika text", "komika text"),
         FontFormat.normal, find_nicks(get_glyphs(args.glyphs)))
 
     self:load_characters(string.format(dir, args.name, args.name .. "_bold"),
         FontFormat.bold, find_nicks(get_glyphs(args.glyphs_bold or args.glyphs)))
 
+    args.name = "komika text"
     self:load_characters(string.format(dir, args.name, args.name .. "_italic"),
         FontFormat.italic, find_nicks(get_glyphs(args.glyphs_italic or args.glyphs)))
 
