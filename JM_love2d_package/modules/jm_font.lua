@@ -15,14 +15,21 @@ do
 
     local glyphs_italic = [[aAàÀáÁãÃâÂäÄeEéÉèÈêÊëËiIíÍìÌîÎïÏoOóÓòÒôÔõÕöÖuUúÚùÙûÛüÜbBcCçÇdDfFgGhHjJkKlLmMnNpPqQrRsStTvVwWxXyYzZ0123456789+-=/*%\#§@({[]})|_"'!?,.:;ªº°¹²³£¢¬¨<>&$~--heart----dots--]]
 
-    Font.fonts[1] = Generator:new({
-        name = "book antiqua",
-        font_size = 10,
-        tab_size = 4,
-        glyphs = glyphs
-    })
+    -- Font.fonts[1] = Generator:new({
+    --     name = "book antiqua",
+    --     font_size = 10,
+    --     tab_size = 4,
+    --     glyphs = glyphs
+    -- })
 
-    Font.fonts[2] = Generator:new({
+    -- Font.fonts[2] = Generator:new({
+    --     name = "komika text",
+    --     font_size = 10,
+    --     tab_size = 4,
+    --     glyphs = glyphs
+    -- })
+
+    Font.fonts[3] = Generator:new({
         name = "consolas",
         font_size = 10,
         tab_size = 4,
@@ -30,11 +37,17 @@ do
         glyphs_bold = glyphs_bold,
         glyphs_italic = glyphs_italic
     })
+
+    -- Font.name2font = {}
+    -- for _, font in ipairs(Font.fonts) do
+    --     Font.name2font[font.name] = font
+    -- end
 end
 
 ---@type JM.Font.Font
-Font.current = Font.fonts[1]
-Font.current:set_format_mode(Font.current.format_options.normal)
+Font.current = Font.fonts[3]
+Font.current:set_format_mode(Font.current.format_options.italic)
+
 
 function Font:update(dt)
     for i = 1, #self.fonts do
@@ -44,9 +57,8 @@ function Font:update(dt)
     end
 end
 
----@param font JM.Font.Font
-function Font:set_font(font)
-    self.current = font
+function Font:set_font(name)
+    --self.current = self.name2font[name]
 end
 
 function Font:print(text, x, y, w, h)

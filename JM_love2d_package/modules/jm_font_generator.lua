@@ -131,6 +131,7 @@ function Font:__constructor__(args)
     self.__character_space = args.character_space or 0
     self.__line_space = args.line_space or 10
 
+    self.name = args.name
 
     self.__characters = {
         [FontFormat.normal] = {},
@@ -142,13 +143,16 @@ function Font:__constructor__(args)
     local dir = path:gsub("modules.jm_font_generator", "data/font/")
         .. "%s/%s.png"
 
-    self:load_characters(string.format(dir, "komika text", "komika text"),
+    -- args.glyphs_bold = nil
+    -- args.glyphs_italic = nil
+
+    self:load_characters(string.format(dir, args.name, args.name),
         FontFormat.normal, find_nicks(get_glyphs(args.glyphs)))
 
     self:load_characters(string.format(dir, args.name, args.name .. "_bold"),
         FontFormat.bold, find_nicks(get_glyphs(args.glyphs_bold or args.glyphs)))
 
-    args.name = "komika text"
+    -- args.name = "komika text"
     self:load_characters(string.format(dir, args.name, args.name .. "_italic"),
         FontFormat.italic, find_nicks(get_glyphs(args.glyphs_italic or args.glyphs)))
 
@@ -192,12 +196,15 @@ function Font:__constructor__(args)
     self.__bounds = { left = 0, top = 0, right = love.graphics.getWidth(), bottom = love.graphics.getHeight() }
 
     self.batches = {
-        [FontFormat.normal] =
-        love.graphics.newSpriteBatch(self.__imgs[FontFormat.normal]),
-        [FontFormat.bold] =
-        love.graphics.newSpriteBatch(self.__imgs[FontFormat.bold]),
-        [FontFormat.italic] =
-        love.graphics.newSpriteBatch(self.__imgs[FontFormat.italic])
+        [FontFormat.normal] = self.__imgs[FontFormat.normal] and
+            love.graphics.newSpriteBatch(self.__imgs[FontFormat.normal])
+            or nil,
+
+        [FontFormat.bold] = self.__imgs[FontFormat.bold] and
+            love.graphics.newSpriteBatch(self.__imgs[FontFormat.bold]) or nil,
+
+        [FontFormat.italic] = self.__imgs[FontFormat.italic] and
+            love.graphics.newSpriteBatch(self.__imgs[FontFormat.italic]) or nil
     }
 end
 
@@ -256,8 +263,9 @@ end
 ---@param format JM.Font.FormatOptions
 ---@param glyphs table
 function Font:load_characters(path, format, glyphs)
+
+    local list = {} -- list of glyphs
     local img_data = love.image.newImageData(path)
-    local list = {}
 
     local mask_color = { 1, 1, 0, 1 }
     local mask_color_red = { 1, 0, 0, 1 }
@@ -352,9 +360,17 @@ function Font:load_characters(path, format, glyphs)
     self.__imgs[format] = img
 end
 
+local nule_glyph = setmetatable({}, { __mode = 'k' })
+
+---@return JM.Font.Glyph
 function Font:get_nule_character()
+    local r = nule_glyph[self]
+    if r then return r end
+
     local char_ = Glyph:new(nil,
         { id = "__nule__", x = nil, y = nil, w = self.__word_space, h = self.__ref_height })
+
+    nule_glyph[self] = char_
 
     return char_
 end
