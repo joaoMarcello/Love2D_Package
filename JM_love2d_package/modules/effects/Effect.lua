@@ -68,7 +68,8 @@ local TYPE_ = {
     jump = 36,
     ufo = 37, --***
     pendulum = 38,
-    earthquake = 39
+    earthquake = 39, --***
+    ghostShader = 40, --***
 }
 
 ---

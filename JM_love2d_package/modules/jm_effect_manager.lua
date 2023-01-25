@@ -39,6 +39,9 @@ local Disc = require(path .. "effects.Disc")
 ---@type JM.Effect.Disc
 local Earthquake = require(path .. "effects.Earthquake")
 
+---@type JM.Effect.GhostShader
+local GhostShader = require(path .. "effects.GhostShader")
+
 local Sample = require(path .. "effects.shader")
 
 -- Variable for control the unique id's from EffectManager class
@@ -114,24 +117,7 @@ function EffectManager:update(dt)
     end -- END effect list is not nil.
 end
 
--- --- WARNiNG: REMOVE THIS METHOD!!!
--- function EffectManager:draw(...)
---     local args
---     args = (...) and { ... } or nil
-
---     for i = #self.__effects_list, 1, -1 do
---         ---@type JM.Effect
---         local eff = self.__effects_list[i]
-
---         if args then
---             eff:draw(unpack(args))
---         else
---             eff:draw()
---         end
---     end
---     args = nil
--- end
-
+---
 ---@param draw function # Draw method from affectable object.
 ---@param ... unknown # The param for the object draw method
 function EffectManager:draw(draw, ...)
@@ -257,6 +243,7 @@ do
     ---|"ufo"
     ---|"pendulum"
     ---|"earthquake"
+    ---|"ghostShader"
 end
 
 ---Applies effect in a animation.
@@ -422,6 +409,9 @@ function EffectManager:apply_effect(object, type_, effect_args, __only_get__)
 
     elseif eff_type == Effect.TYPE.earthquake then
         eff = Earthquake:new(object, effect_args)
+
+    elseif eff_type == Effect.TYPE.ghostShader then
+        eff = GhostShader:new(object, effect_args)
 
     elseif eff_type == Effect.TYPE.pendulum then
 

@@ -825,7 +825,7 @@ function Font:print(text, x, y, w, h, __i__, __color__, __x_origin__, __format__
             char_obj:set_scale(self.__scale)
 
             if char_obj:is_animated() then
-                char_obj:set_color({ 1, 1, 1, 1 })
+                char_obj:set_color2(1, 1, 1, 1)
 
                 char_obj.__anima:set_size(
                     nil, self.__font_size * 1.4,
@@ -932,7 +932,7 @@ do
                     char_obj:set_scale(self.__scale)
 
                     if char_obj:is_animated() then
-                        char_obj:set_color({ 1, 1, 1, 1 })
+                        char_obj:set_color2(1, 1, 1, 1)
 
                         char_obj.__anima:set_size(
                             nil, self.__font_size * 1.4,

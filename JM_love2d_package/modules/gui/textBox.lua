@@ -1,6 +1,8 @@
 ---@type JM.Font.Phrase
 local Phrase = require((...):gsub("gui.textBox", "font.Phrase"))
 
+local Affectable = _G.JM_Affectable
+
 ---@enum JM.GUI.TextBox.EventTypes
 local Event = {
     finishScreen = 1,
@@ -58,12 +60,15 @@ local function dispatch_event(self, type_)
     local r = evt and evt.action(evt.args)
 end
 
----@class JM.GUI.TextBox
-local TextBox = {}
+---@class JM.GUI.TextBox: JM.Template.Affectable
+local TextBox = setmetatable({}, Affectable)
 TextBox.__index = TextBox
 
+---@return JM.GUI.TextBox
 function TextBox:new(text, font, x, y, w)
-    local obj = setmetatable({}, self)
+    local obj = Affectable:new()
+    setmetatable(obj, self)
+
     -- text = "<effect=goddess, delay=0.05>" .. text
     TextBox.__constructor__(obj, { text = text, x = x, y = y, font = font }, w)
     return obj
@@ -136,8 +141,10 @@ function TextBox:__constructor__(args, w)
         j = j + self.amount_lines
     end
 
-    self.cur_screen = 1
+    self.ox = self.w / 2
+    self.oy = self.h / 2
 
+    self.cur_screen = 1
     self:set_mode()
 end
 
@@ -257,6 +264,8 @@ function TextBox:update(dt)
 
     self.sentence:update(dt)
 
+    self.__effect_manager:update(dt)
+
     -- Pausing the textBox
     if self.time_pause > 0 then
         self.time_pause = self.time_pause - dt
@@ -349,7 +358,7 @@ end
 
 local Font = _G.JM_Font
 
-function TextBox:draw()
+function TextBox:__draw()
     love.graphics.setColor(1, 1, 1, 1)
     love.graphics.rectangle("line", self:rect())
 
@@ -385,6 +394,10 @@ function TextBox:draw()
         Font:print("--a--", self.x + self.w + 5,
             self.y + self.h + 10)
     end
+end
+
+function TextBox:draw()
+    Affectable.draw(self, self.__draw)
 end
 
 return TextBox

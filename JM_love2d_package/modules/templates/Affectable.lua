@@ -180,7 +180,7 @@ end
 function Affectable:draw(custom_draw, ...)
     custom_draw = custom_draw or self.__specific_draw__
 
-    if not custom_draw then return end
+    if not custom_draw or not self.is_visible then return end
     local args
     args = (...) and { ... } or nil
 

@@ -94,10 +94,14 @@ function Flash:update(dt)
     self.__color[4] = self.__origin + (m_sin(self.__rad) * self.__range)
 end
 
-function Flash:draw(...)
+function Flash:draw(obj_draw, ...)
     love_set_shader(flash_shader)
     flash_shader:sendColor("flash_color", self.__color)
-    self.__object:__draw__(unpack { ... })
+    if (...) then
+        self.__object:__draw__(obj_draw, unpack { ... })
+    else
+        self.__object:__draw__(obj_draw)
+    end
     love_set_shader()
 end
 
