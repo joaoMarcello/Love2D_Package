@@ -28,13 +28,24 @@ local text = "Hello <freaky>aqui quem fala \teh o seu<italic>capitão</italic>.a
 
 local text2 = "\t--trav-- Não se vá ^ & <font-size=9>qçÇ</font-size> <effect=spooky>estou</effect> in<pause=0, no-space>-te<pause=0, no-space>-res<pause=0, no-space>-sa<pause=0, no-space>-do <pause=1><text-box, action=set_mode, value=normal><text-box, action=update_mode, value=1><text-box, action=max_time_glyph, value=0.05> Tam <font-size=22> Oi</font-size> Cara Oi<color, 1, 1, 1>Thanos</color no-space>. eu <pause= 2>nem<pause=1> gosto,<pause=0.3> ouviu?<pause=1> sas vefe \n sajs <effect=ghost, speed=0.5, min=0.2>asasahs</effect> wtwrfaghsas\n   asd asss df \n\tiIíÍìÌîÎïÏ \n\toOóÓòòôÔ öÖõÕ uU úÚùÙûüÜ <effect=flash, speed=1.2><color, 1, 1, 0>bBcCçÇdDfF</color></effect> gGhHjJk KlLm <effect=spooky>tTvVwW xXyYzZ</effect> 01234 56789¬ AsthaYuno * ¨¬¬ ~ $ ~ --heart-- --dots--<pause=1><effect=wave, speed=1>\nPress --a-- to <bold><color>charge your laser</color no-space> .  alfa</bold></effect><pause=2><effect=scream><text-box, action=update_mode, value=2><text-box, action=max_time_glyph, value=0.6> \n \nPARA DE GRITAAAA AAAR<sep>!!!!"
 
+local text3 = [[
+senhores do júri,
+gostaria de informá-los que
+estou bem.
+Avise à mama.
+assim
+como 
+respirar 
+é fácil
+]]
+
 local rad = 0
 Font.current:push()
--- Font.current:set_font_size(16)
-local box = TextBox:new(text2, Font.current, 32 * 10, 32 * 5, 32 * 6)
+Font.current:set_font_size(16)
+local box = TextBox:new(text3, Font.current, 32 * 10, 32 * 5, 32 * 6)
 Font.current:pop()
 
-box:apply_effect("ghostShader")
+box:apply_effect("float", { range = 2, speed = 2 })
 
 -- box:set_mode("popin")
 local sound --= love.audio.newSource("/data/letter.wav", "static")
@@ -110,6 +121,7 @@ local function draw(camera)
         32 * 13 + 32 * 3)
     Font.current:pop()
 
+    box.x = Game.screen_w - box:width()
     box:draw()
 
     Font:print("Ai --dots-- --heart-- --dots--", 500, 100)

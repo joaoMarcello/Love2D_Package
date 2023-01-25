@@ -76,14 +76,15 @@ end
 
 function TextBox:__constructor__(args, w)
     self.sentence = Phrase:new(args)
-    self.sentence:set_bounds(nil, nil, args.x + w)
+    self.sentence:set_bounds(nil, nil, args.x + ((math.huge - args.x)))
+
     self.lines = self.sentence:get_lines(self.sentence.x)
 
     self.align = "left"
     self.text_align = Align.center
     self.x = self.sentence.x
     self.y = self.sentence.y
-    self.w = w
+    self.w = w or (32 * 5)
     self.h = -math.huge
     self.is_visible = true
 
@@ -141,11 +142,33 @@ function TextBox:__constructor__(args, w)
         j = j + self.amount_lines
     end
 
-    self.ox = self.w / 2
-    self.oy = self.h / 2
-
     self.cur_screen = 1
     self:set_mode()
+
+    self.screen_width = {}
+    for _, screen in ipairs(self.screens) do
+        local max_len = -math.huge
+
+        for _, line in ipairs(screen) do
+            local len = self.sentence:__line_length(line)
+            if len > max_len then
+                max_len = len
+            end
+        end
+
+        self.screen_width[screen] = max_len
+        --self.screen_width[screen] = max_len > self.w and max_len or self.w
+    end
+
+    self.ox = self.w / 2
+    self.oy = self.h / 2
+end
+
+---@return number
+function TextBox:width()
+    local screen = self.screens[self.cur_screen]
+    local width = self.screen_width[screen]
+    return width or self.w
 end
 
 function TextBox:resetToDefault()
@@ -363,6 +386,9 @@ function TextBox:__draw()
     love.graphics.rectangle("line", self:rect())
 
     local screen = self.screens[self.cur_screen]
+    self.sentence:set_bounds(nil, nil,
+        self.x + (self.screen_width[screen] or self.w)
+    )
 
     self.font:push()
     self.font:set_configuration(self.font_config)

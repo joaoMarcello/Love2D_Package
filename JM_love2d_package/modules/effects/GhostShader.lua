@@ -73,7 +73,7 @@ function Ghost:draw(obj_draw, ...)
     if (...) then
         self.__object:__draw__(obj_draw, unpack { ... })
     else
-        -- self.__object:__draw__(obj_draw)
+        self.__object:__draw__(obj_draw)
     end
 
     love.graphics.setShader()

@@ -221,8 +221,8 @@ end
 ---
 function Word:get_width()
     local w = 0
-
-    for i = 1, #self.__characters do
+    local N = #self.__characters
+    for i = 1, N do
         local cur_char = self:__get_char_by_index(i)
 
         w = w + (cur_char.w * self.__font.__scale)
