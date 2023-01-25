@@ -360,17 +360,10 @@ function Font:load_characters(path, format, glyphs)
     self.__imgs[format] = img
 end
 
-local nule_glyph = setmetatable({}, { __mode = 'k' })
-
 ---@return JM.Font.Glyph
 function Font:get_nule_character()
-    local r = nule_glyph[self]
-    if r then return r end
-
     local char_ = Glyph:new(nil,
         { id = "__nule__", x = nil, y = nil, w = self.__word_space, h = self.__ref_height })
-
-    nule_glyph[self] = char_
 
     return char_
 end

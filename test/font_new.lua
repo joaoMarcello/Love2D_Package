@@ -12,7 +12,8 @@ local Game = package.Scene:new(0, 0, 1366, 768, 32 * 24, 32 * 14,
 Game.camera:toggle_debug()
 Game.camera:toggle_grid()
 
--- Font:set_font("komika text")
+Font:set_font("komika text")
+-- Font.current:set_format_mode(Font.current.format_options.italic)
 
 local button = Font.current:add_nickname_animated("--a--", {
     img = "/data/xbox.png",
