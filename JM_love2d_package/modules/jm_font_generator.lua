@@ -142,15 +142,14 @@ function Font:__constructor__(args)
     local dir = path:gsub("modules.jm_font_generator", "data/font/")
         .. "%s/%s.png"
 
-    self:load_characters(string.format(dir, "book antiqua", "book antiqua"),
+    self:load_characters(string.format(dir, args.name, args.name),
         FontFormat.normal, find_nicks(get_glyphs(args.glyphs)))
 
-    self:load_characters(string.format(dir, "book antiqua", "book antiqua" .. "_bold"),
-        FontFormat.bold, find_nicks(get_glyphs(args.glyphs)))
+    self:load_characters(string.format(dir, args.name, args.name .. "_bold"),
+        FontFormat.bold, find_nicks(get_glyphs(args.glyphs_bold or args.glyphs)))
 
-    args.name = "book antiqua"
     self:load_characters(string.format(dir, args.name, args.name .. "_italic"),
-        FontFormat.italic, find_nicks(get_glyphs(args.glyphs)))
+        FontFormat.italic, find_nicks(get_glyphs(args.glyphs_italic or args.glyphs)))
 
     self.__format = FontFormat.normal
 

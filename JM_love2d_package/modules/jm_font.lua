@@ -16,6 +16,13 @@ do
     local glyphs_italic = [[aAàÀáÁãÃâÂäÄeEéÉèÈêÊëËiIíÍìÌîÎïÏoOóÓòÒôÔõÕöÖuUúÚùÙûÛüÜbBcCçÇdDfFgGhHjJkKlLmMnNpPqQrRsStTvVwWxXyYzZ0123456789+-=/*%\#§@({[]})|_"'!?,.:;ªº°¹²³£¢¬¨<>&$~--heart----dots--]]
 
     Font.fonts[1] = Generator:new({
+        name = "book antiqua",
+        font_size = 10,
+        tab_size = 4,
+        glyphs = glyphs
+    })
+
+    Font.fonts[2] = Generator:new({
         name = "consolas",
         font_size = 10,
         tab_size = 4,
@@ -26,7 +33,8 @@ do
 end
 
 ---@type JM.Font.Font
-Font.current = Font.fonts[1]
+Font.current = Font.fonts[2]
+Font.current:set_format_mode(Font.current.format_options.normal)
 
 function Font:update(dt)
     for i = 1, #self.fonts do
