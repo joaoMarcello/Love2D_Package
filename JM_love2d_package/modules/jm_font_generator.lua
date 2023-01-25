@@ -185,10 +185,12 @@ function Font:__constructor__(args)
         h = self.__ref_height
     })
 
+    local nule_glyph = self:get_nule_character()
 
     for _, format in pairs(FontFormat) do
         self.__characters[format][" "] = self.__space_char
         self.__characters[format]["\t"] = self.__tab_char
+        self.__characters[format][nule_glyph.__id] = nule_glyph
     end
 
     self.__default_color = args.color or { 0.1, 0.1, 0.1, 1 }
@@ -352,9 +354,8 @@ function Font:load_characters(path, format, glyphs)
         i = i + 1
     end
 
-    local nule_char = self:get_nule_character()
-
-    list[nule_char.__id] = nule_char
+    -- local nule_char = self:get_nule_character()
+    -- list[nule_char.__id] = nule_char
 
     self.__characters[format] = list
     self.__imgs[format] = img
