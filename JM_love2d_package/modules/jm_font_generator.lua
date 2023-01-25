@@ -148,8 +148,9 @@ function Font:__constructor__(args)
     self:load_characters(string.format(dir, "book antiqua", "book antiqua" .. "_bold"),
         FontFormat.bold, find_nicks(get_glyphs(args.glyphs)))
 
+    args.name = "book antiqua"
     self:load_characters(string.format(dir, args.name, args.name .. "_italic"),
-        FontFormat.italic, find_nicks(get_glyphs(args.glyphs_italic)))
+        FontFormat.italic, find_nicks(get_glyphs(args.glyphs)))
 
     self.__format = FontFormat.normal
 
@@ -318,6 +319,7 @@ function Font:load_characters(path, format, glyphs)
                         bottom = p
                     end
                 end
+                qh = qh or (h - 1)
 
                 local glyph = Glyph:new(img,
                     { id = glyphs[cur_id],
