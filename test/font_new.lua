@@ -30,7 +30,7 @@ local text2 = "\t--trav-- Não se vá ^ & <font-size=9>qçÇ</font-size> <effect
 
 local text3 = [[
 senhores do júri,
-gostaria de informá-los que
+gostaria de informá-los que felizmente
 estou bem.
 Avise à mama.
 assim
@@ -121,7 +121,7 @@ local function draw(camera)
         32 * 13 + 32 * 3)
     Font.current:pop()
 
-    box.x = Game.screen_w - box:width()
+    box.x = Game.screen_w - box.w
     box:draw()
 
     Font:print("Ai --dots-- --heart-- --dots--", 500, 100)

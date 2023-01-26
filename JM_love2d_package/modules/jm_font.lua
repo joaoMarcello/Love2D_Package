@@ -18,7 +18,7 @@ do
 
     Font.fonts[1] = Generator:new({
         name = "komika text",
-        font_size = 14,
+        font_size = 12,
         tab_size = 4,
         glyphs = glyphs
     })

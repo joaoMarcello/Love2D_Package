@@ -76,15 +76,23 @@ end
 
 function TextBox:__constructor__(args, w)
     self.sentence = Phrase:new(args)
-    self.sentence:set_bounds(nil, nil, args.x + ((math.huge - args.x)))
+    self.sentence:set_bounds(nil, nil, args.x + (w or (math.huge - args.x)))
 
     self.lines = self.sentence:get_lines(self.sentence.x)
+
+    local lines_width = {}
+    local max_width = -math.huge
+    for _, line in ipairs(self.lines) do
+        lines_width[line] = self.sentence:__line_length(line)
+        max_width = lines_width[line] > max_width and lines_width[line]
+            or max_width
+    end
 
     self.align = "right"
     self.text_align = Align.center
     self.x = self.sentence.x
     self.y = self.sentence.y
-    self.w = w or (32 * 5)
+    self.w = w or max_width
     self.h = -math.huge
     self.is_visible = true
 
@@ -145,31 +153,31 @@ function TextBox:__constructor__(args, w)
     self.cur_screen = 1
     self:set_mode()
 
-    self.screen_width = {}
-    for _, screen in ipairs(self.screens) do
-        local max_len = -math.huge
+    -- self.screen_width = {}
+    -- for _, screen in ipairs(self.screens) do
+    --     local max_len = -math.huge
 
-        for _, line in ipairs(screen) do
-            local len = self.sentence:__line_length(line)
-            if len > max_len then
-                max_len = len
-            end
-        end
+    --     for _, line in ipairs(screen) do
+    --         local len = lines_width[line] --self.sentence:__line_length(line)
+    --         if len > max_len then
+    --             max_len = len
+    --         end
+    --     end
 
-        self.screen_width[screen] = max_len
-        --self.screen_width[screen] = max_len > self.w and max_len or self.w
-    end
+    --     self.screen_width[screen] = max_len
+    --     --self.screen_width[screen] = max_len > self.w and max_len or self.w
+    -- end
 
     self.ox = self.w / 2
     self.oy = self.h / 2
 end
 
----@return number
-function TextBox:width()
-    local screen = self.screens[self.cur_screen]
-    local width = self.screen_width[screen]
-    return width or self.w
-end
+-- ---@return number
+-- function TextBox:width()
+--     local screen = self.screens[self.cur_screen]
+--     local width = self.screen_width[screen]
+--     return width or self.w
+-- end
 
 function TextBox:resetToDefault()
     self.align = "left"
@@ -387,7 +395,7 @@ function TextBox:__draw()
 
     local screen = self.screens[self.cur_screen]
     self.sentence:set_bounds(nil, nil,
-        self.x + (self.screen_width[screen] or self.w)
+        self.x + self.w--(self.screen_width[screen] or self.w)
     )
 
     self.font:push()
