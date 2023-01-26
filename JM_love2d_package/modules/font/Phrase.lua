@@ -536,7 +536,7 @@ end
 
 function Phrase:__debbug()
     local s = self.text
-    local w = self.__font:separate_string_2(s)
+    local w = self.__font:separate_string(s)
 
     -- w = self.__separated_string
     for i = 1, #w do

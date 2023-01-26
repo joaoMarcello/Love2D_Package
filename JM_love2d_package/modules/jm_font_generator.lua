@@ -284,8 +284,8 @@ function Font:load_characters(path, format, glyphs)
     do
         local data = love.image.newImageData(path)
         local w, h = data:getDimensions()
-        for i = 1, w - 1 do
-            for j = 1, h - 1 do
+        for i = 0, w - 1 do
+            for j = 0, h - 1 do
                 if equals(data:getPixel(i, j)) then
                     data:setPixel(i, j, 0, 0, 0, 0)
                 end
@@ -299,13 +299,13 @@ function Font:load_characters(path, format, glyphs)
     local w, h = img_data:getDimensions()
     local cur_id = 1
 
-    local i = 1
+    local i = 0
     local N_glyphs = #glyphs
 
     while (i <= w - 1) do
         if cur_id > N_glyphs then break end
 
-        local j = 1
+        local j = 0
         while (j <= h - 1) do
             local r, g, b, a = img_data:getPixel(i, j)
             if a == 0 then
@@ -359,6 +359,50 @@ function Font:load_characters(path, format, glyphs)
 
     self.__characters[format] = list
     self.__imgs[format] = img
+end
+
+function Font:load_by_tff(path)
+    local render = love.font.newRasterizer("/data/font/TRIBAL__.ttf", 64)
+    local glyphs = "aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVxXyYzZ0123456789"
+    local glyph_table = get_glyphs(glyphs)
+    local N_glyphs = #glyph_table
+    local cur_id = 1
+
+    local font_imgdata = love.image.newImageData((N_glyphs + 10) * 70, 80, "rgba8")
+    local data_w, data_h = font_imgdata:getDimensions()
+
+    for i = 0, data_w - 1 do
+        for j = 0, data_h - 1 do
+            font_imgdata:setPixel(i, j, 1, 1, 0, 1)
+        end
+    end
+
+    local cur_x = 2
+    local cur_y = 3
+
+    for _, glyph_s in ipairs(glyph_table) do
+        local glyph = render:getGlyphData(glyph_s)
+        if glyph then
+            local w, h = glyph:getDimensions()
+            local bbx, bby, bbw, bbh = glyph:getBoundingBox()
+            local glyphData = love.image.newImageData(w, h, "rgba8", glyph:getString():gsub("(.)(.)", "%1%1%1%2"))
+            local glyphDataWidth, glyphDataHeight = glyphData:getDimensions()
+
+            for i = 0, glyphDataWidth - 1 do
+                for j = 0, glyphDataHeight - 1 do
+                    local r, g, b, a = glyphData:getPixel(i, j)
+                    font_imgdata:setPixel(cur_x + i, cur_y + j, r, g, b, a)
+                end
+            end
+
+            font_imgdata:setPixel(cur_x - 1, cur_y + bbh, 1, 0, 0, 1)
+            cur_x = cur_x + glyphDataWidth + 1
+
+            if _ == 15 then break end
+        end
+    end
+    font_imgdata:encode("png", "font_img.png")
+    -- local font_img = love.graphics.newImage(font_imgdata)
 end
 
 ---@return JM.Font.Glyph
