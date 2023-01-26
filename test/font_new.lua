@@ -96,13 +96,12 @@ end
 
 -- local text4 = "< effect=flickering, speed = 1 >oi eu sou o goku"
 
-local astha
 local function draw(camera)
     -- A:set_scale()
     -- A:draw(32 * 15, 32 * 2)
     -- button:draw()
 
-    astha = Font:printx(text2
+    Font:printx(text2
         ,
         32 * 3,
         32 * 1

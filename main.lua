@@ -17,6 +17,10 @@ end
 
 function love.keypressed(key)
     scene:keypressed(key)
+
+    if key == "a" then
+        collectgarbage()
+    end
 end
 
 function love.keyreleased(key)
