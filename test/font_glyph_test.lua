@@ -30,7 +30,7 @@ Game:implements({
     load = function()
         render = love.font.newRasterizer('/data/font/Cyrodiil.otf', 64)
 
-        glyph = render:getGlyphData("Y")
+        glyph = render:getGlyphData("_")
         width, height = glyph:getDimensions()
 
         imgData = love.image.newImageData(width, height, "rgba8", glyph:getString():gsub("(.)(.)", "%1%1%1%2"))
@@ -47,7 +47,7 @@ Game:implements({
 
         my_glyph = Glyph:new(img, { id = "A", x = 0, y = 0, w = width, h = height })
 
-        pack.FontGenerator.new_by_ttf()
+        pack.FontGenerator:new_by_ttf()
     end,
 
     update = function(dt)
@@ -62,7 +62,7 @@ Game:implements({
 
         love.graphics.setColor(0, 0, 0, 1)
         love.graphics.rectangle("line", 32 * 3, 32 * 2, width, height)
-        Font:print("" .. width .. " - " .. height, 32 * 6, 32 * 2)
+        Font:print("" .. width .. " -_" .. height, 32 * 6, 32 * 2)
         Font:print("quant. " .. count_glyphs, 32 * 6, 32 * 3)
         Font:print("Size. " .. w, 32 * 6, 32 * 4)
 
@@ -74,7 +74,8 @@ Game:implements({
 
         local b1, b2 = glyph:getBearing()
         Font:print("bear " .. bx .. "  " .. by, 32 * 1, 32 * 7)
-        Font:print("bbox " .. bw .. "  " .. bh, 32 * 1, 32 * 8)
+        Font:print("bbox\npP " .. bw .. "  " .. bh, 32 * 1, 32 * 8)
+        love.graphics.print(bh, 32 * 10, 32 * 1)
     end
 
 })

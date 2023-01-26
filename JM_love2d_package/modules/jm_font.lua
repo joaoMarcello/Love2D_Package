@@ -30,6 +30,26 @@ do
         glyphs = glyphs
     })
 
+    Font.fonts[3] = Generator:new({
+        name = "tribal",
+        font_size = 32,
+        tab_size = 4,
+        glyphs = "aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVxXyYzZ0123456789"
+    })
+
+    -- Font.fonts[4] = Generator:new({
+    --     name = "cyrodiil",
+    --     font_size = 32,
+    --     tab_size = 4,
+    --     glyphs = "aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVxXyYzZ0123456789"
+    -- })
+
+    Font.fonts[4] = Generator:new_by_ttf({
+        name = "cyrodiil",
+        font_size = 32,
+        tab_size = 4
+    })
+
     -- Font.fonts[3] = Generator:new({
     --     name = "consolas",
     --     font_size = 10,
@@ -46,7 +66,7 @@ do
 end
 
 ---@type JM.Font.Font
-Font.current = Font.fonts[1]
+Font.current = Font.fonts[4]
 Font.current:set_format_mode(Font.current.format_options.normal)
 
 

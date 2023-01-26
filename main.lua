@@ -14,6 +14,7 @@ local t = 0.0
 
 function love.load()
     scene:load()
+    -- collectgarbage()
 end
 
 function love.keypressed(key)

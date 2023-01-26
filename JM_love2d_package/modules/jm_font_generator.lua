@@ -101,7 +101,7 @@ local Font = {
 }
 
 ---@overload fun(self: table, args: JM.AvailableFonts)
----@param args {name: JM.AvailableFonts, font_size: number, line_space: number, tab_size: number, character_space: number, color: JM.Color, glyphs:string, glyphs_bold:string, glyphs_italic:string, glyphs_bold_italic:string}
+---@param args {name: JM.AvailableFonts, font_size: number, line_space: number, tab_size: number, character_space: number, color: JM.Color, glyphs:string, glyphs_bold:string, glyphs_italic:string, glyphs_bold_italic:string, regular_data: love.ImageData, bold_data:love.ImageData, italic_data:love.ImageData}
 ---@return JM.Font.Font new_Font
 function Font:new(args)
     local obj = {}
@@ -114,7 +114,7 @@ function Font:new(args)
 end
 
 ---@overload fun(self: table, args: JM.AvailableFonts)
----@param args {name: JM.AvailableFonts, font_size: number, line_space: number, tab_size: number, character_space: number, color: JM.Color, glyphs:string, glyphs_bold:string, glyphs_italic:string, glyphs_bold_italic:string}
+---@param args {name: JM.AvailableFonts, font_size: number, line_space: number, tab_size: number, character_space: number, color: JM.Color, glyphs:string, glyphs_bold:string, glyphs_italic:string, glyphs_bold_italic:string, regular_data: love.ImageData, bold_data:love.ImageData, italic_data:love.ImageData}
 function Font:__constructor__(args)
     if type(args) == "string" then
         local temp_table = {}
@@ -143,17 +143,20 @@ function Font:__constructor__(args)
     local dir = path:gsub("modules.jm_font_generator", "data/font/")
         .. "%s/%s.png"
 
-    -- args.glyphs_bold = nil
-    -- args.glyphs_italic = nil
-
-    self:load_characters(string.format(dir, args.name, args.name),
+    self:load_characters(args.regular_data
+        or string.format(dir, args.name, args.name),
         FontFormat.normal, find_nicks(get_glyphs(args.glyphs)))
 
-    self:load_characters(string.format(dir, args.name, args.name .. "_bold"),
+    args.bold_data = args.bold_data or args.regular_data
+
+    self:load_characters(args.bold_data
+        or string.format(dir, args.name, args.name .. "_bold"),
         FontFormat.bold, find_nicks(get_glyphs(args.glyphs_bold or args.glyphs)))
 
-    -- args.name = "komika text"
-    self:load_characters(string.format(dir, args.name, args.name .. "_italic"),
+    args.italic_data = args.italic_data or args.regular_data
+
+    self:load_characters(args.italic_data
+        or string.format(dir, args.name, args.name .. "_italic"),
         FontFormat.italic, find_nicks(get_glyphs(args.glyphs_italic or args.glyphs)))
 
     self.__format = FontFormat.normal
@@ -261,13 +264,14 @@ end
 --     list[nule_char.__id] = nule_char
 -- end
 
----@param path string
+---@param path any
 ---@param format JM.Font.FormatOptions
 ---@param glyphs table
 function Font:load_characters(path, format, glyphs)
 
     local list = {} -- list of glyphs
-    local img_data = love.image.newImageData(path)
+    local img_data = type(path) == "string" and love.image.newImageData(path)
+        or path
 
     local mask_color = { 1, 1, 0, 1 }
     local mask_color_red = { 1, 0, 0, 1 }
@@ -280,9 +284,13 @@ function Font:load_characters(path, format, glyphs)
         return r == mask_color_red[1] and g == mask_color_red[2] and b == mask_color_red[3] and a == mask_color_red[4]
     end
 
-    local img = love.graphics.newImage(img_data)
+    local img --= love.graphics.newImage(img_data)
     do
-        local data = love.image.newImageData(path)
+        local width, height = img_data:getDimensions()
+
+        local data = love.image.newImageData(width, height)
+        data:paste(img_data, 0, 0, 0, 0, width, height)
+
         local w, h = data:getDimensions()
         for i = 0, w - 1 do
             for j = 0, h - 1 do
@@ -361,14 +369,48 @@ function Font:load_characters(path, format, glyphs)
     self.__imgs[format] = img
 end
 
-local function load_by_tff(path)
-    local render = love.font.newRasterizer("/data/font/TRIBAL__.ttf", 64)
-    local glyphs = "aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVxXyYzZ0123456789"
+local function load_by_tff(name)
+    name = "Cyrodiil.otf"
+
+    local render = love.font.newRasterizer(string.format("/data/font/%s", name), 64)
+    local glyphs = "aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVxXyYzZ0123456789."
+    glyphs = [[aAàÀáÁãÃâÂäÄeEéÉêÊëËiIíÍïÏoOóÓòÒôÔõÕöÖuUúÚùÙûÛüÜbBcCçÇdDfFgGhHjJkKlLmMnNpPqQrRsStTvVwWxXyYzZ0123456789+-=*%#§_@,.:;ªº°¹²³£¢¬¨~$<>&]]
+
     local glyph_table = get_glyphs(glyphs)
     local N_glyphs = #glyph_table
     local cur_id = 1
 
-    local font_imgdata = love.image.newImageData((N_glyphs) * (64 + 4), 80, "rgba8")
+    local cur_x = 4
+    local cur_y = 2
+
+    local glyphs_obj = {}
+    local glyphs_data = {}
+    local total_width = cur_x
+    local max_height = -math.huge
+
+    for _, glyph_s in ipairs(glyph_table) do
+        local glyph = render:getGlyphData(glyph_s)
+        if glyph then
+            local w, h = glyph:getDimensions()
+            local bbx, bby, bbw, bbh = glyph:getBoundingBox()
+
+            local glyphData = love.image.newImageData(w, h, "rgba8", glyph:getString():gsub("(.)(.)", "%1%1%1%2"))
+            local glyphDataWidth, glyphDataHeight = glyphData:getDimensions()
+
+            total_width = total_width + glyphDataWidth + 4
+            local height = glyphDataHeight + cur_y + 6 + bby
+            max_height = (height > max_height and height) or max_height
+
+            glyphs_obj[glyph_s] = glyph
+            glyphs_data[glyph] = glyphData
+        end
+    end
+
+    max_height = 200
+
+    cur_x = 4
+    cur_y = 2
+    local font_imgdata = love.image.newImageData(total_width, max_height, "rgba8")
     local data_w, data_h = font_imgdata:getDimensions()
 
     for i = 0, data_w - 1 do
@@ -377,24 +419,17 @@ local function load_by_tff(path)
         end
     end
 
-    local cur_x = 4
-    local cur_y = 2
-
     for _, glyph_s in ipairs(glyph_table) do
-        local glyph = render:getGlyphData(glyph_s)
-        if glyph then
-            local w, h = glyph:getDimensions()
-            local bbx, bby, bbw, bbh = glyph:getBoundingBox()
-            local glyphData = love.image.newImageData(w, h, "rgba8", glyph:getString():gsub("(.)(.)", "%1%1%1%2"))
-            local glyphDataWidth, glyphDataHeight = glyphData:getDimensions()
+        ---@type love.GlyphData
+        local glyph = glyphs_obj[glyph_s]
 
-            for i = 0, glyphDataWidth - 1 do
-                for j = 0, glyphDataHeight - 1 do
-                    local r, g, b, a = glyphData:getPixel(i, j)
-                    --font_imgdata:setPixel(cur_x + i, cur_y + j, r, g, b, a)
-                    -- font_imgdata:paste(glyphData, cur_x + i, cur_y, 0, 0, glyphDataWidth, glyphDataHeight)
-                end
-            end
+        if glyph then
+            local bbx, bby, bbw, bbh = glyph:getBoundingBox()
+
+            ---@type love.ImageData
+            local glyphData = glyphs_data[glyph]
+
+            local glyphDataWidth, glyphDataHeight = glyphData:getDimensions()
 
             for i = -1, glyphDataWidth do
                 font_imgdata:setPixel(cur_x + i, cur_y - 1, 0, 0, 0, 0)
@@ -408,16 +443,21 @@ local function load_by_tff(path)
 
             font_imgdata:paste(glyphData, cur_x, cur_y, 0, 0, glyphDataWidth, glyphDataHeight)
 
-            font_imgdata:setPixel(cur_x - 2, cur_y + bby + bbh, 1, 0, 0, 1)
+            local posR_y = (cur_y + bby + bbh)
+            if posR_y >= 0 and posR_y <= glyphDataHeight - 1 then
+                font_imgdata:setPixel(cur_x - 2, posR_y, 1, 0, 0, 1)
+            end
+
             cur_x = cur_x + glyphDataWidth + 4
 
-            -- if _ == 45 then break end
+            if _ == 125 then break end
         end
     end
-    font_imgdata:encode("png", "TRIBAL__.png")
+
+    font_imgdata:encode("png", name:match(".*[^%.]") .. ".png")
 
     local font_img = love.graphics.newImage(font_imgdata)
-    return font_img
+    return font_imgdata, render, glyphs
 end
 
 ---@return JM.Font.Glyph
@@ -1247,7 +1287,13 @@ local Generator = {
         return Font.new(Font, args)
     end,
 
-    new_by_ttf = load_by_tff
+    new_by_ttf = function(self, args)
+        args = args or {}
+        local imgData, render, glyphs = load_by_tff(args.name)
+        args.regular_data = imgData
+        args.glyphs = glyphs
+        return Font.new(Font, args)
+    end
 }
 
 return Generator
