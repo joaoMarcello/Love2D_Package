@@ -1219,7 +1219,10 @@ function Font:printx(text, x, y, right, align)
 
     self.buffer__ = self.buffer__ or setmetatable({}, { __mode = 'k' })
 
-    if not self.buffer__[text] then self.buffer__[text] = {} end
+    if not self.buffer__[text] then
+        -- self.buffer__[text] = {}
+        self.buffer__[text] = setmetatable({}, { __mode = 'v' })
+    end
 
     local index = string.format("%d %d %s", x, y, AlignOptions[align])
 

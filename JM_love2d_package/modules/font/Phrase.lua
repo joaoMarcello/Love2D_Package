@@ -211,7 +211,7 @@ local results_get_lines = setmetatable({}, { __mode = 'k' })
 
 ---@return table
 function Phrase:get_lines(x)
-    local key = string.format("%d %d", self.__bounds.right - x, self.__font.__font_size)
+    local key = string.format("%d %d", x, self.__font.__font_size)
     local result = results_get_lines[self] and results_get_lines[self][key]
     if result then return result end
 
@@ -337,7 +337,7 @@ function Phrase:get_lines(x)
     )
 
     results_get_lines[self] = results_get_lines[self]
-        or {} --setmetatable({}, { __mode = 'v' })
+        or setmetatable({}, { __mode = 'v' })
     results_get_lines[self][key] = lines
 
     return lines
@@ -459,8 +459,6 @@ function Phrase:draw_lines(lines, x, y, align, threshold, __max_char__)
     self.__font:push()
 
     local init_font_size = self.__font.__font_size
-
-
 
     for i = 1, #lines do
         if align == "right" then

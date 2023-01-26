@@ -42,7 +42,7 @@ respirar
 local rad = 0
 Font.current:push()
 Font.current:set_font_size(16)
-local box = TextBox:new(text3, Font.current, 32 * 10, 32 * 5, 32 * 6)
+local box = TextBox:new(text2, Font.current, 32 * 10, 32 * 5, 32 * 6)
 Font.current:pop()
 
 box:apply_effect("float", { range = 2, speed = 2 })
@@ -96,13 +96,13 @@ end
 
 -- local text4 = "< effect=flickering, speed = 1 >oi eu sou o goku"
 
-
+local astha
 local function draw(camera)
     -- A:set_scale()
     -- A:draw(32 * 15, 32 * 2)
     -- button:draw()
 
-    Font:printx(text2
+    astha = Font:printx(text2
         ,
         32 * 3,
         32 * 1

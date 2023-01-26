@@ -485,7 +485,7 @@ function Scene:implements(param)
         -- set_blend_mode("alpha")
         -- set_color_draw(1, 1, 1, 1)
 
-        love.graphics.setScissor(self.x, self.y, self.w, self.h - math_abs(self.h - self.dispositive_h))
+        love.graphics.setScissor(self.x, self.y, self.w - self.x, self.h - self.y)
         if self:get_color() then
             clear_screen(self:get_color())
         else
