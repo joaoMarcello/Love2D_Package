@@ -222,14 +222,19 @@ function Scene:add_camera(config, name)
         }
 
         config.tile_size = self.camera.tile_size
+
+        config.x = config.x + (self.w - self.x - self.camera.viewport_w) / 2 / self.camera.desired_scale
     end
 
     local camera = Camera:new(config)
 
     self.amount_cameras = self.amount_cameras + 1
 
-    camera.viewport_x = camera.viewport_x + (self.x) --* camera.desired_scale
-    camera.viewport_y = camera.viewport_y + (self.y) --* camera.desired_scale
+    local w = (self.w - self.x - camera.viewport_w) / 2
+    if name ~= "main" then w = 0 end
+
+    camera.viewport_x = camera.viewport_x + (self.x + w)
+    camera.viewport_y = camera.viewport_y + (self.y)
     camera:set_bounds()
 
     --camera:set_viewport(nil, nil, nil, self.screen_h - self.y / camera.desired_scale)
@@ -264,9 +269,11 @@ function Scene:get_mouse_position()
     local x, y = love_mouse_position()
     local ds = self.camera.desired_scale
 
+    local offset = (self.w - self.x - self.camera.viewport_w) / 2.0
+
     -- turning the mouse position into Camera's screen coordinates
     x, y = x / ds, y / ds
-    x, y = x - self.x / ds, y - self.y / ds
+    x, y = x - (self.x + offset) / ds, y - self.y / ds
 
     x, y = self.camera:screen_to_world(x, y)
 

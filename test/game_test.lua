@@ -49,8 +49,6 @@ Game:add_camera({
     show_world_bounds = true
 }, "blue")
 
-Game:get_camera("main"):set_viewport(nil, nil, Game.screen_w * 0.5, Game.screen_h)
-Game.camera.focus_x = Game.screen_w * 0.5
 Game:add_camera({
     -- camera's viewport
     x = Game.screen_w * 0.5,
@@ -66,6 +64,10 @@ Game:add_camera({
     grid_tile_size = 32 * 4,
     show_world_bounds = true
 }, "pink")
+
+Game:get_camera("main"):set_viewport(nil, nil, Game.screen_w * 0.5, Game.screen_h)
+Game.camera.focus_x = Game.screen_w * 0.5
+
 
 -- local temp
 -- temp = Game:get_camera("main")
