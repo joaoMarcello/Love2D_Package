@@ -51,41 +51,16 @@ function Word:__load_characters(mode)
         char_obj = char_obj:copy()
         char_obj:set_color(self.__font.__default_color)
 
-        --char_obj:apply_effect("float", { range = 3, speed = 2 })
-
         table.insert(self.__characters, char_obj)
 
         if char_obj:is_animated() then
-            char_obj:set_color({ 1, 1, 1, 1 })
+            char_obj:set_color2(1, 1, 1, 1)
             char_obj.__anima:set_size(nil, self.__font.__font_size * 1.1, nil, nil)
         end
     end
 
     self.__font:set_format_mode(last_font_format)
 end
-
--- function Word:turn_into_bold(startp, endp)
---     if not startp then startp = 1 end
---     if not endp then endp = #(self.__characters) end
---     local last_font_format = self.__font:get_format_mode()
-
---     self.__font:set_format_mode(self.__font.format_options.bold)
-
---     local i = startp
---     while (i <= endp) do
---         local current_char = self:__get_char_by_index(i)
---         local bold_char = self.__font:__get_char_equals(current_char.__id)
---         local color_char = current_char:get_color()
-
---         self.__characters[i] = bold_char and bold_char:copy() or self.__characters[i]
-
---         self.__characters[i]:set_color(color_char)
-
---         i = i + 1
---     end
-
---     self.__font:set_format_mode(last_font_format)
--- end
 
 ---
 function Word:copy()

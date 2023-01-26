@@ -4,7 +4,7 @@ local love_graphics_rectangle = love_graphics.rectangle
 local love_graphics_set_color = love_graphics.setColor
 
 ---@type JM.Template.Affectable
-local Affectable = require((...):gsub("font.glyph", "templates.Affectable"))
+local Affectable = _G.JM_Affectable
 
 local Quads = setmetatable({}, { __mode = 'k' })
 
@@ -25,7 +25,6 @@ end
 function Glyph:__constructor__(img, args)
 
     self.__img = img
-    -- self.__quad = nil
     self.__id = args.id or ""
 
     self.x = args.x

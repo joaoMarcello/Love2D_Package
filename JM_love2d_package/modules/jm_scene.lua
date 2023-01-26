@@ -52,8 +52,9 @@ local function draw_tile(self)
 
     clear_screen(0.35, 0.35, 0.35, 1)
     set_color_draw(0.9, 0.9, 0.9, 0.3)
+
     for i = 0, qx, 2 do
-        local x = self.x + tile * i
+        local x = self.x + tile * i + self.offset_x
 
         for j = 0, qy, 2 do
             love.graphics.rectangle("fill", x, self.y + tile * j, tile, tile)
@@ -172,6 +173,8 @@ function Scene:__constructor__(x, y, w, h, canvas_w, canvas_h, bounds)
         self.amount_cameras = 0
 
         self.camera = self:add_camera(config, "main")
+
+        self.offset_x = (self.w - self.x - self.camera.viewport_w) / 2.0
     end
 
 
@@ -223,7 +226,7 @@ function Scene:add_camera(config, name)
 
         config.tile_size = self.camera.tile_size
 
-        config.x = config.x + (self.w - self.x - self.camera.viewport_w) / 2 / self.camera.desired_scale
+        config.x = config.x + self.offset_x / self.camera.desired_scale
     end
 
     local camera = Camera:new(config)
@@ -269,7 +272,7 @@ function Scene:get_mouse_position()
     local x, y = love_mouse_position()
     local ds = self.camera.desired_scale
 
-    local offset = (self.w - self.x - self.camera.viewport_w) / 2.0
+    local offset = self.offset_x
 
     -- turning the mouse position into Camera's screen coordinates
     x, y = x / ds, y / ds
