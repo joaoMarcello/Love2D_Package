@@ -361,14 +361,14 @@ function Font:load_characters(path, format, glyphs)
     self.__imgs[format] = img
 end
 
-function Font:load_by_tff(path)
+local function load_by_tff(path)
     local render = love.font.newRasterizer("/data/font/TRIBAL__.ttf", 64)
     local glyphs = "aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVxXyYzZ0123456789"
     local glyph_table = get_glyphs(glyphs)
     local N_glyphs = #glyph_table
     local cur_id = 1
 
-    local font_imgdata = love.image.newImageData((N_glyphs + 10) * 70, 80, "rgba8")
+    local font_imgdata = love.image.newImageData((N_glyphs) * (64 + 4), 80, "rgba8")
     local data_w, data_h = font_imgdata:getDimensions()
 
     for i = 0, data_w - 1 do
@@ -377,8 +377,8 @@ function Font:load_by_tff(path)
         end
     end
 
-    local cur_x = 2
-    local cur_y = 3
+    local cur_x = 4
+    local cur_y = 2
 
     for _, glyph_s in ipairs(glyph_table) do
         local glyph = render:getGlyphData(glyph_s)
@@ -391,18 +391,33 @@ function Font:load_by_tff(path)
             for i = 0, glyphDataWidth - 1 do
                 for j = 0, glyphDataHeight - 1 do
                     local r, g, b, a = glyphData:getPixel(i, j)
-                    font_imgdata:setPixel(cur_x + i, cur_y + j, r, g, b, a)
+                    --font_imgdata:setPixel(cur_x + i, cur_y + j, r, g, b, a)
+                    -- font_imgdata:paste(glyphData, cur_x + i, cur_y, 0, 0, glyphDataWidth, glyphDataHeight)
                 end
             end
 
-            font_imgdata:setPixel(cur_x - 1, cur_y + bbh, 1, 0, 0, 1)
-            cur_x = cur_x + glyphDataWidth + 1
+            for i = -1, glyphDataWidth do
+                font_imgdata:setPixel(cur_x + i, cur_y - 1, 0, 0, 0, 0)
+                font_imgdata:setPixel(cur_x + i, cur_y + glyphDataHeight, 0, 0, 0, 0)
+            end
 
-            if _ == 15 then break end
+            for j = -1, glyphDataHeight do
+                font_imgdata:setPixel(cur_x - 1, cur_y + j, 0, 0, 0, 0)
+                font_imgdata:setPixel(cur_x + glyphDataWidth, cur_y + j, 0, 0, 0, 0)
+            end
+
+            font_imgdata:paste(glyphData, cur_x, cur_y, 0, 0, glyphDataWidth, glyphDataHeight)
+
+            font_imgdata:setPixel(cur_x - 2, cur_y + bby + bbh, 1, 0, 0, 1)
+            cur_x = cur_x + glyphDataWidth + 4
+
+            -- if _ == 45 then break end
         end
     end
-    font_imgdata:encode("png", "font_img.png")
-    -- local font_img = love.graphics.newImage(font_imgdata)
+    font_imgdata:encode("png", "TRIBAL__.png")
+
+    local font_img = love.graphics.newImage(font_imgdata)
+    return font_img
 end
 
 ---@return JM.Font.Glyph
@@ -1230,7 +1245,9 @@ local Generator = {
     new = function(self, args)
         local f = Font
         return Font.new(Font, args)
-    end
+    end,
+
+    new_by_ttf = load_by_tff
 }
 
 return Generator

@@ -9,7 +9,11 @@ local Font = pack.Font
 local Glyph = require("/JM_love2d_package/modules/font/glyph")
 
 local render
-local glyph, width, height
+
+---@type love.GlyphData
+local glyph
+
+local width, height
 local imgData, img
 local info
 local bx, by, bw, bh
@@ -24,9 +28,9 @@ local bigImgData
 
 Game:implements({
     load = function()
-        render = love.font.newRasterizer('/data/font/TRIBAL__.ttf', 64)
+        render = love.font.newRasterizer('/data/font/Cyrodiil.otf', 64)
 
-        glyph = render:getGlyphData("Q")
+        glyph = render:getGlyphData("Y")
         width, height = glyph:getDimensions()
 
         imgData = love.image.newImageData(width, height, "rgba8", glyph:getString():gsub("(.)(.)", "%1%1%1%2"))
@@ -36,7 +40,6 @@ Game:implements({
         info = glyph:getString()
         bx, by, bw, bh = glyph:getBoundingBox()
 
-
         count_glyphs = render:getGlyphCount()
 
         bigImgData = love.image.newImageData(229 * width * 1.2, height + 20, "rgba8")
@@ -44,7 +47,7 @@ Game:implements({
 
         my_glyph = Glyph:new(img, { id = "A", x = 0, y = 0, w = width, h = height })
 
-        Font.current:load_by_tff()
+        pack.FontGenerator.new_by_ttf()
     end,
 
     update = function(dt)
@@ -68,6 +71,10 @@ Game:implements({
         love.graphics.setColor(1, 0, 0, 1)
         love.graphics.rectangle("line", my_glyph.x, my_glyph.y, my_glyph.w, my_glyph.h)
         love.graphics.rectangle("line", 32 * 3, 32 * 2, bw, bh)
+
+        local b1, b2 = glyph:getBearing()
+        Font:print("bear " .. bx .. "  " .. by, 32 * 1, 32 * 7)
+        Font:print("bbox " .. bw .. "  " .. bh, 32 * 1, 32 * 8)
     end
 
 })
