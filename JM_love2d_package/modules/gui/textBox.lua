@@ -80,7 +80,7 @@ function TextBox:__constructor__(args, w)
 
     self.lines = self.sentence:get_lines(self.sentence.x)
 
-    self.align = "left"
+    self.align = "right"
     self.text_align = Align.center
     self.x = self.sentence.x
     self.y = self.sentence.y

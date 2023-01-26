@@ -49,28 +49,7 @@ function Affectable:__constructor__(obj_draw)
     self.__specific_draw__ = obj_draw
 end
 
---- Check if object implements all the needed Affectable methods and fields.
----@param object table
-function Affectable.__checks_implementation__(object)
-    if not object then return end
-
-    assert(object.__effect_manager, "\nError: The class do not have the required '__effect_manager' field.")
-
-    assert(object.set_color, "\nError: The class do not implements the required 'set_color' method.")
-
-    assert(object.set_visible,
-        "\nError: The class do not implements the required 'set_visible' method.")
-
-    assert(object.__draw__,
-        "\nError: The class do not implements the required '__draw__' method.")
-
-    assert(object.__get_effect_transform,
-        "\nError: The class do not implements the required '__get_effect_transform' method.")
-
-    assert(object.__set_effect_transform,
-        "\nError: The class do not implements the required '__set_effect_transform' method.")
-end
-
+---
 ---@param object JM.Template.Affectable
 ---@param value JM.Color
 function Affectable.set_color(object, value)
@@ -121,16 +100,14 @@ function Affectable:set_visible(value)
     self.is_visible = value and true or false
 end
 
+---
 ---@param object JM.Template.Affectable
 ---@return JM.Effect.TransformObject
 function Affectable.__get_effect_transform(object)
     return object.__effect_transform
 end
 
--- function Affectable:__draw__(...)
---     return
--- end
-
+---
 ---@param self JM.Template.Affectable
 local function apply_transform(self, x, y)
     x = x or 0
@@ -141,13 +118,13 @@ local function apply_transform(self, x, y)
     if eff_transf then
 
         self.__transform:setTransformation(
-            x + self.ox + eff_transf.ox,
-            y + self.oy + eff_transf.oy,
+            (x + self.ox + eff_transf.ox),
+            (y + self.oy + eff_transf.oy),
             eff_transf.rot,
             eff_transf.sx,
             eff_transf.sy,
-            x + self.ox,
-            y + self.oy,
+            (x + self.ox),
+            (y + self.oy),
             eff_transf.kx,
             eff_transf.ky
         )

@@ -10,6 +10,7 @@ JM_Utils = JM.Utils
 JM.EffectManager = require(string.gsub(
     path, "init", "modules.jm_effect_manager"
 ))
+JM_EffectManager = JM.EffectManager
 
 ---@type JM.Template.Affectable
 JM.Affectable = require(string.gsub(path, "init", "modules.templates.Affectable"))
