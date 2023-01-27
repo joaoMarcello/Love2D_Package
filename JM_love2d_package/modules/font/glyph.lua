@@ -69,8 +69,8 @@ function Glyph:__constructor__(img, args)
 
     self:set_color2(1, 1, 1, 1)
 
-    -- self.ox = self.x and self.w / 2 * self.sx or 0
-    -- self.oy = self.y and self.h / 2 * self.sy or 0
+    self.ox = self.w / 2 * self.sx
+    self.oy = self.h / 2 * self.sy
 
     self.bounds = { left = 0, top = 0, right = love.graphics.getWidth(), bottom = love.graphics.getHeight() }
 
@@ -181,7 +181,7 @@ function Glyph:__glyph_draw__()
     -- if self.__id == "__nule__" then return end
 
     if not self.is_visible then return end
-    local x, y = self.x, self.y
+    local x, y = self.x + self.ox * 0, self.y + self.oy * 0
 
     if self.__anima then
         self.__anima:draw(x, y)

@@ -66,7 +66,7 @@ Game:implements({
         Font:print("quant. " .. count_glyphs, 32 * 6, 32 * 3)
         Font:print("Size. " .. w, 32 * 6, 32 * 4)
 
-        my_glyph:set_scale(1)
+        -- my_glyph:set_scale(1)
         my_glyph:draw(32 * 16, 32 * 4)
 
 
@@ -77,9 +77,9 @@ Game:implements({
         local b1, b2 = glyph:getBearing()
         Font:print("bear " .. b1 .. "  " .. b2, 32 * 1, 32 * 7)
         Font:print("bbox --" .. bx .. "  " .. by, 32 * 1, 32 * 7 + 22)
-        Font:printx("\n é não à bbox\npP <color><effect=wave><effect=ghost>1+3=(7)</effect></color> 'astha' " ..
+        Font:printx("Aaé não à bbox\npP <color><effect=wave><effect=ghost>1+3=(7)</effect></color> 'astha' " ..
             bw .. "  " .. bh,
-            32 * 1, 32 * 8, "left", math.huge)
+            32 * 1, 32 * 9, "left", math.huge)
         love.graphics.print("\65", 32 * 10, 32 * 1)
     end
 
