@@ -148,17 +148,25 @@ function Font:__constructor__(args)
         or string.format(dir, args.name, args.name),
         FontFormat.normal, find_nicks(get_glyphs(args.glyphs)))
 
-    args.bold_data = args.bold_data or args.regular_data
 
-    self:load_characters(args.bold_data
-        or string.format(dir, args.name, args.name .. "_bold"),
-        FontFormat.bold, find_nicks(get_glyphs(args.glyphs_bold or args.glyphs)))
+    if not args.regular_data or args.bold_data then
+        self:load_characters(args.bold_data
+            or string.format(dir, args.name, args.name .. "_bold"),
+            FontFormat.bold, find_nicks(get_glyphs(args.glyphs_bold or args.glyphs)))
+    else
+        self.__characters[FontFormat.bold] = self.__characters[FontFormat.normal]
+        self.__imgs[FontFormat.bold] = self.__imgs[FontFormat.normal]
+    end
 
-    args.italic_data = args.italic_data or args.regular_data
-
-    self:load_characters(args.italic_data
-        or string.format(dir, args.name, args.name .. "_italic"),
-        FontFormat.italic, find_nicks(get_glyphs(args.glyphs_italic or args.glyphs)))
+    -- args.italic_data = args.italic_data or args.regular_data
+    if not args.regular_data or args.italic_data then
+        self:load_characters(args.italic_data
+            or string.format(dir, args.name, args.name .. "_italic"),
+            FontFormat.italic, find_nicks(get_glyphs(args.glyphs_italic or args.glyphs)))
+    else
+        self.__characters[FontFormat.italic] = self.__characters[FontFormat.normal]
+        self.__imgs[FontFormat.italic] = self.__imgs[FontFormat.normal]
+    end
 
     self.__format = FontFormat.normal
 
@@ -270,10 +278,17 @@ end
 ---@param glyphs table
 function Font:load_characters(path, format, glyphs, quads_pos)
 
-    local list = {} -- list of glyphs
-    local img_data = type(path) == "string" and love.image.newImageData(path)
-        or path
+    -- try load the img data
+    local success, img_data = pcall(
+        function()
+            return type(path) == "string" and love.image.newImageData(path)
+                or path
+        end
+    )
 
+    if not success then return end
+
+    local list = {} -- list of glyphs
     local mask_color = { 1, 1, 0, 1 }
     local mask_color_red = { 1, 0, 0, 1 }
 
@@ -285,7 +300,7 @@ function Font:load_characters(path, format, glyphs, quads_pos)
         return r == mask_color_red[1] and g == mask_color_red[2] and b == mask_color_red[3] and a == mask_color_red[4]
     end
 
-    local img --= love.graphics.newImage(img_data)
+    local img
     do
         local width, height = img_data:getDimensions()
 
@@ -381,9 +396,19 @@ function Font:load_characters(path, format, glyphs, quads_pos)
 end
 
 local function load_by_tff(name)
-    name = "PressStart2P.ttf"
+    name = "Cyrodiil.otf"
 
-    local render = love.font.newRasterizer(string.format("/data/font/%s", name), 64)
+    ---@type love.Rasterizer
+    local render
+
+    local success
+
+    success, render = pcall(function()
+        return love.font.newRasterizer(string.format("/data/font/%s", name), 64)
+    end)
+
+    if not success then return end
+
     local glyphs = "aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVxXyYzZ0123456789."
     glyphs = [[aAàÀáÁãÃâÂäÄeEéÉèÈêÊëËiIíÍìÌîÎïÏoOóÓòÒôÔõÕöÖuUúÚùÙûÛüÜbBcCçÇdDfFgGhHjJkKlLmMnNpPqQrRsStTvVwWxXyYzZ0123456789+-=/*%\#§@({[]})|_"'!?,.:;ªº°¹²³£¢¬¨~$<>&^`]]
 

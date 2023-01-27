@@ -39,7 +39,7 @@ do
 
     Font.fonts[2] = Generator:new_by_ttf({
         name = "cyrodiil",
-        font_size = 16,
+        font_size = 12,
         tab_size = 4
     })
 
@@ -59,7 +59,7 @@ do
 end
 
 ---@type JM.Font.Font
-Font.current = Font.fonts[1]
+Font.current = Font.fonts[2]
 Font.current:set_format_mode(Font.current.format_options.normal)
 
 
