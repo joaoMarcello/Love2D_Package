@@ -146,23 +146,28 @@ function Font:__constructor__(args)
 
     self:load_characters(args.regular_data
         or string.format(dir, args.name, args.name),
-        FontFormat.normal, find_nicks(get_glyphs(args.glyphs)))
+        FontFormat.normal, find_nicks(get_glyphs(args.glyphs)),
+        args.regular_quads
+    )
 
 
     if not args.regular_data or args.bold_data then
         self:load_characters(args.bold_data
             or string.format(dir, args.name, args.name .. "_bold"),
-            FontFormat.bold, find_nicks(get_glyphs(args.glyphs_bold or args.glyphs)))
+            FontFormat.bold, find_nicks(get_glyphs(args.glyphs_bold or args.glyphs)),
+            args.bold_quads
+        )
     else
         self.__characters[FontFormat.bold] = self.__characters[FontFormat.normal]
         self.__imgs[FontFormat.bold] = self.__imgs[FontFormat.normal]
     end
 
-    -- args.italic_data = args.italic_data or args.regular_data
     if not args.regular_data or args.italic_data then
         self:load_characters(args.italic_data
             or string.format(dir, args.name, args.name .. "_italic"),
-            FontFormat.italic, find_nicks(get_glyphs(args.glyphs_italic or args.glyphs)))
+            FontFormat.italic, find_nicks(get_glyphs(args.glyphs_italic or args.glyphs)),
+            args.italic_quads
+        )
     else
         self.__characters[FontFormat.italic] = self.__characters[FontFormat.normal]
         self.__imgs[FontFormat.italic] = self.__imgs[FontFormat.normal]
@@ -326,7 +331,7 @@ function Font:load_characters(path, format, glyphs, quads_pos)
     local i = 0
     local N_glyphs = #glyphs
 
-    while (i <= w - 1) do
+    while not quads_pos and (i <= w - 1) do
         if cur_id > N_glyphs then break end
 
         local j = 0
@@ -388,6 +393,30 @@ function Font:load_characters(path, format, glyphs, quads_pos)
         i = i + 1
     end
 
+    if quads_pos then
+        while (cur_id <= N_glyphs) do
+            local id = glyphs[cur_id]
+            local quad = quads_pos[id]
+
+            if id and quad then
+                local qx, qy, qw, qh, bottom = quad.x, quad.y, quad.w, quad.h, quad.bottom
+
+                local glyph = Glyph:new(img,
+                    { id = glyphs[cur_id],
+                        x = qx,
+                        y = qy,
+                        w = qw,
+                        h = qh,
+                        bottom = bottom or (qy + qh),
+                        format = format })
+
+                list[glyph.__id] = glyph
+            end
+
+            cur_id = cur_id + 1
+        end
+    end
+
     -- local nule_char = self:get_nule_character()
     -- list[nule_char.__id] = nule_char
 
@@ -425,6 +454,7 @@ local function load_by_tff(name, path, dpi)
 
     for _, glyph_s in ipairs(glyph_table) do
         local glyph = render:getGlyphData(glyph_s)
+
         if glyph then
             local w, h = glyph:getDimensions()
             local bbx, bby, bbw, bbh = glyph:getBoundingBox()
@@ -502,8 +532,8 @@ local function load_by_tff(name, path, dpi)
 
     font_imgdata:encode("png", name:match(".*[^%.]") .. ".png")
 
-    local font_img = love.graphics.newImage(font_imgdata)
-    return font_imgdata, render, glyphs, quad_pos
+    -- local font_img = love.graphics.newImage(font_imgdata)
+    return font_imgdata, glyphs, quad_pos
 end
 
 ---@return JM.Font.Glyph
@@ -1335,13 +1365,14 @@ local Generator = {
 
     new_by_ttf = function(self, args)
         args = args or {}
-        local imgData, render, glyphs = load_by_tff(args.name,
+        local imgData, glyphs, quads_pos = load_by_tff(args.name,
             args.path, args.dpi)
         args.regular_data = imgData
+        args.regular_quads = quads_pos
 
-        args.bold_data = load_by_tff(args.name .. " bold", args.path_bold, args.dpi)
+        args.bold_data, glyphs, args.bold_quads = load_by_tff(args.name .. " bold", args.path_bold, args.dpi)
 
-        args.italic_data = load_by_tff(args.name .. " italic",
+        args.italic_data, glyphs, args.italic_quads = load_by_tff(args.name .. " italic",
             args.path_italic, args.dpi)
 
         args.glyphs = glyphs

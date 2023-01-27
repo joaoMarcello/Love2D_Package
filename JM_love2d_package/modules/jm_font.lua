@@ -16,12 +16,12 @@ do
     local glyphs_italic = [[aAàÀáÁãÃâÂäÄeEéÉèÈêÊëËiIíÍìÌîÎïÏoOóÓòÒôÔõÕöÖuUúÚùÙûÛüÜbBcCçÇdDfFgGhHjJkKlLmMnNpPqQrRsStTvVwWxXyYzZ0123456789+-=/*%\#§@({[]})|_"'!?,.:;ªº°¹²³£¢¬¨<>&$~--heart----dots--]]
 
 
-    Font.fonts[1] = Generator:new({
-        name = "komika text",
-        font_size = 12,
-        tab_size = 4,
-        glyphs = glyphs
-    })
+    -- Font.fonts[1] = Generator:new({
+    --     name = "komika text",
+    --     font_size = 12,
+    --     tab_size = 4,
+    --     glyphs = glyphs
+    -- })
 
     -- Font.fonts[2] = Generator:new({
     --     name = "book antiqua",
@@ -31,7 +31,7 @@ do
     -- })
 
 
-    Font.fonts[2] = Generator:new_by_ttf({
+    Font.fonts[1] = Generator:new_by_ttf({
         path = "/data/font/Komika Text Regular.ttf",
         path_bold = "/data/font/Komika Text Bold.ttf",
         path_italic = "/data/font/Komika Text Italic.ttf",
@@ -42,7 +42,7 @@ do
         tab_size = 4
     })
 
-    Font.fonts[3] = Generator:new_by_ttf({
+    Font.fonts[2] = Generator:new_by_ttf({
         path = "/data/font/Cyrodiil.otf",
         path_bold = "/data/font/Cyrodiil Bold.otf",
         path_italic = "/data/font/Cyrodiil Italic.otf",
@@ -68,7 +68,7 @@ do
 end
 
 ---@type JM.Font.Font
-Font.current = Font.fonts[3]
+Font.current = Font.fonts[1]
 Font.current:set_format_mode(Font.current.format_options.normal)
 
 
