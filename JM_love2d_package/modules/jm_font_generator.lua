@@ -337,6 +337,7 @@ function Font:load_characters(path, format, glyphs)
                         bottom = p
                     end
                 end
+
                 if not bottom then
                     for p = qh, h - 1 do
                         if equals_red(img_data:getPixel(qx - 1, p)) then
@@ -345,6 +346,7 @@ function Font:load_characters(path, format, glyphs)
                         end
                     end
                 end
+
                 qh = qh or (h - 1)
 
                 local glyph = Glyph:new(img,
@@ -378,7 +380,7 @@ function Font:load_characters(path, format, glyphs)
 end
 
 local function load_by_tff(name)
-    name = "Cyrodiil.otf"
+    name = "VCR_OSD_MONO_1.ttf"
 
     local render = love.font.newRasterizer(string.format("/data/font/%s", name), 64)
     local glyphs = "aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVxXyYzZ0123456789."
