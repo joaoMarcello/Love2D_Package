@@ -30,14 +30,23 @@ do
     --     glyphs = glyphs
     -- })
 
-    -- Font.fonts[3] = Generator:new({
-    --     name = "tribal",
-    --     font_size = 32,
-    --     tab_size = 4,
-    --     glyphs = "aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVxXyYzZ0123456789"
-    -- })
 
     Font.fonts[2] = Generator:new_by_ttf({
+        path = "/data/font/Komika Text Regular.ttf",
+        path_bold = "/data/font/Komika Text Bold.ttf",
+        path_italic = "/data/font/Komika Text Italic.ttf",
+        -- path_bold_italic = "/data/font/Garamond Premier Pro_bold_italic.otf",
+        dpi = 48,
+        name = "komika text 2",
+        font_size = 12,
+        tab_size = 4
+    })
+
+    Font.fonts[3] = Generator:new_by_ttf({
+        path = "/data/font/Cyrodiil.otf",
+        path_bold = "/data/font/Cyrodiil Bold.otf",
+        path_italic = "/data/font/Cyrodiil Italic.otf",
+        dpi = 48,
         name = "cyrodiil",
         font_size = 12,
         tab_size = 4
@@ -59,7 +68,7 @@ do
 end
 
 ---@type JM.Font.Font
-Font.current = Font.fonts[2]
+Font.current = Font.fonts[3]
 Font.current:set_format_mode(Font.current.format_options.normal)
 
 

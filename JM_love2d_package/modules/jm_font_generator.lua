@@ -395,8 +395,7 @@ function Font:load_characters(path, format, glyphs, quads_pos)
     self.__imgs[format] = img
 end
 
-local function load_by_tff(name)
-    name = "Cyrodiil.otf"
+local function load_by_tff(name, path, dpi)
 
     ---@type love.Rasterizer
     local render
@@ -404,7 +403,7 @@ local function load_by_tff(name)
     local success
 
     success, render = pcall(function()
-        return love.font.newRasterizer(string.format("/data/font/%s", name), 64)
+        return love.font.newRasterizer(path, dpi or 64)
     end)
 
     if not success then return end
@@ -489,8 +488,8 @@ local function load_by_tff(name)
             end
 
             quad_pos[glyph_s] = {
-                x = cur_x - 1, y = cur_y - 1,
-                w = glyphDataWidth + 2, h = glyphDataHeight + 2,
+                x = cur_x, y = cur_y,
+                w = glyphDataWidth, h = glyphDataHeight,
                 bottom = (posR_y >= 0 and posR_y <= data_h - 1 and posR_y)
                     or nil
             }
@@ -1336,8 +1335,15 @@ local Generator = {
 
     new_by_ttf = function(self, args)
         args = args or {}
-        local imgData, render, glyphs = load_by_tff(args.name)
+        local imgData, render, glyphs = load_by_tff(args.name,
+            args.path, args.dpi)
         args.regular_data = imgData
+
+        args.bold_data = load_by_tff(args.name .. " bold", args.path_bold, args.dpi)
+
+        args.italic_data = load_by_tff(args.name .. " italic",
+            args.path_italic, args.dpi)
+
         args.glyphs = glyphs
         return Font.new(Font, args)
     end
