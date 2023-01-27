@@ -17,6 +17,7 @@ local set_shader = love.graphics.setShader
 local get_delta_time = love.timer.getDelta
 local love_mouse_position = love.mouse.getPosition
 local math_abs = math.abs
+local love_set_scissor = love.graphics.setScissor
 
 ---@alias JM.Scene.Layer {draw:function, update:function, factor_x:number, factor_y:number, name:string, fixed_on_ground:boolean, fixed_on_ceil:boolean, top:number, bottom:number, shader:love.Shader, name:string}
 
@@ -495,13 +496,13 @@ function Scene:implements(param)
         -- set_blend_mode("alpha")
         -- set_color_draw(1, 1, 1, 1)
 
-        love.graphics.setScissor(self.x, self.y, self.w - self.x, self.h - self.y)
+        love_set_scissor(self.x + self.offset_x, self.y, self.w - self.x - self.offset_x * 2, self.h - self.y)
         if self:get_color() then
             clear_screen(self:get_color())
         else
             draw_tile(self)
         end
-        love.graphics.setScissor()
+        love_set_scissor()
 
         local temp = self.draw_background and self.draw_background()
 
@@ -610,6 +611,9 @@ function Scene:implements(param)
         -- love.graphics.setScissor()
 
         temp = self.draw_foreground and self.draw_foreground()
+
+        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.rectangle("line", self.x, self.y, self.w - self.x, self.h - self.y)
     end
 
     self.mousepressed = function(self, x, y, button, istouch, presses)

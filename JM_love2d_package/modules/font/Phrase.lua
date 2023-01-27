@@ -369,6 +369,20 @@ function Phrase:__line_length(line)
     return total_len
 end
 
+function Phrase:width(lines)
+
+    lines = lines or self:get_lines(self.x)
+    local max = -math.huge
+    local N = #lines
+
+    for i = 1, N do
+        local len = self:__line_length(lines[i])
+        max = len > max and len or max
+    end
+
+    return max
+end
+
 function Phrase:update(dt)
     for i = 1, #self.__words, 1 do
         ---@type JM.Font.Word

@@ -1425,16 +1425,14 @@ local function debbug(self)
         Font.current:pop()
 
         -- Showing the message DEBUG MODE
-        self.debug_msg_rad = self.debug_msg_rad
-            + (math.pi * 2) / 0.5
-            * love.timer.getDelta()
-
-        local alfa = (0.7 + 0.4 * math.cos(self.debug_msg_rad)) % 1.2
-
         Font.current:push()
-        Font:print(string.format("<color, 1, 0, 0, %.2f>DEBUG MODE", alfa),
-            self.viewport_x + self.viewport_w - border_len - 100,
-            self.viewport_y + border_len + 10
+        Font.current:set_font_size(12)
+
+        local fr = Font:get_phrase("<color><effect=ghost, min=0.4, max=1.0, speed=0.5>DEBUG MODE")
+        fr:draw(
+            self.viewport_x + self.viewport_w - border_len - fr:width() - 10,
+            self.viewport_y + border_len + 10,
+            "left"
         )
         Font.current:pop()
     end

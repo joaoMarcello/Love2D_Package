@@ -22,6 +22,7 @@ local Phrase = require((...):gsub("jm_font_generator", "font.Phrase"))
 
 local table_insert, string_find = table.insert, string.find
 local love_draw, love_set_color = love.graphics.draw, love.graphics.setColor
+local MATH_HUGE = math.huge
 
 ---@param nickname string
 ---@return string|nil
@@ -267,7 +268,7 @@ end
 ---@param path any
 ---@param format JM.Font.FormatOptions
 ---@param glyphs table
-function Font:load_characters(path, format, glyphs)
+function Font:load_characters(path, format, glyphs, quads_pos)
 
     local list = {} -- list of glyphs
     local img_data = type(path) == "string" and love.image.newImageData(path)
@@ -421,6 +422,7 @@ local function load_by_tff(name)
     cur_y = 2
     local font_imgdata = love.image.newImageData(total_width, max_height, "rgba8")
     local data_w, data_h = font_imgdata:getDimensions()
+    local quad_pos = {}
 
     for i = 0, data_w - 1 do
         for j = 0, data_h - 1 do
@@ -461,6 +463,13 @@ local function load_by_tff(name)
                 font_imgdata:setPixel(cur_x - 2, posR_y, 1, 0, 0, 1)
             end
 
+            quad_pos[glyph_s] = {
+                x = cur_x - 1, y = cur_y - 1,
+                w = glyphDataWidth + 2, h = glyphDataHeight + 2,
+                bottom = (posR_y >= 0 and posR_y <= data_h - 1 and posR_y)
+                    or nil
+            }
+
             cur_x = cur_x + glyphDataWidth + 4
 
             -- if _ == 125 then break end
@@ -470,7 +479,7 @@ local function load_by_tff(name)
     font_imgdata:encode("png", name:match(".*[^%.]") .. ".png")
 
     local font_img = love.graphics.newImage(font_imgdata)
-    return font_imgdata, render, glyphs
+    return font_imgdata, render, glyphs, quad_pos
 end
 
 ---@return JM.Font.Glyph
@@ -1251,13 +1260,10 @@ local AlignOptions = {
     justify = 4
 }
 
----@param text any
----@param x any
----@param y any
----@param right any
----@param align any
-function Font:printx(text, x, y, right, align)
+---@param self JM.Font.Font
+function Font:generate_phrase(text, x, y, right, align)
     align = align or "left"
+    right = right or (MATH_HUGE - x)
 
     self.buffer__ = self.buffer__ or setmetatable({}, { __mode = 'k' })
 
@@ -1275,6 +1281,18 @@ function Font:printx(text, x, y, right, align)
     ---@type JM.Font.Phrase
     local fr = self.buffer__[text][index]
     fr:set_bounds(nil, nil, right)
+
+    return fr
+end
+
+---@param text any
+---@param x any
+---@param y any
+---@param right any
+---@param align any
+function Font:printx(text, x, y, right, align)
+
+    local fr = self:generate_phrase(text, x, y, right, align)
     local value = fr:draw(x, y, align)
 
     return fr
@@ -1282,15 +1300,6 @@ end
 
 function Font:flush()
     self.buffer__ = nil
-end
-
----@return JM.Font.Phrase
-function Font:get_phrase(text)
-    if not self.buffer__[text] then
-        local f = Phrase:new({ text = text, font = self })
-        self.buffer__[text] = f
-    end
-    return self.buffer__[text]
 end
 
 ---@class JM.Font.Generator

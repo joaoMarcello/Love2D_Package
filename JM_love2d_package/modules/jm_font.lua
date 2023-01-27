@@ -59,7 +59,7 @@ do
 end
 
 ---@type JM.Font.Font
-Font.current = Font.fonts[2]
+Font.current = Font.fonts[1]
 Font.current:set_format_mode(Font.current.format_options.normal)
 
 
@@ -89,8 +89,8 @@ function Font:printx(text, x, y, align, limit_right)
     return r
 end
 
-function Font:get_phrase(text)
-    return Font.current:get_phrase(text)
+function Font:get_phrase(text, x, y, align, right)
+    return Font.current:generate_phrase(text, x or 0, y or 0, right, align)
 end
 
 return Font
