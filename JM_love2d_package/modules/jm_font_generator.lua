@@ -30,19 +30,32 @@ local function is_valid_nickname(nickname)
     return #nickname > 4 and nickname:match("%-%-[^%-][%w%p]-%-%-") or nil
 end
 
+local getGlyphsResult = setmetatable({}, { __mode = 'kv' })
+
 ---@param s string
 local function get_glyphs(s)
     if not s then return {} end
+
+    local result = getGlyphsResult[s]
+    if result then return result end
+
     local t = {}
     for p, c in utf8.codes(s) do
         table.insert(t, utf8.char(c))
     end
 
+    getGlyphsResult[s] = t
+
     return t
 end
 
+local findNicksResult = setmetatable({}, { __mode = 'v' })
+
 ---@param t table
 local function find_nicks(t)
+    local result = findNicksResult[t]
+    if result then return result end
+
     local next_ = function(init)
         local i = init
         local n = #t
@@ -80,6 +93,7 @@ local function find_nicks(t)
         i = i + 1
     end
 
+    findNicksResult[t] = new_table
     return new_table
 end
 

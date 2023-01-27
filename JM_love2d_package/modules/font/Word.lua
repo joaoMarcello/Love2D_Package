@@ -251,6 +251,8 @@ function Word:draw(x, y, __max_char__, __glyph_count__, bottom)
             -- py = y - cur_char.oy + math.abs(cur_char.h - cur_char.bottom) * cur_char.sy
             -- px = tx - cur_char.ox
 
+            py = bottom - cur_char.h * cur_char.sy
+            px = tx
             cur_char:draw(px, py)
         else
             cur_char.__anima:set_size(

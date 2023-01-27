@@ -72,8 +72,8 @@ function Glyph:__constructor__(img, args)
 
     self:set_color2(1, 1, 1, 1)
 
-    self.ox = (self.w) / 2 * self.sx
-    self.oy = (self.h) / 2 * self.sy
+    self.ox = (self.w) / 2 --* self.sx
+    self.oy = (self.h) / 2 --* self.sy
 
     self.bounds = { left = 0, top = 0, right = love.graphics.getWidth(), bottom = love.graphics.getHeight() }
 
@@ -126,8 +126,8 @@ function Glyph:set_scale(value)
     self.sy = value or self.sy
     self.sx = self.sy
 
-    -- self.ox = self.w / 2 * self.sx
-    -- self.oy = self.h / 2 * self.sy
+    self.ox = self.w / 2 * self.sx
+    self.oy = self.h / 2 * self.sy
 
     -- if self:is_animated() then
     --     self.__anima:set_scale({ x = self.sx, y = self.sy })
@@ -184,7 +184,7 @@ function Glyph:__glyph_draw__()
     -- if self.__id == "__nule__" then return end
 
     if not self.is_visible then return end
-    local x, y = self.x + self.ox * 0, self.y + self.oy * 0
+    local x, y = self.x + self.ox * self.sx, self.y + self.oy * self.sy
 
     if self.__anima then
         self.__anima:draw(x, y)
