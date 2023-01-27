@@ -36,7 +36,7 @@ do
         path_bold = "/data/font/Komika Text Bold.ttf",
         path_italic = "/data/font/Komika Text Italic.ttf",
         -- path_bold_italic = "/data/font/Garamond Premier Pro_bold_italic.otf",
-        dpi = 48,
+        dpi = 64,
         name = "komika text 2",
         font_size = 12,
         tab_size = 4
@@ -46,7 +46,7 @@ do
         path = "/data/font/Cyrodiil.otf",
         path_bold = "/data/font/Cyrodiil Bold.otf",
         path_italic = "/data/font/Cyrodiil Italic.otf",
-        dpi = 48,
+        dpi = 64,
         name = "cyrodiil",
         font_size = 12,
         tab_size = 4
@@ -54,7 +54,7 @@ do
 
     Font.fonts[3] = Generator:new_by_ttf({
         path = "/data/font/Retro Gaming.ttf",
-        dpi = 48,
+        dpi = 64,
         name = "retro gaming",
         font_size = 12,
         tab_size = 4,
@@ -68,7 +68,7 @@ do
 end
 
 ---@type JM.Font.Font
-Font.current = Font.fonts[1]
+Font.current = Font.fonts[2]
 Font.current:set_format_mode(Font.current.format_options.normal)
 
 

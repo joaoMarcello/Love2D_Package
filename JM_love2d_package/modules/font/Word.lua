@@ -31,6 +31,8 @@ function Word:__constructor__(args)
     local format = args.format or self.__font.format_options.normal
     self:__load_characters(format)
 
+    self.__N_characters = #(self.__characters)
+
     self.font_format = format
 
     self.last_x, self.last_y = math.huge, math.huge
@@ -230,12 +232,9 @@ function Word:draw(x, y, __max_char__, __glyph_count__, bottom)
     local tx = x
     local font = self.__font
     local cur_char
+    local N = self.__N_characters
 
-    -- for _, batch in pairs(font.batches) do
-    --     batch:clear()
-    -- end
-
-    for i = 1, #self.__characters do
+    for i = 1, N do
 
         ---@type JM.Font.Glyph
         cur_char = self.__characters[i]
@@ -244,19 +243,6 @@ function Word:draw(x, y, __max_char__, __glyph_count__, bottom)
         cur_char:set_scale(font.__scale)
 
         if not cur_char:is_animated() then
-
-            -- local px, py = cur_char:get_pos_draw_rec(tx, y, cur_char.w * cur_char.sx, font.__font_size)
-
-            -- local quad = cur_char:get_quad()
-            -- if quad then
-            --     font.batches[self.font_format]:setColor(unpack(cur_char.color))
-            --     font.batches[self.font_format]:add(quad, px, py, 0, cur_char.sx, cur_char.sy, cur_char.ox,
-            --         cur_char.oy)
-            -- end
-
-            -- cur_char:draw_rec(tx, y,
-            --     cur_char.w * cur_char.sx,
-            --     font.__font_size)
 
             local px, py
             py = bottom - cur_char.h / 2 * cur_char.sy

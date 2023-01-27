@@ -46,12 +46,16 @@ Game:implements({
         local ww, hh = bigImgData:getDimensions()
 
         my_glyph = Glyph:new(img, { id = "A", x = 0, y = 0, w = width, h = height })
-        my_glyph:apply_effect("clockWise")
+        -- my_glyph:apply_effect("clockWise")
         -- pack.FontGenerator:new_by_ttf()
     end,
 
     update = function(dt)
         my_glyph:update(dt)
+    end,
+
+    keypressed = function(key)
+        if key == "t" then Game.camera:toggle_grid() end
     end,
 
     draw = function()
@@ -66,7 +70,7 @@ Game:implements({
         Font:print("quant. " .. count_glyphs, 32 * 6, 32 * 3)
         Font:print("Size. " .. w, 32 * 6, 32 * 4)
 
-        -- my_glyph:set_scale(1)
+        my_glyph:set_scale(1)
         my_glyph:draw(32 * 16, 32 * 4)
 
 

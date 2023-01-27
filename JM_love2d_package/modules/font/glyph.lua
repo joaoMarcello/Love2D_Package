@@ -32,6 +32,9 @@ function Glyph:__constructor__(img, args)
     self.w = args.w
     self.h = args.h
 
+    self.bbox_x = args.bbox_x or self.x
+    self.bbox_w = args.bbox_w or self.w
+
     self.sy = args.sy or 1
     self.sx = self.sy
 
@@ -69,8 +72,8 @@ function Glyph:__constructor__(img, args)
 
     self:set_color2(1, 1, 1, 1)
 
-    self.ox = self.w / 2 * self.sx
-    self.oy = self.h / 2 * self.sy
+    self.ox = (self.w) / 2 * self.sx
+    self.oy = (self.h) / 2 * self.sy
 
     self.bounds = { left = 0, top = 0, right = love.graphics.getWidth(), bottom = love.graphics.getHeight() }
 
@@ -198,17 +201,6 @@ function Glyph:__glyph_draw__()
         love_graphics_set_color(self.color)
 
         love_graphics_draw(self.__img, self:get_quad(), x, y, 0, self.sx, self.sy, self.ox, self.oy)
-
-        -- self:setViewport(self.__img, self.__quad, x, y)
-
-        -- love_graphics_draw(self.__img, self.__quad,
-        --     x,
-        --     y,
-        --     0,
-        --     self.sx, self.sy,
-        --     self.ox, self.oy
-        -- )
-
     end
 
     -- if self.w and self.h then

@@ -531,9 +531,8 @@ local function load_by_tff(name, path, dpi)
         end
     end
 
-    font_imgdata:encode("png", name:match(".*[^%.]") .. ".png")
+    -- font_imgdata:encode("png", name:match(".*[^%.]") .. ".png")
 
-    -- local font_img = love.graphics.newImage(font_imgdata)
     return font_imgdata, glyphs, quad_pos
 end
 
