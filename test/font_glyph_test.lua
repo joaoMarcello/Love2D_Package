@@ -30,7 +30,7 @@ Game:implements({
     load = function()
         render = love.font.newRasterizer('/data/font/Cyrodiil.otf', 64)
 
-        glyph = render:getGlyphData("_")
+        glyph = render:getGlyphData("+")
         width, height = glyph:getDimensions()
 
         imgData = love.image.newImageData(width, height, "rgba8", glyph:getString():gsub("(.)(.)", "%1%1%1%2"))
@@ -73,8 +73,9 @@ Game:implements({
         love.graphics.rectangle("line", 32 * 3, 32 * 2, bw, bh)
 
         local b1, b2 = glyph:getBearing()
-        Font:print("bear " .. bx .. "  " .. by, 32 * 1, 32 * 7)
-        Font:print("bbox\npP " .. bw .. "  " .. bh, 32 * 1, 32 * 8)
+        Font:print("bear " .. b1 .. "  " .. b2, 32 * 1, 32 * 7)
+        Font:print("bbox --" .. bx .. "  " .. by, 32 * 1, 32 * 7 + 22)
+        Font:print("\n bbox\npP 1+3=(7) 'astha' " .. bw .. "  " .. bh, 32 * 1, 32 * 8)
         love.graphics.print(bh, 32 * 10, 32 * 1)
     end
 

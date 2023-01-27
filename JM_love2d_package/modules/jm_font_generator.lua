@@ -337,6 +337,14 @@ function Font:load_characters(path, format, glyphs)
                         bottom = p
                     end
                 end
+                if not bottom then
+                    for p = qh, h - 1 do
+                        if equals_red(img_data:getPixel(qx - 1, p)) then
+                            bottom = p
+                            break
+                        end
+                    end
+                end
                 qh = qh or (h - 1)
 
                 local glyph = Glyph:new(img,
@@ -374,7 +382,7 @@ local function load_by_tff(name)
 
     local render = love.font.newRasterizer(string.format("/data/font/%s", name), 64)
     local glyphs = "aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVxXyYzZ0123456789."
-    glyphs = [[aAàÀáÁãÃâÂäÄeEéÉêÊëËiIíÍïÏoOóÓòÒôÔõÕöÖuUúÚùÙûÛüÜbBcCçÇdDfFgGhHjJkKlLmMnNpPqQrRsStTvVwWxXyYzZ0123456789+-=*%#§_@,.:;ªº°¹²³£¢¬¨~$<>&]]
+    glyphs = [[aAàÀáÁãÃâÂäÄeEéÉèÈêÊëËiIíÍìÌîÎïÏoOóÓòÒôÔõÕöÖuUúÚùÙûÛüÜbBcCçÇdDfFgGhHjJkKlLmMnNpPqQrRsStTvVwWxXyYzZ0123456789+-=/*%\#§@({[]})|_"'!?,.:;ªº°¹²³£¢¬¨~$<>&^`]]
 
     local glyph_table = get_glyphs(glyphs)
     local N_glyphs = #glyph_table
@@ -398,15 +406,14 @@ local function load_by_tff(name)
             local glyphDataWidth, glyphDataHeight = glyphData:getDimensions()
 
             total_width = total_width + glyphDataWidth + 4
-            local height = glyphDataHeight + cur_y + 6 + bby
+            local height = glyphDataHeight + cur_y + 4
             max_height = (height > max_height and height) or max_height
 
             glyphs_obj[glyph_s] = glyph
             glyphs_data[glyph] = glyphData
         end
     end
-
-    max_height = 200
+    -- max_height = max_height + 100
 
     cur_x = 4
     cur_y = 2
@@ -418,6 +425,7 @@ local function load_by_tff(name)
             font_imgdata:setPixel(i, j, 1, 1, 0, 1)
         end
     end
+
 
     for _, glyph_s in ipairs(glyph_table) do
         ---@type love.GlyphData
@@ -431,6 +439,9 @@ local function load_by_tff(name)
 
             local glyphDataWidth, glyphDataHeight = glyphData:getDimensions()
 
+            -- local py = cur_y
+            cur_y = data_h - 2 - glyphDataHeight + (bby < 0 and bby or 0)
+
             for i = -1, glyphDataWidth do
                 font_imgdata:setPixel(cur_x + i, cur_y - 1, 0, 0, 0, 0)
                 font_imgdata:setPixel(cur_x + i, cur_y + glyphDataHeight, 0, 0, 0, 0)
@@ -443,14 +454,14 @@ local function load_by_tff(name)
 
             font_imgdata:paste(glyphData, cur_x, cur_y, 0, 0, glyphDataWidth, glyphDataHeight)
 
-            local posR_y = (cur_y + bby + bbh)
-            if posR_y >= 0 and posR_y <= glyphDataHeight - 1 then
+            local posR_y = math.abs(cur_y + (bby + bbh))
+            if posR_y >= 0 and posR_y <= data_h - 1 then
                 font_imgdata:setPixel(cur_x - 2, posR_y, 1, 0, 0, 1)
             end
 
             cur_x = cur_x + glyphDataWidth + 4
 
-            if _ == 125 then break end
+            -- if _ == 125 then break end
         end
     end
 

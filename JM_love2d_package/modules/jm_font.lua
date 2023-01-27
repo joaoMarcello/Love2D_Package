@@ -23,22 +23,15 @@ do
         glyphs = glyphs
     })
 
-    Font.fonts[2] = Generator:new({
-        name = "book antiqua",
-        font_size = 12,
-        tab_size = 4,
-        glyphs = glyphs
-    })
+    -- Font.fonts[2] = Generator:new({
+    --     name = "book antiqua",
+    --     font_size = 12,
+    --     tab_size = 4,
+    --     glyphs = glyphs
+    -- })
 
-    Font.fonts[3] = Generator:new({
-        name = "tribal",
-        font_size = 32,
-        tab_size = 4,
-        glyphs = "aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVxXyYzZ0123456789"
-    })
-
-    -- Font.fonts[4] = Generator:new({
-    --     name = "cyrodiil",
+    -- Font.fonts[3] = Generator:new({
+    --     name = "tribal",
     --     font_size = 32,
     --     tab_size = 4,
     --     glyphs = "aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVxXyYzZ0123456789"
@@ -46,7 +39,7 @@ do
 
     Font.fonts[4] = Generator:new_by_ttf({
         name = "cyrodiil",
-        font_size = 32,
+        font_size = 16,
         tab_size = 4
     })
 
