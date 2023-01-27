@@ -32,6 +32,11 @@ function Glyph:__constructor__(img, args)
     self.w = args.w
     self.h = args.h
 
+    self.qx = self.x
+    self.qy = self.y
+    self.qw = self.w
+    self.qh = self.h
+
     self.bbox_x = args.bbox_x or self.x
     self.bbox_w = args.bbox_w or self.w
 
@@ -59,8 +64,8 @@ function Glyph:__constructor__(img, args)
     end
 
     if self.y and self.h then
-        self.bottom = args.bottom or self.y + self.h
-        self.offset_y = args.bottom and self.y + self.h - self.bottom or 0
+        self.bottom = args.bottom or (self.y + self.h)
+        self.offset_y = args.bottom and (self.y + self.h - self.bottom) or 0
         self.h = self.h - self.offset_y
     else
         self.bottom = nil
@@ -137,28 +142,6 @@ end
 function Glyph:is_animated()
     return self.__anima and true or false
 end
-
--- function Glyph:setViewport(img, quad, x, y)
---     local qx = self.qx
---     local qy = self.qy
---     local qw = self.qw
---     local qh = self.qh
-
---     local bottom = self.bounds.top + self.bounds.bottom
---     local top = self.bounds.top
-
---     -- if y and bottom then
---     --     if y + self.h * self.sy > bottom then
---     --         qh = self.h - ((y + self.h * self.sy) - bottom) / self.sy
---     --     end
---     -- end
-
---     quad:setViewport(
---         qx, qy,
---         qw, qh,
---         img:getWidth(), img:getHeight()
---     )
--- end
 
 function Glyph:draw(x, y)
 

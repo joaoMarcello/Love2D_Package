@@ -79,11 +79,13 @@ Game:implements({
         love.graphics.rectangle("line", 32 * 3, 32 * 2, bw, bh)
 
         local b1, b2 = glyph:getBearing()
-        Font:print("bear " .. b1 .. "  " .. b2, 32 * 1, 32 * 7)
+        Font:print("bear não " .. b1 .. "  " .. b2, 32 * 1, 32 * 7)
         Font:print("bbox --" .. bx .. "  " .. by, 32 * 1, 32 * 7 + 22)
-        Font:printx("Size. Aaé não à bbox\npP <color><effect=wave><effect=ghost>1+3=(7)</effect></color> 'astha' " ..
+        Font:print("Size. Aaé não à bboax\npP <color><effect=wave><effect=ghost>1+3=(7)</effect></color> 'astha' " ..
             bw .. "  " .. bh,
-            32 * 1, 32 * 9, "left", math.huge)
+            32 * 1, 32 * 9
+        -- , "left", math.huge
+        )
         love.graphics.print("\65", 32 * 10, 32 * 1)
     end
 

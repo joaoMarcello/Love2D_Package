@@ -245,11 +245,8 @@ function Word:draw(x, y, __max_char__, __glyph_count__, bottom)
         if not cur_char:is_animated() then
 
             local px, py
-            py = bottom - cur_char.h / 2 * cur_char.sy
-            px = tx + cur_char.w / 2 * cur_char.sx
-
-            -- py = y - cur_char.oy + math.abs(cur_char.h - cur_char.bottom) * cur_char.sy
-            -- px = tx - cur_char.ox
+            -- py = bottom - cur_char.h / 2 * cur_char.sy
+            -- px = tx + cur_char.w / 2 * cur_char.sx
 
             py = bottom - cur_char.h * cur_char.sy
             px = tx

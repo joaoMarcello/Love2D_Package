@@ -956,17 +956,16 @@ function Font:print(text, x, y, w, h, __i__, __color__, __x_origin__, __format__
                 )
             else
 
-                local width = char_obj.w * char_obj.sx
-                local height = char_obj.h * char_obj.sy
-
-                -- char_obj:draw_rec(tx, ty + self.__font_size - height, width, height)
-
                 local quad = char_obj:get_quad()
-                local x, y = char_obj:get_pos_draw_rec(tx, ty + self.__font_size - height, width, height)
+                local x, y
+                -- x, y = char_obj:get_pos_draw_rec(tx, ty + self.__font_size - height, width, height)
+
+                x = tx
+                y = ty + self.__font_size - char_obj.h * char_obj.sy
 
                 if quad then
                     self.batches[char_obj.format]:setColor(current_color)
-                    self.batches[char_obj.format]:add(quad, x, y, 0, char_obj.sx, char_obj.sy, char_obj.ox, char_obj.oy)
+                    self.batches[char_obj.format]:add(quad, x, y, 0, char_obj.sx, char_obj.sy, 0, 0)
                 end
             end
 
@@ -1063,18 +1062,20 @@ do
                         )
                     else
 
-                        local width = char_obj.w * char_obj.sx
-                        local height = char_obj.h * char_obj.sy
-
                         local quad = char_obj:get_quad()
-                        local x, y = char_obj:get_pos_draw_rec(tx, ty + self.__font_size - height, width, height)
+                        local x, y
+
+                        x = tx
+                        y = ty + self.__font_size
+                            - (char_obj.h) * char_obj.sy
 
                         if quad then
                             self.batches[char_obj.format]:setColor(unpack(char_obj.color))
-                            self.batches[char_obj.format]:add(quad, x, y, 0, char_obj.sx, char_obj.sy, char_obj.ox,
-                                char_obj.oy)
+                            self.batches[char_obj.format]:add(quad, x, y, 0, char_obj.sx, char_obj.sy, 0,
+                                0)
                         end
-                        -- char_obj:draw_rec(tx, ty + self.__font_size - height, width, height)
+
+                        --char_obj:draw(x, y)
                     end
 
                     tx = tx + char_obj:get_width()
