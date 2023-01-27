@@ -6,8 +6,8 @@ love.graphics.setBackgroundColor(0, 0, 0, 1)
 
 -- local scene = require("/test/game_test")
 -- local scene = require("/test/test_tile")
-local scene = require("/test/font_glyph_test")
--- local scene = require("/test/font_new")
+-- local scene = require("/test/font_glyph_test")
+local scene = require("/test/font_new")
 -- local scene = require("/test/test_gui")
 
 local t = 0.0

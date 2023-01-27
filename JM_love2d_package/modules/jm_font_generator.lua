@@ -380,7 +380,7 @@ function Font:load_characters(path, format, glyphs)
 end
 
 local function load_by_tff(name)
-    name = "VCR_OSD_MONO_1.ttf"
+    name = "PressStart2P.ttf"
 
     local render = love.font.newRasterizer(string.format("/data/font/%s", name), 64)
     local glyphs = "aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVxXyYzZ0123456789."
