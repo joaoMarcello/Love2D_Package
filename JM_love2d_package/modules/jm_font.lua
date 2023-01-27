@@ -52,14 +52,14 @@ do
         tab_size = 4
     })
 
-    -- Font.fonts[3] = Generator:new({
-    --     name = "consolas",
-    --     font_size = 10,
-    --     tab_size = 4,
-    --     glyphs = glyphs,
-    --     glyphs_bold = glyphs_bold,
-    --     glyphs_italic = glyphs_italic
-    -- })
+    Font.fonts[3] = Generator:new_by_ttf({
+        path = "/data/font/Retro Gaming.ttf",
+        dpi = 48,
+        name = "retro gaming",
+        font_size = 12,
+        tab_size = 4,
+    })
+
 
     Font.name2font = {}
     for _, font in pairs(Font.fonts) do

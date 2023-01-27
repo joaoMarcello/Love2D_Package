@@ -102,7 +102,7 @@ local Font = {
 }
 
 ---@overload fun(self: table, args: JM.AvailableFonts)
----@param args {name: JM.AvailableFonts, font_size: number, line_space: number, tab_size: number, character_space: number, color: JM.Color, glyphs:string, glyphs_bold:string, glyphs_italic:string, glyphs_bold_italic:string, regular_data: love.ImageData, bold_data:love.ImageData, italic_data:love.ImageData}
+---@param args {name: JM.AvailableFonts, font_size: number, line_space: number, tab_size: number, character_space: number, color: JM.Color, glyphs:string, glyphs_bold:string, glyphs_italic:string, glyphs_bold_italic:string, regular_data: love.ImageData, bold_data:love.ImageData, italic_data:love.ImageData, regular_quads:any, italic_quads:any, bold_quads:any}
 ---@return JM.Font.Font new_Font
 function Font:new(args)
     local obj = {}
@@ -115,7 +115,7 @@ function Font:new(args)
 end
 
 ---@overload fun(self: table, args: JM.AvailableFonts)
----@param args {name: JM.AvailableFonts, font_size: number, line_space: number, tab_size: number, character_space: number, color: JM.Color, glyphs:string, glyphs_bold:string, glyphs_italic:string, glyphs_bold_italic:string, regular_data: love.ImageData, bold_data:love.ImageData, italic_data:love.ImageData}
+---@param args {name: JM.AvailableFonts, font_size: number, line_space: number, tab_size: number, character_space: number, color: JM.Color, glyphs:string, glyphs_bold:string, glyphs_italic:string, glyphs_bold_italic:string, regular_data: love.ImageData, bold_data:love.ImageData, italic_data:love.ImageData, regular_quads:any, italic_quads:any, bold_quads:any}
 function Font:__constructor__(args)
     if type(args) == "string" then
         local temp_table = {}
@@ -162,7 +162,7 @@ function Font:__constructor__(args)
         self.__imgs[FontFormat.bold] = self.__imgs[FontFormat.normal]
     end
 
-    if not args.regular_data or args.italic_data then
+    if (not args.regular_data or args.italic_data) then
         self:load_characters(args.italic_data
             or string.format(dir, args.name, args.name .. "_italic"),
             FontFormat.italic, find_nicks(get_glyphs(args.glyphs_italic or args.glyphs)),
@@ -291,7 +291,7 @@ function Font:load_characters(path, format, glyphs, quads_pos)
         end
     )
 
-    if not success then return end
+    if not success or not path then return end
 
     local list = {} -- list of glyphs
     local mask_color = { 1, 1, 0, 1 }
@@ -425,6 +425,7 @@ function Font:load_characters(path, format, glyphs, quads_pos)
 end
 
 local function load_by_tff(name, path, dpi)
+    if not name or not path then return end
 
     ---@type love.Rasterizer
     local render
@@ -435,7 +436,7 @@ local function load_by_tff(name, path, dpi)
         return love.font.newRasterizer(path, dpi or 64)
     end)
 
-    if not success then return end
+    if not success or not path then return end
 
     local glyphs = "aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVxXyYzZ0123456789."
     glyphs = [[aAàÀáÁãÃâÂäÄeEéÉèÈêÊëËiIíÍìÌîÎïÏoOóÓòÒôÔõÕöÖuUúÚùÙûÛüÜbBcCçÇdDfFgGhHjJkKlLmMnNpPqQrRsStTvVwWxXyYzZ0123456789+-=/*%\#§@({[]})|_"'!?,.:;ªº°¹²³£¢¬¨~$<>&^`]]
@@ -518,8 +519,8 @@ local function load_by_tff(name, path, dpi)
             end
 
             quad_pos[glyph_s] = {
-                x = cur_x, y = cur_y,
-                w = glyphDataWidth, h = glyphDataHeight,
+                x = cur_x - 1, y = cur_y - 1,
+                w = glyphDataWidth + 2, h = glyphDataHeight + 2,
                 bottom = (posR_y >= 0 and posR_y <= data_h - 1 and posR_y)
                     or nil
             }
@@ -1370,10 +1371,21 @@ local Generator = {
         args.regular_data = imgData
         args.regular_quads = quads_pos
 
-        args.bold_data, glyphs, args.bold_quads = load_by_tff(args.name .. " bold", args.path_bold, args.dpi)
+        do
+            local data, gly, quads = load_by_tff(args.name .. " bold", args.path_bold, args.dpi)
 
-        args.italic_data, glyphs, args.italic_quads = load_by_tff(args.name .. " italic",
-            args.path_italic, args.dpi)
+            args.bold_data = data
+            args.bold_quads = quads
+        end
+
+        do
+            local italic_data, glyphs, quads = load_by_tff(
+                args.name .. " italic",
+                args.path_italic, args.dpi)
+
+            args.italic_data = italic_data
+            args.italic_quads = quads
+        end
 
         args.glyphs = glyphs
         return Font.new(Font, args)

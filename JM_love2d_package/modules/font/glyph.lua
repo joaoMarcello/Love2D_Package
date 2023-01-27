@@ -69,8 +69,8 @@ function Glyph:__constructor__(img, args)
 
     self:set_color2(1, 1, 1, 1)
 
-    self.ox = self.x and self.w / 2 * self.sx or 0
-    self.oy = self.y and self.h / 2 * self.sy or 0
+    -- self.ox = self.x and self.w / 2 * self.sx or 0
+    -- self.oy = self.y and self.h / 2 * self.sy or 0
 
     self.bounds = { left = 0, top = 0, right = love.graphics.getWidth(), bottom = love.graphics.getHeight() }
 
@@ -161,7 +161,7 @@ function Glyph:draw(x, y)
 
     self.x, self.y = x, y
 
-    Affectable.draw(self)
+    Affectable.draw(self, self.__glyph_draw__)
 end
 
 function Glyph:draw_rec(x, y, w, h)
