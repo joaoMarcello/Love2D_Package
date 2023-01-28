@@ -32,10 +32,10 @@ function Glyph:__constructor__(img, args)
     self.w = args.w
     self.h = args.h
 
-    self.qx = self.x
-    self.qy = self.y
-    self.qw = self.w
-    self.qh = self.h
+    -- self.qx = self.x
+    -- self.qy = self.y
+    -- self.qw = self.w
+    -- self.qh = self.h
 
     self.bbox_x = args.bbox_x or self.x
     self.bbox_w = args.bbox_w or self.w
@@ -70,6 +70,12 @@ function Glyph:__constructor__(img, args)
     else
         self.bottom = nil
         self.offset_y = nil
+    end
+
+    if self.x and self.w then
+        self.right = args.right or (self.x + self.w)
+        self.offset_x = args.right and (self.x + self.w - self.right) or 0
+        self.w = self.w - self.offset_x
     end
 
     ---@type JM.Anima

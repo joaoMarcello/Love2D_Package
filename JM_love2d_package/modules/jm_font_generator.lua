@@ -413,7 +413,7 @@ function Font:load_characters(path, format, glyphs, quads_pos)
             local quad = quads_pos[id]
 
             if id and quad then
-                local qx, qy, qw, qh, bottom = quad.x, quad.y, quad.w, quad.h, quad.bottom
+                local qx, qy, qw, qh, bottom, right = quad.x, quad.y, quad.w, quad.h, quad.bottom, quad.right
 
                 local glyph = Glyph:new(img,
                     { id = glyphs[cur_id],
@@ -422,6 +422,7 @@ function Font:load_characters(path, format, glyphs, quads_pos)
                         w = qw,
                         h = qh,
                         bottom = bottom or (qy + qh),
+                        right = right or nil,
                         format = format })
 
                 list[glyph.__id] = glyph
@@ -532,11 +533,17 @@ local function load_by_tff(name, path, dpi)
                 font_imgdata:setPixel(cur_x - 2, posR_y, 1, 0, 0, 1)
             end
 
+            local posBlue = math.floor(cur_x + bbw - (bbx > 0 and 0 or -bbx))
+            if posBlue >= 0 and posBlue <= data_w - 1 then
+                font_imgdata:setPixel(posBlue, cur_y - 2, 1, 0, 0, 1)
+            end
+
             quad_pos[glyph_s] = {
                 x = cur_x - 1, y = cur_y - 1,
                 w = glyphDataWidth + 2, h = glyphDataHeight + 2,
                 bottom = (posR_y >= 0 and posR_y <= data_h - 1 and posR_y)
-                    or nil
+                    or nil,
+                right = (posBlue >= 0 and posBlue <= data_w - 1 and posBlue) or nil
             }
 
             cur_x = cur_x + glyphDataWidth + 4
@@ -545,7 +552,7 @@ local function load_by_tff(name, path, dpi)
         end
     end
 
-    -- font_imgdata:encode("png", name:match(".*[^%.]") .. ".png")
+    font_imgdata:encode("png", name:match(".*[^%.]") .. ".png")
 
     return font_imgdata, glyphs, quad_pos
 end

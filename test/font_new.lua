@@ -95,7 +95,7 @@ end
 --     .. [["/]]
 
 -- local text4 = "< effect=flickering, speed = 1 >oi eu sou o goku"
-
+local temp
 local function draw(camera)
     -- A:set_scale()
     -- A:draw(32 * 15, 32 * 2)

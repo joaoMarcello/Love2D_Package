@@ -53,12 +53,22 @@ do
     })
 
     Font.fonts[3] = Generator:new_by_ttf({
-        path = "/data/font/Retro Gaming.ttf",
+        path = "/data/font/Garamond Premier Pro Regular.ttf",
+        -- path_bold = "/data/font/Cyrodiil Bold.otf",
+        path_italic = "/data/font/Garamond Premier Pro_italic.otf",
         dpi = 64,
-        name = "retro gaming",
+        name = "garamond premier",
         font_size = 12,
-        tab_size = 4,
+        tab_size = 4
     })
+
+    -- Font.fonts[3] = Generator:new_by_ttf({
+    --     path = "/data/font/Retro Gaming.ttf",
+    --     dpi = 64,
+    --     name = "retro gaming",
+    --     font_size = 12,
+    --     tab_size = 4,
+    -- })
 
 
     Font.name2font = {}
@@ -68,7 +78,7 @@ do
 end
 
 ---@type JM.Font.Font
-Font.current = Font.fonts[2]
+Font.current = Font.fonts[3]
 Font.current:set_format_mode(Font.current.format_options.normal)
 
 

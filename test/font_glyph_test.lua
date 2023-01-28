@@ -28,9 +28,9 @@ local bigImgData
 
 Game:implements({
     load = function()
-        render = love.font.newRasterizer('/data/font/Cyrodiil.otf', 64)
+        render = love.font.newRasterizer('/data/font/Garamond Premier Pro_italic.otf', 64)
 
-        glyph = render:getGlyphData("+")
+        glyph = render:getGlyphData("j")
         width, height = glyph:getDimensions()
 
         imgData = love.image.newImageData(width, height, "rgba8", glyph:getString():gsub("(.)(.)", "%1%1%1%2"))
@@ -45,8 +45,8 @@ Game:implements({
         bigImgData = love.image.newImageData(229 * width * 1.2, height + 20, "rgba8")
         local ww, hh = bigImgData:getDimensions()
 
-        my_glyph = Glyph:new(img, { id = "A", x = 0, y = 0, w = width, h = height })
-        my_glyph:apply_effect("clockWise")
+        my_glyph = Glyph:new(img, { id = "A", x = 0, y = 0, w = width, h = height, right = width + bx })
+        my_glyph:apply_effect("stretchVertical")
         -- pack.FontGenerator:new_by_ttf()
     end,
 
@@ -75,16 +75,18 @@ Game:implements({
 
 
         love.graphics.setColor(1, 0, 0, 1)
-        love.graphics.rectangle("line", my_glyph.x, my_glyph.y, my_glyph.w * my_glyph.sx, my_glyph.h * my_glyph.sy)
+        love.graphics.rectangle("line", my_glyph.x, my_glyph.y, (my_glyph.w - bx * 2) * my_glyph.sx,
+            my_glyph.h * my_glyph.sy)
         love.graphics.rectangle("line", 32 * 3, 32 * 2, bw, bh)
 
         local b1, b2 = glyph:getBearing()
         Font:print("bear não " .. b1 .. "  " .. b2, 32 * 1, 32 * 7)
-        Font:print("bbox --" .. bx .. "  " .. by, 32 * 1, 32 * 7 + 22)
-        Font:print("Size. Aaé não à bboax\npP <color><effect=wave><effect=ghost>1+3=(7)</effect></color> 'astha' " ..
+        Font:print("bbox: " .. bx .. "  " .. by, 32 * 1, 32 * 7 + 22)
+        Font:printx("Size. <italic>AVoAoaJé</italic> não à bboax\npP <color><effect=wave><effect=ghost>1+3=(7)</effect></color> 'astha' "
+            ..
             bw .. "  " .. bh,
             32 * 1, 32 * 9
-        -- , "left", math.huge
+            , "left", math.huge
         )
         love.graphics.print("\65", 32 * 10, 32 * 1)
     end
