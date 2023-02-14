@@ -9,19 +9,22 @@ do
     ---@type JM.Font.Generator
     local Generator = require(path:gsub("jm_font", "jm_font_generator"))
 
-    local glyphs = [[aAàÀáÁãÃâÂäÄeEéÉèÈêÊëËiIíÍìÌîÎïÏoOóÓòÒôÔõÕöÖuUúÚùÙûÛüÜbBcCçÇdDfFgGhHjJkKlLmMnNpPqQrRsStTvVwWxXyYzZ0123456789+-=/*%\#§@({[]})|_"'!?,.:;ªº°¹²³£¢<>¨¬~$&^--dots----trav--]]
+    local glyphs =
+    [[aAàÀáÁãÃâÂäÄeEéÉèÈêÊëËiIíÍìÌîÎïÏoOóÓòÒôÔõÕöÖuUúÚùÙûÛüÜbBcCçÇdDfFgGhHjJkKlLmMnNpPqQrRsStTvVwWxXyYzZ0123456789+-=/*%\#§@({[]})|_"'!?,.:;ªº°¹²³£¢<>¨¬~$&^--dots----trav--]]
 
-    local glyphs_bold = [[aAàÀáÁãÃâÂäÄeEéÉèÈêÊëËiIíÍìÌîÎïÏoOóÓòÒôÔõÕöÖuUúÚùÙûÛüÜbBcCçÇdDfFgGhHjJkKlLmMnNpPqQrRsStTvVwWxXyYzZ0123456789+-=/*%\#§@({[]})|_"'!?,.:;ªº°¹²³£¢¬¨~$<>&]]
+    local glyphs_bold =
+    [[aAàÀáÁãÃâÂäÄeEéÉèÈêÊëËiIíÍìÌîÎïÏoOóÓòÒôÔõÕöÖuUúÚùÙûÛüÜbBcCçÇdDfFgGhHjJkKlLmMnNpPqQrRsStTvVwWxXyYzZ0123456789+-=/*%\#§@({[]})|_"'!?,.:;ªº°¹²³£¢¬¨~$<>&]]
 
-    local glyphs_italic = [[aAàÀáÁãÃâÂäÄeEéÉèÈêÊëËiIíÍìÌîÎïÏoOóÓòÒôÔõÕöÖuUúÚùÙûÛüÜbBcCçÇdDfFgGhHjJkKlLmMnNpPqQrRsStTvVwWxXyYzZ0123456789+-=/*%\#§@({[]})|_"'!?,.:;ªº°¹²³£¢¬¨<>&$~--heart----dots--]]
+    local glyphs_italic =
+    [[aAàÀáÁãÃâÂäÄeEéÉèÈêÊëËiIíÍìÌîÎïÏoOóÓòÒôÔõÕöÖuUúÚùÙûÛüÜbBcCçÇdDfFgGhHjJkKlLmMnNpPqQrRsStTvVwWxXyYzZ0123456789+-=/*%\#§@({[]})|_"'!?,.:;ªº°¹²³£¢¬¨<>&$~--heart----dots--]]
 
 
-    -- Font.fonts[1] = Generator:new({
-    --     name = "komika text",
-    --     font_size = 12,
-    --     tab_size = 4,
-    --     glyphs = glyphs
-    -- })
+    Font.fonts[1] = Generator:new({
+        name = "komika text",
+        font_size = 12,
+        tab_size = 4,
+        glyphs = glyphs
+    })
 
     -- Font.fonts[2] = Generator:new({
     --     name = "book antiqua",
@@ -31,16 +34,16 @@ do
     -- })
 
 
-    Font.fonts[1] = Generator:new_by_ttf({
-        path = "/data/font/Komika Text Regular.ttf",
-        path_bold = "/data/font/Komika Text Bold.ttf",
-        path_italic = "/data/font/Komika Text Italic.ttf",
-        -- path_bold_italic = "/data/font/Garamond Premier Pro_bold_italic.otf",
-        dpi = 64,
-        name = "komika text 2",
-        font_size = 12,
-        tab_size = 4
-    })
+    -- Font.fonts[1] = Generator:new_by_ttf({
+    --     path = "/data/font/Komika Text Regular.ttf",
+    --     path_bold = "/data/font/Komika Text Bold.ttf",
+    --     path_italic = "/data/font/Komika Text Italic.ttf",
+    --     -- path_bold_italic = "/data/font/Garamond Premier Pro_bold_italic.otf",
+    --     dpi = 64,
+    --     name = "komika text 2",
+    --     font_size = 12,
+    --     tab_size = 4
+    -- })
 
     Font.fonts[2] = Generator:new_by_ttf({
         path = "/data/font/Cyrodiil.otf",
@@ -78,7 +81,7 @@ do
 end
 
 ---@type JM.Font.Font
-Font.current = Font.fonts[3]
+Font.current = Font.fonts[1]
 Font.current:set_format_mode(Font.current.format_options.normal)
 
 

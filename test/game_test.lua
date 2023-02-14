@@ -775,7 +775,7 @@ Game:implements(
                 rec.y = round(rbody.y)
 
                 current_animation:update(dt)
-            end
+            end -- END UPDATE PLAYER
 
             components[rec] = true
 
